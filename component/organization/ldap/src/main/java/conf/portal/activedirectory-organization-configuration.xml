@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright (C) 2009 eXo Platform SAS.
+
+    This is free software; you can redistribute it and/or modify it
+    under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation; either version 2.1 of
+    the License, or (at your option) any later version.
+
+    This software is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this software; if not, write to the Free
+    Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+    02110-1301 USA, or see the FSF site: http://www.fsf.org.
+
+-->
+<configuration>
+   <component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplaform.org/xml/ns/kernel_1_0.xsd http://www.exoplaform.org/xml/ns/kernel_1_0.xsd"
+      xmlns="http://www.exoplaform.org/xml/ns/kernel_1_0.xsd">
+      <key>org.exoplatform.services.organization.OrganizationService</key>
+      <type>org.exoplatform.services.organization.ldap.OrganizationServiceImpl</type>
+      <component-plugins>
+         <component-plugin>
+            <name>init.service.listener</name>
+            <set-method>addListenerPlugin</set-method>
+            <type>org.exoplatform.services.organization.ldap.OrganizationLdapInitializer</type>
+            <description>this listener populate organization ldap service create default dn</description>
+         </component-plugin>
+      </component-plugins>
+      <init-params>
+         <value-param>
+            <name>ldap.userDN.key</name>
+            <description>The key used to compose user DN</description>
+            <value>cn</value>
+         </value-param>
+         <value-param>
+            <name>ldap.groupDN.key</name>
+            <description>The key used to compose group DN</description>
+            <value>ou</value>
+         </value-param>
+         <object-param>
+            <name>ldap.attribute.mapping</name>
+            <description>ldap attribute mapping</description>
+            <object type="org.exoplatform.services.organization.ldap.LDAPAttributeMapping">
+               <field name="userLDAPClasses">
+                  <string>top,person,organizationalPerson,user</string>
+               </field>
+               <field name="profileLDAPClasses">
+                  <string>top,organizationalPerson</string>
+               </field>
+               <field name="groupLDAPClasses">
+                  <string>top,organizationalUnit</string>
+               </field>
+               <field name="membershipTypeLDAPClasses">
+                  <string>top,group</string>
+               </field>
+               <field name="membershipLDAPClasses">
+                  <string>top,group</string>
+               </field>
+               <field name="baseURL">
+                  <string>DC=exoplatform,DC=org</string>
+               </field>
+               <field name="groupsURL">
+                  <string>OU=groups,OU=portal,DC=exoplatform,DC=org</string>
+               </field>
+               <field name="membershipTypeURL">
+                  <string>OU=memberships,OU=portal,DC=exoplatform,DC=org</string>
+               </field>
+               <field name="userURL">
+                  <string>OU=users,OU=portal,DC=exoplatform,DC=org</string>
+               </field>
+               <field name="profileURL">
+                  <string>OU=profiles,OU=portal,DC=exoplatform,DC=org</string>
+               </field>
+               <field name="userUsernameAttr">
+                  <string>sAMAccountName</string>
+               </field>
+               <field name="userPassword">
+                  <string>unicodePwd</string>
+               </field>
+               <!--unicodePwd-->
+               <field name="userFirstNameAttr">
+                  <string>givenName</string>
+               </field>
+               <field name="userLastNameAttr">
+                  <string>sn</string>
+               </field>
+               <field name="userDisplayNameAttr">
+                  <string>displayName</string>
+               </field>
+               <field name="userMailAttr">
+                  <string>mail</string>
+               </field>
+               <field name="userObjectClassFilter">
+                  <string>objectClass=user</string>
+               </field>
+               <field name="membershipTypeMemberValue">
+                  <string>member</string>
+               </field>
+               <field name="membershipTypeRoleNameAttr">
+                  <string>cn</string>
+               </field>
+               <field name="membershipTypeNameAttr">
+                  <string>cn</string>
+               </field>
+               <field name="membershipTypeObjectClassFilter">
+                  <string>objectClass=group</string>
+               </field>
+               <field name="membershiptypeObjectClass">
+                  <string>group</string>
+               </field>
+               <field name="groupNameAttr">
+                  <string>ou</string>
+               </field>
+               <field name="groupLabelAttr">
+                  <string>l</string>
+               </field>
+               <field name="groupObjectClass">
+                  <string>organizationalUnit</string>
+               </field>
+               <field name="groupObjectClassFilter">
+                  <string>objectClass=organizationalUnit</string>
+               </field>
+               <field name="membershipObjectClass">
+                  <string>group</string>
+               </field>
+               <field name="membershipObjectClassFilter">
+                  <string>objectClass=group</string>
+               </field>
+               <field name="ldapCreatedTimeStampAttr">
+                  <string>createdTimeStamp</string>
+               </field>
+               <field name="ldapModifiedTimeStampAttr">
+                  <string>modifiedTimeStamp</string>
+               </field>
+               <field name="ldapDescriptionAttr">
+                  <string>description</string>
+               </field>
+            </object>
+         </object-param>
+      </init-params>
+   </component>
+   <external-component-plugins>
+      <target-component>org.exoplatform.services.database.HibernateService</target-component>
+      <component-plugin>
+         <name>add.hibernate.mapping</name>
+         <set-method>addPlugin</set-method>
+         <type>org.exoplatform.services.database.impl.AddHibernateMappingPlugin</type>
+         <init-params>
+            <values-param>
+               <name>hibernate.mapping</name>
+               <value>org/exoplatform/services/organization/impl/UserProfileData.hbm.xml</value>
+            </values-param>
+         </init-params>
+      </component-plugin>
+   </external-component-plugins>
+</configuration>
