@@ -19,8 +19,7 @@
 package org.exoplatform.services.security.web;
 
 import org.exoplatform.container.ExoContainer;
-import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.container.RootContainer;
+import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationRegistry;
@@ -73,39 +72,12 @@ public class ConversationStateListener implements HttpSessionListener
    }
 
    /**
-    * @return actual ExoContainer instance.
-    * @deprecated use {@link #getContainer(ServletContext)} instead
-    */
-   protected ExoContainer getContainer()
-   {
-      ExoContainer container = ExoContainerContext.getCurrentContainer();
-      if (container instanceof RootContainer)
-      {
-         container = RootContainer.getInstance().getPortalContainer("portal");
-      }
-      return container;
-   }
-
-   /**
     * @param sctx {@link ServletContext}
     * @return actual ExoContainer instance
     */
    protected ExoContainer getContainer(ServletContext sctx)
    {
-      ExoContainer container = ExoContainerContext.getCurrentContainer();
-      if (container instanceof RootContainer)
-      {
-         String containerName = null;
-         // check attribute in servlet context first
-         if (sctx.getAttribute(SetCurrentIdentityFilter.PORTAL_CONTAINER_NAME) != null)
-            containerName = (String)sctx.getAttribute(SetCurrentIdentityFilter.PORTAL_CONTAINER_NAME);
-
-         // if not set then use default name.
-         if (containerName == null)
-            containerName = "portal";
-         container = RootContainer.getInstance().getPortalContainer(containerName);
-      }
-      return container;
+      return PortalContainer.getInstance(sctx);
    }
 
 }

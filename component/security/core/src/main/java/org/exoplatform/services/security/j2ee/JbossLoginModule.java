@@ -119,7 +119,7 @@ public class JbossLoginModule extends DefaultLoginModule
                //
                List allPrincipals =
                   (List)jbossServer.invoke(securityManagerName, "getAuthenticationCachePrincipals",
-                     new Object[]{"exo-domain"}, new String[]{String.class.getName()});
+                     new Object[]{realmName}, new String[]{String.class.getName()});
 
                // Make a copy to avoid some concurrent mods
                allPrincipals = new ArrayList(allPrincipals);
@@ -139,7 +139,7 @@ public class JbossLoginModule extends DefaultLoginModule
                // Perform invalidation
                if (key != null)
                {
-                  jbossServer.invoke(securityManagerName, "flushAuthenticationCache", new Object[]{"exo-domain", key},
+                  jbossServer.invoke(securityManagerName, "flushAuthenticationCache", new Object[]{realmName, key},
                      new String[]{String.class.getName(), Principal.class.getName()});
                   log.debug("Performed JBoss security manager cache eviction for user " + userName + " with principal "
                      + key);

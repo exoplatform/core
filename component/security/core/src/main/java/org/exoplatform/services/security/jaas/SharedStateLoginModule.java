@@ -18,9 +18,6 @@
  */
 package org.exoplatform.services.security.jaas;
 
-import org.exoplatform.container.ExoContainer;
-import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.container.RootContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.Authenticator;
@@ -29,51 +26,19 @@ import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.PasswordCredential;
 import org.exoplatform.services.security.UsernameCredential;
 
-import java.util.Map;
-
-import javax.security.auth.Subject;
-import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public final class SharedStateLoginModule implements LoginModule
+public final class SharedStateLoginModule extends AbstractLoginModule
 {
-
-   /**
-    * The name of the option to use in order to specify the name of the portal
-    * container
-    */
-   private static final String OPTION_PORTAL_CONTAINER_NAME = "portalContainerName";
-
-   /**
-    * The default name of the portal container
-    */
-   private static final String DEFAULT_PORTAL_CONTAINER_NAME = "portal";
 
    /**
     * Logger.
     */
    private static final Log LOG = ExoLogger.getLogger(SharedStateLoginModule.class.getName());
-
-   /**
-    * The name of the portal container.
-    */
-   private String portalContainerName;
-
-   /**
-    * Shared state.
-    */
-   @SuppressWarnings("unchecked")
-   private Map sharedState;
-
-   /**
-    * Subject.
-    */
-   private Subject subject;
 
    /**
     * {@inheritDoc}
@@ -143,16 +108,12 @@ public final class SharedStateLoginModule implements LoginModule
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
-   public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options)
+   public void afterInitialize()
    {
       if (LOG.isDebugEnabled())
       {
          LOG.debug("in initialize");
       }
-      this.sharedState = sharedState;
-      this.portalContainerName = getPortalContainerName(options);
-      this.subject = subject;
    }
 
    /**
@@ -168,38 +129,11 @@ public final class SharedStateLoginModule implements LoginModule
    }
 
    /**
-    * @return actual ExoContainer instance.
+    * {@inheritDoc}
     */
-   protected ExoContainer getContainer() throws Exception
+   @Override
+   protected Log getLogger()
    {
-      ExoContainer container = ExoContainerContext.getCurrentContainer();
-      if (container instanceof RootContainer)
-      {
-         container = RootContainer.getInstance().getPortalContainer(portalContainerName);
-      }
-      return container;
-   }
-
-   /**
-    * Return portal container name if it provide with options,
-    * DEFAULT_PORTAL_CONTAINER_NAME otherwise.
-    * 
-    * @param options
-    * @return
-    */
-   @SuppressWarnings("unchecked")
-   private String getPortalContainerName(Map options)
-   {
-      if (options != null)
-      {
-         String optionValue = (String)options.get(OPTION_PORTAL_CONTAINER_NAME);
-         if (optionValue != null && optionValue.length() > 0)
-         {
-            if (LOG.isDebugEnabled())
-               LOG.debug("The IdentitySetLoginModule will use the portal container " + optionValue);
-            return optionValue;
-         }
-      }
-      return DEFAULT_PORTAL_CONTAINER_NAME;
+      return LOG;
    }
 }

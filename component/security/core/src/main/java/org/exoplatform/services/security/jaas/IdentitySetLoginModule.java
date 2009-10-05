@@ -18,9 +18,6 @@
  */
 package org.exoplatform.services.security.jaas;
 
-import org.exoplatform.container.ExoContainer;
-import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.container.RootContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.Authenticator;
@@ -32,7 +29,6 @@ import java.util.Map;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
 
 /**
  * This LoginModule should be used after customer LoginModule, which makes
@@ -44,18 +40,8 @@ import javax.security.auth.spi.LoginModule;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class IdentitySetLoginModule implements LoginModule
+public class IdentitySetLoginModule extends AbstractLoginModule
 {
-
-   /**
-    * The name of the option to use in order to specify the name of the portal container
-    */
-   private static final String OPTION_PORTAL_CONTAINER_NAME = "portalContainerName";
-
-   /**
-    * The default name of the portal container
-    */
-   private static final String DEFAULT_PORTAL_CONTAINER_NAME = "portal";
 
    /**
     * Login.
@@ -63,26 +49,10 @@ public class IdentitySetLoginModule implements LoginModule
    protected Log log = ExoLogger.getLogger("core.IdentitySetLoginModule");
 
    /**
-    * @see {@link Subject} .
-    */
-   protected Subject subject;
-
-   /**
-    * Shared state.
-    */
-   @SuppressWarnings("unchecked")
-   protected Map sharedState;
-
-   /**
     * Is allowed for one user login again if he already login. If must set in LM
     * options.
     */
-   protected boolean singleLogin = false;
-
-   /**
-    * The name of the portal container.
-    */
-   private String portalContainerName;
+   protected boolean singleLogin;
 
    /**
     * {@inheritDoc}
@@ -138,23 +108,15 @@ public class IdentitySetLoginModule implements LoginModule
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
-   public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options)
+   public void afterInitialize()
    {
       if (log.isDebugEnabled())
       {
          log.debug("in initialize");
       }
 
-      this.subject = subject;
-      this.sharedState = sharedState;
-      this.portalContainerName = getPortalContainerName(options);
-
       String sl = (String)options.get("singleLogin");
-      if (sl != null && (sl.equalsIgnoreCase("yes") || sl.equalsIgnoreCase("true")))
-      {
-         this.singleLogin = true;
-      }
+      this.singleLogin = (sl != null && (sl.equalsIgnoreCase("yes") || sl.equalsIgnoreCase("true")));
    }
 
    /**
@@ -182,32 +144,11 @@ public class IdentitySetLoginModule implements LoginModule
    }
 
    /**
-    * @return actual ExoContainer instance.
+    * {@inheritDoc}
     */
-   protected ExoContainer getContainer() throws Exception
+   @Override
+   protected Log getLogger()
    {
-      // TODO set correct current container
-      ExoContainer container = ExoContainerContext.getCurrentContainer();
-      if (container instanceof RootContainer)
-      {
-         container = RootContainer.getInstance().getPortalContainer(portalContainerName);
-      }
-      return container;
-   }
-
-   @SuppressWarnings("unchecked")
-   private String getPortalContainerName(Map options)
-   {
-      if (options != null)
-      {
-         String optionValue = (String)options.get(OPTION_PORTAL_CONTAINER_NAME);
-         if (optionValue != null && optionValue.length() > 0)
-         {
-            if (log.isDebugEnabled())
-               log.debug("The IdentitySetLoginModule will use the portal container " + optionValue);
-            return optionValue;
-         }
-      }
-      return DEFAULT_PORTAL_CONTAINER_NAME;
+      return log;
    }
 }

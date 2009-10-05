@@ -20,6 +20,7 @@ package org.exoplatform.services.security.web;
 
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.container.web.AbstractFilter;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationRegistry;
@@ -30,9 +31,7 @@ import org.exoplatform.services.security.StateKey;
 
 import java.io.IOException;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -47,51 +46,13 @@ import javax.servlet.http.HttpSession;
  * @version $Id: SimpleSessionFactoryInitializedFilter.java 7163 2006-07-19
  *          07:30:39Z peterit $
  */
-public class SetCurrentIdentityFilter implements Filter
+public class SetCurrentIdentityFilter extends AbstractFilter
 {
-
-   /**
-    * Under this name can be set portal container name, as filter
-    * <tt>init-param</tt> or application <tt>context-param</tt>. If both of
-    * parameters not set then application context-name used as container name.
-    */
-   public static final String PORTAL_CONTAINER_NAME = "portalContainerName";
 
    /**
     * Logger.
     */
    private static Log log = ExoLogger.getLogger("core.security.SetCurrentIdentityFilter");
-
-   /**
-    * Portal Container name.
-    */
-   private String portalContainerName;
-
-   /**
-    * {@inheritDoc}
-    */
-   public void init(FilterConfig config) throws ServletException
-   {
-      // It is not possible to use application context name everywhere cause to
-      // problem with access to resources (CSS). Try to find container name in
-      // filter 'init-param' or in application 'context-param'. And only if both of
-      // parameters are not specified then use application context name.
-
-      // Check filter init-param first
-      portalContainerName = config.getInitParameter(PORTAL_CONTAINER_NAME);
-
-      // check application context-param
-      if (portalContainerName == null)
-         portalContainerName = config.getServletContext().getInitParameter(PORTAL_CONTAINER_NAME);
-
-      // if nothing set then use application context name, 'display-name' in
-      // web.xml
-      if (portalContainerName == null)
-         portalContainerName = config.getServletContext().getServletContextName();
-
-      // save container name as attribute
-      config.getServletContext().setAttribute(PORTAL_CONTAINER_NAME, portalContainerName);
-   }
 
    /**
     * Set current {@link ConversationState}, if it is not registered yet then
@@ -102,16 +63,7 @@ public class SetCurrentIdentityFilter implements Filter
    {
 
       HttpServletRequest httpRequest = (HttpServletRequest)request;
-      ExoContainer container = ExoContainerContext.getContainerByName(portalContainerName);
-      if (container == null)
-      {
-         if (log.isDebugEnabled())
-         {
-            log.debug("Container " + portalContainerName + " not found.");
-         }
-
-         container = ExoContainerContext.getTopContainer();
-      }
+      ExoContainer container = getContainer();
 
       try
       {

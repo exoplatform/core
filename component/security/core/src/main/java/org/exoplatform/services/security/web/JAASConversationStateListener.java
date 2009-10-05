@@ -18,6 +18,8 @@
  */
 package org.exoplatform.services.security.web;
 
+import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.security.ConversationRegistry;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.StateKey;
@@ -44,9 +46,9 @@ public class JAASConversationStateListener extends ConversationStateListener
       StateKey stateKey = new HttpSessionStateKey(httpSession);
       try
       {
+         ExoContainer container = getContainer(httpSession.getServletContext());
          ConversationRegistry conversationRegistry =
-            (ConversationRegistry)getContainer(httpSession.getServletContext()).getComponentInstanceOfType(
-               ConversationRegistry.class);
+            (ConversationRegistry)container.getComponentInstanceOfType(ConversationRegistry.class);
 
          ConversationState conversationState = conversationRegistry.unregister(stateKey);
 
@@ -57,7 +59,10 @@ public class JAASConversationStateListener extends ConversationStateListener
             if (conversationState.getAttribute(ConversationState.SUBJECT) != null)
             {
                Subject subject = (Subject)conversationState.getAttribute(ConversationState.SUBJECT);
-               LoginContext ctx = new LoginContext("exo-domain", subject);
+               String realmName =
+                  container instanceof PortalContainer ? ((PortalContainer)container).getRealmName()
+                     : PortalContainer.DEFAULT_REALM_NAME;
+               LoginContext ctx = new LoginContext(realmName, subject);
                ctx.logout();
             }
             else

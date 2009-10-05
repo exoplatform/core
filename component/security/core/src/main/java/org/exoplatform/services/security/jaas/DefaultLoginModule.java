@@ -18,9 +18,6 @@
  */
 package org.exoplatform.services.security.jaas;
 
-import org.exoplatform.container.ExoContainer;
-import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.container.RootContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.Authenticator;
@@ -30,15 +27,10 @@ import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.services.security.PasswordCredential;
 import org.exoplatform.services.security.UsernameCredential;
 
-import java.util.Map;
-
-import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
 
 /**
  * Created by The eXo Platform SAS .
@@ -47,19 +39,8 @@ import javax.security.auth.spi.LoginModule;
  * @version $Id: $
  */
 
-public class DefaultLoginModule implements LoginModule
+public class DefaultLoginModule extends AbstractLoginModule
 {
-
-   /**
-    * The name of the option to use in order to specify the name of the portal
-    * container
-    */
-   private static final String OPTION_PORTAL_CONTAINER_NAME = "portalContainerName";
-
-   /**
-    * The default name of the portal container
-    */
-   private static final String DEFAULT_PORTAL_CONTAINER_NAME = "portal";
 
    /**
     * Logger.
@@ -67,36 +48,15 @@ public class DefaultLoginModule implements LoginModule
    protected Log log = ExoLogger.getLogger("core.DefaultLoginModule");
 
    /**
-    * @see {@link Subject} .
-    */
-   protected Subject subject;
-
-   /**
-    * @see {@link CallbackHandler}
-    */
-   private CallbackHandler callbackHandler;
-
-   /**
     * encapsulates user's principals such as name, groups, etc .
     */
    protected Identity identity;
 
    /**
-    * Shared state.
+    * Is allowed for one user login again if he already login.
+    * If must set in LM options.
     */
-   @SuppressWarnings("unchecked")
-   protected Map sharedState;
-
-   /**
-    * The name of the portal container.
-    */
-   private String portalContainerName;
-
-   /**
-    * Is allowed for one user login again if he already login. If must set in LM
-    * options.
-    */
-   protected boolean singleLogin = false;
+   protected boolean singleLogin;
 
    /**
     * Default constructor.
@@ -106,21 +66,12 @@ public class DefaultLoginModule implements LoginModule
    }
 
    /**
-    * {@inheritDoc}
+    * {@inheritDoc} 
     */
-   @SuppressWarnings("unchecked")
-   public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options)
+   public void afterInitialize()
    {
-      this.subject = subject;
-      this.callbackHandler = callbackHandler;
-      this.sharedState = sharedState;
-      this.portalContainerName = getPortalContainerName(options);
-
       String sl = (String)options.get("singleLogin");
-      if (sl != null && (sl.equalsIgnoreCase("yes") || sl.equalsIgnoreCase("true")))
-      {
-         this.singleLogin = true;
-      }
+      this.singleLogin = (sl != null && (sl.equalsIgnoreCase("yes") || sl.equalsIgnoreCase("true")));
    }
 
    /**
@@ -228,38 +179,11 @@ public class DefaultLoginModule implements LoginModule
    }
 
    /**
-    * @return actual ExoContainer instance.
+    * {@inheritDoc}
     */
-   protected ExoContainer getContainer()
+   @Override
+   protected Log getLogger()
    {
-      ExoContainer container = ExoContainerContext.getCurrentContainer();
-      if (container instanceof RootContainer)
-      {
-         container = RootContainer.getInstance().getPortalContainer(portalContainerName);
-      }
-      return container;
-   }
-
-   /**
-    * Return portal container name if it provide with options,
-    * DEFAULT_PORTAL_CONTAINER_NAME otherwise.
-    * 
-    * @param options
-    * @return
-    */
-   @SuppressWarnings("unchecked")
-   private String getPortalContainerName(Map options)
-   {
-      if (options != null)
-      {
-         String optionValue = (String)options.get(OPTION_PORTAL_CONTAINER_NAME);
-         if (optionValue != null && optionValue.length() > 0)
-         {
-            if (log.isDebugEnabled())
-               log.debug("The DefaultLoginModule will use the portal container " + optionValue);
-            return optionValue;
-         }
-      }
-      return DEFAULT_PORTAL_CONTAINER_NAME;
+      return log;
    }
 }
