@@ -38,8 +38,7 @@
       <exo.product.name>exo-core</exo.product.name>
       <exo.product.specification>2.3</exo.product.specification>
       
-      <org.exoplatform.kernel.version>2.2.0-Beta01</org.exoplatform.kernel.version>
-      
+      <org.exoplatform.kernel.version>2.2.0-SNAPSHOT</org.exoplatform.kernel.version>
       <exo.test.includes>*Test*</exo.test.includes>
    </properties>
 
@@ -393,5 +392,41 @@
             </includes>
          </testResource>
       </testResources>
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skip>${exo.test.skip}</skip>
+          <useFile>${exo.test.use.file}</useFile>
+          <forkMode>always</forkMode>
+          <testFailureIgnore>${exo.test.failure.ignore}</testFailureIgnore>
+          <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
+          <includes>
+            <include>**/${exo.test.includes}.java</include>
+          </includes>
+          <excludes>
+            <exclude>**/*$*</exclude>
+            <exclude>**/DBCreatorTest.java</exclude>
+            <exclude>**/TestLDAPService.java</exclude>
+            <exclude>**/TestNovellLDAPAPI.java</exclude>
+            <exclude>**/TestStandardLDAPAPI.java</exclude>
+            <!-- commented to avoid fail tests LDAP organization service -->
+            <exclude>**/TestOrganizationService.java</exclude>
+            
+            <exclude>**/TestPipe.java</exclude>
+	    <exclude>**/TestTidy.java</exclude>
+          </excludes>
+          <systemProperties>
+            <property>
+              <name>emma.coverage.out.file</name>
+              <value>target/emma/coverage.ec</value>
+            </property>
+          </systemProperties>
+        </configuration>
+      </plugin>
+</plugins>
+
    </build>
 </project>
