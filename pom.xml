@@ -398,14 +398,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <skip>${exo.test.skip}</skip>
-          <useFile>${exo.test.use.file}</useFile>
           <forkMode>always</forkMode>
-          <testFailureIgnore>${exo.test.failure.ignore}</testFailureIgnore>
-          <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
-          <includes>
-            <include>**/${exo.test.includes}.java</include>
-          </includes>
           <excludes>
             <exclude>**/*$*</exclude>
             <exclude>**/DBCreatorTest.java</exclude>
@@ -418,15 +411,15 @@
             <exclude>**/TestPipe.java</exclude>
 	    <exclude>**/TestTidy.java</exclude>
           </excludes>
-          <systemProperties>
+          <!-- systemProperties>
             <property>
               <name>emma.coverage.out.file</name>
               <value>target/emma/coverage.ec</value>
             </property>
-          </systemProperties>
+          </systemProperties -->
         </configuration>
       </plugin>
-</plugins>
+   </plugins>
 
    </build>
 </project>
