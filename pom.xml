@@ -59,6 +59,7 @@
       <module>component/xml-processing</module>
       <module>component/script/groovy</module>
       <module>component/web/css</module>
+      <module>packaging/module</module>
    </modules>
 
    <dependencyManagement>
