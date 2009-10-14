@@ -93,6 +93,7 @@ public abstract class AbstractLoginModule implements LoginModule
       this.options = options;
       this.portalContainerName = getPortalContainerName(options);
       this.realmName = getRealmName(options);
+      afterInitialize();
    }
 
    /**
