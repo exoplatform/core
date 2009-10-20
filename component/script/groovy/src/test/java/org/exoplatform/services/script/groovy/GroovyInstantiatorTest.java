@@ -43,7 +43,7 @@ public class GroovyInstantiatorTest extends TestCase
    @Override
    public void setUp() throws Exception
    {
-      StandaloneContainer.setConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
+      StandaloneContainer.setConfigurationPath("src/test/resources/conf/standalone/test-configuration.xml");
       ExoContainer container = StandaloneContainer.getInstance();
       groovyScriptInstantiator =
          (GroovyScriptInstantiator)container.getComponentInstance(GroovyScriptInstantiator.class);
