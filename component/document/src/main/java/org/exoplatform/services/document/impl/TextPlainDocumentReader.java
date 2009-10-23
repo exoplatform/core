@@ -61,13 +61,13 @@ public class TextPlainDocumentReader extends BaseDocumentReader
    }
 
    /**
-    * Get the text/plain mime type.
+    * Get the "text/plain","script/groovy","application/x-groovy","application/x-javascript","application/javascript","text/javascript" mime types.
     * 
-    * @return The text/plain mime type.
+    * @return The "text/plain","script/groovy","application/x-groovy","application/x-javascript","application/javascript","text/javascript" mime type.
     */
    public String[] getMimeTypes()
    {
-      return new String[]{"text/plain"};
+      return new String[]{"text/plain","script/groovy","application/x-groovy","application/x-javascript","application/javascript","text/javascript"};
    }
 
    /**
