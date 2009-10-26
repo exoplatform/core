@@ -49,16 +49,16 @@
    </scm>
 
    <modules>
-      <module>component/security/core</module>
-      <module>component/database</module>
-      <module>component/document</module>
-      <module>component/ldap</module>
-      <module>component/organization/api</module>
-      <module>component/organization/jdbc</module>
-      <module>component/organization/ldap</module>
-      <module>component/xml-processing</module>
-      <module>component/script/groovy</module>
-      <module>component/web/css</module>
+      <module>exo.core.component.security.core</module>
+      <module>exo.core.component.database</module>
+      <module>exo.core.component.document</module>
+      <module>exo.core.component.ldap</module>
+      <module>exo.core.component.organization.api</module>
+      <module>exo.core.component.organization.jdbc</module>
+      <module>exo.core.component.organization.ldap</module>
+      <module>exo.core.component.xml-processing</module>
+      <module>exo.core.component.script.groovy</module>
+      <module>exo.core.component.web.css</module>
       <module>packaging/module</module>
    </modules>
 
