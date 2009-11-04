@@ -85,7 +85,7 @@ public final class ConversationRegistry
       }
       catch (NullPointerException e)
       {
-         LOG.warn("Parameter " + INIT_PARAM_CONCURRENCY_LEVEL + " was not found in configuration, default "
+         LOG.info("Parameter " + INIT_PARAM_CONCURRENCY_LEVEL + " was not found in configuration, default "
             + DEFAULT_CONCURRENCY_LEVEL + " will be used.");
          return DEFAULT_CONCURRENCY_LEVEL;
       }
