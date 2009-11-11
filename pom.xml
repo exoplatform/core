@@ -198,6 +198,12 @@
             <artifactId>htmlparser</artifactId>
             <version>1.6</version>
             <scope>compile</scope>
+            <exclusions>
+               <exclusion>
+                  <groupId>com.sun</groupId>
+                  <artifactId>tools</artifactId>
+               </exclusion>
+            </exclusions>
          </dependency>
 
          <dependency>
