@@ -40,8 +40,8 @@
       </dependency>
 
       <dependency>
-         <groupId>ldapsdk</groupId>
-         <artifactId>ldap</artifactId>
+         <groupId>com.novell.ldap</groupId>
+         <artifactId>jldap</artifactId>
          <scope>test</scope>
       </dependency>
    </dependencies>

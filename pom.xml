@@ -219,9 +219,9 @@
          </dependency>
 
          <dependency>
-            <groupId>ldapsdk</groupId>
-            <artifactId>ldap</artifactId>
-            <version>4.1</version>
+            <groupId>com.novell.ldap</groupId>
+            <artifactId>jldap</artifactId>
+            <version>4.3</version>
          </dependency>
 
          <dependency>
