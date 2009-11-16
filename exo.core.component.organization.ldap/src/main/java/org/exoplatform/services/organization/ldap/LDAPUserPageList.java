@@ -20,6 +20,8 @@ package org.exoplatform.services.organization.ldap;
 
 import org.exoplatform.commons.utils.PageList;
 import org.exoplatform.services.ldap.LDAPService;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.User;
 
 import java.util.ArrayList;
@@ -52,6 +54,8 @@ public class LDAPUserPageList extends PageList
    private LDAPService ldapService;
 
    private LDAPAttributeMapping ldapAttrMapping;
+   
+   private static Log logger = ExoLogger.getLogger(LDAPUserPageList.class); 
 
    static boolean SEARCH_CONTROL = Control.NONCRITICAL;
 
@@ -68,14 +72,14 @@ public class LDAPUserPageList extends PageList
          int size = this.getResultSize();
          setAvailablePage(size);
       }
-      catch (NameNotFoundException exp)
+      catch (NameNotFoundException e)
       {
-         exp.printStackTrace();
+         logger.warn("Cannot set the page size while creating a LDAPUserPageList, no page size will be used", e);
          setAvailablePage(0);
       }
-      catch (OperationNotSupportedException exp)
+      catch (OperationNotSupportedException e)
       {
-         exp.printStackTrace();
+         logger.warn("Cannot set the page size while creating a LDAPUserPageList, no page size will be used", e);
          setAvailablePage(0);
       }
    }
