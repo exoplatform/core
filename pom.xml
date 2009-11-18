@@ -38,7 +38,7 @@
       <exo.product.name>exo-core</exo.product.name>
       <exo.product.specification>2.3</exo.product.specification>
       
-      <org.exoplatform.kernel.version>2.2.0-Beta03</org.exoplatform.kernel.version>
+      <org.exoplatform.kernel.version>2.2.0-Beta04-SNAPSHOT</org.exoplatform.kernel.version>
       <exo.test.includes>*Test*</exo.test.includes>
    </properties>
 
@@ -64,19 +64,43 @@
 
    <dependencyManagement>
       <dependencies>
-            
+      
          <dependency>
-            <groupId>org.exoplatform.core</groupId>
-            <artifactId>exo.core.component.security.core</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.exoplatform.tool</groupId>
+            <artifactId>exo.tool.framework.junit</artifactId>
+            <version>1.2.0</version>
          </dependency>
+      
+         <dependency>
+            <groupId>org.exoplatform.kernel</groupId>
+            <artifactId>exo.kernel.commons</artifactId>
+            <version>${org.exoplatform.kernel.version}</version>
+         </dependency>  
+         
+         <dependency>
+            <groupId>org.exoplatform.kernel</groupId>
+            <artifactId>exo.kernel.component.common</artifactId>
+            <version>${org.exoplatform.kernel.version}</version>
+         </dependency>         
 
          <dependency>
+            <groupId>org.exoplatform.kernel</groupId>
+            <artifactId>exo.kernel.container</artifactId>
+            <version>${org.exoplatform.kernel.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.exoplatform.kernel</groupId>
+            <artifactId>exo.kernel.component.cache</artifactId>
+            <version>${org.exoplatform.kernel.version}</version>
+         </dependency>
+         
+          <dependency>
             <groupId>org.exoplatform.core</groupId>
             <artifactId>exo.core.component.database</artifactId>
             <version>${project.version}</version>
          </dependency>
-
+         
          <dependency>
             <groupId>org.exoplatform.core</groupId>
             <artifactId>exo.core.component.ldap</artifactId>
@@ -94,23 +118,11 @@
             <artifactId>exo.core.component.organization.jdbc</artifactId>
             <version>${project.version}</version>
          </dependency>
-      
+         
          <dependency>
-            <groupId>org.exoplatform.kernel</groupId>
-            <artifactId>exo.kernel.component.common</artifactId>
-            <version>${org.exoplatform.kernel.version}</version>
-         </dependency>
-
-         <dependency>
-            <groupId>org.exoplatform.kernel</groupId>
-            <artifactId>exo.kernel.container</artifactId>
-            <version>${org.exoplatform.kernel.version}</version>
-         </dependency>
-
-         <dependency>
-            <groupId>org.exoplatform.kernel</groupId>
-            <artifactId>exo.kernel.component.cache</artifactId>
-            <version>${org.exoplatform.kernel.version}</version>
+            <groupId>org.exoplatform.core</groupId>
+            <artifactId>exo.core.component.security.core</artifactId>
+            <version>${project.version}</version>
          </dependency>
 
          <dependency>
@@ -119,6 +131,30 @@
             <version>1.5</version>
          </dependency>
 
+         <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.4</version>            
+         </dependency>
+         
+         <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>jta</artifactId>
+            <version>1.0.1B</version>            
+         </dependency>
+      
+         <dependency>
+            <groupId>pull-parser</groupId>
+            <artifactId>pull-parser</artifactId>
+            <version>2</version>                        
+         </dependency>
+         
+         <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.3</version>
+         </dependency>
+         
          <dependency>
             <groupId>hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
@@ -130,34 +166,28 @@
             <artifactId>xapool</artifactId>
             <version>1.5.0</version>
          </dependency>
-
-         <dependency>
-            <groupId>c3p0</groupId>
-            <artifactId>c3p0</artifactId>
-            <version>0.9.1.2</version>
-         </dependency>
-
-         <dependency>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-            <version>1.2.2</version>
-         </dependency>
-
+         
          <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>3.3.1.GA</version>
          </dependency>
-
+         
+         <dependency>
+            <groupId>xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>1.0.2</version>
+         </dependency>
+      
+         <dependency>
+            <groupId>picocontainer</groupId>
+            <artifactId>picocontainer</artifactId>
+            <version>1.1</version>            
+         </dependency>
+         
          <dependency>
             <groupId>xdoclet</groupId>
             <artifactId>xdoclet-hibernate-module</artifactId>
-            <version>1.2.3</version>
-         </dependency>
-
-         <dependency>
-            <groupId>xdoclet</groupId>
-            <artifactId>xdoclet</artifactId>
             <version>1.2.3</version>
          </dependency>
 
@@ -172,95 +202,7 @@
             <artifactId>xjavadoc</artifactId>
             <version>1.0.3</version>
          </dependency>
-
-         <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>3.1</version>
-         </dependency>
-
-         <dependency>
-            <groupId>pdfbox</groupId>
-            <artifactId>pdfbox</artifactId>
-            <version>0.7.3</version>
-            <scope>compile</scope>
-         </dependency>
-
-         <dependency>
-            <groupId>com.lowagie</groupId>
-            <artifactId>itext</artifactId>
-            <version>2.1.0</version>
-            <scope>compile</scope>
-         </dependency>
-
-         <dependency>
-            <groupId>org.htmlparser</groupId>
-            <artifactId>htmlparser</artifactId>
-            <version>1.6</version>
-            <scope>compile</scope>
-            <exclusions>
-               <exclusion>
-                  <groupId>com.sun</groupId>
-                  <artifactId>tools</artifactId>
-               </exclusion>
-            </exclusions>
-         </dependency>
-
-         <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>3.0.2-FINAL</version>
-         </dependency>
-
-         <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-scratchpad</artifactId>
-            <version>3.0.2-FINAL</version>
-         </dependency>
-
-         <dependency>
-            <groupId>com.novell.ldap</groupId>
-            <artifactId>jldap</artifactId>
-            <version>4.3</version>
-         </dependency>
-
-         <dependency>
-            <groupId>javax.ejb</groupId>
-            <artifactId>ejb</artifactId>
-            <version>2.1</version>
-         </dependency>
-
-         <dependency>
-            <groupId>xdoclet</groupId>
-            <artifactId>xdoclet-hibernate-module</artifactId>
-            <version>1.2.3</version>
-            <scope>compile</scope>
-         </dependency>
-
-         <dependency>
-            <groupId>xdoclet</groupId>
-            <artifactId>xdoclet</artifactId>
-            <version>1.2.3</version>
-         </dependency>
-
-         <dependency>
-            <groupId>xdoclet</groupId>
-            <artifactId>xdoclet-xdoclet-module</artifactId>
-            <version>1.2</version>
-         </dependency>
-
-         <dependency>
-            <groupId>xdoclet</groupId>
-            <artifactId>xjavadoc</artifactId>
-            <version>1.0.3</version>
-         </dependency>
-
-         <dependency>
-            <groupId>javax.resource</groupId>
-            <artifactId>connector-api</artifactId>
-            <version>1.5</version>
-         </dependency>
-
+         
          <dependency>
             <groupId>com.microsoft</groupId>
             <artifactId>sqljdbc</artifactId>
@@ -296,13 +238,69 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>5.0.8</version>
          </dependency>
-
+         
          <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
             <version>1.6.5</version>
          </dependency>
+         
+         <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-annotations</artifactId>
+            <version>3.4.0.GA</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>0.7.3</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>com.lowagie</groupId>
+            <artifactId>itext</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.htmlparser</groupId>
+            <artifactId>htmlparser</artifactId>
+            <version>1.6</version>
+            <scope>compile</scope>
+            <exclusions>
+               <exclusion>
+                  <groupId>com.sun</groupId>
+                  <artifactId>tools</artifactId>
+               </exclusion>
+            </exclusions>
+         </dependency>
 
+         <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.0.2-FINAL</version>
+         </dependency>
+
+         <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-scratchpad</artifactId>
+            <version>3.0.2-FINAL</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>com.novell.ldap</groupId>
+            <artifactId>jldap</artifactId>
+            <version>4.3</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>jtidy</groupId>
+            <artifactId>jtidy</artifactId>
+            <version>4aug2000r7-dev</version>
+         </dependency>
+         
          <dependency>
             <groupId>org.w3c</groupId>
             <artifactId>sac</artifactId>
@@ -319,36 +317,6 @@
             <groupId>batik</groupId>
             <artifactId>batik-css</artifactId>
             <version>1.7</version>
-         </dependency>
-
-         <dependency>
-            <groupId>jtidy</groupId>
-            <artifactId>jtidy</artifactId>
-            <version>4aug2000r7-dev</version>
-         </dependency>
-
-         <dependency>
-            <groupId>xml-resolver</groupId>
-            <artifactId>xml-resolver</artifactId>
-            <version>1.1</version>
-         </dependency>
-
-         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1</version>
-         </dependency>
-
-         <dependency>
-            <groupId>javassist</groupId>
-            <artifactId>javassist</artifactId>
-            <version>3.4.GA</version>
-         </dependency>
-         
-         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-annotations</artifactId>
-            <version>3.4.0.GA</version>
          </dependency>
 
       </dependencies>
@@ -380,14 +348,8 @@
             <exclude>**/TestOrganizationService.java</exclude>
             
             <exclude>**/TestPipe.java</exclude>
-	    <exclude>**/TestTidy.java</exclude>
+            <exclude>**/TestTidy.java</exclude>
           </excludes>
-          <!-- systemProperties>
-            <property>
-              <name>emma.coverage.out.file</name>
-              <value>target/emma/coverage.ec</value>
-            </property>
-          </systemProperties -->
         </configuration>
       </plugin>
    </plugins>

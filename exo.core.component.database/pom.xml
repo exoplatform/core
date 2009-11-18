@@ -35,44 +35,47 @@
 
    <dependencies>
       <dependency>
+         <groupId>org.exoplatform.tool</groupId>
+         <artifactId>exo.tool.framework.junit</artifactId>
+      </dependency>
+      <dependency>
          <groupId>org.exoplatform.kernel</groupId>
          <artifactId>exo.kernel.component.common</artifactId>
       </dependency>
-
+      <dependency>
+         <groupId>org.exoplatform.kernel</groupId>
+         <artifactId>exo.kernel.commons</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.exoplatform.kernel</groupId>
+         <artifactId>exo.kernel.container</artifactId>
+      </dependency>
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
          <artifactId>exo.kernel.component.cache</artifactId>
       </dependency>
-
       <dependency>
          <groupId>javax.resource</groupId>
          <artifactId>connector-api</artifactId>
          <scope>test</scope>
       </dependency>
-
+      <dependency>
+         <groupId>javax.transaction</groupId>
+         <artifactId>jta</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>pull-parser</groupId>
+         <artifactId>pull-parser</artifactId>
+      </dependency>
       <dependency>
          <groupId>hsqldb</groupId>
          <artifactId>hsqldb</artifactId>
          <scope>runtime</scope>
       </dependency>
-
       <dependency>
          <groupId>com.experlog</groupId>
          <artifactId>xapool</artifactId>
       </dependency>
-
-      <dependency>
-         <groupId>c3p0</groupId>
-         <artifactId>c3p0</artifactId>
-         <scope>runtime</scope>
-      </dependency>
-
-      <dependency>
-         <groupId>commons-dbcp</groupId>
-         <artifactId>commons-dbcp</artifactId>
-         <scope>provided</scope>
-      </dependency>
-
       <dependency>
          <groupId>org.hibernate</groupId>
          <artifactId>hibernate-core</artifactId>
@@ -83,38 +86,6 @@
             </exclusion>
          </exclusions> 
       </dependency>
-
-      <dependency>
-         <groupId>xdoclet</groupId>
-         <artifactId>xdoclet-hibernate-module</artifactId>
-      </dependency>
-
-      <dependency>
-         <groupId>xdoclet</groupId>
-         <artifactId>xdoclet</artifactId>
-      </dependency>
-
-      <dependency>
-         <groupId>xdoclet</groupId>
-         <artifactId>xdoclet-xdoclet-module</artifactId>
-      </dependency>
-
-      <dependency>
-         <groupId>xdoclet</groupId>
-         <artifactId>xjavadoc</artifactId>
-      </dependency>
-
-      <dependency>
-         <groupId>commons-collections</groupId>
-         <artifactId>commons-collections</artifactId>
-         <scope>runtime</scope>
-      </dependency>
- 
-      <dependency>
-         <groupId>javassist</groupId>
-         <artifactId>javassist</artifactId>
-      </dependency>
-
       <dependency>
          <groupId>org.hibernate</groupId>
          <artifactId>hibernate-annotations</artifactId>
@@ -125,7 +96,6 @@
             </exclusion>
          </exclusions> 
       </dependency>
-      
    </dependencies>
    
    <build>

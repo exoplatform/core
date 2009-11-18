@@ -41,7 +41,7 @@
 
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
-         <artifactId>exo.kernel.component.common</artifactId>
+         <artifactId>exo.kernel.commons</artifactId>
       </dependency>
 
       <dependency>
@@ -55,18 +55,8 @@
       </dependency>
 
       <dependency>
-         <groupId>javax.ejb</groupId>
-         <artifactId>ejb</artifactId>
-      </dependency>
-
-      <dependency>
          <groupId>xdoclet</groupId>
          <artifactId>xdoclet-hibernate-module</artifactId>
-      </dependency>
-
-      <dependency>
-         <groupId>xdoclet</groupId>
-         <artifactId>xdoclet</artifactId>
       </dependency>
 
       <dependency>
@@ -77,6 +67,16 @@
       <dependency>
          <groupId>xdoclet</groupId>
          <artifactId>xjavadoc</artifactId>
+      </dependency>
+      
+      <dependency>
+         <groupId>xstream</groupId>
+         <artifactId>xstream</artifactId>
+      </dependency>
+      
+      <dependency>
+         <groupId>picocontainer</groupId>
+         <artifactId>picocontainer</artifactId>
       </dependency>
 
    </dependencies>

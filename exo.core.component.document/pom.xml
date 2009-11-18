@@ -34,26 +34,35 @@
    <description>eXo demo service Impl</description>
 
    <dependencies>
+<!--      <dependency>-->
+<!--         <groupId>org.exoplatform.kernel</groupId>-->
+<!--         <artifactId>exo.kernel.component.common</artifactId>-->
+<!--      </dependency>-->
+      <dependency>
+         <groupId>org.exoplatform.tool</groupId>
+         <artifactId>exo.tool.framework.junit</artifactId>
+      </dependency>
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
-         <artifactId>exo.kernel.component.common</artifactId>
+         <artifactId>exo.kernel.commons</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.exoplatform.kernel</groupId>
+         <artifactId>exo.kernel.container</artifactId>
       </dependency>
 
       <dependency>
          <groupId>pdfbox</groupId>
          <artifactId>pdfbox</artifactId>
       </dependency>
-
       <dependency>
          <groupId>com.lowagie</groupId>
          <artifactId>itext</artifactId>
       </dependency>
-
       <dependency>
          <groupId>org.htmlparser</groupId>
          <artifactId>htmlparser</artifactId>
       </dependency>
-
       <dependency>
          <groupId>org.apache.poi</groupId>
          <artifactId>poi</artifactId>
@@ -64,7 +73,6 @@
             </exclusion>
          </exclusions>
       </dependency>
-
       <dependency>
          <groupId>org.apache.poi</groupId>
          <artifactId>poi-scratchpad</artifactId>

@@ -36,7 +36,12 @@
    <dependencies>
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
-         <artifactId>exo.kernel.component.common</artifactId>
+         <artifactId>exo.kernel.commons</artifactId>
+      </dependency>
+      
+      <dependency>
+         <groupId>org.exoplatform.kernel</groupId>
+         <artifactId>exo.kernel.container</artifactId>
       </dependency>
 
       <dependency>
@@ -45,8 +50,8 @@
       </dependency>
 
       <dependency>
-         <groupId>xml-resolver</groupId>
-         <artifactId>xml-resolver</artifactId>
+         <groupId>picocontainer</groupId>
+         <artifactId>picocontainer</artifactId>
       </dependency>
    </dependencies>
 
