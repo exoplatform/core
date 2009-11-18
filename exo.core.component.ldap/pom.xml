@@ -34,27 +34,22 @@
    <description>eXo LDAP impl</description>
 
    <dependencies>
-   
       <dependency>
          <groupId>org.exoplatform.tool</groupId>
          <artifactId>exo.tool.framework.junit</artifactId>
       </dependency>
-      
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
          <artifactId>exo.kernel.component.common</artifactId>
       </dependency>
-      
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
          <artifactId>exo.kernel.commons</artifactId>
       </dependency>
-      
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
          <artifactId>exo.kernel.container</artifactId>
       </dependency>
-
       <dependency>
          <groupId>com.novell.ldap</groupId>
          <artifactId>jldap</artifactId>

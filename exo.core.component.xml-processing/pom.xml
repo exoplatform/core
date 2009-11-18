@@ -38,17 +38,14 @@
          <groupId>org.exoplatform.kernel</groupId>
          <artifactId>exo.kernel.commons</artifactId>
       </dependency>
-      
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
          <artifactId>exo.kernel.container</artifactId>
       </dependency>
-
       <dependency>
          <groupId>jtidy</groupId>
          <artifactId>jtidy</artifactId>
       </dependency>
-
       <dependency>
          <groupId>picocontainer</groupId>
          <artifactId>picocontainer</artifactId>

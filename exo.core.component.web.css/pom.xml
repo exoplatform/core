@@ -38,16 +38,13 @@
          <groupId>org.w3c</groupId>
          <artifactId>sac</artifactId>
       </dependency>
-
       <dependency>
          <groupId>batik</groupId>
          <artifactId>batik-util</artifactId>
       </dependency>
-
       <dependency>
          <groupId>batik</groupId>
          <artifactId>batik-css</artifactId>
       </dependency>
-
    </dependencies>
 </project>
