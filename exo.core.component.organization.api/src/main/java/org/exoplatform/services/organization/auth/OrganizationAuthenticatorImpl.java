@@ -19,6 +19,7 @@
 package org.exoplatform.services.organization.auth;
 
 import org.exoplatform.container.component.ComponentRequestLifecycle;
+import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Membership;
@@ -140,7 +141,7 @@ public class OrganizationAuthenticatorImpl implements Authenticator
    {
       if (orgService instanceof ComponentRequestLifecycle)
       {
-         ((ComponentRequestLifecycle)orgService).startRequest(null);
+      	 RequestLifeCycle.begin((ComponentRequestLifecycle)orgService);
       }
    }
 
@@ -148,7 +149,7 @@ public class OrganizationAuthenticatorImpl implements Authenticator
    {
       if (orgService instanceof ComponentRequestLifecycle)
       {
-         ((ComponentRequestLifecycle)orgService).endRequest(null);
+      	 RequestLifeCycle.end();
       }
    }
 
