@@ -38,13 +38,13 @@ public class XMLDocumentReader extends BaseDocumentReader
 {
 
    /**
-    * Get the text/xml mime type.
+    * Get the text/xml, application/xml, application/x-google-gadget mime types.
     * 
-    * @return The string with text/xml mime type.
+    * @return The string with text/xml,  application/xml, application/x-google-gadget mime type.
     */
    public String[] getMimeTypes()
    {
-      return new String[]{"text/xml"};
+      return new String[]{"text/xml", "application/xml", "application/x-google-gadget"};
    }
 
    /**
