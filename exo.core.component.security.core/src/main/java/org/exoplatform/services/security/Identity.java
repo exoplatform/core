@@ -44,7 +44,7 @@ public class Identity
    /**
     * Memberships.
     */
-   private Collection<MembershipEntry> memberships;
+   private Set<MembershipEntry> memberships;
 
    /**
     * javax.security.auth.Subject can be used for logout process. <code>
@@ -84,7 +84,7 @@ public class Identity
    public Identity(String userId, Collection<MembershipEntry> memberships, Collection<String> roles)
    {
       this.userId = userId;
-      this.memberships = memberships;
+      this.memberships = new HashSet<MembershipEntry>(memberships);
       this.roles = roles;
    }
 
@@ -146,7 +146,7 @@ public class Identity
     */
    public void setMemberships(Collection<MembershipEntry> memberships)
    {
-      this.memberships = memberships;
+      this.memberships = new HashSet<MembershipEntry>(memberships);
    }
 
    /**
@@ -199,12 +199,7 @@ public class Identity
     */
    private boolean containsMembership(MembershipEntry checkMe)
    {
-      for (MembershipEntry membership : memberships)
-      {
-         if (checkMe.equals(membership))
-            return true;
-      }
-      return false;
+      return memberships.contains(checkMe);
    }
 
 }

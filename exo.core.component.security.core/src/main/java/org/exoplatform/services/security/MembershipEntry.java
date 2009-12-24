@@ -78,7 +78,9 @@ public final class MembershipEntry
    @Override
    public boolean equals(Object obj)
    {
-      if (obj == null || !(obj instanceof MembershipEntry))
+      if (this == obj)
+         return true;
+      if (!(obj instanceof MembershipEntry))
          return false;
       MembershipEntry me = (MembershipEntry)obj;
       if (membershipType.equals(ANY_TYPE) || me.membershipType.equals(ANY_TYPE))
@@ -86,13 +88,24 @@ public final class MembershipEntry
       return this.group.equals(me.group) && this.membershipType.equals(me.membershipType);
    }
 
+   
+   /**
+    * {@inheritDoc}
+    */   
+   @Override
+   public int hashCode()
+   {
+      return group.hashCode();
+   }
+
    public static MembershipEntry parse(String identityStr)
    {
 
-      if (identityStr.indexOf(":") != -1)
+      final int index = identityStr.indexOf(":");
+      if (index != -1)
       {
-         String membershipName = identityStr.substring(0, identityStr.indexOf(":"));
-         String groupName = identityStr.substring(identityStr.indexOf(":") + 1);
+         String membershipName = identityStr.substring(0, index);
+         String groupName = identityStr.substring(index + 1);
          return new MembershipEntry(groupName, membershipName);
       }
 
