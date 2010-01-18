@@ -19,14 +19,12 @@
 package org.exoplatform.services.organization.hibernate;
 
 import org.exoplatform.commons.utils.LazyPageList;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.database.ObjectQuery;
-import org.exoplatform.services.organization.Query;
-import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.UserEventListener;
-import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.*;
 import org.exoplatform.services.organization.impl.UserImpl;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -144,12 +142,17 @@ public class UserDAOImpl implements UserHandler
       return user;
    }
 
-   public LazyPageList getUserPageList(int pageSize) throws Exception
+   public LazyPageList<User> getUserPageList(int pageSize) throws Exception
+   {
+      return new LazyPageList<User>(findAllUsers(), 20);
+   }
+
+   public ListAccess<User> findAllUsers() throws Exception
    {
       String findQuery = "from o in class " + UserImpl.class.getName();
       String countQuery = "select count(o) from " + UserImpl.class.getName() + " o";
 
-      return new LazyPageList(new SimpleHibernateUserListAccess(service_, findQuery, countQuery), 20);
+      return new SimpleHibernateUserListAccess(service_, findQuery, countQuery);
    }
 
    public boolean authenticate(String username, String password) throws Exception
@@ -167,7 +170,12 @@ public class UserDAOImpl implements UserHandler
       return authenticated;
    }
 
-   public LazyPageList findUsers(Query q) throws Exception
+   public LazyPageList<User> findUsers(Query q) throws Exception
+   {
+      return new LazyPageList<User>(findUsersByQuery(q), 20);
+   }
+
+   public ListAccess<User> findUsersByQuery(Query q) throws Exception
    {
       ObjectQuery oq = new ObjectQuery(UserImpl.class);
       oq.addLIKE("userName", q.getUserName());
@@ -177,11 +185,15 @@ public class UserDAOImpl implements UserHandler
       oq.addGT("lastLoginTime", q.getFromLoginDate());
       oq.addLT("lastLoginTime", q.getToLoginDate());
 
-      return new LazyPageList(new SimpleHibernateUserListAccess(service_, oq.getHibernateQuery(), oq
-         .getHibernateCountQuery()), 20);
+      return new SimpleHibernateUserListAccess(service_, oq.getHibernateQuery(), oq.getHibernateCountQuery());
    }
 
-   public LazyPageList findUsersByGroup(String groupId) throws Exception
+   public LazyPageList<User> findUsersByGroup(String groupId) throws Exception
+   {
+      return new LazyPageList<User>(findUsersByGroupId(groupId), 20);
+   }
+
+   public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
    {
       String queryFindUsersInGroup =
          "select u " + "from u in class org.exoplatform.services.organization.impl.UserImpl, "
@@ -192,7 +204,7 @@ public class UserDAOImpl implements UserHandler
             + "     m in class org.exoplatform.services.organization.impl.MembershipImpl "
             + "where m.userName = u.userName " + "  and m.groupId =  '" + groupId + "'";
 
-      return new LazyPageList(new SimpleHibernateUserListAccess(service_, queryFindUsersInGroup, countUsersInGroup), 20);
+      return new SimpleHibernateUserListAccess(service_, queryFindUsersInGroup, countUsersInGroup);
    }
 
    public Collection findUsersByGroupAndRole(String groupName, String role) throws Exception

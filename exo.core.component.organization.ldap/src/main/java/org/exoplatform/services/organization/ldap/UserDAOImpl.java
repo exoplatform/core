@@ -19,11 +19,9 @@
 package org.exoplatform.services.organization.ldap;
 
 import org.exoplatform.commons.utils.LazyPageList;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.ldap.LDAPService;
-import org.exoplatform.services.organization.Query;
-import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.UserEventListener;
-import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.*;
 import org.exoplatform.services.organization.impl.UserImpl;
 
 import java.util.ArrayList;
@@ -271,10 +269,15 @@ public class UserDAOImpl extends BaseDAO implements UserHandler
       }
    }
 
-   /**
+   public LazyPageList<User> findUsersByGroup(String groupId) throws Exception
+   {
+      return new LazyPageList<User>(findUsersByGroupId(groupId), 10);
+   }    
+
+    /**
     * {@inheritDoc}
     */
-   public LazyPageList<User> findUsersByGroup(String groupId) throws Exception
+   public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
    {
       //    ArrayList<User> users = new ArrayList<User>();
       //    TreeMap<String, User> map = new TreeMap<String, User>();
@@ -323,30 +326,36 @@ public class UserDAOImpl extends BaseDAO implements UserHandler
 
       String searchBase = this.getGroupDNFromGroupId(groupId);
       String filter = ldapAttrMapping.membershipObjectClassFilter;
-      LazyPageList<User> l =
-         new LazyPageList<User>(new ByGroupLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter), 10);
-      return l;
+      return new ByGroupLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter);
    }
 
-   /**
+   public LazyPageList<User> getUserPageList(int pageSize) throws Exception
+   {
+      return new LazyPageList<User>(findAllUsers(), 10);
+   }
+
+    /**
     * {@inheritDoc}
     */
-   public LazyPageList<User> getUserPageList(int pageSize) throws Exception
+   public ListAccess<User> findAllUsers() throws Exception
    {
       String searchBase = ldapAttrMapping.userURL;
       String filter = ldapAttrMapping.userObjectClassFilter;
 
       //    return new LDAPUserPageList(ldapAttrMapping, ldapService, searchBase, filter, pageSize);
 
-      LazyPageList<User> l =
-         new LazyPageList<User>(new SimpleLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter), 10);
-      return l;
+      return new SimpleLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter);
+   }
+
+   public LazyPageList<User> findUsers(Query q) throws Exception
+   {
+      return new LazyPageList<User>(findUsersByQuery(q), 10);
    }
 
    /**
     * {@inheritDoc}
     */
-   public LazyPageList<User> findUsers(Query q) throws Exception
+   public ListAccess<User> findUsersByQuery(Query q) throws Exception
    {
       String filter = null;
       ArrayList<String> list = new ArrayList<String>();
@@ -393,9 +402,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler
 
       //    return new LDAPUserPageList(ldapAttrMapping, ldapService, searchBase, filter, 20);
 
-      LazyPageList<User> l =
-         new LazyPageList<User>(new SimpleLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter), 10);
-      return l;
+      return new SimpleLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter);
    }
 
    /**

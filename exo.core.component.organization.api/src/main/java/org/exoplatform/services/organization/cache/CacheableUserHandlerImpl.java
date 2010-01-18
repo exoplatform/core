@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.organization.cache;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.PageList;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.organization.Membership;
@@ -123,7 +124,7 @@ public class CacheableUserHandlerImpl implements UserHandler
    /**
     * {@inheritDoc}
     */
-   public PageList findUsers(Query query) throws Exception
+   public PageList<User> findUsers(Query query) throws Exception
    {
       return userHandler.findUsers(query);
    }
@@ -131,7 +132,7 @@ public class CacheableUserHandlerImpl implements UserHandler
    /**
     * {@inheritDoc}
     */
-   public PageList findUsersByGroup(String groupId) throws Exception
+   public PageList<User> findUsersByGroup(String groupId) throws Exception
    {
       return userHandler.findUsersByGroup(groupId);
    }
@@ -139,9 +140,30 @@ public class CacheableUserHandlerImpl implements UserHandler
    /**
     * {@inheritDoc}
     */
-   public PageList getUserPageList(int pageSize) throws Exception
+   public PageList<User> getUserPageList(int pageSize) throws Exception
    {
       return userHandler.getUserPageList(pageSize);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public ListAccess<User> findUsersByGroupId(String groupId) throws Exception {
+      return userHandler.findUsersByGroupId(groupId);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public ListAccess<User> findAllUsers() throws Exception {
+      return userHandler.findAllUsers();
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public ListAccess<User> findUsersByQuery(Query query) throws Exception {
+      return userHandler.findUsersByQuery(query);
    }
 
    /**

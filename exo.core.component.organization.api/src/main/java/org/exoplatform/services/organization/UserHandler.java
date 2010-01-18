@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.organization;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.PageList;
 
 /**
@@ -125,8 +126,21 @@ public interface UserHandler
     *          group
     * @return return a page list iterator of a group of the user in the database
     * @throws Exception
+    * @deprecated use {@link #findUsersByGroupId(String)} instead
     */
-   public PageList findUsersByGroup(String groupId) throws Exception;
+   @Deprecated
+   public PageList<User> findUsersByGroup(String groupId) throws Exception;
+
+   /**
+    * This method should search and return the list of the users in a given
+    * group.
+    *
+    * @param groupId id of the group. The return users list should be in this
+    *          group
+    * @return return a page list iterator of a group of the user in the database
+    * @throws Exception any exception
+    */
+   public ListAccess<User> findUsersByGroupId(String groupId) throws Exception;
 
    /**
     * This method is used to get all the users in the database
@@ -136,8 +150,20 @@ public interface UserHandler
     *         developer get all the users or get a page of users if the return
     *         number of users is too large.
     * @throws Exception
+    * @deprecated use {@link @findAllUsers() } instead
     */
-   public PageList getUserPageList(int pageSize) throws Exception;
+   @Deprecated
+   public PageList<User> getUserPageList(int pageSize) throws Exception;
+
+   /**
+    * This method is used to get all the users in the database
+    *
+    * @return return a page list iterator. The page list should allow the
+    *         developer get all the users or get a page of users if the return
+    *         number of users is too large.
+    * @throws Exception any exception
+    */
+   public ListAccess<User> findAllUsers() throws Exception;
 
    /**
     * This method search for the users accordding to a search criteria, the query
@@ -145,8 +171,19 @@ public interface UserHandler
     * @param query The query object contains the search criteria.
     * @return return the found users in a page list according to the query.
     * @throws Exception throw exception if the service cannot access the database
+    * @deprecated use {@link #findUsersByQuery(Query)} instead
     */
-   public PageList findUsers(Query query) throws Exception;
+   @Deprecated
+   public PageList<User> findUsers(Query query) throws Exception;
+
+   /**
+    * This method search for the users accordding to a search criteria, the query
+    *
+    * @param query The query object contains the search criteria.
+    * @return return the found users in a page list according to the query.
+    * @throws Exception throw exception if the service cannot access the database
+    */
+   public ListAccess<User> findUsersByQuery(Query query) throws Exception;
 
    /**
     * Check if the username and the password of an user is valid.

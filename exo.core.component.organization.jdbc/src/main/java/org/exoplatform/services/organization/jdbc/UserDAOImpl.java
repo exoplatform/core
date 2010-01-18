@@ -19,7 +19,7 @@
 package org.exoplatform.services.organization.jdbc;
 
 import org.exoplatform.commons.utils.LazyPageList;
-import org.exoplatform.commons.utils.PageList;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.database.DBObjectMapper;
 import org.exoplatform.services.database.DBObjectQuery;
@@ -28,14 +28,7 @@ import org.exoplatform.services.database.StandardSQLDAO;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.Group;
-import org.exoplatform.services.organization.GroupHandler;
-import org.exoplatform.services.organization.Membership;
-import org.exoplatform.services.organization.MembershipHandler;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.UserEventListener;
-import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.*;
 
 import java.util.Calendar;
 import java.util.List;
@@ -106,10 +99,15 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
       return user;
    }
 
+   public LazyPageList<User> findUsers(org.exoplatform.services.organization.Query orgQuery) throws Exception
+   {
+      return new LazyPageList<User>(findUsersByQuery(orgQuery), 20);
+   }
+
    /**
     * Query( name = "" , standardSQL = "..." oracleSQL = "..." )
     */
-   public LazyPageList findUsers(org.exoplatform.services.organization.Query orgQuery) throws Exception
+   public ListAccess<User> findUsersByQuery(Query orgQuery) throws Exception
    {
       DBObjectQuery dbQuery = new DBObjectQuery<UserImpl>(UserImpl.class);
       dbQuery.addLIKE("USER_NAME", orgQuery.getUserName());
@@ -119,11 +117,15 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
       dbQuery.addGT("LAST_LOGIN_TIME", orgQuery.getFromLoginDate());
       dbQuery.addLT("LAST_LOGIN_TIME", orgQuery.getToLoginDate());
 
-      return new LazyPageList(new SimpleJDBCUserListAccess(this, dbQuery.toQuery(), dbQuery.toCountQuery()), 20);
+      return new SimpleJDBCUserListAccess(this, dbQuery.toQuery(), dbQuery.toCountQuery());
    }
 
-   @SuppressWarnings("unchecked")
-   public PageList findUsersByGroup(String groupId) throws Exception
+   public LazyPageList<User> findUsersByGroup(String groupId) throws Exception
+   {
+      return new LazyPageList<User>(findUsersByGroupId(groupId), 20);
+   }
+
+   public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
    {
       if (log.isDebugEnabled())
          log.debug("+++++++++++FIND USER BY GROUP_ID " + groupId);
@@ -132,6 +134,7 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
       MembershipHandler membershipHandler = service.getMembershipHandler();
       GroupHandler groupHandler = service.getGroupHandler();
       Group group = groupHandler.findGroupById(groupId);
+      @SuppressWarnings("unchecked")
       List<Membership> members = (List<Membership>)membershipHandler.findMembershipsByGroup(group);
 
       DBObjectQuery dbQuery = new DBObjectQuery<UserImpl>(UserImpl.class);
@@ -145,15 +148,18 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
          */
       }
 
-      return new LazyPageList(new SimpleJDBCUserListAccess(this, dbQuery.toQueryUseOR(), dbQuery.toCountQueryUseOR()),
-         20);
+      return new SimpleJDBCUserListAccess(this, dbQuery.toQueryUseOR(), dbQuery.toCountQueryUseOR());
    }
 
-   public LazyPageList getUserPageList(int pageSize) throws Exception
+   public LazyPageList<User> getUserPageList(int pageSize) throws Exception
+   {
+      return new LazyPageList<User>(findAllUsers(), pageSize);
+   }
+
+   public ListAccess<User> findAllUsers() throws Exception
    {
       DBObjectQuery dbQuery = new DBObjectQuery<UserImpl>(UserImpl.class);
-
-      return new LazyPageList(new SimpleJDBCUserListAccess(this, dbQuery.toQuery(), dbQuery.toCountQuery()), pageSize);
+      return new SimpleJDBCUserListAccess(this, dbQuery.toQuery(), dbQuery.toCountQuery());
    }
 
    public User removeUser(String userName, boolean broadcast) throws Exception

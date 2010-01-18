@@ -21,6 +21,8 @@
  */
 package org.exoplatform.services.organization.impl.mock;
 
+import org.exoplatform.commons.utils.LazyPageList;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.ObjectPageList;
 import org.exoplatform.commons.utils.PageList;
 import org.exoplatform.services.organization.BaseOrganizationService;
@@ -152,12 +154,12 @@ public class DummyOrganizationService extends BaseOrganizationService
 
       private static final int DEFAULT_LIST_SIZE = 6;
 
-      private List<User> users;
+      private LazyListImpl users;
 
       public UserHandlerImpl()
       {
 
-         users = new ArrayList<User>();
+         users = new LazyListImpl();
 
          User usr = new UserImpl("exo");
          usr.setPassword("exo");
@@ -248,9 +250,23 @@ public class DummyOrganizationService extends BaseOrganizationService
          return null;
       }
 
-      public PageList findUsersByGroup(String groupId) throws Exception
+      public PageList<User> findUsersByGroup(String groupId) throws Exception
       {
-         List<User> users = new ArrayList<User>();
+         return new LazyPageList<User>(findUsersByGroupId(groupId), 10);
+      }
+
+      public PageList<User> findUsers(Query query) throws Exception
+      {
+         return new LazyPageList<User>(users, 10);
+      }
+
+      public ListAccess<User> findUsersByQuery(Query query) throws Exception
+      {
+         return users;
+      }
+
+      public ListAccess<User> findUsersByGroupId(String groupId) throws Exception {
+         LazyListImpl users = new LazyListImpl();
          if (groupId.equals(GROUPID_USERS))
          {
             users.add(new UserImpl("exo"));
@@ -265,17 +281,17 @@ public class DummyOrganizationService extends BaseOrganizationService
             users.add(new UserImpl("john"));
             users.add(new UserImpl("admin"));
          }
-         return new ObjectPageList(users, 10);
+         return users;
       }
 
-      public PageList getUserPageList(int pageSize) throws Exception
+      public ListAccess<User> findAllUsers() throws Exception
       {
-         return null;
+         return users;
       }
 
-      public PageList findUsers(Query query) throws Exception
+      public PageList<User> getUserPageList(int pageSize) throws Exception
       {
-         return new ObjectPageList(users, 10);
+         return new LazyPageList<User>(users, 10);
       }
 
       public void addUserEventListener(UserEventListener listener)
