@@ -52,6 +52,8 @@ import java.util.List;
  */
 public class HibernateServiceImpl implements HibernateService, ComponentRequestLifecycle
 {
+   public static final String AUTO_DIALECT = "AUTO";
+
    private ThreadLocal<Session> threadLocal_;
 
    private static Log log_ = ExoLogger.getLogger(HibernateServiceImpl.class);
@@ -67,6 +69,7 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
    {
       threadLocal_ = new ThreadLocal<Session>();
       PropertiesParam param = initParams.getPropertiesParam("hibernate.properties");
+
       HibernateSettingsFactory settingsFactory = new HibernateSettingsFactory(new ExoCacheProvider(cacheService));
       conf_ = new HibernateConfigurationImpl(settingsFactory);
       Iterator properties = param.getPropertyIterator();
@@ -74,22 +77,33 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
       {
          Property p = (Property)properties.next();
 
-         //
          String name = p.getName();
          String value = p.getValue();
 
          // Julien: Don't remove that unless you know what you are doing
          if (name.equals("hibernate.dialect"))
          {
-            Package pkg = Dialect.class.getPackage();
-            String dialect = value.substring(22);
-            value = pkg.getName() + "." + dialect; // 22 is the length of
-            // "org.hibernate.dialect"
-            log_.info("Using dialect " + dialect);
-         }
 
-         //
-         conf_.setProperty(name, value);
+            if (!value.equalsIgnoreCase(AUTO_DIALECT))
+            {
+
+               // TODO throw exception if dialect is incorrect
+               Package pkg = Dialect.class.getPackage();
+               String dialect = value.substring(22);
+               value = pkg.getName() + "." + dialect; // 22 is the length of
+               // "org.hibernate.dialect"
+               log_.info("Using dialect " + dialect);
+               conf_.setProperty(name, value);
+            }
+            else
+            {
+               log_.info("Dialect will be automaticaly detected by Hibernate.");
+            }
+         }
+         else
+         {
+            conf_.setProperty(name, value);
+         }
       }
 
       // Replace the potential "java.io.tmpdir" variable in the connection URL
