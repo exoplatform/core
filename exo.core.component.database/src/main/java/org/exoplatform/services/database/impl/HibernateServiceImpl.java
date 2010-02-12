@@ -34,14 +34,23 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
+import org.hibernate.dialect.resolver.DialectFactory;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
 import java.io.Serializable;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 
 /**
  * Created by The eXo Platform SAS .
@@ -52,6 +61,7 @@ import java.util.List;
  */
 public class HibernateServiceImpl implements HibernateService, ComponentRequestLifecycle
 {
+
    public static final String AUTO_DIALECT = "AUTO";
 
    private ThreadLocal<Session> threadLocal_;
@@ -69,7 +79,6 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
    {
       threadLocal_ = new ThreadLocal<Session>();
       PropertiesParam param = initParams.getPropertiesParam("hibernate.properties");
-
       HibernateSettingsFactory settingsFactory = new HibernateSettingsFactory(new ExoCacheProvider(cacheService));
       conf_ = new HibernateConfigurationImpl(settingsFactory);
       Iterator properties = param.getPropertyIterator();
@@ -77,33 +86,22 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
       {
          Property p = (Property)properties.next();
 
+         //
          String name = p.getName();
          String value = p.getValue();
 
          // Julien: Don't remove that unless you know what you are doing
-         if (name.equals("hibernate.dialect"))
+         if (name.equals("hibernate.dialect") && !value.equalsIgnoreCase(AUTO_DIALECT))
          {
-
-            if (!value.equalsIgnoreCase(AUTO_DIALECT))
-            {
-
-               // TODO throw exception if dialect is incorrect
-               Package pkg = Dialect.class.getPackage();
-               String dialect = value.substring(22);
-               value = pkg.getName() + "." + dialect; // 22 is the length of
-               // "org.hibernate.dialect"
-               log_.info("Using dialect " + dialect);
-               conf_.setProperty(name, value);
-            }
-            else
-            {
-               log_.info("Dialect will be automaticaly detected by Hibernate.");
-            }
+            Package pkg = Dialect.class.getPackage();
+            String dialect = value.substring(22);
+            value = pkg.getName() + "." + dialect; // 22 is the length of
+            // "org.hibernate.dialect"
+            log_.info("Using dialect " + dialect);
          }
-         else
-         {
-            conf_.setProperty(name, value);
-         }
+
+         //
+         conf_.setProperty(name, value);
       }
 
       // Replace the potential "java.io.tmpdir" variable in the connection URL
@@ -113,6 +111,110 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
          connectionURL = connectionURL.replace("${java.io.tmpdir}", System.getProperty("java.io.tmpdir"));
          conf_.setProperty("hibernate.connection.url", connectionURL);
       }
+
+      // Auto-detect dialect if "hibernate.dialect" is set as AUTO or is not set.
+
+      String dialect = conf_.getProperty("hibernate.dialect");
+
+      if (dialect != null && dialect.equalsIgnoreCase(AUTO_DIALECT))
+      {
+         // detect dialect and replace parameter
+         Connection connection = null;
+
+         try
+         {
+            // check is there is datasource
+            String dataSourceName = conf_.getProperty("hibernate.connection.datasource");
+            if (dataSourceName != null)
+            {
+               //detect with datasource
+               DataSource dataSource;
+               try
+               {
+                  dataSource = (DataSource)new InitialContext().lookup(dataSourceName);
+                  if (dataSource == null)
+                  {
+                     log_.error("DataSource is configured but not finded.", new Exception());
+                  }
+
+                  connection = dataSource.getConnection();
+
+                  Dialect d = DialectFactory.buildDialect(new Properties(), connection);
+                  conf_.setProperty("hibernate.dialect", d.getClass().getName());
+
+               }
+               catch (NamingException e)
+               {
+                  log_.error(e.getMessage(), e);
+               }
+
+            }
+            else
+            {
+
+               String url = conf_.getProperty("hibernate.connection.url");
+               if (url != null)
+               {
+                  //detect with url               
+                  //get driver class
+
+                  try
+                  {
+                     Class.forName(conf_.getProperty("hibernate.connection.driver_class")).newInstance();
+                  }
+                  catch (InstantiationException e)
+                  {
+                     log_.error(e.getMessage(), e);
+                  }
+                  catch (IllegalAccessException e)
+                  {
+                     log_.error(e.getMessage(), e);
+                  }
+                  catch (ClassNotFoundException e)
+                  {
+                     log_.error(e.getMessage(), e);
+                  }
+
+                  String dbUserName = conf_.getProperty("hibernate.connection.username");
+                  String dbPassword = conf_.getProperty("hibernate.connection.password");
+
+                  connection =
+                     dbUserName != null ? DriverManager.getConnection(url, dbUserName, dbPassword) : DriverManager
+                        .getConnection(url);
+
+                  Dialect d = DialectFactory.buildDialect(new Properties(), connection);
+                  conf_.setProperty("hibernate.dialect", d.getClass().getName());
+
+               }
+               else
+               {
+                  Exception e = new Exception("Any data source is not configured!");
+                  log_.error(e.getMessage(), e);
+               }
+            }
+
+         }
+         catch (SQLException e)
+         {
+            log_.error(e.getMessage(), e);
+         }
+         finally
+         {
+            if (connection != null)
+            {
+               try
+               {
+                  connection.close();
+               }
+               catch (SQLException e)
+               {
+                  log_.error(e.getMessage(), e);
+               }
+            }
+         }
+
+      }
+
    }
 
    public void addPlugin(ComponentPlugin plugin)
