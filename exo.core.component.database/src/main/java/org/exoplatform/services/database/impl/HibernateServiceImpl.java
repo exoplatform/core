@@ -116,7 +116,7 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
 
       String dialect = conf_.getProperty("hibernate.dialect");
 
-      if (dialect != null && dialect.equalsIgnoreCase(AUTO_DIALECT))
+      if (dialect == null || dialect.equalsIgnoreCase(AUTO_DIALECT))
       {
          // detect dialect and replace parameter
          Connection connection = null;
