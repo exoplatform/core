@@ -24,7 +24,7 @@
    <parent>
       <groupId>org.exoplatform</groupId>
       <artifactId>foundation-parent</artifactId>
-      <version>4-SNAPSHOT</version>
+      <version>4</version>
    </parent>
 
    <groupId>org.exoplatform.core</groupId>
@@ -38,7 +38,7 @@
       <exo.product.name>exo-core</exo.product.name>
       <exo.product.specification>2.3</exo.product.specification>
       
-      <org.exoplatform.kernel.version>2.2.0-GA-SNAPSHOT</org.exoplatform.kernel.version>
+      <org.exoplatform.kernel.version>2.2.0-CR2</org.exoplatform.kernel.version>
       <exo.test.includes>*Test*</exo.test.includes>
    </properties>
 
