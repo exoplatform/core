@@ -24,7 +24,6 @@ import com.lowagie.text.pdf.PdfReader;
 import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReadException;
-import org.exoplatform.services.document.PDFDocumentReadException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.pdfbox.pdmodel.PDDocument;
@@ -94,7 +93,7 @@ public class PDFDocumentReader extends BaseDocumentReader
          }
          catch (IOException e)
          {
-            throw new PDFDocumentReadException("Can not load PDF documet.", e);
+            throw new DocumentReadException("Can not load PDF document.", e);
          }
 
          PDFTextStripper stripper = new PDFTextStripper();
