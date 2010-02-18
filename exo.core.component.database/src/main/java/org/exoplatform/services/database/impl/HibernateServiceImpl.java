@@ -123,11 +123,11 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
 
          try
          {
-            // check is there is datasource
+            // check is there is data source
             String dataSourceName = conf_.getProperty("hibernate.connection.datasource");
             if (dataSourceName != null)
             {
-               //detect with datasource
+               //detect dialect by data source
                DataSource dataSource;
                try
                {
@@ -136,30 +136,28 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
                   {
                      log_.error("DataSource is configured but not finded.", new Exception());
                   }
+                  else
+                  {
+                     connection = dataSource.getConnection();
 
-                  connection = dataSource.getConnection();
-
-                  Dialect d = DialectFactory.buildDialect(new Properties(), connection);
-                  conf_.setProperty("hibernate.dialect", d.getClass().getName());
-
+                     Dialect d = DialectFactory.buildDialect(new Properties(), connection);
+                     conf_.setProperty("hibernate.dialect", d.getClass().getName());
+                  }
                }
                catch (NamingException e)
                {
                   log_.error(e.getMessage(), e);
                }
-
             }
             else
             {
-
                String url = conf_.getProperty("hibernate.connection.url");
                if (url != null)
                {
-                  //detect with url               
-                  //get driver class
-
+                  //detect dialect by url               
                   try
                   {
+                     //load driver class
                      Class.forName(conf_.getProperty("hibernate.connection.driver_class")).newInstance();
                   }
                   catch (InstantiationException e)
@@ -184,7 +182,6 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
 
                   Dialect d = DialectFactory.buildDialect(new Properties(), connection);
                   conf_.setProperty("hibernate.dialect", d.getClass().getName());
-
                }
                else
                {
@@ -192,7 +189,6 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
                   log_.error(e.getMessage(), e);
                }
             }
-
          }
          catch (SQLException e)
          {
@@ -212,9 +208,7 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
                }
             }
          }
-
       }
-
    }
 
    public void addPlugin(ComponentPlugin plugin)
