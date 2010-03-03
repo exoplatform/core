@@ -38,6 +38,7 @@
       <exo.product.name>exo-core</exo.product.name>
       <exo.product.specification>2.3</exo.product.specification>
       
+      <org.exoplatform.framework.junit.version>1.2.1-GA</org.exoplatform.framework.junit.version>
       <org.exoplatform.kernel.version>2.2.1-GA-SNAPSHOT</org.exoplatform.kernel.version>
       <exo.test.includes>*Test*</exo.test.includes>
    </properties>
@@ -68,7 +69,7 @@
          <dependency>
             <groupId>org.exoplatform.tool</groupId>
             <artifactId>exo.tool.framework.junit</artifactId>
-            <version>1.2.0</version>
+            <version>${org.exoplatform.framework.junit.version}</version>
          </dependency>
       
          <dependency>
