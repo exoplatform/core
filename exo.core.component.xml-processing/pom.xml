@@ -18,21 +18,20 @@
     02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<project
+   xmlns="http://maven.apache.org/POM/4.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+>
    <modelVersion>4.0.0</modelVersion>
-
    <parent>
       <groupId>org.exoplatform.core</groupId>
       <artifactId>core-parent</artifactId>
       <version>2.3.1-GA-SNAPSHOT</version>
    </parent>
-
    <artifactId>exo.core.component.xml-processing</artifactId>
-
    <name>eXo Core :: Component :: XML Processing Service</name>
    <description>eXo XML Processing Services</description>
-
    <dependencies>
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
@@ -50,8 +49,11 @@
          <groupId>picocontainer</groupId>
          <artifactId>picocontainer</artifactId>
       </dependency>
+      <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-log4j12</artifactId>
+      </dependency>
    </dependencies>
-
    <build>
       <resources>
          <resource>
@@ -76,9 +78,7 @@
                <include>**/*.xsd</include>
             </includes>
          </resource>
-
       </resources>
-
       <testResources>
          <testResource>
             <directory>src/test/resources</directory>

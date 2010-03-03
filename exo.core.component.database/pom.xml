@@ -38,6 +38,12 @@
          <groupId>org.exoplatform.tool</groupId>
          <artifactId>exo.tool.framework.junit</artifactId>
       </dependency>
+
+      <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-log4j12</artifactId>
+      </dependency> 
+
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
          <artifactId>exo.kernel.component.common</artifactId>
