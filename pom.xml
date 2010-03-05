@@ -40,7 +40,6 @@
       
       <org.exoplatform.framework.junit.version>1.2.2-GA-SNAPSHOT</org.exoplatform.framework.junit.version>
       <org.exoplatform.kernel.version>2.2.1-GA-SNAPSHOT</org.exoplatform.kernel.version>
-      <exo.test.includes>*Test*</exo.test.includes>
    </properties>
 
    <scm>
