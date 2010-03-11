@@ -110,9 +110,18 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
    public ListAccess<User> findUsersByQuery(Query orgQuery) throws Exception
    {
       DBObjectQuery dbQuery = new DBObjectQuery<UserImpl>(UserImpl.class);
-      dbQuery.addLIKE("USER_NAME", orgQuery.getUserName());
-      dbQuery.addLIKE("FIRST_NAME", orgQuery.getFirstName());
-      dbQuery.addLIKE("LAST_NAME", orgQuery.getLastName());
+      if (orgQuery.getUserName() != null)
+      {
+         dbQuery.addLIKE("UPPER(USER_NAME)", orgQuery.getUserName().toUpperCase());
+      }
+      if (orgQuery.getFirstName() != null)
+      {
+         dbQuery.addLIKE("UPPER(FIRST_NAME)", orgQuery.getFirstName().toUpperCase());
+      }
+      if (orgQuery.getLastName() != null)
+      {
+         dbQuery.addLIKE("UPPER(LAST_NAME)", orgQuery.getLastName().toUpperCase());
+      }
       dbQuery.addLIKE("EMAIL", orgQuery.getEmail());
       dbQuery.addGT("LAST_LOGIN_TIME", orgQuery.getFromLoginDate());
       dbQuery.addLT("LAST_LOGIN_TIME", orgQuery.getToLoginDate());

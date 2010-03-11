@@ -178,9 +178,18 @@ public class UserDAOImpl implements UserHandler
    public ListAccess<User> findUsersByQuery(Query q) throws Exception
    {
       ObjectQuery oq = new ObjectQuery(UserImpl.class);
-      oq.addLIKE("userName", q.getUserName());
-      oq.addLIKE("firstName", q.getFirstName());
-      oq.addLIKE("lastName", q.getLastName());
+      if (q.getUserName() != null)
+      {
+         oq.addLIKE("UPPER(userName)", q.getUserName().toUpperCase());
+      }
+      if (q.getFirstName() != null)
+      {
+         oq.addLIKE("UPPER(firstName)", q.getFirstName().toUpperCase());
+      }
+      if (q.getLastName() != null)
+      {
+         oq.addLIKE("UPPER(lastName)", q.getLastName().toUpperCase());
+      }
       oq.addLIKE("email", q.getEmail());
       oq.addGT("lastLoginTime", q.getFromLoginDate());
       oq.addLT("lastLoginTime", q.getToLoginDate());
