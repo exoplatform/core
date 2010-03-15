@@ -54,7 +54,6 @@ public class TestDBCreator extends TestCase
 
    public void testCreate() throws Exception
    {
-      // TODO create DB
-      //      dbCreator.create("TestDB", "TestUser", "TestPwd");
+      dbCreator.create("portal");
    }
 }

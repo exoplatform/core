@@ -41,19 +41,14 @@ public interface DBCreator
    public static final String PASSWORD_TEMPLATE = "${password}";
 
    /**
-    * Create database using predefined SQL DDL script for specific user and password.
-    * Database name, user name and password defined in script via templates as
-    * ${database}, ${username} and ${password} respectively.
+    * Create database using predefined SQL DDL script for new user which are given via configuration.
+    * New database name, user name and password defined in script via templates as ${database}, ${username}
+    * and ${password} respectively.
     * 
     * @param dbName
-    *          database name
-    * @param userName
-    *          user name
-    * @param password
-    *          user's password
-    *          
+    *          new database name
     * @throws DBCreationException
     *          if any error occurs 
     */
-   void create(String dbName, String userName, String password) throws DBCreationException;
+   void create(String dbName) throws DBCreationException;
 }

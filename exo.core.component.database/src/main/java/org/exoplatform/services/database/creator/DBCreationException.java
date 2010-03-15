@@ -40,5 +40,4 @@ public class DBCreationException extends Exception
    {
       super(message, e);
    }
-
 }

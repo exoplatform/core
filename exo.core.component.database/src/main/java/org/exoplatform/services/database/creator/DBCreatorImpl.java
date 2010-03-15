@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.database.creator;
 
+import org.exoplatform.container.configuration.ConfigurationException;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 
@@ -35,28 +36,58 @@ import java.sql.SQLException;
  */
 public class DBCreatorImpl implements DBCreator
 {
-   private static final String DB_CREATOR_PROPERTIES = "db-creator-properties";
+   public static final String SQL_DELIMITER = ";";
+
+   public static final String SQL_DELIMITER_COMMENT_PREFIX = "/*$DELIMITER:";
+
+   private static final String DB_CONNECTION_PROPERTIES = "db-connection";
+
+   private static final String DB_CREATION_PROPERTIES = "db-creation";
 
    private static final String DRIVER_PROPERTY = "driverClassName";
 
    private static final String URL_PROPERTY = "url";
 
+   private static final String SCRIPT_PATH_PROPERTY = "scriptPath";
+
    private static final String USERNAME_PROPERTY = "username";
 
    private static final String PASSWORD_PROPERTY = "password";
 
-   private static final String SCRIPT_PROPERTY = "script";
+   /**
+    * Driver class name.
+    */
+   protected final String driver;
 
-   // TODO javaDoc
-   private final String driver;
+   /**
+    * Database url.
+    */
+   protected final String url;
 
-   private final String url;
+   /**
+    * SA user name.
+    */
+   protected final String userName;
 
-   private final String userName;
+   /**
+    * SA user's password.
+    */
+   protected final String password;
 
-   private final String password;
+   /**
+    * DB script creation.
+    */
+   protected final String dbScript;
 
-   private final String script;
+   /**
+    * User name for new DB.
+    */
+   protected final String dbUserName;
+
+   /**
+    * User's password.
+    */
+   protected final String dbPassword;
 
    /**
     * DBCreatorImpl constructor.
@@ -64,24 +95,64 @@ public class DBCreatorImpl implements DBCreator
     * @param contextInit
     *          Initial context initializer
     * @param params
-    *          Initializations params
+    *          Initializations parameters
     */
-   public DBCreatorImpl(InitParams params)
+   public DBCreatorImpl(InitParams params) throws ConfigurationException
    {
-      // TODO null checks
-      PropertiesParam prop = params.getPropertiesParam(DB_CREATOR_PROPERTIES);
+      if (params == null)
+      {
+         throw new ConfigurationException("Initializations parameters expected");
+      }
 
-      this.driver = prop.getProperty(DRIVER_PROPERTY);
-      this.url = prop.getProperty(URL_PROPERTY);
-      this.userName = prop.getProperty(USERNAME_PROPERTY);
-      this.password = prop.getProperty(PASSWORD_PROPERTY);
-      this.script = prop.getProperty(SCRIPT_PROPERTY);
+      PropertiesParam prop = params.getPropertiesParam(DB_CONNECTION_PROPERTIES);
+
+      if (prop != null)
+      {
+         this.driver = prop.getProperty(DRIVER_PROPERTY);
+         this.url = prop.getProperty(URL_PROPERTY);
+         this.userName = prop.getProperty(USERNAME_PROPERTY);
+         this.password = prop.getProperty(PASSWORD_PROPERTY);
+      }
+      else
+      {
+         throw new ConfigurationException(DB_CONNECTION_PROPERTIES + " expected in initializations parameters");
+      }
+
+      prop = params.getPropertiesParam(DB_CREATION_PROPERTIES);
+
+      if (prop != null)
+      {
+         String scriptPath = prop.getProperty(SCRIPT_PATH_PROPERTY);
+         if (scriptPath != null)
+         {
+            try
+            {
+               dbScript = readScriptResource(scriptPath);
+            }
+            catch (IOException e)
+            {
+               throw new ConfigurationException("Can't read script resource " + scriptPath, e);
+            }
+         }
+         else
+         {
+            throw new ConfigurationException(SCRIPT_PATH_PROPERTY + " expected in initializations parameters");
+         }
+
+         this.dbUserName = prop.getProperty(USERNAME_PROPERTY);
+         this.dbPassword = prop.getProperty(PASSWORD_PROPERTY);
+      }
+      else
+      {
+         throw new ConfigurationException(DB_CREATION_PROPERTIES + " expected in initializations parameters");
+      }
+
    }
 
    /**
     * {@inheritDoc}
     */
-   public void create(String dbName, String _userName, String _password) throws DBCreationException
+   public void create(String dbName) throws DBCreationException
    {
       Connection conn = null;
       try
@@ -98,24 +169,22 @@ public class DBCreatorImpl implements DBCreator
          throw new DBCreationException("Can't load the JDBC driver " + driver, e);
       }
 
-      String sql;
-      try
-      {
-         sql = readScriptResource(script);
-      }
-      catch (IOException e)
-      {
-         throw new DBCreationException("Can't read SQL script resource " + script, e);
-      }
-
-      sql = sql.replace(DBCreator.DATABASE_TEMPLATE, dbName);
-      sql = sql.replace(DBCreator.USERNAME_TEMPLATE, _userName);
-      sql = sql.replace(DBCreator.PASSWORD_TEMPLATE, _password);
-
       try
       {
          conn.setAutoCommit(false);
-         conn.createStatement().executeUpdate(sql);
+
+         for (String scr : dbScript.split(SQL_DELIMITER))
+         {
+            scr = scr.replace(DBCreator.DATABASE_TEMPLATE, dbName);
+            scr = scr.replace(DBCreator.USERNAME_TEMPLATE, dbUserName);
+            scr = scr.replace(DBCreator.PASSWORD_TEMPLATE, dbPassword);
+
+            String s = cleanWhitespaces(scr.trim());
+            if (s.length() > 0)
+            {
+               conn.createStatement().executeUpdate(s);
+            }
+         }
          conn.commit();
       }
       catch (SQLException e)
@@ -126,9 +195,20 @@ public class DBCreatorImpl implements DBCreator
          }
          catch (SQLException e1)
          {
-            throw new DBCreationException("Can't perform rollback", e);
+            throw new DBCreationException("Can't perform rollback", e1);
          }
-         throw new DBCreationException("Can't execute SQL script " + sql, e);
+         throw new DBCreationException("Can't execute SQL script", e);
+      }
+      finally
+      {
+         try
+         {
+            conn.close();
+         }
+         catch (SQLException e)
+         {
+            throw new DBCreationException("Can't close connection", e);
+         }
       }
    }
 
@@ -137,8 +217,6 @@ public class DBCreatorImpl implements DBCreator
     */
    protected String readScriptResource(String path) throws IOException
    {
-      //      InputStream is = this.getClass().getResourceAsStream(path);
-      // TODO
       InputStream is = new FileInputStream(path);
       InputStreamReader isr = new InputStreamReader(is);
       try
@@ -155,13 +233,27 @@ public class DBCreatorImpl implements DBCreator
       }
       finally
       {
-         try
-         {
-            is.close();
-         }
-         catch (IOException e)
-         {
-         }
+         is.close();
       }
+   }
+
+   /**
+    * Clean whitespace.
+    */
+   private String cleanWhitespaces(String string)
+   {
+      if (string != null)
+      {
+         char[] cc = string.toCharArray();
+         for (int ci = cc.length - 1; ci > 0; ci--)
+         {
+            if (Character.isWhitespace(cc[ci]))
+            {
+               cc[ci] = ' ';
+            }
+         }
+         return new String(cc);
+      }
+      return string;
    }
 }
