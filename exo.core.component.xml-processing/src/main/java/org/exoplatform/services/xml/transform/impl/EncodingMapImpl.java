@@ -27,7 +27,8 @@ import java.util.Hashtable;
 /**
  * Created by The eXo Platform SAS . Conversions between IANA encoding names and
  * Java encoding names,
- * 
+ * @see http://java.sun.com/j2se/1.5.0/docs/guide/intl/encoding.doc.html 
+ *
  * @author <a href="mailto:alex.kravchuk@gmail.com">Alexander Kravchuk</a>
  * @version $Id:
  */
@@ -441,5 +442,7 @@ public class EncodingMapImpl implements EncodingMap
       addIANA2JavaMapping("IBM-1149", "Cp1149");
       addIANA2JavaMapping("IBM-819", "ISO8859_1");
       addIANA2JavaMapping("IBM-367", "ASCII");
+      // https://jira.jboss.org/jira/browse/EXOJCR-588
+      addIANA2JavaMapping("x-MacRoman", "MacRoman");
    }
 }

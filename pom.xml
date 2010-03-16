@@ -366,9 +366,6 @@
             <exclude>**/TestStandardLDAPAPI.java</exclude>
             <!-- commented to avoid fail tests LDAP organization service -->
             <exclude>**/TestOrganizationService.java</exclude>
-            
-            <exclude>**/TestPipe.java</exclude>
-            <exclude>**/TestTidy.java</exclude>
           </excludes>
         </configuration>
       </plugin>
