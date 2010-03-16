@@ -19,8 +19,8 @@
 package org.exoplatform.services.database;
 
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.services.database.creator.DBCreator;
-import org.exoplatform.services.database.creator.DBCreatorException;
+import org.exoplatform.services.database.creator.DBScriptExecutor;
+import org.exoplatform.services.database.creator.DBScriptExecutorException;
 
 import junit.framework.TestCase;
 
@@ -28,25 +28,25 @@ import junit.framework.TestCase;
  * @author <a href="anatoliy.bazko@exoplatform.org">Anatoliy Bazko</a>
  * @version $Id: TestDBCreator.java 111 2010-11-11 11:11:11Z tolusha $
  */
-public class TestDBCreator extends TestCase
+public class TestDBScriptExecutor extends TestCase
 {
 
-   protected DBCreator dbCreator;
+   protected DBScriptExecutor dbCreator;
 
    public void setUp() throws Exception
    {
       PortalContainer container = PortalContainer.getInstance();
-      dbCreator = (DBCreator)container.getComponentInstanceOfType(DBCreator.class);
+      dbCreator = (DBScriptExecutor)container.getComponentInstanceOfType(DBScriptExecutor.class);
    }
 
-   public void testDBCreator() throws Exception
+   public void testExecute() throws Exception
    {
       assertNotNull(dbCreator);
       try
       {
-         dbCreator.create("testDB");
+         dbCreator.execute("testDB");
       }
-      catch (DBCreatorException e)
+      catch (DBScriptExecutorException e)
       {
          fail("Exception should not be thrown.");
       }

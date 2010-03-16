@@ -34,7 +34,7 @@ import java.sql.SQLException;
  * @author <a href="anatoliy.bazko@exoplatform.org">Anatoliy Bazko</a>
  * @version $Id: DBCreator.java 111 2010-11-11 11:11:11Z tolusha $
  */
-public class DBCreator
+public class DBScriptExecutor
 {
 
    /**
@@ -88,12 +88,12 @@ public class DBCreator
    protected final String dbPassword;
 
    /**
-    * DBCreator constructor.
+    * DBScriptExecutor constructor.
     * 
     * @param params
     *          Initializations parameters
     */
-   public DBCreator(InitParams params) throws ConfigurationException
+   public DBScriptExecutor(InitParams params) throws ConfigurationException
    {
       if (params == null)
       {
@@ -146,16 +146,16 @@ public class DBCreator
    }
 
    /**
-    * Create database using predefined SQL script. Database name passed as parameter, 
-    * user name and password passed via configuration. In SQL script database name, user name 
+    * Execute DDL script for new database creation. Database name are passed as parameter, 
+    * user name and password are passed via configuration. In SQL script database name, user name 
     * and password defined via templates as ${database}, ${username} and ${password} respectively.
     * 
     * @param dbName
     *          new database name
-    * @throws DBCreatorException
+    * @throws DBScriptExecutorException
     *          if any error occurs 
     */
-   public void create(String dbName) throws DBCreatorException
+   public void execute(String dbName) throws DBScriptExecutorException
    {
       Connection conn = null;
       try
@@ -165,11 +165,11 @@ public class DBCreator
       }
       catch (SQLException e)
       {
-         throw new DBCreatorException("Can't establish the JDBC connection to database " + url, e);
+         throw new DBScriptExecutorException("Can't establish the JDBC connection to database " + url, e);
       }
       catch (ClassNotFoundException e)
       {
-         throw new DBCreatorException("Can't load the JDBC driver " + driver, e);
+         throw new DBScriptExecutorException("Can't load the JDBC driver " + driver, e);
       }
 
       try
@@ -198,9 +198,9 @@ public class DBCreator
          }
          catch (SQLException e1)
          {
-            throw new DBCreatorException("Can't perform rollback", e1);
+            throw new DBScriptExecutorException("Can't perform rollback", e1);
          }
-         throw new DBCreatorException("Can't execute SQL script", e);
+         throw new DBScriptExecutorException("Can't execute SQL script", e);
       }
       finally
       {
@@ -210,7 +210,7 @@ public class DBCreator
          }
          catch (SQLException e)
          {
-            throw new DBCreatorException("Can't close connection", e);
+            throw new DBScriptExecutorException("Can't close connection", e);
          }
       }
    }

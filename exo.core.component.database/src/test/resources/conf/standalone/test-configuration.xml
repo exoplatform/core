@@ -51,8 +51,8 @@
    </component>
 
    <component> 
-      <key>org.exoplatform.services.database.creator.DBCreator</key> 
-      <type>org.exoplatform.services.database.creator.DBCreator</type> 
+      <key>org.exoplatform.services.database.creator.DBScriptExecutor</key> 
+      <type>org.exoplatform.services.database.creator.DBScriptExecutor</type> 
       <init-params> 
          <properties-param> 
             <name>db-connection</name> 

@@ -22,13 +22,13 @@ package org.exoplatform.services.database.creator;
  * @author <a href="anatoliy.bazko@exoplatform.org">Anatoliy Bazko</a>
  * @version $Id: DBCreatorException.java 111 2010-11-11 11:11:11Z tolusha $
  */
-public class DBCreatorException extends Exception
+public class DBScriptExecutorException extends Exception
 {
 
    /**
     * DBCreationException constructor.
     */
-   public DBCreatorException(Throwable e)
+   public DBScriptExecutorException(Throwable e)
    {
       super(e);
    }
@@ -36,7 +36,7 @@ public class DBCreatorException extends Exception
    /**
     * DBCreationException constructor.
     */
-   public DBCreatorException(String message, Throwable e)
+   public DBScriptExecutorException(String message, Throwable e)
    {
       super(message, e);
    }

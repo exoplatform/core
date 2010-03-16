@@ -361,7 +361,7 @@
           <excludes>
             <exclude>**/*$*</exclude>
             <exclude>**/DBCreatorTest.java</exclude>
-            <exclude>**/TestDBCreator.java</exclude>
+            <exclude>**/TestDBScriptExecutor.java</exclude>
             <exclude>**/TestLDAPService.java</exclude>
             <exclude>**/TestNovellLDAPAPI.java</exclude>
             <exclude>**/TestStandardLDAPAPI.java</exclude>
