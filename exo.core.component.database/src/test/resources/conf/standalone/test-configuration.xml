@@ -57,17 +57,17 @@
          <properties-param> 
             <name>db-connection</name> 
             <description>database connection properties</description> 
-            <property name="driverClassName" value="org.hsqldb.jdbcDriver" /> 
-            <property name="url" value="jdbc:hsqldb:file:target/temp/data/portal" /> 
-            <property name="username" value="sa" /> 
-            <property name="password" value="" /> 
+            <property name="driverClassName" value="com.mysql.jdbc.Driver" /> 
+            <property name="url" value="jdbc:mysql://localhost/" /> 
+            <property name="username" value="root" /> 
+            <property name="password" value="admin" /> 
          </properties-param> 
          <properties-param> 
-            <name>db-creation</name> 
+            <name>script-execution</name> 
             <description>properites for new database creation</description> 
             <property name="scriptPath" value="test.sql" /> 
-            <property name="username" value="sa" /> 
-            <property name="password" value="" /> 
+            <property name="username" value="'user1'@'localhost'" /> 
+            <property name="password" value="'pass1'" /> 
          </properties-param> 
       </init-params> 
    </component> 

@@ -114,7 +114,7 @@ public class DBScriptExecutor
          throw new ConfigurationException("db-connection properties expected in initializations parameters");
       }
 
-      prop = params.getPropertiesParam("db-creation");
+      prop = params.getPropertiesParam("script-execution");
 
       if (prop != null)
       {
