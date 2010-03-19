@@ -19,8 +19,16 @@
 package org.exoplatform.services.database;
 
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.services.database.creator.DBConnectionInfo;
 import org.exoplatform.services.database.creator.DBScriptExecutor;
-import org.exoplatform.services.database.creator.DBScriptExecutorException;
+import org.exoplatform.services.naming.InitialContextBinder;
+import org.exoplatform.services.naming.InitialContextInitializer;
+
+import java.sql.Connection;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.sql.DataSource;
 
 import junit.framework.TestCase;
 
@@ -31,24 +39,40 @@ import junit.framework.TestCase;
 public class TestDBScriptExecutor extends TestCase
 {
 
-   protected DBScriptExecutor dbCreator;
+   protected DBScriptExecutor dbExecutor;
+
+   private InitialContextBinder initialContextBinder;
+
+   private InitialContextInitializer initContext;
 
    public void setUp() throws Exception
    {
       PortalContainer container = PortalContainer.getInstance();
-      dbCreator = (DBScriptExecutor)container.getComponentInstanceOfType(DBScriptExecutor.class);
+
+      dbExecutor = (DBScriptExecutor)container.getComponentInstanceOfType(DBScriptExecutor.class);
+      initContext = (InitialContextInitializer)container.getComponentInstanceOfType(InitialContextInitializer.class);
+      initialContextBinder = (InitialContextBinder)container.getComponentInstanceOfType(InitialContextBinder.class);
    }
 
-   public void testExecute() throws Exception
+   public void testDBCreate() throws Exception
    {
-      assertNotNull(dbCreator);
-      try
-      {
-         dbCreator.execute("testDB");
-      }
-      catch (DBScriptExecutorException e)
-      {
-         fail("Exception should not be thrown.");
-      }
+      assertNotNull(dbExecutor);
+
+      DBConnectionInfo dbInfo = dbExecutor.createDatabase("testdb");
+
+      Map<String, String> refAddr = new HashMap<String, String>();
+      refAddr.put("driverClassName", dbInfo.getDriver());
+      refAddr.put("url", dbInfo.getUrl());
+      refAddr.put("username", dbInfo.getUsername());
+      refAddr.put("password", dbInfo.getPassword());
+
+      initialContextBinder.bind("testjdbcjcr", "javax.sql.DataSource",
+         "org.apache.commons.dbcp.BasicDataSourceFactory", null, refAddr);
+
+      DataSource ds = (DataSource)initContext.getInitialContext().lookup("testjdbcjcr");
+      assertNotNull(ds);
+
+      Connection conn = ds.getConnection();
+      assertNotNull(conn);
    }
 }

@@ -40,4 +40,12 @@ public class DBScriptExecutorException extends Exception
    {
       super(message, e);
    }
+
+   /**
+    * DBCreationException constructor.
+    */
+   public DBScriptExecutorException(String message)
+   {
+      super(message);
+   }
 }

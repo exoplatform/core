@@ -29,6 +29,8 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Properties;
 
 /**
  * @author <a href="anatoliy.bazko@exoplatform.org">Anatoliy Bazko</a>
@@ -58,27 +60,32 @@ public class DBScriptExecutor
    protected final String driver;
 
    /**
-    * Database url.
+    * Server url.
     */
-   protected final String url;
+   protected final String serverUrl;
 
    /**
-    * SA user name.
+    * User name with administrative rights for connection to server.
     */
-   protected final String userName;
+   protected final String adminName;
 
    /**
-    * SA user's password.
+    * User's password.
     */
-   protected final String password;
+   protected final String adminPwd;
 
    /**
-    * DB script creation.
+    * Internal login connection property needed for Oracle.
+    */
+   protected final String internal_logon;
+
+   /**
+    * DDL script database creation.
     */
    protected final String dbScript;
 
    /**
-    * User name for new DB.
+    * User name for new database.
     */
    protected final String dbUserName;
 
@@ -105,17 +112,37 @@ public class DBScriptExecutor
       if (prop != null)
       {
          this.driver = prop.getProperty("driverClassName");
-         this.url = prop.getProperty("url");
-         this.userName = prop.getProperty("username");
-         this.password = prop.getProperty("password");
+         if (driver == null)
+         {
+            throw new ConfigurationException("driverClassName expected in db-connection properties section");
+         }
+
+         this.serverUrl = prop.getProperty("url");
+         if (serverUrl == null)
+         {
+            throw new ConfigurationException("url expected in db-connection properties section");
+         }
+
+         this.adminName = prop.getProperty("username");
+         if (adminName == null)
+         {
+            throw new ConfigurationException("username expected in db-connection properties section");
+         }
+
+         this.adminPwd = prop.getProperty("password");
+         if (adminPwd == null)
+         {
+            throw new ConfigurationException("password expected in db-connection properties section");
+         }
+
+         this.internal_logon = prop.getProperty("internal_logon");
       }
       else
       {
          throw new ConfigurationException("db-connection properties expected in initializations parameters");
       }
 
-      prop = params.getPropertiesParam("script-execution");
-
+      prop = params.getPropertiesParam("db-creation");
       if (prop != null)
       {
          String scriptPath = prop.getProperty("scriptPath");
@@ -132,75 +159,88 @@ public class DBScriptExecutor
          }
          else
          {
-            throw new ConfigurationException("scriptPath expected in initializations parameters");
+            throw new ConfigurationException("scriptPath expected in db-creation properties section");
          }
 
          this.dbUserName = prop.getProperty("username");
+         if (dbUserName == null)
+         {
+            throw new ConfigurationException("username expected in db-creation properties section");
+         }
+
          this.dbPassword = prop.getProperty("password");
+         if (dbPassword == null)
+         {
+            throw new ConfigurationException("password expected in db-creation properties section");
+         }
       }
       else
       {
-         throw new ConfigurationException("db-creation properties  expected in initializations parameters");
+         throw new ConfigurationException("db-creation properties expected in initializations parameters");
       }
-
    }
 
    /**
     * Execute DDL script for new database creation. Database name are passed as parameter, 
-    * user name and password are passed via configuration. In SQL script database name, user name 
+    * user name and password are passed via configuration. In script database name, user name 
     * and password defined via templates as ${database}, ${username} and ${password} respectively.
+    * At execution time method replaces templates by real values.
     * 
     * @param dbName
     *          new database name
     * @throws DBScriptExecutorException
     *          if any error occurs 
     */
-   public void execute(String dbName) throws DBScriptExecutorException
+   public DBConnectionInfo createDatabase(String dbName) throws DBScriptExecutorException
    {
       Connection conn = null;
       try
       {
          Class.forName(driver);
-         conn = DriverManager.getConnection(url, userName, password);
+
+         Properties props = new java.util.Properties();
+         props.put("user", adminName);
+         props.put("password", adminPwd);
+         if (internal_logon != null)
+         {
+            props.put("internal_logon", internal_logon);
+         }
+         conn = DriverManager.getConnection(serverUrl, props);
       }
       catch (SQLException e)
       {
-         throw new DBScriptExecutorException("Can't establish the JDBC connection to database " + url, e);
+         throw new DBScriptExecutorException("Can't establish the JDBC connection to database " + serverUrl, e);
       }
       catch (ClassNotFoundException e)
       {
          throw new DBScriptExecutorException("Can't load the JDBC driver " + driver, e);
       }
 
+      String dbProductName;
       try
       {
-         conn.setAutoCommit(false);
+         dbProductName = conn.getMetaData().getDatabaseProductName();
 
-         for (String scr : dbScript.split(";"))
+         if (dbProductName.startsWith("Microsoft SQL Server") || dbProductName.startsWith("Adaptive Server Anywhere")
+            || dbProductName.equals("Sybase SQL Server") || dbProductName.equals("Adaptive Server Enterprise"))
          {
-            scr = scr.replace(DATABASE_TEMPLATE, dbName);
-            scr = scr.replace(USERNAME_TEMPLATE, dbUserName);
-            scr = scr.replace(PASSWORD_TEMPLATE, dbPassword);
-
-            String s = cleanWhitespaces(scr.trim());
-            if (s.length() > 0)
-            {
-               conn.createStatement().executeUpdate(s);
-            }
+            executeAutoCommitMode(conn, dbName);
          }
-         conn.commit();
+         else
+         {
+            executeBatchMode(conn, dbName);
+         }
       }
       catch (SQLException e)
       {
-         try
+         String errorTrace = "";
+         while (e != null)
          {
-            conn.rollback();
+            errorTrace += e.getMessage() + "; ";
+            e = e.getNextException();
          }
-         catch (SQLException e1)
-         {
-            throw new DBScriptExecutorException("Can't perform rollback", e1);
-         }
-         throw new DBScriptExecutorException("Can't execute SQL script", e);
+
+         throw new DBScriptExecutorException("Can't execute SQL script " + errorTrace);
       }
       finally
       {
@@ -211,6 +251,80 @@ public class DBScriptExecutor
          catch (SQLException e)
          {
             throw new DBScriptExecutorException("Can't close connection", e);
+         }
+      }
+
+      // try to solve database url connection depending on specific database
+      String dbUrl = serverUrl;
+      if (dbProductName.startsWith("Microsoft SQL Server"))
+      {
+         dbUrl = dbUrl + (dbUrl.endsWith(";") ? "" : ";") + "databaseName=" + dbName + ";";
+      }
+      else if (dbProductName.equals("Oracle"))
+      {
+         // do nothing
+      }
+      else
+      {
+         dbUrl = dbUrl + (dbUrl.endsWith("/") ? "" : "/") + dbName;
+      }
+
+      return new DBConnectionInfo(driver, dbUrl, dbUserName, dbPassword);
+   }
+
+   /**
+    * Executes DDL script in generic batch mode.
+    * 
+    * @param conn
+    *          connection to server
+    * @param dbName
+    *          database name
+    * @throws SQLException
+    *          if any errors occurs
+    */
+   private void executeBatchMode(Connection conn, String dbName) throws SQLException
+   {
+      Statement statement = conn.createStatement();
+      for (String scr : dbScript.split(";"))
+      {
+         scr = scr.replace(DATABASE_TEMPLATE, dbName);
+         scr = scr.replace(USERNAME_TEMPLATE, dbUserName);
+         scr = scr.replace(PASSWORD_TEMPLATE, dbPassword);
+
+         String s = cleanWhitespaces(scr.trim());
+         if (s.length() > 0)
+         {
+            statement.addBatch(s);
+         }
+      }
+      statement.executeBatch();
+   }
+
+   /**
+    * Executes DDL script with autocommit mode set true. Actually need for MSSQL and Sybase database servers.
+    * After execution "create database" command newly created database not available for "use" command and
+    * therefore you can't create user inside.  
+    * 
+    * @param conn
+    *          connection to server
+    * @param dbName
+    *          database name
+    * @throws SQLException
+    *          if any errors occurs
+    */
+   private void executeAutoCommitMode(Connection conn, String dbName) throws SQLException
+   {
+      conn.setAutoCommit(true);
+      for (String scr : dbScript.split(";"))
+      {
+         scr = scr.replace(DATABASE_TEMPLATE, dbName);
+         scr = scr.replace(USERNAME_TEMPLATE, dbUserName);
+         scr = scr.replace(PASSWORD_TEMPLATE, dbPassword);
+
+         String s = cleanWhitespaces(scr.trim());
+         if (s.length() > 0)
+         {
+            conn.createStatement().executeUpdate(s);
          }
       }
    }

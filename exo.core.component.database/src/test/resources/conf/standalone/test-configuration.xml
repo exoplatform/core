@@ -51,26 +51,31 @@
    </component>
 
    <component> 
-      <key>org.exoplatform.services.database.creator.DBScriptExecutor</key> 
-      <type>org.exoplatform.services.database.creator.DBScriptExecutor</type> 
-      <init-params> 
-         <properties-param> 
-            <name>db-connection</name> 
-            <description>database connection properties</description> 
-            <property name="driverClassName" value="com.mysql.jdbc.Driver" /> 
-            <property name="url" value="jdbc:mysql://localhost/" /> 
-            <property name="username" value="root" /> 
-            <property name="password" value="admin" /> 
-         </properties-param> 
-         <properties-param> 
-            <name>script-execution</name> 
-            <description>properites for new database creation</description> 
-            <property name="scriptPath" value="test.sql" /> 
-            <property name="username" value="'user1'@'localhost'" /> 
-            <property name="password" value="'pass1'" /> 
+      <key>org.exoplatform.services.database.creator.DBScriptExecutor</key>
+      <type>org.exoplatform.services.database.creator.DBScriptExecutor</type>
+      <init-params>
+         <properties-param>
+            <name>db-connection</name>
+            <description>database connection properties</description>
+            <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+            <property name="url" value="jdbc:mysql://localhost/" />
+            <property name="username" value="root" />
+            <property name="password" value="admin" />
+         </properties-param>
+         <properties-param>
+            <name>db-creation</name>
+            <description>database creation properties</description>
+            <property name="scriptPath" value="script.sql" />
+            <property name="username" value="testuser" />
+            <property name="password" value="testpwd" />
          </properties-param> 
       </init-params> 
    </component> 
+
+   <component>
+      <key>org.exoplatform.services.naming.InitialContextBinder</key>
+      <type>org.exoplatform.services.naming.InitialContextBinder</type>
+   </component>
 
    <component>
       <key>org.exoplatform.services.naming.InitialContextInitializer</key>
