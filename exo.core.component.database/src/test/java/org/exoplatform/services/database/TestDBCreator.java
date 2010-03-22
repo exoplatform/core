@@ -20,7 +20,7 @@ package org.exoplatform.services.database;
 
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.database.creator.DBConnectionInfo;
-import org.exoplatform.services.database.creator.DBScriptExecutor;
+import org.exoplatform.services.database.creator.DBCreator;
 import org.exoplatform.services.naming.InitialContextBinder;
 import org.exoplatform.services.naming.InitialContextInitializer;
 
@@ -36,10 +36,10 @@ import junit.framework.TestCase;
  * @author <a href="anatoliy.bazko@exoplatform.org">Anatoliy Bazko</a>
  * @version $Id: TestDBCreator.java 111 2010-11-11 11:11:11Z tolusha $
  */
-public class TestDBScriptExecutor extends TestCase
+public class TestDBCreator extends TestCase
 {
 
-   protected DBScriptExecutor dbExecutor;
+   protected DBCreator dbCreator;
 
    private InitialContextBinder initialContextBinder;
 
@@ -49,16 +49,16 @@ public class TestDBScriptExecutor extends TestCase
    {
       PortalContainer container = PortalContainer.getInstance();
 
-      dbExecutor = (DBScriptExecutor)container.getComponentInstanceOfType(DBScriptExecutor.class);
+      dbCreator = (DBCreator)container.getComponentInstanceOfType(DBCreator.class);
       initContext = (InitialContextInitializer)container.getComponentInstanceOfType(InitialContextInitializer.class);
       initialContextBinder = (InitialContextBinder)container.getComponentInstanceOfType(InitialContextBinder.class);
    }
 
    public void testDBCreate() throws Exception
    {
-      assertNotNull(dbExecutor);
+      assertNotNull(dbCreator);
 
-      DBConnectionInfo dbInfo = dbExecutor.createDatabase("testdb");
+      DBConnectionInfo dbInfo = dbCreator.createDatabase("testdb");
 
       Map<String, String> refAddr = new HashMap<String, String>();
       refAddr.put("driverClassName", dbInfo.getDriver());

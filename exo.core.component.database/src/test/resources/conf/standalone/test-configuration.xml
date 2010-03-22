@@ -51,8 +51,8 @@
    </component>
 
    <component> 
-      <key>org.exoplatform.services.database.creator.DBScriptExecutor</key>
-      <type>org.exoplatform.services.database.creator.DBScriptExecutor</type>
+      <key>org.exoplatform.services.database.creator.DBCreator</key>
+      <type>org.exoplatform.services.database.creator.DBCreator</type>
       <init-params>
          <properties-param>
             <name>db-connection</name>
@@ -65,7 +65,7 @@
          <properties-param>
             <name>db-creation</name>
             <description>database creation properties</description>
-            <property name="scriptPath" value="script.sql" />
+            <property name="scriptPath" value="test.sql" />
             <property name="username" value="testuser" />
             <property name="password" value="testpwd" />
          </properties-param> 

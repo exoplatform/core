@@ -30,13 +30,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Properties;
 
 /**
  * @author <a href="anatoliy.bazko@exoplatform.org">Anatoliy Bazko</a>
  * @version $Id: DBCreator.java 111 2010-11-11 11:11:11Z tolusha $
  */
-public class DBScriptExecutor
+public class DBCreator
 {
 
    /**
@@ -95,12 +94,12 @@ public class DBScriptExecutor
    protected final String dbPassword;
 
    /**
-    * DBScriptExecutor constructor.
+    * DBCreator constructor.
     * 
     * @param params
     *          Initializations parameters
     */
-   public DBScriptExecutor(InitParams params) throws ConfigurationException
+   public DBCreator(InitParams params) throws ConfigurationException
    {
       if (params == null)
       {
@@ -188,32 +187,33 @@ public class DBScriptExecutor
     * 
     * @param dbName
     *          new database name
-    * @throws DBScriptExecutorException
+    * @throws DBCreatorException
     *          if any error occurs 
     */
-   public DBConnectionInfo createDatabase(String dbName) throws DBScriptExecutorException
+   public DBConnectionInfo createDatabase(String dbName) throws DBCreatorException
    {
       Connection conn = null;
       try
       {
          Class.forName(driver);
 
-         Properties props = new java.util.Properties();
-         props.put("user", adminName);
-         props.put("password", adminPwd);
-         if (internal_logon != null)
-         {
-            props.put("internal_logon", internal_logon);
-         }
-         conn = DriverManager.getConnection(serverUrl, props);
+         //         Properties props = new java.util.Properties();
+         //         props.put("user", adminName);
+         //         props.put("password", adminPwd);
+         //         if (internal_logon != null)
+         //         {
+         //            props.put("internal_logon", internal_logon);
+         //         }
+         //         conn = DriverManager.getConnection(serverUrl, props);
+         conn = DriverManager.getConnection(serverUrl, adminName, adminPwd);
       }
       catch (SQLException e)
       {
-         throw new DBScriptExecutorException("Can't establish the JDBC connection to database " + serverUrl, e);
+         throw new DBCreatorException("Can't establish the JDBC connection to database " + serverUrl, e);
       }
       catch (ClassNotFoundException e)
       {
-         throw new DBScriptExecutorException("Can't load the JDBC driver " + driver, e);
+         throw new DBCreatorException("Can't load the JDBC driver " + driver, e);
       }
 
       String dbProductName;
@@ -240,7 +240,7 @@ public class DBScriptExecutor
             e = e.getNextException();
          }
 
-         throw new DBScriptExecutorException("Can't execute SQL script " + errorTrace);
+         throw new DBCreatorException("Can't execute SQL script " + errorTrace);
       }
       finally
       {
@@ -250,7 +250,7 @@ public class DBScriptExecutor
          }
          catch (SQLException e)
          {
-            throw new DBScriptExecutorException("Can't close connection", e);
+            throw new DBCreatorException("Can't close connection", e);
          }
       }
 
