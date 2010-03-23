@@ -40,7 +40,6 @@
       
       <org.exoplatform.framework.junit.version>1.2.2-GA-SNAPSHOT</org.exoplatform.framework.junit.version>
       <org.exoplatform.kernel.version>2.2.1-GA-SNAPSHOT</org.exoplatform.kernel.version>
-      <org.exoplatform.doc-style.version>2-SNAPSHOT</org.exoplatform.doc-style.version>
    </properties>
 
    <scm>
