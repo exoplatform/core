@@ -127,6 +127,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler
    {
       LdapContext ctx = ldapService.getLdapContext();
       String userDN = null;
+      User existingUser = null;
       try
       {
          for (int err = 0;; err++)
@@ -136,7 +137,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler
                userDN = getDNFromUsername(ctx, user.getUserName());
                if (userDN == null)
                   return;
-               User existingUser = getUserFromUsername(ctx, user.getUserName());
+               existingUser = getUserFromUsername(ctx, user.getUserName());
                ModificationItem[] mods = createUserModification(user, existingUser);
                if (broadcast)
                   preSave(user, false);
@@ -159,8 +160,10 @@ public class UserDAOImpl extends BaseDAO implements UserHandler
          ldapService.release(ctx);
       }
       // TODO really need this ?
-      if (!user.getPassword().equals("PASSWORD"))
+      if (existingUser != null && (!user.getPassword().equals(existingUser.getPassword())))
+      {
          saveUserPassword(user, userDN);
+      }
    }
 
    /**
@@ -272,11 +275,11 @@ public class UserDAOImpl extends BaseDAO implements UserHandler
    public LazyPageList<User> findUsersByGroup(String groupId) throws Exception
    {
       return new LazyPageList<User>(findUsersByGroupId(groupId), 10);
-   }    
+   }
 
-    /**
-    * {@inheritDoc}
-    */
+   /**
+   * {@inheritDoc}
+   */
    public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
    {
       //    ArrayList<User> users = new ArrayList<User>();
@@ -334,9 +337,9 @@ public class UserDAOImpl extends BaseDAO implements UserHandler
       return new LazyPageList<User>(findAllUsers(), 10);
    }
 
-    /**
-    * {@inheritDoc}
-    */
+   /**
+   * {@inheritDoc}
+   */
    public ListAccess<User> findAllUsers() throws Exception
    {
       String searchBase = ldapAttrMapping.userURL;
