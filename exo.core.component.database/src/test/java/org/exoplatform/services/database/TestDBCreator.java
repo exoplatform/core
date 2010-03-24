@@ -18,10 +18,11 @@
  */
 package org.exoplatform.services.database;
 
+import junit.framework.TestCase;
+
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.database.creator.DBConnectionInfo;
 import org.exoplatform.services.database.creator.DBCreator;
-import org.exoplatform.services.naming.InitialContextBinder;
 import org.exoplatform.services.naming.InitialContextInitializer;
 
 import java.sql.Connection;
@@ -30,18 +31,14 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import junit.framework.TestCase;
-
 /**
  * @author <a href="anatoliy.bazko@exoplatform.org">Anatoliy Bazko</a>
- * @version $Id: TestDBCreator.java 111 2010-11-11 11:11:11Z tolusha $
+ * @version $Id$
  */
 public class TestDBCreator extends TestCase
 {
 
    protected DBCreator dbCreator;
-
-   private InitialContextBinder initialContextBinder;
 
    private InitialContextInitializer initContext;
 
@@ -51,7 +48,6 @@ public class TestDBCreator extends TestCase
 
       dbCreator = (DBCreator)container.getComponentInstanceOfType(DBCreator.class);
       initContext = (InitialContextInitializer)container.getComponentInstanceOfType(InitialContextInitializer.class);
-      initialContextBinder = (InitialContextBinder)container.getComponentInstanceOfType(InitialContextBinder.class);
    }
 
    public void testDBCreate() throws Exception
@@ -66,7 +62,7 @@ public class TestDBCreator extends TestCase
       refAddr.put("username", dbInfo.getUsername());
       refAddr.put("password", dbInfo.getPassword());
 
-      initialContextBinder.bind("testjdbcjcr", "javax.sql.DataSource",
+      initContext.bind("testjdbcjcr", "javax.sql.DataSource",
          "org.apache.commons.dbcp.BasicDataSourceFactory", null, refAddr);
 
       DataSource ds = (DataSource)initContext.getInitialContext().lookup("testjdbcjcr");

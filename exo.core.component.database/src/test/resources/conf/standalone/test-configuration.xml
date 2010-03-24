@@ -73,11 +73,6 @@
    </component> 
 
    <component>
-      <key>org.exoplatform.services.naming.InitialContextBinder</key>
-      <type>org.exoplatform.services.naming.InitialContextBinder</type>
-   </component>
-
-   <component>
       <key>org.exoplatform.services.naming.InitialContextInitializer</key>
       <type>org.exoplatform.services.naming.InitialContextInitializer</type>
       <component-plugins>
