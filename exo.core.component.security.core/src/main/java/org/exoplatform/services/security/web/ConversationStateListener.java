@@ -41,7 +41,7 @@ public class ConversationStateListener implements HttpSessionListener
    /**
     * Logger.
     */
-   protected Log log = ExoLogger.getLogger("core.security.ConversationStateListener");
+   protected Log log = ExoLogger.getLogger("exo.core.component.security.core.ConversationStateListener");
 
    /**
     * {@inheritDoc}

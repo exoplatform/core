@@ -56,7 +56,7 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler
    /**
     * Logger.
     */
-   private static final Log LOG = ExoLogger.getLogger(GroupDAOImpl.class.getName());
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.ldap.GroupDAOImpl");
 
    /**
     * See {@link GroupEventListener}.

@@ -35,7 +35,7 @@ import java.util.Set;
 public class XMLResolvingServiceImpl implements XMLResolvingService
 {
 
-   private static final Log LOGGER = ExoLogger.getLogger("XMLResolvingServiceImpl");
+   private static final Log LOGGER = ExoLogger.getLogger("exo.core.component.xml-processing.XMLResolvingServiceImpl");
 
    private Map<String, String> publicIDs_ = new HashMap<String, String>();
 

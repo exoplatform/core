@@ -42,7 +42,7 @@ public class RemoveMembershipListener extends Listener<Object, Object>
 {
    private OrganizationService service_;
 
-   protected static Log log = ExoLogger.getLogger("organization:RemoveMembershipListener");
+   protected static Log log = ExoLogger.getLogger("exo.core.component.organization.jdbc.RemoveMembershipListener");
 
    public RemoveMembershipListener(OrganizationService service)
    {

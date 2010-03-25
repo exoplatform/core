@@ -52,7 +52,7 @@ public class SetCurrentIdentityFilter extends AbstractFilter
    /**
     * Logger.
     */
-   private static Log log = ExoLogger.getLogger("core.security.SetCurrentIdentityFilter");
+   private static Log log = ExoLogger.getLogger("exo.core.component.security.core.SetCurrentIdentityFilter");
 
    /**
     * Set current {@link ConversationState}, if it is not registered yet then

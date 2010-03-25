@@ -54,7 +54,7 @@ public class DBSchemaCreator
 
    private final Pattern pattern;
 
-   private static Log log = ExoLogger.getLogger("database.DBSchemaCreator");
+   private static Log log = ExoLogger.getLogger("exo.core.component.database.DBSchemaCreator");
 
    private List<CreateDBSchemaPlugin> createDBSchemaPlugins = new ArrayList<CreateDBSchemaPlugin>();
 

@@ -34,7 +34,7 @@ import javax.security.auth.spi.LoginModule;
  * Created by The eXo Platform SAS
  * Author : Nicolas Filotto
  *          nicolas.filotto@exoplatform.com
- * 20 aožt 2009  
+ * 20 aoï¿½t 2009  
  */
 public abstract class AbstractLoginModule implements LoginModule
 {

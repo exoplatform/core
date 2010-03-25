@@ -36,7 +36,7 @@ import java.util.Set;
 public class TestRolesExtractor extends TestCase
 {
 
-   //  private static Log       log = ExoLogger.getLogger("pc.TestRolesExtractor");
+   //  private static Log       log = ExoLogger.getLogger("exo.core.component.security.core.TestRolesExtractor");
 
    protected RolesExtractor rolesExtractor;
 

@@ -56,7 +56,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
    /**
     * Logger.
     */
-   private static final Log LOG = ExoLogger.getLogger(MembershipDAOImpl.class.getName());
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.ldap.MembershipDAOImpl");
 
    /**
     * See {@link MembershipEventListener}.

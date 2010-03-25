@@ -39,7 +39,7 @@ import java.util.List;
 public class UserProfileDAOImpl extends StandardSQLDAO<UserProfileData> implements UserProfileHandler
 {
 
-   protected static Log log = ExoLogger.getLogger("organization:UserProfileDAOImpl");
+   protected static Log log = ExoLogger.getLogger("exo.core.component.organization.jdbc.UserProfileDAOImpl");
 
    protected ListenerService listenerService_;
 

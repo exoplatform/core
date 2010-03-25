@@ -42,7 +42,7 @@ public class IdentityRegistry
    /**
     * Logger.
     */
-   private static final Log LOG = ExoLogger.getLogger(IdentityRegistry.class.getName());
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.security.core.IdentityRegistry");
 
    /**
     * Default concurrency level.

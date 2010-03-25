@@ -42,7 +42,7 @@ public class SimpleLdapUserListAccess extends LdapUserListAccess
    /**
     * Logger.
     */
-   private static final Log LOG = ExoLogger.getLogger(SimpleLdapUserListAccess.class.getName());
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.ldap.SimpleLdapUserListAccess");
 
    /**
     * @param ldapAttrMapping LDAP attribute to organization service essences 

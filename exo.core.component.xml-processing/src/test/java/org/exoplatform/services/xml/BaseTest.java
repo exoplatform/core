@@ -43,7 +43,7 @@ public abstract class BaseTest extends TestCase
 
    private DateFormat dateFormat;
 
-   protected Log log = ExoLogger.getLogger("org.exoplatform.services.xml");
+   protected Log log = ExoLogger.getLogger("exo.core.component.xml-processing.BaseTest");
 
    protected String getTimeStamp()
    {

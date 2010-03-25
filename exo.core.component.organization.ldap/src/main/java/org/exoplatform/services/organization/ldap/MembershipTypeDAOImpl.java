@@ -50,7 +50,7 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
    /**
     * Logger.
     */
-   private static final Log LOG = ExoLogger.getLogger(MembershipTypeDAOImpl.class.getName());
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.ldap.MembershipTypeDAOImpl");
 
    /**
     * @param ldapAttrMapping mapping LDAP attributes to eXo organization service

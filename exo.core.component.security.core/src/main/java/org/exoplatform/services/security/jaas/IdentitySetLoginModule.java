@@ -46,7 +46,7 @@ public class IdentitySetLoginModule extends AbstractLoginModule
    /**
     * Login.
     */
-   protected Log log = ExoLogger.getLogger("core.IdentitySetLoginModule");
+   protected Log log = ExoLogger.getLogger("exo.core.component.security.core.IdentitySetLoginModule");
 
    /**
     * Is allowed for one user login again if he already login. If must set in LM

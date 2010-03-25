@@ -40,7 +40,7 @@ public class CreateUserListener extends Listener<UserDAOImpl, User>
 {
    private OrganizationService service_;
 
-   protected static Log log = ExoLogger.getLogger("organisation:CreateUserListener");
+   protected static Log log = ExoLogger.getLogger("exo.core.component.organization.jdbc.CreateUserListener");
 
    public CreateUserListener(OrganizationService service)
    {

@@ -34,7 +34,7 @@ public class RemoveUserProfileListener extends Listener<UserDAOImpl, User>
 {
    private OrganizationService service_;
 
-   protected static Log log = ExoLogger.getLogger("organization:RemoveUserProfileListener");
+   protected static Log log = ExoLogger.getLogger("exo.core.component.organization.jdbc.RemoveUserProfileListener");
 
    public RemoveUserProfileListener(OrganizationService service)
    {

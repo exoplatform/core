@@ -50,7 +50,7 @@ public class GroovyScriptInstantiator
 {
 
    /** Our logger. */
-   private static final Log LOG = ExoLogger.getLogger(GroovyScriptInstantiator.class.getName());
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.script.groovy.GroovyScriptInstantiator");
 
    /**
     * eXo Container.

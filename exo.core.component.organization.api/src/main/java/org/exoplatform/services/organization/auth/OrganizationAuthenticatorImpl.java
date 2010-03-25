@@ -51,7 +51,7 @@ public class OrganizationAuthenticatorImpl implements Authenticator
 {
 
    protected static Log log =
-      ExoLogger.getLogger("org.exoplatform.services.organization.auth.OrganizationUserRegistry");
+      ExoLogger.getLogger("exo.core.component.organization.api.OrganizationUserRegistry");
 
    private final OrganizationService orgService;
 

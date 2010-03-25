@@ -46,7 +46,7 @@ import java.util.List;
 public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHandler
 {
 
-   protected static Log log = ExoLogger.getLogger("organization:GroupDAOImpl");
+   protected static Log log = ExoLogger.getLogger("exo.core.component.organization.jdbc.GroupDAOImpl");
 
    protected ListenerService listenerService_;
 

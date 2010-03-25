@@ -66,7 +66,7 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
 
    private ThreadLocal<Session> threadLocal_;
 
-   private static Log log_ = ExoLogger.getLogger(HibernateServiceImpl.class);
+   private static Log log_ = ExoLogger.getLogger("exo.core.component.database.HibernateServiceImpl");
 
    private HibernateConfigurationImpl conf_;
 

@@ -36,7 +36,7 @@ import java.util.List;
 public class RemoveGroupListener extends Listener<GroupDAOImpl, Group>
 {
 
-   protected static Log log = ExoLogger.getLogger("organisation:RemoveGroupListener");
+   protected static Log log = ExoLogger.getLogger("exo.core.component.organization.jdbc.RemoveGroupListener");
 
    private OrganizationService service_;
 

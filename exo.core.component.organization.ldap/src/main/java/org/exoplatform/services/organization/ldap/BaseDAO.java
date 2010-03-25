@@ -58,7 +58,7 @@ public class BaseDAO
    /**
     * Logger.
     */
-   private static final Log LOG = ExoLogger.getLogger("core.BaseAO");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.ldap.BaseAO");
 
    /**
     * Mapping LDAP attributes to eXo organization service items (users, groups, etc). 

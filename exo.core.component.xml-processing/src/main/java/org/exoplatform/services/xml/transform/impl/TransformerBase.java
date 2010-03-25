@@ -51,7 +51,7 @@ public abstract class TransformerBase implements AbstractTransformer
 {
    private Result result = null;
 
-   protected Log log = ExoLogger.getLogger(this.getClass());
+   protected Log log = ExoLogger.getLogger("exo.core.component.xml-processing.TransformerBase");
 
    protected SAXTransformerFactory tSAXFactory;
 

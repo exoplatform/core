@@ -40,7 +40,7 @@ public class ByGroupLdapUserListAccess extends LdapUserListAccess
    /**
     * Logger.
     */
-   private static final Log LOG = ExoLogger.getLogger(ByGroupLdapUserListAccess.class.getName());
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.ldap.ByGroupLdapUserListAccess");
 
    /**
     * List's size.

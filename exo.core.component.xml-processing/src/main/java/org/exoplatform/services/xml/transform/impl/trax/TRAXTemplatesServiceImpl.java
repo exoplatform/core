@@ -42,7 +42,7 @@ import javax.xml.transform.stream.StreamSource;
 public class TRAXTemplatesServiceImpl implements TRAXTemplatesService, Startable
 {
 
-   private static final Log LOGGER = ExoLogger.getLogger("TRAXTemplatesServiceImpl");
+   private static final Log LOGGER = ExoLogger.getLogger("exo.core.component.xml-processing.TRAXTemplatesServiceImpl");
 
    private Map<String, TRAXTemplates> templates_;
 

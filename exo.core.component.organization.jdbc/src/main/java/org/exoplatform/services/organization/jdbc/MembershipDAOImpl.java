@@ -47,7 +47,7 @@ import javax.naming.InvalidNameException;
 public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements MembershipHandler
 {
 
-   protected static Log log = ExoLogger.getLogger("organization:MembershipDAOImpl");
+   protected static Log log = ExoLogger.getLogger("exo.core.component.organization.jdbc.MembershipDAOImpl");
 
    protected ListenerService listenerService_;
 

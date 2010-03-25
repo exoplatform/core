@@ -47,7 +47,7 @@ public class WebsphereJAASLoginModule extends DefaultLoginModule
    /**
     * Exo logger.
     */
-   private Log log = ExoLogger.getLogger("core.ExoWebsphereJAASLoginModule");
+   private Log log = ExoLogger.getLogger("exo.core.component.security.core.ExoWebsphereJAASLoginModule");
 
    /**
     * Default constructor.

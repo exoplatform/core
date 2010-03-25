@@ -55,7 +55,7 @@ import javax.naming.ldap.LdapContext;
 public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
 {
 
-   private static final Log LOG = ExoLogger.getLogger(LDAPServiceImpl.class.getName());
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.ldap.LDAPServiceImpl");
 
    private Map<String, String> env = new HashMap<String, String>();
 

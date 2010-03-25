@@ -57,7 +57,7 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler
    /**
     * Logger. 
     */
-   private static final Log LOG = ExoLogger.getLogger(UserProfileDAOImpl.class.getName());
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.ldap.UserProfileDAOImpl");
 
    public UserProfileDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
    {

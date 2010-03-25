@@ -55,7 +55,7 @@ public class LDAPUserPageList extends PageList
 
    private LDAPAttributeMapping ldapAttrMapping;
    
-   private static Log logger = ExoLogger.getLogger(LDAPUserPageList.class); 
+   private static Log logger = ExoLogger.getLogger("exo.core.component.organization.ldap.LDAPUserPageList"); 
 
    static boolean SEARCH_CONTROL = Control.NONCRITICAL;
 

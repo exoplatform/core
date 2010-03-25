@@ -45,7 +45,7 @@ public final class ConversationRegistry
    /**
     * Logger.
     */
-   private static final Log LOG = ExoLogger.getLogger(ConversationRegistry.class.getName());
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.security.core.ConversationRegistry");
 
    /**
     * Default concurrency level.

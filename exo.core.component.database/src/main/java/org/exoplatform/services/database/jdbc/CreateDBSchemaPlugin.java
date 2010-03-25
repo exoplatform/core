@@ -40,7 +40,7 @@ import java.net.URL;
 public class CreateDBSchemaPlugin extends BaseComponentPlugin
 {
 
-   protected static Log log = ExoLogger.getLogger("jcr.CreateDBSchemaPlugin");
+   protected static Log log = ExoLogger.getLogger("exo.core.component.database.CreateDBSchemaPlugin");
 
    private String dataSource;
 

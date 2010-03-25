@@ -38,7 +38,7 @@ public final class SharedStateLoginModule extends AbstractLoginModule
    /**
     * Logger.
     */
-   private static final Log LOG = ExoLogger.getLogger(SharedStateLoginModule.class.getName());
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.security.core.SharedStateLoginModule");
 
    /**
     * {@inheritDoc}

@@ -56,7 +56,7 @@ import javax.xml.parsers.ParserConfigurationException;
 public class PDFDocumentReader extends BaseDocumentReader
 {
 
-   protected static Log log = ExoLogger.getLogger("platform.PDFDocumentReader");
+   protected static Log log = ExoLogger.getLogger("exo.core.component.document.PDFDocumentReader");
 
    /**
     * Get the application/pdf mime type.

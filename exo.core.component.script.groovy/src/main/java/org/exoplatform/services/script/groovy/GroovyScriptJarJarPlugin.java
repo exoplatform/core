@@ -43,7 +43,7 @@ public class GroovyScriptJarJarPlugin extends BaseComponentPlugin
    private final Map<String, String> mapping = new HashMap<String, String>();
 
    /** Our logger. */
-   private final Log log = ExoLogger.getLogger(GroovyScriptJarJarPlugin.class);
+   private final Log log = ExoLogger.getLogger("exo.core.component.script.groovy.GroovyScriptJarJarPlugin");
 
    @SuppressWarnings("unchecked")
    public GroovyScriptJarJarPlugin(InitParams params)

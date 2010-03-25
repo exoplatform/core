@@ -45,7 +45,7 @@ public class DefaultLoginModule extends AbstractLoginModule
    /**
     * Logger.
     */
-   protected Log log = ExoLogger.getLogger("core.DefaultLoginModule");
+   protected Log log = ExoLogger.getLogger("exo.core.component.security.core.DefaultLoginModule");
 
    /**
     * encapsulates user's principals such as name, groups, etc .

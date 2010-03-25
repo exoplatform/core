@@ -48,7 +48,7 @@ public class WebsphereFilter implements Filter
    /**
     * Exo logger.
     */
-   private Log log = ExoLogger.getLogger(getClass().getName());
+   private Log log = ExoLogger.getLogger("exo.core.component.security.core.WebsphereFilter");
 
    /**
     * First ltpa cookie token name.
