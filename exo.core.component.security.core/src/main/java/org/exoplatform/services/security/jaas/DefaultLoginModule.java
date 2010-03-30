@@ -126,7 +126,11 @@ public class DefaultLoginModule extends AbstractLoginModule
       }
       catch (final Throwable e)
       {
-         log.error(e.getLocalizedMessage());
+         if (log.isDebugEnabled())
+         {
+            log.debug(e.getMessage());
+         }
+            
          throw new LoginException(e.getMessage());
       }
    }

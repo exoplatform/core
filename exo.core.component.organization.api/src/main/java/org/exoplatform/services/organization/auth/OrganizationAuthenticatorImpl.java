@@ -132,7 +132,7 @@ public class OrganizationAuthenticatorImpl implements Authenticator
       end(orgService);
 
       if (!success)
-         throw new LoginException("Login failed for " + user);
+         throw new LoginException("Login failed for " + user.replace("\n", " ").replace("\r", " "));
 
       return user;
    }
