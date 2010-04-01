@@ -29,23 +29,23 @@
 
    <groupId>org.exoplatform.core</groupId>
    <artifactId>core-parent</artifactId>
-   <version>2.3.1-GA-SNAPSHOT</version>
+   <version>2.4.0-Beta01-SNAPSHOT</version>
    <packaging>pom</packaging>
 
    <name>eXo Core</name>
 
    <properties>
       <exo.product.name>exo-core</exo.product.name>
-      <exo.product.specification>2.3</exo.product.specification>
+      <exo.product.specification>2.4</exo.product.specification>
       
       <org.exoplatform.framework.junit.version>1.2.2-GA-SNAPSHOT</org.exoplatform.framework.junit.version>
       <org.exoplatform.kernel.version>2.2.1-GA-SNAPSHOT</org.exoplatform.kernel.version>
    </properties>
 
    <scm>
-      <connection>scm:svn:http://anonsvn.jboss.org/repos/exo-jcr/core/trunk</connection>
-      <developerConnection>scm:svn:https://svn.jboss.org/repos/exo-jcr/core/trunk</developerConnection>
-      <url>http://fisheye.jboss.org/browse/exo-jcr/core/trunk</url>
+      <connection>scm:svn:https://anonsvn.jboss.org/repos/exo-jcr/core/branches/2.4.x/</connection>
+      <developerConnection>scm:svn:https://anonsvn.jboss.org/repos/exo-jcr/core/branches/2.4.x/</developerConnection>
+      <url>http://fisheye.jboss.org/browse/exo-jcr/core/branches/2.4.x</url>
    </scm>
 
    <modules>
