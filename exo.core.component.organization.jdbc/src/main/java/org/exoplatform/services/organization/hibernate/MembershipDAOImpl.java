@@ -82,9 +82,9 @@ public class MembershipDAOImpl implements MembershipHandler
 
    public void createMembership(Membership m, boolean broadcast) throws Exception
    {
-      Session session = service_.openSession();
       if (broadcast)
          preSave(m, true);
+      Session session = service_.openSession();
       session.save(IdentifierUtil.generateUUID(m), m);
       if (broadcast)
          postSave(m, true);
@@ -114,7 +114,6 @@ public class MembershipDAOImpl implements MembershipHandler
             + " because membership type is null");
       }
 
-      Session session = service_.openSession();
       MembershipImpl membership = new MembershipImpl();
       // User user
       // =(User)service_.findExactOne(session,UserHandlerImpl.queryFindUserByName,
@@ -130,6 +129,7 @@ public class MembershipDAOImpl implements MembershipHandler
       if (broadcast)
          preSave(membership, true);
       membership.setId(id);
+      Session session = service_.openSession();
       session.save(membership);
       if (broadcast)
          postSave(membership, true);
@@ -138,9 +138,9 @@ public class MembershipDAOImpl implements MembershipHandler
 
    public void saveMembership(Membership m, boolean broadcast) throws Exception
    {
-      Session session = service_.openSession();
       if (broadcast)
          preSave(m, false);
+      Session session = service_.openSession();
       session.update(m);
       if (broadcast)
          postSave(m, false);
@@ -156,6 +156,7 @@ public class MembershipDAOImpl implements MembershipHandler
       {
          if (broadcast)
             preDelete(m);
+         session = service_.openSession();
          session.delete(m);
          if (broadcast)
             postDelete(m);
@@ -166,7 +167,6 @@ public class MembershipDAOImpl implements MembershipHandler
 
    public Collection removeMembershipByUser(String username, boolean broadcast) throws Exception
    {
-      Session session = service_.openSession();
       Collection collection = findMembershipsByUser(username);
       Iterator iter = collection.iterator();
       while (iter.hasNext())
@@ -176,6 +176,7 @@ public class MembershipDAOImpl implements MembershipHandler
          {
             if (broadcast)
                preDelete(m);
+            Session session = service_.openSession();
             session.delete(m);
             if (broadcast)
                postDelete(m);

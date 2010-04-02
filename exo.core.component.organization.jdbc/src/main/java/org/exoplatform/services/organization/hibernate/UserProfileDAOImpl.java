@@ -92,6 +92,7 @@ public class UserProfileDAOImpl implements UserProfileHandler
          upd.setUserProfile(profile);
          if (broadcast)
             preSave(profile, true);
+         session = service_.openSession();
          session.save(profile.getUserName(), upd);
          if (broadcast)
             postSave(profile, true);
@@ -102,6 +103,7 @@ public class UserProfileDAOImpl implements UserProfileHandler
          upd.setUserProfile(profile);
          if (broadcast)
             preSave(profile, false);
+         session = service_.openSession();
          session.update(upd);
          if (broadcast)
             postSave(profile, false);
@@ -119,6 +121,7 @@ public class UserProfileDAOImpl implements UserProfileHandler
          UserProfile profile = upd.getUserProfile();
          if (broadcast)
             preDelete(profile);
+         session = service_.openSession();
          session.delete(upd);
          if (broadcast)
             postDelete(profile);

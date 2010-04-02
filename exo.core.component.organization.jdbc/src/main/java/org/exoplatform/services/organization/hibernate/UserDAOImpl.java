@@ -77,10 +77,11 @@ public class UserDAOImpl implements UserHandler
 
    public void createUser(User user, boolean broadcast) throws Exception
    {
-      Session session = service_.openSession();
-      Transaction transaction = session.beginTransaction();
       if (broadcast)
          preSave(user, true);
+      Session session = service_.openSession();
+      Transaction transaction = session.beginTransaction();
+
       UserImpl userImpl = (UserImpl)user;
       userImpl.setId(user.getUserName());
       session.save(user);
@@ -91,9 +92,9 @@ public class UserDAOImpl implements UserHandler
 
    public void saveUser(User user, boolean broadcast) throws Exception
    {
-      Session session = service_.openSession();
       if (broadcast)
          preSave(user, false);
+      Session session = service_.openSession();
       session.merge(user);
       // session.update(user);
       if (broadcast)
@@ -116,6 +117,7 @@ public class UserDAOImpl implements UserHandler
 
       if (broadcast)
          preDelete(foundUser);
+      session = service_.openSession();
       session.delete(foundUser);
       if (broadcast)
          postDelete(foundUser);

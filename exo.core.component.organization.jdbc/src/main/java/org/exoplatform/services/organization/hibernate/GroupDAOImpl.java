@@ -112,6 +112,8 @@ public class GroupDAOImpl implements GroupHandler
       if (broadcast)
          preSave(child, true);
       childImpl.setId(groupId);
+
+      session = service_.openSession();
       session.save(childImpl);
       if (broadcast)
          postSave(child, true);
@@ -120,9 +122,9 @@ public class GroupDAOImpl implements GroupHandler
 
    public void saveGroup(Group group, boolean broadcast) throws Exception
    {
-      Session session = service_.openSession();
       if (broadcast)
          preSave(group, false);
+      Session session = service_.openSession();
       session.update(group);
       if (broadcast)
          postSave(group, false);
@@ -131,9 +133,9 @@ public class GroupDAOImpl implements GroupHandler
 
    public Group removeGroup(Group group, boolean broadcast) throws Exception
    {
-      Session session = service_.openSession();
       if (broadcast)
          preDelete(group);
+      Session session = service_.openSession();
       session.delete(group);
       List entries = session.createQuery(queryFindGroupByParent).setString(0, group.getId()).list();
       for (int i = 0; i < entries.size(); i++)
