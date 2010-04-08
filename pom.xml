@@ -24,7 +24,7 @@
    <parent>
       <groupId>org.exoplatform</groupId>
       <artifactId>foundation-parent</artifactId>
-      <version>6-SNAPSHOT</version>
+      <version>6</version>
    </parent>
 
    <groupId>org.exoplatform.core</groupId>
@@ -38,8 +38,8 @@
       <exo.product.name>exo-core</exo.product.name>
       <exo.product.specification>2.3</exo.product.specification>
       
-      <org.exoplatform.framework.junit.version>1.2.2-GA-SNAPSHOT</org.exoplatform.framework.junit.version>
-      <org.exoplatform.kernel.version>2.2.1-GA-SNAPSHOT</org.exoplatform.kernel.version>
+      <org.exoplatform.framework.junit.version>1.2.1-GA</org.exoplatform.framework.junit.version>
+      <org.exoplatform.kernel.version>2.2.1-CR1</org.exoplatform.kernel.version>
    </properties>
 
    <scm>
