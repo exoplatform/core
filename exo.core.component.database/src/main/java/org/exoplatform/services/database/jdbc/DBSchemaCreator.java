@@ -142,7 +142,7 @@ public class DBSchemaCreator
          while (next != null)
          {
             errorTrace += next.getMessage() + "; ";
-            next = e.getNextException();
+            next = next.getNextException();
          }
          Throwable cause = e.getCause();
          log.error("Could not create db schema of DataSource: '" + dsName + "'. Reason: " + e.getMessage() + "; "
