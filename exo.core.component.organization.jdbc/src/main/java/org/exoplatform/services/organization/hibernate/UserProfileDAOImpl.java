@@ -23,6 +23,7 @@ import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserProfileEventListener;
+import org.exoplatform.services.organization.UserProfileEventListenerHandler;
 import org.exoplatform.services.organization.UserProfileHandler;
 import org.exoplatform.services.organization.impl.UserProfileData;
 import org.exoplatform.services.organization.impl.UserProfileImpl;
@@ -30,6 +31,7 @@ import org.hibernate.Session;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,7 +39,7 @@ import java.util.List;
  * benjmestrallet@users.sourceforge.net Author : Tuan Nguyen
  * tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:51:21 PM
  */
-public class UserProfileDAOImpl implements UserProfileHandler
+public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventListenerHandler
 {
    static private UserProfile NOT_FOUND = new UserProfileImpl();
 
@@ -194,6 +196,14 @@ public class UserProfileDAOImpl implements UserProfileHandler
    {
       for (UserProfileEventListener listener : listeners_)
          listener.postDelete(profile);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public List<UserProfileEventListener> getUserProfileListeners()
+   {
+      return Collections.unmodifiableList(listeners_);
    }
 
 }

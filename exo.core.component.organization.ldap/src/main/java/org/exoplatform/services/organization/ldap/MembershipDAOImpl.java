@@ -24,6 +24,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
+import org.exoplatform.services.organization.MembershipEventListenerHandler;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.User;
@@ -31,6 +32,7 @@ import org.exoplatform.services.organization.impl.MembershipImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.naming.InvalidNameException;
@@ -50,7 +52,7 @@ import javax.naming.ldap.LdapContext;
  * Created by The eXo Platform SAS Author : Tuan Nguyen tuan08@users.sourceforge.net Oct 14, 2005. @version
  * andrew00x $
  */
-public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
+public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, MembershipEventListenerHandler
 {
 
    /**
@@ -720,4 +722,11 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
          listener.preSave(membership, isNew);
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   public List<MembershipEventListener> getMembershipListeners()
+   {
+      return Collections.unmodifiableList(listeners);
+   }
 }
