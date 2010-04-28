@@ -41,6 +41,7 @@
       <dependency>
          <groupId>batik</groupId>
          <artifactId>batik-util</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>batik</groupId>
