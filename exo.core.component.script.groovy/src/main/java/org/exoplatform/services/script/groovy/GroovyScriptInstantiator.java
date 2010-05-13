@@ -196,7 +196,6 @@ public class GroovyScriptInstantiator
     * @param codeSource code source
     * @param loader
     * @return
-    * @throws IOException
     */
    public Object instantiateScript(GroovyCodeSource codeSource, GroovyClassLoader loader)
    {
