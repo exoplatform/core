@@ -19,6 +19,7 @@
 package org.exoplatform.services.script.groovy;
 
 import groovy.lang.GroovyClassLoader;
+import groovy.lang.GroovyCodeSource;
 
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.exoplatform.container.ExoContainer;
@@ -184,6 +185,34 @@ public class GroovyScriptInstantiator
       finally
       {
          stream.close();
+      }
+   }
+
+   /**
+    * Instantiate script from give {@link GroovyCodeSource} and use given
+    * class-loader. If <code>loader == null</code> then
+    * {@link groovy.lang.GroovyClassLoader} will be is use.
+    *
+    * @param codeSource code source
+    * @param loader
+    * @return
+    * @throws IOException
+    */
+   public Object instantiateScript(GroovyCodeSource codeSource, GroovyClassLoader loader)
+   {
+      if (loader == null)
+      {
+         loader = new GroovyClassLoader();
+      }
+      Class<?> clazz = null;
+      clazz = loader.parseClass(codeSource);
+      try
+      {
+         return createObject(clazz);
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException("Can't instantiate groovy script: " + e.getMessage(), e);
       }
    }
 
