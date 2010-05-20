@@ -46,7 +46,7 @@
          <artifactId>slf4j-log4j12</artifactId>
       </dependency>
       <dependency>
-         <groupId>pdfbox</groupId>
+         <groupId>org.apache.pdfbox</groupId>
          <artifactId>pdfbox</artifactId>
       </dependency>
       <dependency>
