@@ -19,18 +19,14 @@
 package org.exoplatform.services.document.impl;
 
 import org.exoplatform.services.document.DocumentReadException;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.Properties;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Created by The eXo Platform SAS A parser of XML files.
@@ -65,15 +61,14 @@ public class XMLDocumentReader extends BaseDocumentReader
       }
       try
       {
-
-         //         byte[] buffer = new byte[2048];
-         //         int len;
-         //         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-         //         while ((len = is.read(buffer)) > 0)
-         //            bos.write(buffer, 0, len);
-         //         bos.close();
-         //         String xml = new String(bos.toByteArray());
-         return parse(is);
+         byte[] buffer = new byte[2048];
+         int len;
+         ByteArrayOutputStream bos = new ByteArrayOutputStream();
+         while ((len = is.read(buffer)) > 0)
+            bos.write(buffer, 0, len);
+         bos.close();
+         String xml = new String(bos.toByteArray());
+         return delete(xml);
       }
       finally
       {
@@ -118,74 +113,27 @@ public class XMLDocumentReader extends BaseDocumentReader
     * @param str the string which contain a text with user's tags.
     * @return The string cleaned from user's tags and their bodies.
     */
-   private String parse(InputStream is)
+   private String delete(String str)
    {
-      SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-      //      saxParserFactory.setNamespaceAware(true);
-      //      saxParserFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-      SAXParser saxParser;
-      StringWriter writer = new StringWriter();
-
-      DefaultHandler dh = new WriteOutContentHandler(writer);
       try
       {
-         saxParser = saxParserFactory.newSAXParser();
-         saxParser.parse(is, dh);
-      }
-      catch (SAXException e)
-      {
-         return "";
-      }
-      catch (IOException e)
-      {
-         return "";
-      }
-      catch (ParserConfigurationException e)
-      {
-         return "";
-      }
-
-      return writer.toString();
-
-   }
-
-   class WriteOutContentHandler extends DefaultHandler
-   {
-      private final Writer writer;
-
-      public WriteOutContentHandler(Writer writer)
-      {
-         this.writer = writer;
-      }
-
-      /**
-       * Writes the given characters to the given character stream.
-       */
-      @Override
-      public void characters(char[] ch, int start, int length) throws SAXException
-      {
-         try
+         StringBuffer input = new StringBuffer(str);
+         String patternString = "<+[^>]*>+";
+         Pattern pattern = Pattern.compile(patternString, Pattern.CASE_INSENSITIVE + Pattern.DOTALL);
+         Matcher matcher = pattern.matcher(input);
+         while (matcher.find())
          {
-            writer.write(ch, start, length);
+            int start = matcher.start();
+            int end = matcher.end();
+            input.delete(start, end);
+            matcher = pattern.matcher(input);
          }
-         catch (IOException e)
-         {
-            throw new SAXException(e.getMessage(), e);
-         }
+         return input.substring(0, input.length());
       }
-
-      @Override
-      public void endDocument() throws SAXException
+      catch (PatternSyntaxException e)
       {
-         try
-         {
-            writer.flush();
-         }
-         catch (IOException e)
-         {
-            throw new SAXException(e.getMessage(), e);
-         }
       }
+      return "";
    }
 
 }

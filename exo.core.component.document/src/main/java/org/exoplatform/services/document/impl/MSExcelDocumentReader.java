@@ -67,7 +67,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
          throw new NullPointerException("InputStream is null.");
       }
 
-      StringBuilder builder = new StringBuilder("");
+      String text = "";
 
       try
       {
@@ -78,7 +78,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
          }
          catch (IOException e)
          {
-            return builder.toString();
+            return text;
          }
          for (int sheetNum = 0; sheetNum < wb.getNumberOfSheets(); sheetNum++)
          {
@@ -105,25 +105,25 @@ public class MSExcelDocumentReader extends BaseDocumentReader
                                  {
                                     Date date = HSSFDateUtil.getJavaDate(d);
                                     String cellText = this.DATE_FORMAT.format(date);
-                                    builder.append(cellText).append(" ");
+                                    text = text + cellText + " ";
                                  }
                                  else
                                  {
-                                   builder.append(d).append(" ");
+                                    text = text + d + " ";
                                  }
                                  break;
                               }
                               case HSSFCell.CELL_TYPE_FORMULA :
-                                 builder.append(cell.getCellFormula().toString()).append(" ");
+                                 text = text + cell.getCellFormula().toString() + " ";
                                  break;
                               case HSSFCell.CELL_TYPE_BOOLEAN :
-                                 builder.append(cell.getBooleanCellValue()).append(" ");
+                                 text = text + cell.getBooleanCellValue() + " ";
                                  break;
                               case HSSFCell.CELL_TYPE_ERROR :
-                                 builder.append(cell.getErrorCellValue()).append(" ");
+                                 text = text + cell.getErrorCellValue() + " ";
                                  break;
                               case HSSFCell.CELL_TYPE_STRING :
-                                 builder.append(cell.getStringCellValue().toString()).append(" ");
+                                 text = text + cell.getStringCellValue().toString() + " ";
                                  break;
                               default :
                                  break;
@@ -148,7 +148,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
             }
          }
       }
-      return builder.toString();
+      return text;
    }
 
    public String getContentAsText(InputStream is, String encoding) throws IOException, DocumentReadException

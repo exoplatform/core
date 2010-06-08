@@ -24,7 +24,6 @@ import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
-import org.exoplatform.services.organization.MembershipEventListenerHandler;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.User;
@@ -32,7 +31,6 @@ import org.exoplatform.services.organization.impl.MembershipImpl;
 import org.hibernate.Session;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -42,7 +40,7 @@ import javax.naming.InvalidNameException;
  * Created by The eXo Platform SAS Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
  * Author : Tuan Nguyen tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:51:21 PM
  */
-public class MembershipDAOImpl implements MembershipHandler, MembershipEventListenerHandler
+public class MembershipDAOImpl implements MembershipHandler
 {
 
    private static final String queryFindMembershipByUserGroupAndType =
@@ -84,9 +82,9 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
 
    public void createMembership(Membership m, boolean broadcast) throws Exception
    {
-      Session session = service_.openSession();
       if (broadcast)
          preSave(m, true);
+      Session session = service_.openSession();
       session.save(IdentifierUtil.generateUUID(m), m);
       if (broadcast)
          postSave(m, true);
@@ -116,7 +114,6 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
             + " because membership type is null");
       }
 
-      Session session = service_.openSession();
       MembershipImpl membership = new MembershipImpl();
       // User user
       // =(User)service_.findExactOne(session,UserHandlerImpl.queryFindUserByName,
@@ -132,6 +129,7 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       if (broadcast)
          preSave(membership, true);
       membership.setId(id);
+      Session session = service_.openSession();
       session.save(membership);
       if (broadcast)
          postSave(membership, true);
@@ -140,9 +138,9 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
 
    public void saveMembership(Membership m, boolean broadcast) throws Exception
    {
-      Session session = service_.openSession();
       if (broadcast)
          preSave(m, false);
+      Session session = service_.openSession();
       session.update(m);
       if (broadcast)
          postSave(m, false);
@@ -158,6 +156,7 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       {
          if (broadcast)
             preDelete(m);
+         session = service_.openSession();
          session.delete(m);
          if (broadcast)
             postDelete(m);
@@ -168,7 +167,6 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
 
    public Collection removeMembershipByUser(String username, boolean broadcast) throws Exception
    {
-      Session session = service_.openSession();
       Collection collection = findMembershipsByUser(username);
       Iterator iter = collection.iterator();
       while (iter.hasNext())
@@ -178,6 +176,7 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
          {
             if (broadcast)
                preDelete(m);
+            Session session = service_.openSession();
             session.delete(m);
             if (broadcast)
                postDelete(m);
@@ -318,13 +317,5 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
          MembershipEventListener listener = (MembershipEventListener)listeners_.get(i);
          listener.postDelete(membership);
       }
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   public List<MembershipEventListener> getMembershipListeners()
-   {
-      return Collections.unmodifiableList(listeners_);
    }
 }

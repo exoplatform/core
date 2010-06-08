@@ -19,7 +19,6 @@
 package org.exoplatform.services.script.groovy;
 
 import groovy.lang.GroovyClassLoader;
-import groovy.lang.GroovyCodeSource;
 
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.exoplatform.container.ExoContainer;
@@ -51,7 +50,7 @@ public class GroovyScriptInstantiator
 {
 
    /** Our logger. */
-   private static final Log LOG = ExoLogger.getLogger(GroovyScriptInstantiator.class);
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.script.groovy.GroovyScriptInstantiator");
 
    /**
     * eXo Container.
@@ -72,11 +71,11 @@ public class GroovyScriptInstantiator
 
    /**
     * Load script from given address.
-    *
+    * 
     * @param spec the resource's address.
     * @return the object created from groovy script.
     * @throws MalformedURLException if parameter <code>url</code> have wrong
-    *         format.
+    *           format.
     * @throws IOException if can't load script from given <code>url</code>.
     * @see GroovyScriptInstantiator#instantiateScript(URL)
     * @see GroovyScriptInstantiator#instantiateScript(InputStream)
@@ -88,7 +87,7 @@ public class GroovyScriptInstantiator
 
    /**
     * Load script from given address.
-    *
+    * 
     * @param url the resource's address.
     * @return the object created from groovy script.
     * @throws IOException if can't load script from given <code>url</code>.
@@ -102,11 +101,10 @@ public class GroovyScriptInstantiator
 
    /**
     * Parse given stream, the stream must represents groovy script.
-    *
+    * 
     * @param stream the stream represented groovy script.
     * @return the object created from groovy script.
-    * @throws IOException if stream can't be parsed or object can't be created
-    *         cause to illegal content of stream
+    * @throws IOException if stream can't be parsed or object can't be created.
     */
    public Object instantiateScript(InputStream stream) throws IOException
    {
@@ -115,13 +113,12 @@ public class GroovyScriptInstantiator
 
    /**
     * Parse given stream, the stream must represents groovy script.
-    *
+    * 
     * @param stream the stream represented groovy script.
     * @param name script name is null or empty string that groovy completer will
-    *        use default name
+    *          use default name
     * @return the object created from groovy script.
-    * @throws IOException if stream can't be parsed or object can't be created
-    *         cause to illegal content of stream
+    * @throws IOException if stream can't be parsed or object can't be created.
     */
    public Object instantiateScript(InputStream stream, String name) throws IOException
    {
@@ -136,39 +133,13 @@ public class GroovyScriptInstantiator
       {
          loader = new GroovyClassLoader();
       }
-      return instantiateScript(stream, name, loader);
-   }
-
-   /**
-    * Parse given stream, the stream must represents groovy script and use given
-    * class-loader. If <code>loader == null</code> then
-    * {@link groovy.lang.GroovyClassLoader} will be is use.
-    *
-    * @param stream the stream represented groovy script.
-    * @param name script name is null or empty string that groovy completer will
-    *        use default name
-    * @param loader GroovyClassLoader or <code>null</code>
-    * @return the object created from groovy script.
-    * @throws IOException if stream can't be parsed or object can't be created
-    *         cause to illegal content of stream
-    */
-   public Object instantiateScript(InputStream stream, String name, GroovyClassLoader loader) throws IOException
-   {
-      if (loader == null)
-      {
-         loader = new GroovyClassLoader();
-      }
       Class<?> clazz = null;
       try
       {
          if (name != null && name.length() > 0)
-         {
             clazz = loader.parseClass(stream, name);
-         }
          else
-         {
             clazz = loader.parseClass(stream);
-         }
       }
       catch (CompilationFailedException e)
       {
@@ -189,36 +160,9 @@ public class GroovyScriptInstantiator
    }
 
    /**
-    * Instantiate script from give {@link GroovyCodeSource} and use given
-    * class-loader. If <code>loader == null</code> then
-    * {@link groovy.lang.GroovyClassLoader} will be is use.
-    *
-    * @param codeSource code source
-    * @param loader
-    * @return
-    */
-   public Object instantiateScript(GroovyCodeSource codeSource, GroovyClassLoader loader)
-   {
-      if (loader == null)
-      {
-         loader = new GroovyClassLoader();
-      }
-      Class<?> clazz = null;
-      clazz = loader.parseClass(codeSource);
-      try
-      {
-         return createObject(clazz);
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException("Can't instantiate groovy script: " + e.getMessage(), e);
-      }
-   }
-
-   /**
     * Created object from given class, if class has parameters in constructor,
     * then this parameters will be searched in container.
-    *
+    * 
     * @param clazz java-groovy class
     */
    private Object createObject(Class<?> clazz) throws Exception
@@ -236,9 +180,7 @@ public class GroovyScriptInstantiator
       {
          Class<?>[] parameterTypes = c.getParameterTypes();
          if (parameterTypes.length == 0)
-         {
             return c.newInstance();
-         }
 
          List<Object> parameters = new ArrayList<Object>(parameterTypes.length);
 
@@ -246,9 +188,7 @@ public class GroovyScriptInstantiator
          {
             Object param = container.getComponentInstanceOfType(parameterType);
             if (param == null)
-            {
                continue l;
-            }
             parameters.add(param);
          }
 
@@ -274,13 +214,9 @@ public class GroovyScriptInstantiator
          int c1 = constructor1.getParameterTypes().length;
          int c2 = constructor2.getParameterTypes().length;
          if (c1 < c2)
-         {
             return 1;
-         }
          if (c1 > c2)
-         {
             return -1;
-         }
          return 0;
       }
 
@@ -291,10 +227,7 @@ public class GroovyScriptInstantiator
       if (plugin instanceof GroovyScriptJarJarPlugin)
       {
          GroovyScriptJarJarPlugin jarjarPlugin = (GroovyScriptJarJarPlugin)plugin;
-         if (LOG.isDebugEnabled())
-         {
-            LOG.debug("Add mapping to groovy instantiator:" + jarjarPlugin.getMapping());
-         }
+         LOG.debug("Add mapping to groovy instantiator:" + jarjarPlugin.getMapping());
          mapping.putAll(jarjarPlugin.getMapping());
       }
    }

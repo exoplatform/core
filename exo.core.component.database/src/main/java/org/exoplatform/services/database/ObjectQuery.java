@@ -151,14 +151,7 @@ public class ObjectQuery
             Parameter p = parameters_.get(i);
             if (p.value_ instanceof String)
             {
-               if (p.field_.startsWith("UPPER") || p.field_.startsWith("LOWER"))
-               {
-                  b.append(p.field_).append(p.op_).append("'").append(p.value_).append("'");
-               }
-               else
-               {
-                  b.append(" o.").append(p.field_).append(p.op_).append("'").append(p.value_).append("'");
-               }
+               b.append(" o.").append(p.field_).append(p.op_).append("'").append(p.value_).append("'");
             }
             else if (p.value_ instanceof Date)
             {
@@ -258,14 +251,7 @@ public class ObjectQuery
             Parameter p = parameters_.get(i);
             if (p.value_ instanceof String)
             {
-               if (p.field_.startsWith("UPPER") || p.field_.startsWith("LOWER"))
-               {
-                  b.append(p.field_).append(p.op_).append("'").append(p.value_).append("'");
-               }
-               else
-               {
-                  b.append(" o.").append(p.field_).append(p.op_).append("'").append(p.value_).append("'");
-               }
+               b.append(" o.").append(p.field_).append(p.op_).append("'").append(p.value_).append("'");
             }
             else if (p.value_ instanceof Date)
             {

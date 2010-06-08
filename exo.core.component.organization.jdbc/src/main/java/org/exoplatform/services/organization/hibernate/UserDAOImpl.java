@@ -32,14 +32,13 @@ import org.hibernate.Transaction;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * Created by The eXo Platform SAS Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
  * Author : Tuan Nguyen tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:51:21 PM
  */
-public class UserDAOImpl implements UserHandler, UserEventListenerHandler
+public class UserDAOImpl implements UserHandler
 {
    public static final String queryFindUserByName =
       "from u in class org.exoplatform.services.organization.impl.UserImpl " + "where u.userName = ?";
@@ -78,10 +77,11 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler
 
    public void createUser(User user, boolean broadcast) throws Exception
    {
-      Session session = service_.openSession();
-      Transaction transaction = session.beginTransaction();
       if (broadcast)
          preSave(user, true);
+      Session session = service_.openSession();
+      Transaction transaction = session.beginTransaction();
+
       UserImpl userImpl = (UserImpl)user;
       userImpl.setId(user.getUserName());
       session.save(user);
@@ -92,9 +92,9 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler
 
    public void saveUser(User user, boolean broadcast) throws Exception
    {
-      Session session = service_.openSession();
       if (broadcast)
          preSave(user, false);
+      Session session = service_.openSession();
       session.merge(user);
       // session.update(user);
       if (broadcast)
@@ -117,6 +117,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler
 
       if (broadcast)
          preDelete(foundUser);
+      session = service_.openSession();
       session.delete(foundUser);
       if (broadcast)
          postDelete(foundUser);
@@ -253,13 +254,5 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler
    {
       for (UserEventListener listener : listeners_)
          listener.postDelete(user);
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   public List<UserEventListener> getUserListeners()
-   {
-      return Collections.unmodifiableList(listeners_);
    }
 }

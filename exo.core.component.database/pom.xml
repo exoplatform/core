@@ -25,7 +25,7 @@
    <parent>
       <groupId>org.exoplatform.core</groupId>
       <artifactId>core-parent</artifactId>
-      <version>2.3.3-GA-SNAPSHOT</version>
+      <version>2.4.0-Beta01-SNAPSHOT</version>
    </parent>
 
    <artifactId>exo.core.component.database</artifactId>
@@ -102,20 +102,6 @@
             </exclusion>
          </exclusions> 
       </dependency>
-      <dependency>
-         <groupId>commons-dbcp</groupId>
-         <artifactId>commons-dbcp</artifactId>
-         <exclusions>
-            <exclusion>
-               <groupId>xerces</groupId>
-               <artifactId>xercesImpl</artifactId>
-            </exclusion>
-         </exclusions>
-      </dependency>
-      <dependency>
-         <groupId>commons-pool</groupId>
-         <artifactId>commons-pool</artifactId>
-      </dependency>
   </dependencies>
    
    <build>
@@ -127,6 +113,7 @@
                <configuration>
                   <excludes>
                      <exclude>**/DBCreatorTest.java</exclude>
+                     <exclude>**/TestDBCreator.java</exclude>
                   </excludes>
                </configuration>
             </plugin>

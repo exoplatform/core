@@ -22,7 +22,6 @@ import org.exoplatform.commons.exception.UniqueObjectException;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
-import org.exoplatform.services.organization.GroupEventListenerHandler;
 import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.impl.GroupImpl;
 import org.hibernate.Query;
@@ -30,7 +29,6 @@ import org.hibernate.Session;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,7 +36,7 @@ import java.util.List;
  * benjmestrallet@users.sourceforge.net Author : Tuan Nguyen
  * tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:51:21 PM
  */
-public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
+public class GroupDAOImpl implements GroupHandler
 {
    public static final String queryFindGroupByName =
       "from g in class org.exoplatform.services.organization.impl.GroupImpl " + "where g.groupName = ? ";
@@ -114,6 +112,8 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
       if (broadcast)
          preSave(child, true);
       childImpl.setId(groupId);
+
+      session = service_.openSession();
       session.save(childImpl);
       if (broadcast)
          postSave(child, true);
@@ -122,9 +122,9 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
 
    public void saveGroup(Group group, boolean broadcast) throws Exception
    {
-      Session session = service_.openSession();
       if (broadcast)
          preSave(group, false);
+      Session session = service_.openSession();
       session.update(group);
       if (broadcast)
          postSave(group, false);
@@ -133,9 +133,9 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
 
    public Group removeGroup(Group group, boolean broadcast) throws Exception
    {
-      Session session = service_.openSession();
       if (broadcast)
          preDelete(group);
+      Session session = service_.openSession();
       session.delete(group);
       List entries = session.createQuery(queryFindGroupByParent).setString(0, group.getId()).list();
       for (int i = 0; i < entries.size(); i++)
@@ -226,13 +226,5 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
    {
       for (GroupEventListener listener : listeners_)
          listener.postDelete(group);
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   public List<GroupEventListener> getGroupListeners()
-   {
-      return Collections.unmodifiableList(listeners_);
    }
 }

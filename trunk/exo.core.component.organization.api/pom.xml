@@ -1,0 +1,121 @@
+<!--
+
+    Copyright (C) 2009 eXo Platform SAS.
+
+    This is free software; you can redistribute it and/or modify it
+    under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation; either version 2.1 of
+    the License, or (at your option) any later version.
+
+    This software is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this software; if not, write to the Free
+    Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+    02110-1301 USA, or see the FSF site: http://www.fsf.org.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <parent>
+      <groupId>org.exoplatform.core</groupId>
+      <artifactId>core-parent</artifactId>
+      <version>2.3.3-GA-SNAPSHOT</version>
+   </parent>
+   <artifactId>exo.core.component.organization.api</artifactId>
+   <name>eXo Core :: Component :: Organization Service API</name>
+   <description>eXo Organization Service API</description>
+   <dependencies>
+      <dependency>
+         <groupId>org.exoplatform.kernel</groupId>
+         <artifactId>exo.kernel.container</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.exoplatform.kernel</groupId>
+         <artifactId>exo.kernel.commons</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.exoplatform.kernel</groupId>
+         <artifactId>exo.kernel.component.cache</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.exoplatform.core</groupId>
+         <artifactId>exo.core.component.security.core</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>xdoclet</groupId>
+         <artifactId>xdoclet-hibernate-module</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>xdoclet</groupId>
+         <artifactId>xdoclet-xdoclet-module</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>xdoclet</groupId>
+         <artifactId>xjavadoc</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>xstream</groupId>
+         <artifactId>xstream</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>picocontainer</groupId>
+         <artifactId>picocontainer</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-log4j12</artifactId>
+      </dependency>
+   </dependencies>
+   <build>
+      <testResources>
+         <testResource>
+            <directory>src/test/java</directory>
+            <includes>
+               <include>**/*.properties</include>
+               <include>**/*.xml</include>
+            </includes>
+         </testResource>
+         <testResource>
+            <directory>src/test/resources</directory>
+            <includes>
+               <include>**/*.properties</include>
+               <include>**/*.xml</include>
+               <include>**/login.conf</include>
+            </includes>
+         </testResource>
+      </testResources>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+               <execution>
+                  <phase>compile</phase>
+                  <configuration>
+                     <tasks>
+                        <taskdef name="hibernatedoclet" classname="xdoclet.modules.hibernate.HibernateDocletTask" classpathref="maven.dependency.classpath" />
+                        <hibernatedoclet destdir="${basedir}/target/classes" excludedtags="@version,@author,@todo" mergedir="target/classes" force="true" verbose="false">
+                           <fileset dir="${basedir}/src/main/java">
+                              <include name="org/exoplatform/services/organization/impl/UserImpl.java" />
+                              <include name="org/exoplatform/services/organization/impl/MembershipImpl.java" />
+                              <include name="org/exoplatform/services/organization/impl/GroupImpl.java" />
+                              <include name="org/exoplatform/services/organization/impl/MembershipTypeImpl.java" />
+                              <include name="org/exoplatform/services/organization/impl/UserProfileData.java" />
+                           </fileset>
+                           <hibernate version="3.0" />
+                        </hibernatedoclet>
+                     </tasks>
+                  </configuration>
+                  <goals>
+                     <goal>run</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+   </build>
+</project>

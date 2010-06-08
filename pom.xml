@@ -29,23 +29,23 @@
 
    <groupId>org.exoplatform.core</groupId>
    <artifactId>core-parent</artifactId>
-   <version>2.3.3-GA-SNAPSHOT</version>
+   <version>2.4.0-Beta01-SNAPSHOT</version>
    <packaging>pom</packaging>
 
    <name>eXo Core</name>
 
    <properties>
       <exo.product.name>exo-core</exo.product.name>
-      <exo.product.specification>2.3</exo.product.specification>
+      <exo.product.specification>2.4</exo.product.specification>
       
-      <org.exoplatform.framework.junit.version>1.2.1-GA</org.exoplatform.framework.junit.version>
-      <org.exoplatform.kernel.version>2.2.3-GA-SNAPSHOT</org.exoplatform.kernel.version>
+      <org.exoplatform.framework.junit.version>1.2.2-GA-SNAPSHOT</org.exoplatform.framework.junit.version>
+      <org.exoplatform.kernel.version>2.2.2-GA-SNAPSHOT</org.exoplatform.kernel.version>
    </properties>
 
    <scm>
-      <connection>scm:svn:http://anonsvn.jboss.org/repos/exo-jcr/core/trunk</connection>
-      <developerConnection>scm:svn:https://svn.jboss.org/repos/exo-jcr/core/trunk</developerConnection>
-      <url>http://fisheye.jboss.org/browse/exo-jcr/core/trunk</url>
+      <connection>scm:svn:https://anonsvn.jboss.org/repos/exo-jcr/core/branches/2.4.x/</connection>
+      <developerConnection>scm:svn:https://anonsvn.jboss.org/repos/exo-jcr/core/branches/2.4.x/</developerConnection>
+      <url>http://fisheye.jboss.org/browse/exo-jcr/core/branches/2.4.x</url>
    </scm>
 
    <modules>
@@ -267,9 +267,9 @@
          </dependency>
          
          <dependency>
-            <groupId>org.apache.pdfbox</groupId>
+            <groupId>pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
-            <version>1.1.0</version>
+            <version>0.7.3</version>
          </dependency>
          
          <dependency>
@@ -333,24 +333,6 @@
             <artifactId>batik-css</artifactId>
             <version>1.7</version>
          </dependency>
-
-        <dependency>
-           <groupId>commons-dbcp</groupId>
-           <artifactId>commons-dbcp</artifactId>
-           <version>1.2.2</version>
-           <exclusions>
-              <exclusion>
-                 <groupId>commons-pool</groupId>
-                 <artifactId>commons-pool</artifactId>
-              </exclusion>
-           </exclusions>
-        </dependency>
-
-        <dependency>
-           <groupId>commons-pool</groupId>
-           <artifactId>commons-pool</artifactId>
-           <version>1.5.4</version>
-        </dependency>
 
       </dependencies>
    </dependencyManagement>
