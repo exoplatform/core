@@ -1,0 +1,84 @@
+/*
+ * Copyright (C) 2009 eXo Platform SAS.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+package org.exoplatform.services.document.diff;
+
+/**
+ * Implements a differencing engine that works on arrays of {@link Object
+ * Object}.
+ * <p>
+ * Within this library, the word <i>text</i> means a unit of information subject
+ * to version control.
+ * <p>
+ * Text is represented as <code>Object[]</code> because the diff engine is
+ * capable of handling more than plain ascci. In fact, arrays of any type that
+ * implements {@link java.lang.Object#hashCode hashCode()} and
+ * {@link java.lang.Object#equals equals()} correctly can be subject to
+ * differencing using this library.
+ * </p>
+ * <p>
+ * This library provides a framework in which different differencing algorithms
+ * may be used. If no algorithm is specififed, a default algorithm is used.
+ * </p>
+ */
+
+public interface DiffService extends ToString
+{
+
+   /** The standard line separator. */
+   public static final String NL = System.getProperty("line.separator");
+
+   /** The line separator to use in RCS format output. */
+   public static final String RCS_EOL = "\n";
+
+   /**
+    * compute the difference between an original and a revision.
+    * 
+    * @param orig the original
+    * @param rev the revision to compare with the original.
+    * @return a Revision describing the differences
+    */
+   public Revision diff(Object[] orig, Object[] rev) throws Exception;
+
+   /**
+    * Compares the two input sequences.
+    * 
+    * @param orig The original sequence.
+    * @param rev The revised sequence.
+    * @return true if the sequences are identical. False otherwise.
+    */
+   public boolean compare(Object[] orig, Object[] rev);
+
+   /**
+    * Converts an array of {@link Object Object} to a string using
+    * {@link Diff#NL Diff.NL} as the line separator.
+    * 
+    * @param o the array of objects.
+    */
+   public String arrayToString(Object[] o);
+
+   /**
+    * Edits all of the items in the input sequence.
+    * 
+    * @param text The input sequence.
+    * @return A sequence of the same length with all the lines differing from the
+    *         corresponding ones in the input.
+    */
+   public Object[] editAll(Object[] text);
+
+}
