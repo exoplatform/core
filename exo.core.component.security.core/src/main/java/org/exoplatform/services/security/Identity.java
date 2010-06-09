@@ -151,6 +151,7 @@ public class Identity
    /**
     * @deprecated for back compatibility.
     */
+   @Deprecated
    public void setMemberships(Collection<MembershipEntry> memberships)
    {
       this.memberships = new SecureSet<MembershipEntry>(memberships);
@@ -242,6 +243,7 @@ public class Identity
             throw new NullPointerException();
          }
          checkPermission();
+         set.addAll(elements); 
          return elements.size() > 0;
       }
 
@@ -261,11 +263,13 @@ public class Identity
          return set.containsAll(coll);
       }
 
+      @Override
       public boolean equals(Object o)
       {
          return o == this || set.equals(o);
       }
 
+      @Override
       public int hashCode()
       {
          return set.hashCode();
@@ -341,6 +345,7 @@ public class Identity
          return set.toArray(a);
       }
 
+      @Override
       public String toString()
       {
          return set.toString();
