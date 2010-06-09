@@ -23,13 +23,15 @@ import java.util.Set;
 
 /**
  * Created by The eXo Platform SAS .
- * 
+ *
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public class ConversationState
 {
+
+   private static final RuntimePermission SET_CURRENT_STATE_PERMISSION = new RuntimePermission("setCurrentState");
 
    /**
     * "subject".
@@ -67,11 +69,17 @@ public class ConversationState
 
    /**
     * Preset current ConversationState.
-    * 
+    *
     * @param state ConversationState
     */
    public static void setCurrent(ConversationState state)
    {
+      SecurityManager security = System.getSecurityManager();
+      if (security != null)
+      {
+         security.checkPermission(SET_CURRENT_STATE_PERMISSION);
+      }
+
       current.set(state);
    }
 
@@ -85,12 +93,13 @@ public class ConversationState
 
    /**
     * sets attribute.
-    * 
+    *
     * @param key
     * @param value
     */
    public void setAttribute(String name, Object value)
    {
+      // TODO : need check is it allowed to set any attributes
       this.attributes.put(name, value);
    }
 
@@ -113,7 +122,7 @@ public class ConversationState
 
    /**
     * removes attribute.
-    * 
+    *
     * @param key
     */
    public void removeAttribute(String name)
