@@ -25,6 +25,7 @@ import org.exoplatform.services.organization.*;
 import org.exoplatform.services.organization.impl.UserImpl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.naming.NamingException;
@@ -38,7 +39,7 @@ import javax.naming.ldap.LdapContext;
  * Created by The eXo Platform SAS Author : Tuan Nguyen
  * tuan08@users.sourceforge.net Oct 14, 2005. @version andrew00x $
  */
-public class UserDAOImpl extends BaseDAO implements UserHandler
+public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListenerHandler
 {
 
    /**
@@ -560,5 +561,13 @@ public class UserDAOImpl extends BaseDAO implements UserHandler
    {
       for (UserEventListener listener : listeners)
          listener.postDelete(user);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public List<UserEventListener> getUserListeners()
+   {
+      return Collections.unmodifiableList(listeners);
    }
 }

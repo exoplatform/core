@@ -22,6 +22,7 @@ import org.exoplatform.commons.exception.UniqueObjectException;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
+import org.exoplatform.services.organization.GroupEventListenerHandler;
 import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.impl.GroupImpl;
 import org.hibernate.Query;
@@ -29,6 +30,7 @@ import org.hibernate.Session;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,7 +38,7 @@ import java.util.List;
  * benjmestrallet@users.sourceforge.net Author : Tuan Nguyen
  * tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:51:21 PM
  */
-public class GroupDAOImpl implements GroupHandler
+public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
 {
    public static final String queryFindGroupByName =
       "from g in class org.exoplatform.services.organization.impl.GroupImpl " + "where g.groupName = ? ";
@@ -226,5 +228,13 @@ public class GroupDAOImpl implements GroupHandler
    {
       for (GroupEventListener listener : listeners_)
          listener.postDelete(group);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public List<GroupEventListener> getGroupListeners()
+   {
+      return Collections.unmodifiableList(listeners_);
    }
 }

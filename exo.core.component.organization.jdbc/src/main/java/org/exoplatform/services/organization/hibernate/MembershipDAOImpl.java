@@ -24,6 +24,7 @@ import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
+import org.exoplatform.services.organization.MembershipEventListenerHandler;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.User;
@@ -31,6 +32,7 @@ import org.exoplatform.services.organization.impl.MembershipImpl;
 import org.hibernate.Session;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -40,7 +42,7 @@ import javax.naming.InvalidNameException;
  * Created by The eXo Platform SAS Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
  * Author : Tuan Nguyen tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:51:21 PM
  */
-public class MembershipDAOImpl implements MembershipHandler
+public class MembershipDAOImpl implements MembershipHandler, MembershipEventListenerHandler
 {
 
    private static final String queryFindMembershipByUserGroupAndType =
@@ -317,5 +319,13 @@ public class MembershipDAOImpl implements MembershipHandler
          MembershipEventListener listener = (MembershipEventListener)listeners_.get(i);
          listener.postDelete(membership);
       }
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public List<MembershipEventListener> getMembershipListeners()
+   {
+      return Collections.unmodifiableList(listeners_);
    }
 }

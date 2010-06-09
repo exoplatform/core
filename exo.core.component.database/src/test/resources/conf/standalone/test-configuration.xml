@@ -19,8 +19,43 @@
     02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
 -->
-<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplaform.org/xml/ns/kernel_1_0.xsd http://www.exoplaform.org/xml/ns/kernel_1_0.xsd"
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.exoplaform.org/xml/ns/kernel_1_0.xsd http://www.exoplaform.org/xml/ns/kernel_1_0.xsd"
    xmlns="http://www.exoplaform.org/xml/ns/kernel_1_0.xsd">
+
+   <component>
+      <key>org.exoplatform.services.log.LogConfigurationInitializer</key>
+      <type>org.exoplatform.services.log.LogConfigurationInitializer</type>
+      <init-params>
+         <value-param>
+            <name>logger</name>
+            <value>org.exoplatform.services.log.impl.BufferedLog4JLogger</value>
+         </value-param>
+         <value-param>
+            <name>configurator</name>
+            <value>org.exoplatform.services.log.impl.Log4JConfigurator</value>
+         </value-param>
+         <properties-param>
+            <name>properties</name>
+            <description>Log4J properties</description>
+            <property name="log4j.rootLogger" value="INFO, stdout, file" />
+
+            <property name="log4j.appender.stdout" value="org.apache.log4j.ConsoleAppender" />
+            <property name="log4j.appender.stdout.threshold" value="DEBUG" />
+
+            <property name="log4j.appender.stdout.layout" value="org.apache.log4j.PatternLayout" />
+            <property name="log4j.appender.stdout.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n" />
+
+            <property name="log4j.appender.file" value="org.apache.log4j.FileAppender" />
+            <property name="log4j.appender.file.File" value="target/jcr.log" />
+
+            <property name="log4j.appender.file.layout" value="org.apache.log4j.PatternLayout" />
+            <property name="log4j.appender.file.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n" />
+
+            <property name="log4j.category.exo.kernel.component.common.InitialContextInitializer" value="DEBUG" />
+         </properties-param>
+      </init-params>
+   </component>
 
    <component>
       <key>org.exoplatform.services.database.jdbc.DBSchemaCreator</key>
@@ -50,27 +85,27 @@
       </component-plugins>
    </component>
 
-   <component> 
+   <component>
       <key>org.exoplatform.services.database.creator.DBCreator</key>
       <type>org.exoplatform.services.database.creator.DBCreator</type>
       <init-params>
          <properties-param>
             <name>db-connection</name>
             <description>database connection properties</description>
-            <property name="driverClassName" value="com.mysql.jdbc.Driver" />
-            <property name="url" value="jdbc:mysql://localhost/" />
-            <property name="username" value="root" />
-            <property name="password" value="admin" />
+            <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
+            <property name="url" value="jdbc:hsqldb:file:target/temp/data/dbcreator1" />
+            <property name="username" value="sa" />
+            <property name="password" value="" />
          </properties-param>
          <properties-param>
             <name>db-creation</name>
             <description>database creation properties</description>
-            <property name="scriptPath" value="test.sql" />
-            <property name="username" value="testuser" />
-            <property name="password" value="testpwd" />
-         </properties-param> 
-      </init-params> 
-   </component> 
+            <property name="scriptPath" value="src/test/resources/dbcreator/test.sql" />
+            <property name="username" value="sa" />
+            <property name="password" value="" />
+         </properties-param>
+      </init-params>
+   </component>
 
    <component>
       <key>org.exoplatform.services.naming.InitialContextInitializer</key>

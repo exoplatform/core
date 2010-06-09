@@ -23,11 +23,13 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
+import org.exoplatform.services.organization.GroupEventListenerHandler;
 import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.impl.GroupImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.naming.CompositeName;
@@ -50,7 +52,7 @@ import javax.naming.ldap.LdapContext;
  * 
  * @version andrew00x $
  */
-public class GroupDAOImpl extends BaseDAO implements GroupHandler
+public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventListenerHandler
 {
 
    /**
@@ -750,5 +752,13 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler
       }
       group.setId(parent.getId() + "/" + group.getGroupName());
       group.setParentId(parent.getId());
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public List<GroupEventListener> getGroupListeners()
+   {
+      return Collections.unmodifiableList(listeners);
    }
 }

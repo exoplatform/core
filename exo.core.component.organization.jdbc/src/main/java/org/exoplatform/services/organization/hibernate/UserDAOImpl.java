@@ -32,13 +32,14 @@ import org.hibernate.Transaction;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Created by The eXo Platform SAS Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
  * Author : Tuan Nguyen tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:51:21 PM
  */
-public class UserDAOImpl implements UserHandler
+public class UserDAOImpl implements UserHandler, UserEventListenerHandler
 {
    public static final String queryFindUserByName =
       "from u in class org.exoplatform.services.organization.impl.UserImpl " + "where u.userName = ?";
@@ -254,5 +255,13 @@ public class UserDAOImpl implements UserHandler
    {
       for (UserEventListener listener : listeners_)
          listener.postDelete(user);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public List<UserEventListener> getUserListeners()
+   {
+      return Collections.unmodifiableList(listeners_);
    }
 }
