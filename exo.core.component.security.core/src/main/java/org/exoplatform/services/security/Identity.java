@@ -18,6 +18,8 @@
  */
 package org.exoplatform.services.security;
 
+import org.exoplatform.commons.utils.secure.SecureCollections;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,10 +40,6 @@ import javax.security.auth.Subject;
 public class Identity
 {
 
-   private static final RuntimePermission SET_SUBJECT_PERMISSION = new RuntimePermission("setSubject");
-
-   private static final RuntimePermission MODIFY_IDENTITY_PERMISSION = new RuntimePermission("modifyIdentity");
-
    /**
     * User's identifier.
     */
@@ -50,7 +48,7 @@ public class Identity
    /**
     * Memberships.
     */
-   private Set<MembershipEntry> memberships;
+   private final Set<MembershipEntry> memberships;
 
    /**
     * javax.security.auth.Subject can be used for logout process. <code>
@@ -63,7 +61,7 @@ public class Identity
    /**
     * User's roles.
     */
-   private Collection<String> roles;
+   private final Set<String> roles;
 
    /**
     * @param userId the iser's identifier.
@@ -90,8 +88,11 @@ public class Identity
    public Identity(String userId, Collection<MembershipEntry> memberships, Collection<String> roles)
    {
       this.userId = userId;
-      this.memberships = new SecureSet<MembershipEntry>(memberships);
-      this.roles = new SecureSet<String>(roles);
+      this.memberships =
+         SecureCollections.secureSet(new HashSet<MembershipEntry>(memberships),
+            PermissionConstants.MODIFY_IDENTITY_PERMISSION);
+      this.roles =
+         SecureCollections.secureSet(new HashSet<String>(roles), PermissionConstants.MODIFY_IDENTITY_PERMISSION);;
    }
 
    /**
@@ -154,7 +155,8 @@ public class Identity
    @Deprecated
    public void setMemberships(Collection<MembershipEntry> memberships)
    {
-      this.memberships = new SecureSet<MembershipEntry>(memberships);
+      this.memberships.clear();
+      this.memberships.addAll(memberships);
    }
 
    /**
@@ -172,7 +174,8 @@ public class Identity
     */
    public void setRoles(Collection<String> roles)
    {
-      this.roles = new SecureSet<String>(roles);
+      this.roles.clear();
+      this.roles.addAll(roles);
    }
 
    /**
@@ -199,7 +202,7 @@ public class Identity
       SecurityManager security = System.getSecurityManager();
       if (security != null)
       {
-         security.checkPermission(SET_SUBJECT_PERMISSION);
+         security.checkPermission(PermissionConstants.SET_SUBJECT_PERMISSION);
       }
       this.subject = subject;
    }
@@ -214,151 +217,4 @@ public class Identity
    {
       return memberships.contains(checkMe);
    }
-
-   private static class SecureSet<T> implements Set<T>
-   {
-
-      final Set<T> set;
-
-      SecureSet()
-      {
-         this.set = new HashSet<T>();
-      }
-
-      SecureSet(Collection<T> set)
-      {
-         this.set = new HashSet<T>(set);
-      }
-
-      public boolean add(T e)
-      {
-         checkPermission();
-         return set.add(e);
-      }
-
-      public boolean addAll(Collection<? extends T> elements)
-      {
-         if (elements == null)
-         {
-            throw new NullPointerException();
-         }
-         checkPermission();
-         set.addAll(elements); 
-         return elements.size() > 0;
-      }
-
-      public void clear()
-      {
-         checkPermission();
-         set.clear();
-      }
-
-      public boolean contains(Object o)
-      {
-         return set.contains(o);
-      }
-
-      public boolean containsAll(Collection<?> coll)
-      {
-         return set.containsAll(coll);
-      }
-
-      @Override
-      public boolean equals(Object o)
-      {
-         return o == this || set.equals(o);
-      }
-
-      @Override
-      public int hashCode()
-      {
-         return set.hashCode();
-      }
-
-      public boolean isEmpty()
-      {
-         return set.isEmpty();
-      }
-
-      public Iterator<T> iterator()
-      {
-         return new Iterator<T>()
-         {
-            Iterator<? extends T> i = set.iterator();
-
-            public boolean hasNext()
-            {
-               return i.hasNext();
-            }
-
-            public T next()
-            {
-               return i.next();
-            }
-
-            public void remove()
-            {
-               checkPermission();
-               i.remove();
-            }
-         };
-      }
-
-      public boolean remove(Object o)
-      {
-         checkPermission();
-         return set.remove(o);
-      }
-
-      public boolean removeAll(Collection<?> pds)
-      {
-         if (pds == null)
-         {
-            throw new NullPointerException();
-         }
-         checkPermission();
-         return set.removeAll(pds);
-      }
-
-      public boolean retainAll(Collection<?> pds)
-      {
-         if (pds == null)
-         {
-            throw new NullPointerException();
-         }
-         checkPermission();
-         return set.retainAll(pds);
-      }
-
-      public int size()
-      {
-         return set.size();
-      }
-
-      public Object[] toArray()
-      {
-         return set.toArray();
-      }
-
-      public <T> T[] toArray(T[] a)
-      {
-         return set.toArray(a);
-      }
-
-      @Override
-      public String toString()
-      {
-         return set.toString();
-      }
-
-      protected void checkPermission()
-      {
-         SecurityManager security = System.getSecurityManager();
-         if (security != null)
-         {
-            security.checkPermission(MODIFY_IDENTITY_PERMISSION);
-         }
-      }
-   }
-
 }
