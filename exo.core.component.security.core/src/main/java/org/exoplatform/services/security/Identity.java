@@ -202,7 +202,7 @@ public class Identity
       SecurityManager security = System.getSecurityManager();
       if (security != null)
       {
-         security.checkPermission(PermissionConstants.SET_SUBJECT_PERMISSION);
+         security.checkPermission(PermissionConstants.MODIFY_IDENTITY_PERMISSION);
       }
       this.subject = subject;
    }

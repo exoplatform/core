@@ -41,7 +41,7 @@ public class TestIdentityPermissions extends BaseSecurityTest
    }
 
    /**
-    * Check that modification is permitted if MODIFY_IDENTITY_PERMISSION given
+    * Checks that modification is permitted if MODIFY_IDENTITY_PERMISSION given
     */
    public void testModifyRolesWithPermissions()
    {
@@ -54,7 +54,7 @@ public class TestIdentityPermissions extends BaseSecurityTest
                getIdentity().getRoles().clear();
                return null;
             }
-         }, MODIFY_IDENTITY_PERMISSION);
+         }, PermissionConstants.MODIFY_IDENTITY_PERMISSION);
       }
       catch (Exception e)
       {
@@ -63,7 +63,7 @@ public class TestIdentityPermissions extends BaseSecurityTest
    }
 
    /**
-    * Check that setRoles is permitted if MODIFY_IDENTITY_PERMISSION given
+    * Checks that setRoles is permitted if MODIFY_IDENTITY_PERMISSION given
     */
    public void testSetRolesWithPermissions()
    {
@@ -76,7 +76,7 @@ public class TestIdentityPermissions extends BaseSecurityTest
                getIdentity().setRoles(new HashSet<String>());
                return null;
             }
-         }, MODIFY_IDENTITY_PERMISSION);
+         }, PermissionConstants.MODIFY_IDENTITY_PERMISSION);
       }
       catch (Exception e)
       {
@@ -85,7 +85,7 @@ public class TestIdentityPermissions extends BaseSecurityTest
    }
 
    /**
-    * Check that modification is denied if no permission given
+    * Checks that modification is denied if no permission given
     */
    public void testModifyRolesWithNoPermissions()
    {
@@ -108,7 +108,7 @@ public class TestIdentityPermissions extends BaseSecurityTest
    }
 
    /**
-    * Check that setRoles is denied if no permission given
+    * Checks that setRoles is denied if no permission given
     */
    public void testSetWithRolesNoPermissions()
    {
@@ -131,7 +131,7 @@ public class TestIdentityPermissions extends BaseSecurityTest
    }
 
    /**
-    * Check that modification is permitted if MODIFY_IDENTITY_PERMISSION given
+    * Checks that modification is permitted if MODIFY_IDENTITY_PERMISSION given
     */
    public void testModifyMembershipsWithPermissions()
    {
@@ -144,7 +144,7 @@ public class TestIdentityPermissions extends BaseSecurityTest
                getIdentity().getMemberships().clear();
                return null;
             }
-         }, MODIFY_IDENTITY_PERMISSION);
+         }, PermissionConstants.MODIFY_IDENTITY_PERMISSION);
       }
       catch (Exception e)
       {
@@ -153,7 +153,7 @@ public class TestIdentityPermissions extends BaseSecurityTest
    }
 
    /**
-    * Check that setMemberships is permitted if MODIFY_IDENTITY_PERMISSION given
+    * Checks that setMemberships is permitted if MODIFY_IDENTITY_PERMISSION given
     */
    public void testSetMembershipsWithPermissions()
    {
@@ -167,7 +167,7 @@ public class TestIdentityPermissions extends BaseSecurityTest
                getIdentity().setMemberships(new HashSet<MembershipEntry>());
                return null;
             }
-         }, MODIFY_IDENTITY_PERMISSION);
+         }, PermissionConstants.MODIFY_IDENTITY_PERMISSION);
       }
       catch (Exception e)
       {
@@ -176,7 +176,7 @@ public class TestIdentityPermissions extends BaseSecurityTest
    }
 
    /**
-    * Check that modification is denied if no permission given
+    * Checks that modification is denied if no permission given
     */
    public void testModifyMembershipsWithNoPermissions()
    {
@@ -199,7 +199,7 @@ public class TestIdentityPermissions extends BaseSecurityTest
    }
 
    /**
-    * Check that setMemberships is denied if no permission given
+    * Checks that setMemberships is denied if no permission given
     */
    public void testSetWithMembershipsNoPermissions()
    {
@@ -223,7 +223,7 @@ public class TestIdentityPermissions extends BaseSecurityTest
    }
 
    /**
-    * Check setSubject is permitted with "setSubject" permission
+    * Checks setSubject is permitted with "setSubject" permission
     */
    public void testSubjectWithSetSubjectPermissions()
    {
@@ -236,7 +236,7 @@ public class TestIdentityPermissions extends BaseSecurityTest
                getIdentity().setSubject(new Subject());
                return null;
             }
-         }, SET_SUBJECT_PERMISSION);
+         }, PermissionConstants.MODIFY_IDENTITY_PERMISSION);
       }
       catch (Exception e)
       {
@@ -245,7 +245,7 @@ public class TestIdentityPermissions extends BaseSecurityTest
    }
 
    /**
-    * Check setSubject is denied without "setSubject" permission
+    * Checks setSubject is denied without "setSubject" permission
     */
    public void testSubjectWithNoPermissions()
    {
@@ -269,6 +269,7 @@ public class TestIdentityPermissions extends BaseSecurityTest
 
    /**
     * Creates dummy Identity for testing purposes
+    * 
     * @return
     */
    private Identity getIdentity()

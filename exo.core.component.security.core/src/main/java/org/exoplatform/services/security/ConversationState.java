@@ -31,8 +31,6 @@ import java.util.Set;
 public class ConversationState
 {
 
-   private static final RuntimePermission SET_CURRENT_STATE_PERMISSION = new RuntimePermission("setCurrentState");
-
    /**
     * "subject".
     */
@@ -74,12 +72,7 @@ public class ConversationState
     */
    public static void setCurrent(ConversationState state)
    {
-      SecurityManager security = System.getSecurityManager();
-      if (security != null)
-      {
-         security.checkPermission(SET_CURRENT_STATE_PERMISSION);
-      }
-
+      checkPermissions();
       current.set(state);
    }
 
@@ -99,7 +92,7 @@ public class ConversationState
     */
    public void setAttribute(String name, Object value)
    {
-      // TODO : need check is it allowed to set any attributes
+      checkPermissions();
       this.attributes.put(name, value);
    }
 
@@ -130,4 +123,15 @@ public class ConversationState
       this.attributes.remove(name);
    }
 
+   /**
+    *  Checks if modification allowed
+    */
+   private static void checkPermissions()
+   {
+      SecurityManager security = System.getSecurityManager();
+      if (security != null)
+      {
+         security.checkPermission(PermissionConstants.MODIFY_CONVERSATION_STATE_PERMISSION);
+      }
+   }
 }

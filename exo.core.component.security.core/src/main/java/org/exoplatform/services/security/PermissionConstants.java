@@ -26,8 +26,15 @@ package org.exoplatform.services.security;
 public class PermissionConstants
 {
 
-   public static final RuntimePermission SET_SUBJECT_PERMISSION = new RuntimePermission("setSubject");
-
+   /**
+    * Permission to modify {@link Identity} 
+    */
    public static final RuntimePermission MODIFY_IDENTITY_PERMISSION = new RuntimePermission("modifyIdentity");
+
+   /**
+    * Permission to modify Conversation state 
+    */
+   public static final RuntimePermission MODIFY_CONVERSATION_STATE_PERMISSION =
+      new RuntimePermission("modifyConversationState");
 
 }

@@ -37,11 +37,6 @@ import junit.framework.TestCase;
  */
 public abstract class BaseSecurityTest extends TestCase
 {
-
-   public static final Permission SET_SUBJECT_PERMISSION = new RuntimePermission("setSubject");
-   public static final Permission MODIFY_IDENTITY_PERMISSION = new RuntimePermission("modifyIdentity");
-   public static final Permission ALL_PERMISSION = new AllPermission();
-
    /**
     * 
     */
