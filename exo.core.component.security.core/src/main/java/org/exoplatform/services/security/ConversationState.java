@@ -120,6 +120,7 @@ public class ConversationState
     */
    public void removeAttribute(String name)
    {
+      checkPermissions();
       this.attributes.remove(name);
    }
 
