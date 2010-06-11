@@ -135,4 +135,50 @@ public class TestStatePermissions extends BaseSecurityTest
          // it's ok
       }
    }
+   
+
+   /**
+    * Checks that modification is permitted
+    */
+   public void testStateRemoveAttributeWithPermission()
+   {
+      try
+      {
+         doActionWithPermissions(new PrivilegedExceptionAction<Object>()
+         {
+            public Object run() throws Exception
+            {
+               state.removeAttribute("attribute");
+               return null;
+            }
+         }, PermissionConstants.MODIFY_CONVERSATION_STATE_PERMISSION);
+      }
+      catch (Exception e)
+      {
+         fail("Modification should be successfull, since it is launched with required permissions.");
+      }
+   }
+
+   /**
+    * Checks that modification is denied if no permission given
+    */
+   public void testStateRemoveAttributeWithNoPermission()
+   {
+      try
+      {
+         doActionWithPermissions(new PrivilegedExceptionAction<Object>()
+         {
+            public Object run() throws Exception
+            {
+               state.removeAttribute("attribute");
+               return null;
+            }
+         });
+         fail("Modification should be denied");
+      }
+      catch (Exception e)
+      {
+         // it's ok
+      }
+   }
 }
