@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.security;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -106,11 +107,13 @@ public class ConversationState
    }
 
    /**
+    * Returns unmodifiable set of attribute names.
+    * 
     * @return all attribute names
     */
    public Set<String> getAttributeNames()
    {
-      return attributes.keySet();
+      return Collections.unmodifiableSet(attributes.keySet());
    }
 
    /**
