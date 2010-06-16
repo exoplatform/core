@@ -21,13 +21,13 @@ package org.exoplatform.services.document.impl;
 import com.lowagie.text.pdf.PdfDate;
 import com.lowagie.text.pdf.PdfReader;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.util.PDFTextStripper;
 import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReadException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.util.PDFTextStripper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -37,6 +37,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -74,53 +77,81 @@ public class PDFDocumentReader extends BaseDocumentReader
     * @param is an input stream with .pdf file content.
     * @return The string only with text from file content.
     */
-   public String getContentAsText(InputStream is) throws IOException, DocumentReadException
+   public String getContentAsText(final InputStream is) throws IOException, DocumentReadException
    {
-      if (is == null)
-      {
-         throw new NullPointerException("InputStream is null.");
-      }
-      PDDocument pdDocument = null;
-      StringWriter sw = new StringWriter();
+
       try
       {
-         if (is.available() == 0)
-            return "";
-         
-         try
+         return (String)AccessController.doPrivileged(new PrivilegedExceptionAction<Object>()
          {
-            pdDocument = PDDocument.load(is);
-         }
-         catch (IOException e)
-         {
-            throw new DocumentReadException("Can not load PDF document.", e);
-         }
+            public Object run() throws Exception
+            {
+               if (is == null)
+               {
+                  throw new NullPointerException("InputStream is null.");
+               }
+               PDDocument pdDocument = null;
+               StringWriter sw = new StringWriter();
+               try
+               {
+                  if (is.available() == 0)
+                     return "";
 
-         PDFTextStripper stripper = new PDFTextStripper();
-         stripper.setStartPage(1);
-         stripper.setEndPage(Integer.MAX_VALUE);
-         stripper.writeText(pdDocument, sw);
+                  try
+                  {
+                     pdDocument = PDDocument.load(is);
+                  }
+                  catch (IOException e)
+                  {
+                     throw new DocumentReadException("Can not load PDF document.", e);
+                  }
+
+                  PDFTextStripper stripper = new PDFTextStripper();
+                  stripper.setStartPage(1);
+                  stripper.setEndPage(Integer.MAX_VALUE);
+                  stripper.writeText(pdDocument, sw);
+               }
+               finally
+               {
+                  if (pdDocument != null)
+                     try
+                     {
+                        pdDocument.close();
+                     }
+                     catch (IOException e)
+                     {
+                     }
+                  if (is != null)
+                     try
+                     {
+                        is.close();
+                     }
+                     catch (IOException e)
+                     {
+                     }
+               }
+               return sw.toString();
+            }
+         });
+
       }
-      finally
+      catch (PrivilegedActionException pae)
       {
-         if (pdDocument != null)
-            try
-            {
-               pdDocument.close();
-            }
-            catch (IOException e)
-            {
-            }
-         if (is != null)
-            try
-            {
-               is.close();
-            }
-            catch (IOException e)
-            {
-            }
+         Throwable cause = pae.getCause();
+         if (cause instanceof IOException)
+         {
+            throw (IOException)cause;
+         }
+         else if (cause instanceof RuntimeException)
+         {
+            throw (RuntimeException)cause;
+         }
+         else
+         {
+            throw new RuntimeException(cause);
+         }
       }
-      return sw.toString();
+
    }
 
    public String getContentAsText(InputStream is, String encoding) throws IOException, DocumentReadException
