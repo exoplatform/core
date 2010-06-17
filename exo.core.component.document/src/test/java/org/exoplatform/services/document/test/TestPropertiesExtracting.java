@@ -18,10 +18,7 @@
  */
 package org.exoplatform.services.document.test;
 
-import junit.framework.TestCase;
-
 import org.exoplatform.commons.utils.ISO8601;
-import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReader;
 import org.exoplatform.services.document.DocumentReaderService;
@@ -32,20 +29,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-public class TestPropertiesExtracting extends TestCase
+public class TestPropertiesExtracting extends BaseStandaloneTest
 {
-
    DocumentReaderService service_;
-
-   public TestPropertiesExtracting(String name)
-   {
-      super(name);
-   }
 
    public void setUp() throws Exception
    {
-      PortalContainer pcontainer = PortalContainer.getInstance();
-      service_ = (DocumentReaderService)pcontainer.getComponentInstanceOfType(DocumentReaderService.class);
+      super.setUp();
+      service_ = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
    }
 
    public void testPDFDocumentReaderService() throws Exception
