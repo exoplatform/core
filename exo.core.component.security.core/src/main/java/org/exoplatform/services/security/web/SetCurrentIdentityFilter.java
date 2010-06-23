@@ -26,6 +26,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationRegistry;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
+import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.services.security.StateKey;
 
@@ -72,7 +73,9 @@ public class SetCurrentIdentityFilter extends AbstractFilter
          // NOTE may be set as null
          ConversationState.setCurrent(state);
          if (state != null && log.isDebugEnabled())
+         {
             log.debug(">>> Memberships " + state.getIdentity().getMemberships());
+         }
          chain.doFilter(request, response);
       }
       finally
@@ -138,7 +141,9 @@ public class SetCurrentIdentityFilter extends AbstractFilter
                state.setAttribute(ConversationState.SUBJECT, identity.getSubject());
             }
             else
+            {
                log.error("Not found identity in IdentityRegistry for user " + userId + ", check Login Module.");
+            }
 
             if (state != null)
             {
@@ -150,6 +155,10 @@ public class SetCurrentIdentityFilter extends AbstractFilter
 
             }
          }
+      }
+      else
+      {
+         state = new ConversationState(new Identity(IdentityConstants.ANONIM));
       }
       return state;
    }
