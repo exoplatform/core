@@ -23,6 +23,7 @@ import org.exoplatform.container.PortalContainer;
 import org.exoplatform.test.BasicTestCase;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -481,6 +482,96 @@ public class TestOrganizationService extends BasicTestCase
       user.setEmail("exo@exoportal.org");
       userHandler_.createUser(user, true);
       return user;
+   }
+
+   public void testSearchWithSpecialCharacter() throws Exception
+   {
+      // create user
+      User user = userHandler_.createUserInstance("TestName");
+      user.setPassword("default");
+      user.setFirstName("L'test");
+      user.setLastName("default");
+      user.setEmail("exo@exoportal.org");
+      userHandler_.createUser(user, true);
+
+      // search user
+      Query query = new Query();
+      query.setFirstName("L'test");
+      PageList list = userHandler_.findUsers(query);
+      assertEquals(1, list.getAll().size());
+      assertEquals(1, list.getPage(1).size());
+   }
+
+   /**
+    * Find users using query and check it count.
+    */
+   public void testFindUsers() throws Exception
+   {
+
+      Calendar calendar = Calendar.getInstance();
+      calendar.set(2008, 1, 1);
+
+      User u = userHandler_.createUserInstance("tolik");
+      u.setEmail("email@test");
+      u.setFirstName("first");
+      u.setLastName("last");
+      u.setPassword("pwd");
+      userHandler_.createUser(u, true);
+
+      try
+      {
+         Query query = new Query();
+
+         query.setEmail("email@test");
+         assertEquals(userHandler_.findUsers(query).getAll().size(), 1);
+         query.setEmail(null);
+
+         query.setUserName("*tolik*");
+         assertEquals(userHandler_.findUsers(query).getAll().size(), 1);
+
+         query.setUserName("tolik*");
+         assertEquals(userHandler_.findUsers(query).getAll().size(), 1);
+
+         query.setUserName("tolik");
+         assertEquals(userHandler_.findUsers(query).getAll().size(), 1);
+
+         query.setFirstName("First");
+         query.setLastName("laSt");
+         assertEquals(userHandler_.findUsers(query).getAll().size(), 1);
+         query.setFirstName(null);
+         query.setLastName(null);
+
+         Calendar calc = Calendar.getInstance();
+         calc.set(2007, 1, 1);
+         query.setFromLoginDate(calc.getTime());
+         query.setUserName("*tolik*");
+         assertEquals(userHandler_.findUsers(query).getAll().size(), 1);
+
+         calc.set(2050, 1, 1);
+         query.setFromLoginDate(calc.getTime());
+         assertEquals(userHandler_.findUsers(query).getAll().size(), 0);
+         query.setFromLoginDate(null);
+
+         calc.set(2007, 1, 1);
+         query.setToLoginDate(calc.getTime());
+         assertEquals(userHandler_.findUsers(query).getAll().size(), 0);
+
+         calc.set(2050, 1, 1);
+         query.setToLoginDate(calc.getTime());
+         assertEquals(userHandler_.findUsers(query).getAll().size(), 1);
+         query.setUserName(null);
+         query.setToLoginDate(null);
+
+      }
+      catch (Exception e)
+      {
+         e.printStackTrace();
+         fail("Exception should not be thrown.");
+      }
+      finally
+      {
+         userHandler_.removeUser("tolik", true);
+      }
    }
 
 }
