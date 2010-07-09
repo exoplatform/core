@@ -44,6 +44,8 @@ import org.hibernate.Session;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Created by The eXo Platform SAS.
@@ -70,11 +72,33 @@ public class SimpleHibernateUserListAccess extends HibernateUserListAccess
    }
 
    /**
+    * SimpliHibernateUserListAccess constructor.
+    * 
+    * @param service
+    *          The Hibernate Service.
+    * @param findQuery
+    *          Find query string
+    * @param countQuery
+    *          Count query string
+    * @param binding
+    *          Binded fields
+    */
+   public SimpleHibernateUserListAccess(HibernateService service, String findQuery, String countQuery,
+      Map<String, Object> binding)
+   {
+      super(service, findQuery, countQuery, binding);
+   }
+
+   /**
     * {@inheritDoc}
     */
+   @Override
    protected int getSize(Session session) throws Exception
    {
-      List l = session.createQuery(countQuery).list();
+      Query query = session.createQuery(countQuery);
+      bindFields(query);
+
+      List l = query.list();
       Number count = (Number)l.get(0);
 
       return count.intValue();
@@ -83,6 +107,7 @@ public class SimpleHibernateUserListAccess extends HibernateUserListAccess
    /**
     * {@inheritDoc}
     */
+   @Override
    protected User[] load(Session session, int index, int length) throws Exception
    {
       if (index < 0)
@@ -94,8 +119,9 @@ public class SimpleHibernateUserListAccess extends HibernateUserListAccess
       User[] users = new User[length];
 
       Query query = session.createQuery(findQuery);
-      Iterator<Object> results = query.iterate();
+      bindFields(query);
 
+      Iterator<Object> results = query.iterate();
       for (int p = 0, counter = 0; counter < length; p++)
       {
          if (!results.hasNext())
@@ -111,6 +137,20 @@ public class SimpleHibernateUserListAccess extends HibernateUserListAccess
       }
 
       return users;
+   }
+
+   /**
+    * BindFields.
+    * 
+    * @param query
+    *          Query
+    */
+   private void bindFields(Query query)
+   {
+      for (Entry<String, Object> entry : binding.entrySet())
+      {
+         query.setParameter(entry.getKey(), entry.getValue());
+      }
    }
 
 }
