@@ -195,7 +195,8 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler
       oq.addGT("lastLoginTime", q.getFromLoginDate());
       oq.addLT("lastLoginTime", q.getToLoginDate());
 
-      return new SimpleHibernateUserListAccess(service_, oq.getHibernateQuery(), oq.getHibernateCountQuery());
+      return new SimpleHibernateUserListAccess(service_, oq.getHibernateQueryWithBinding(), oq
+         .getHibernateCountQueryWithBinding(), oq.getBindingFields());
    }
 
    public LazyPageList<User> findUsersByGroup(String groupId) throws Exception

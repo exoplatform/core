@@ -42,6 +42,9 @@ import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.organization.User;
 import org.hibernate.Session;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -67,6 +70,11 @@ public abstract class HibernateUserListAccess implements ListAccess<User>
    protected String countQuery;
 
    /**
+    * Binded fields.
+    */
+   protected Map<String, Object> binding;
+
+   /**
     * HibernateUserListAccess constructor.
     * 
     * @param service
@@ -81,6 +89,28 @@ public abstract class HibernateUserListAccess implements ListAccess<User>
       this.service = service;
       this.findQuery = findQuery;
       this.countQuery = countQuery;
+      this.binding = new HashMap<String, Object>();
+   }
+
+   /**
+    * HibernateUserListAccess constructor.
+    * 
+    * @param service
+    *          The Hibernate Service.
+    * @param findQuery
+    *          Find query string
+    * @param countQuery
+    *          Count query string
+    * @param binding
+    *          Binded fields
+    */
+   public HibernateUserListAccess(HibernateService service, String findQuery, String countQuery,
+      Map<String, Object> binding)
+   {
+      this.service = service;
+      this.findQuery = findQuery;
+      this.countQuery = countQuery;
+      this.binding = binding;
    }
 
    /**
