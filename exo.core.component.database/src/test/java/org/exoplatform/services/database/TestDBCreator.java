@@ -42,6 +42,7 @@ public class TestDBCreator extends TestCase
 
    private InitialContextInitializer initContext;
 
+   @Override
    public void setUp() throws Exception
    {
       PortalContainer container = PortalContainer.getInstance();
@@ -62,8 +63,8 @@ public class TestDBCreator extends TestCase
       refAddr.put("username", dbInfo.getUsername());
       refAddr.put("password", dbInfo.getPassword());
 
-      initContext.bind("testjdbcjcr", "javax.sql.DataSource",
-         "org.apache.commons.dbcp.BasicDataSourceFactory", null, refAddr);
+      initContext.bind("testjdbcjcr", "javax.sql.DataSource", "org.apache.commons.dbcp.BasicDataSourceFactory", null,
+         refAddr);
 
       DataSource ds = (DataSource)initContext.getInitialContext().lookup("testjdbcjcr");
       assertNotNull(ds);
@@ -71,4 +72,68 @@ public class TestDBCreator extends TestCase
       Connection conn = ds.getConnection();
       assertNotNull(conn);
    }
+
+   public void testDBCreateMultiThread() throws Exception
+   {
+      DBCreateThread[] queue = new DBCreateThread[100];
+
+      for (int i = 0; i < queue.length; i++)
+      {
+         queue[i] = new DBCreateThread(i);
+         queue[i].start();
+      }
+
+      for (int i = 0; i < queue.length; i++)
+      {
+         queue[i].join();
+      }
+
+      for (int i = 0; i < queue.length; i++)
+      {
+         DataSource ds = (DataSource)initContext.getInitialContext().lookup("testjdbcjcr_" + i);
+         assertNotNull(ds);
+
+         Connection conn = ds.getConnection();
+         assertNotNull(conn);
+      }
+
+   }
+
+   class DBCreateThread extends Thread
+   {
+
+      private final int threadNumber;
+
+      DBCreateThread(int threadNumber)
+      {
+         this.threadNumber = threadNumber;
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      @Override
+      public void run()
+      {
+         try
+         {
+            DBConnectionInfo dbInfo = dbCreator.createDatabase("testdb_" + threadNumber);
+
+            Map<String, String> refAddr = new HashMap<String, String>();
+            refAddr.put("driverClassName", dbInfo.getDriver());
+            refAddr.put("url", dbInfo.getUrl());
+            refAddr.put("username", dbInfo.getUsername());
+            refAddr.put("password", dbInfo.getPassword());
+
+            initContext.bind("testjdbcjcr_" + threadNumber, "javax.sql.DataSource",
+               "org.apache.commons.dbcp.BasicDataSourceFactory", null, refAddr);
+         }
+         catch (Exception e)
+         {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+         }
+      }
+   }
+
 }
