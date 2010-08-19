@@ -132,15 +132,7 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
    {
       // Just close since we are not pooling anything by self.
       // Override this method if need other behavior.
-      try
-      {
-         if (ctx != null)
-            ctx.close();
-      }
-      catch (NamingException e)
-      {
-         LOG.warn("Exception occur when try close LDAP context. ", e);
-      }
+      closeContext(ctx);
    }
 
    /**
@@ -178,17 +170,7 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
       }
       finally
       {
-         try
-         {
-            if (ctx != null)
-            {
-               ctx.close();
-            }
-         }
-         catch (NamingException ne)
-         {
-            LOG.debug("Can't close LDAP context", ne);
-         }
+         closeContext(ctx);
       }
    }
 
@@ -354,6 +336,27 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
       // if(name.equalsIgnoreCase("NETSCAPE.DIRECTORY")) return NETSCAPE_SERVER;
       // if(name.equalsIgnoreCase("REDHAT.DIRECTORY")) return REDHAT_SERVER;
       return DEFAULT_SERVER;
+   }
+
+   /**
+    * Closes LDAP context and shows warning if exception occurred. 
+    * 
+    * @param ctx
+    *          LDAP context
+    */
+   private void closeContext(Context ctx)
+   {
+      try
+      {
+         if (ctx != null)
+         {
+            ctx.close();
+         }
+      }
+      catch (NamingException e)
+      {
+         LOG.warn("Exception occurred when tried to close context", e);
+      }
    }
 
 }
