@@ -164,16 +164,31 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
       props.put(Context.SECURITY_PRINCIPAL, userDN);
       props.put(Context.SECURITY_CREDENTIALS, password);
       props.put("com.sun.jndi.ldap.connect.pool", "false");
+
+      InitialContext ctx = null;
       try
       {
-         new InitialLdapContext(props, null);
+         ctx = new InitialLdapContext(props, null);
          return true;
       }
       catch (NamingException e)
       {
-         if (LOG.isDebugEnabled())
-            e.printStackTrace();
+         LOG.debug("Error during initialization LDAP Context", e);
          return false;
+      }
+      finally
+      {
+         try
+         {
+            if (ctx != null)
+            {
+               ctx.close();
+            }
+         }
+         catch (NamingException ne)
+         {
+            LOG.debug("Can't close LDAP context", ne);
+         }
       }
    }
 
