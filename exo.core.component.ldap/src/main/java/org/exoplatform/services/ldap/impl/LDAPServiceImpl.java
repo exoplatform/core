@@ -132,15 +132,7 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
    {
       // Just close since we are not pooling anything by self.
       // Override this method if need other behavior.
-      try
-      {
-         if (ctx != null)
-            ctx.close();
-      }
-      catch (NamingException e)
-      {
-         LOG.warn("Exception occur when try close LDAP context. ", e);
-      }
+      closeContext(ctx);
    }
 
    /**
@@ -164,16 +156,21 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
       props.put(Context.SECURITY_PRINCIPAL, userDN);
       props.put(Context.SECURITY_CREDENTIALS, password);
       props.put("com.sun.jndi.ldap.connect.pool", "false");
+
+      LdapContext ctx = null;
       try
       {
-         new InitialLdapContext(props, null);
+         ctx = new InitialLdapContext(props, null);
          return true;
       }
       catch (NamingException e)
       {
-         if (LOG.isDebugEnabled())
-            e.printStackTrace();
+         LOG.debug("Exception during initilization LDAP context", e);
          return false;
+      }
+      finally
+      {
+         closeContext(ctx);
       }
    }
 
@@ -339,6 +336,27 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
       // if(name.equalsIgnoreCase("NETSCAPE.DIRECTORY")) return NETSCAPE_SERVER;
       // if(name.equalsIgnoreCase("REDHAT.DIRECTORY")) return REDHAT_SERVER;
       return DEFAULT_SERVER;
+   }
+
+   /**
+    * Closes LDAP context and shows warning if exception occurred. 
+    * 
+    * @param ctx
+    *          LDAP context
+    */
+   private void closeContext(Context ctx)
+   {
+      try
+      {
+         if (ctx != null)
+         {
+            ctx.close();
+         }
+      }
+      catch (NamingException e)
+      {
+         LOG.warn("Exception occurred when tried to close context", e);
+      }
    }
 
 }
