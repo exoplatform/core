@@ -55,6 +55,20 @@
          </component-plugin>
 
          <component-plugin>
+            <name>document.readerMSXWord</name>
+            <set-method>addDocumentReader</set-method>
+            <type>org.exoplatform.services.document.impl.MSXWordDocumentReader</type>
+            <description>to read the ms word inputstream</description>
+            <init-params>
+               <values-param>
+                  <name>document.known.typesMSXWord</name>
+                  <description>description</description>
+                  <value>application/msword</value>
+               </values-param>
+            </init-params>
+         </component-plugin>
+
+         <component-plugin>
             <name>document.readerMSExcel</name>
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.MSExcelDocumentReader</type>
@@ -62,6 +76,20 @@
             <init-params>
                <values-param>
                   <name>document.known.typesMSExcel</name>
+                  <description>description</description>
+                  <value>application/excel</value>
+               </values-param>
+            </init-params>
+         </component-plugin>
+
+         <component-plugin>
+            <name>document.readerMSXExcel</name>
+            <set-method>addDocumentReader</set-method>
+            <type>org.exoplatform.services.document.impl.MSXExcelDocumentReader</type>
+            <description>to read the ms excel inputstream</description>
+            <init-params>
+               <values-param>
+                  <name>document.known.typesMSXExcel</name>
                   <description>description</description>
                   <value>application/excel</value>
                </values-param>
@@ -90,6 +118,20 @@
             <init-params>
                <values-param>
                   <name>document.known.typesPPT</name>
+                  <description>description</description>
+                  <value>application/ppt</value>
+               </values-param>
+            </init-params>
+         </component-plugin>
+
+         <component-plugin>
+            <name>MSXPPTdocument.reader</name>
+            <set-method>addDocumentReader</set-method>
+            <type>org.exoplatform.services.document.impl.MSXPPTDocumentReader</type>
+            <description>to read the ms pptx inputstream</description>
+            <init-params>
+               <values-param>
+                  <name>document.known.typesPPTX</name>
                   <description>description</description>
                   <value>application/ppt</value>
                </values-param>
