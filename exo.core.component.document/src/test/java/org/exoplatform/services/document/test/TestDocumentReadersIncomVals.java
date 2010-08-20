@@ -24,6 +24,9 @@ import org.exoplatform.services.document.impl.HTMLDocumentReader;
 import org.exoplatform.services.document.impl.MSExcelDocumentReader;
 import org.exoplatform.services.document.impl.MSOutlookDocumentReader;
 import org.exoplatform.services.document.impl.MSWordDocumentReader;
+import org.exoplatform.services.document.impl.MSXExcelDocumentReader;
+import org.exoplatform.services.document.impl.MSXPPTDocumentReader;
+import org.exoplatform.services.document.impl.MSXWordDocumentReader;
 import org.exoplatform.services.document.impl.OpenOfficeDocumentReader;
 import org.exoplatform.services.document.impl.PDFDocumentReader;
 import org.exoplatform.services.document.impl.PPTDocumentReader;
@@ -52,11 +55,14 @@ public class TestDocumentReadersIncomVals extends BaseStandaloneTest
       serviceList = new ArrayList<DocumentReader>();
       serviceList.add(new HTMLDocumentReader(null));
       serviceList.add(new MSExcelDocumentReader());
+      serviceList.add(new MSXExcelDocumentReader());
       serviceList.add(new MSOutlookDocumentReader());
       serviceList.add(new MSWordDocumentReader());
+      serviceList.add(new MSXWordDocumentReader());
       serviceList.add(new OpenOfficeDocumentReader());
       serviceList.add(new PDFDocumentReader());
       serviceList.add(new PPTDocumentReader());
+      serviceList.add(new MSXPPTDocumentReader());
       serviceList.add(new TextPlainDocumentReader(new InitParams()));
       serviceList.add(new XMLDocumentReader());
    }
