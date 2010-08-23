@@ -43,8 +43,10 @@ function getModule(params) {
     addDependency(new Project("bouncycastle", "bcmail-jdk14", "jar", "136")).
     addDependency(new Project("bouncycastle", "bcprov-jdk14", "jar", "136")).
     addDependency(new Project("html-parser", "html-parser", "jar", "1.6")).
-    addDependency(new Project("org.apache.poi", "poi", "jar", "3.0.2-FINAL")).
-    addDependency(new Project("org.apache.poi", "poi-scratchpad", "jar", "3.0.2-FINAL"));
+    addDependency(new Project("org.apache.poi", "poi", "jar", "3.6")).
+    addDependency(new Project("org.apache.poi", "poi-scratchpad", "jar", "3.6"));
+    addDependency(new Project("org.apache.poi", "poi-ooxml", "jar", "3.6"));
+    addDependency(new Project("org.apache.xmlbeans", "xmlbeans", "jar", "2.3.0"));
     
   module.component.organization = 
     new Project("org.exoplatform.core", "exo.core.component.organization.api", "jar", module.version).
