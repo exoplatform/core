@@ -83,4 +83,11 @@ public class BaseStandaloneTest extends BasicTestCase
       return f.delete();
    }
 
+   public String normalizeWhitespaces(String str)
+   {
+      str = str.trim();
+      str = str.replaceAll("\\s+", " ");
+      return str;
+   }
+
 }

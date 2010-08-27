@@ -31,28 +31,42 @@ import java.io.InputStream;
 
 public class TestTextPlainDocumentReader extends BaseStandaloneTest
 {
-   DocumentReaderService service_;
+   DocumentReaderService service;
 
    public void setUp() throws Exception
    {
       super.setUp();
-      service_ = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
+      service = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
    }
 
    public void testGetContentAsString() throws Exception
    {
       InputStream is = TestTextPlainDocumentReader.class.getResourceAsStream("/test.txt");
-      String text = service_.getDocumentReader("text/plain").getContentAsText(is);
-      assertEquals("Wrong string returned", "This is a test text\n", text);
+      try
+      {
+         String text = service.getDocumentReader("text/plain").getContentAsText(is);
+         assertEquals("Wrong string returned", "This is a test text\n", text);
+      }
+      finally
+      {
+         is.close();
+      }
    }
 
    public void testGetContentAsStringWithEncoding() throws Exception
    {
       InputStream is = TestTextPlainDocumentReader.class.getResourceAsStream("/testUTF8.txt");
-      String text = service_.getDocumentReader("text/plain").getContentAsText(is, "UTF-8");
-      String etalon =
-         "\ufeff\u0426\u0435 \u0442\u0435\u0441\u0442\u043e\u0432\u0438\u0439 \u0442\u0435\u043a\u0441\u0442. \u042d\u0442\u043e \u0442\u0435\u0441\u0442\u043e\u0432\u044b\u0439 \u0442\u0435\u043a\u0441\u0442.";
-      assertEquals("Wrong string returned", etalon, text);
+      try
+      {
+         String text = service.getDocumentReader("text/plain").getContentAsText(is, "UTF-8");
+         String expected =
+            "\ufeff\u0426\u0435 \u0442\u0435\u0441\u0442\u043e\u0432\u0438\u0439 \u0442\u0435\u043a\u0441\u0442. \u042d\u0442\u043e \u0442\u0435\u0441\u0442\u043e\u0432\u044b\u0439 \u0442\u0435\u043a\u0441\u0442.";
+         assertEquals("Wrong string returned", expected, text);
+      }
+      finally
+      {
+         is.close();
+      }
    }
 
 }

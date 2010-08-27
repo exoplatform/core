@@ -31,21 +31,28 @@ import java.io.InputStream;
 
 public class TestPPTDocumentReader extends BaseStandaloneTest
 {
-   DocumentReaderService service_;
+   DocumentReaderService service;
 
    public void setUp() throws Exception
    {
       super.setUp();
-      service_ = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
+      service = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
    }
 
    public void testGetContentAsString() throws Exception
    {
       InputStream is = TestPPTDocumentReader.class.getResourceAsStream("/test.ppt");
-      String text = service_.getDocumentReader("application/powerpoint").getContentAsText(is);
-      String etalon =
-         "TEST POWERPOINT\n" + "Manchester United \n" + "AC Milan\n" + "SLIDE 2 \n" + "Eric Cantona\n" + "Kaka\n"
-            + "Ronaldo\n" + "The natural scients universitys\n\n";
-      assertEquals("Wrong string returned", etalon, text);
+      try
+      {
+         String text = service.getDocumentReader("application/powerpoint").getContentAsText(is);
+         String etalon =
+            "TEST POWERPOINT\n" + "Manchester United \n" + "AC Milan\n" + "SLIDE 2 \n" + "Eric Cantona\n" + "Kaka\n"
+               + "Ronaldo\n" + "The natural scients universitys\n\n";
+         assertEquals("Wrong string returned", etalon, text);
+      }
+      finally
+      {
+         is.close();
+      }
    }
 }

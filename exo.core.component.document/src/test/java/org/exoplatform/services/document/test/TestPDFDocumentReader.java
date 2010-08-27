@@ -31,21 +31,27 @@ import java.io.InputStream;
 
 public class TestPDFDocumentReader extends BaseStandaloneTest
 {
-   DocumentReaderService service_;
+   DocumentReaderService service;
 
    public void setUp() throws Exception
    {
       super.setUp();
-      service_ = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
+      service = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
    }
 
    public void testGetContentAsString() throws Exception
    {
       InputStream is = TestPDFDocumentReader.class.getResourceAsStream("/test.pdf");
-      String text = service_.getDocumentReader("application/pdf").getContentAsText(is);
-      String etalon = "Hello\nThis is my first Cocoon page!\npage 1 \n";
+      try
+      {
+         String text = service.getDocumentReader("application/pdf").getContentAsText(is);
+         String expected = "Hello This is my first Cocoon page! page 1";
 
-      System.out.println("[" + text + "]");
-      // assertEquals("Wrong string returned",etalon ,text );
+         assertEquals("Wrong string returned", normalizeWhitespaces(expected), normalizeWhitespaces(text));
+      }
+      finally
+      {
+         is.close();
+      }
    }
 }

@@ -31,66 +31,122 @@ import java.util.Properties;
 
 public class TestPropertiesExtracting extends BaseStandaloneTest
 {
-   DocumentReaderService service_;
+   DocumentReaderService service;
 
    public void setUp() throws Exception
    {
       super.setUp();
-      service_ = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
+      service = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
+      //      service = new DocumentReaderServiceImpl(null);
+      //      InitParams params = new InitParams();
+      //      service.addDocumentReader(new TextPlainDocumentReader(params));
+      //      service.addDocumentReader(new XMLDocumentReader());
+      //      service.addDocumentReader(new HTMLDocumentReader(null));
+      //      service.addDocumentReader(new MSExcelDocumentReader());
+      //      service.addDocumentReader(new MSOutlookDocumentReader());
+      //      service.addDocumentReader(new MSWordDocumentReader());
+      //      service.addDocumentReader(new MSXExcelDocumentReader());
+      //      service.addDocumentReader(new MSXPPTDocumentReader());
+      //      service.addDocumentReader(new MSXWordDocumentReader());
+      //      service.addDocumentReader(new OpenOfficeDocumentReader());
+      //      service.addDocumentReader(new PDFDocumentReader());
+      //      service.addDocumentReader(new PPTDocumentReader());
    }
 
    public void testPDFDocumentReaderService() throws Exception
    {
       InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/test.pdf");
-      DocumentReader rdr = service_.getDocumentReader("application/pdf");
-      Properties props = rdr.getProperties(is);
-      printProps(props);
+      try
+      {
+         DocumentReader rdr = service.getDocumentReader("application/pdf");
+         Properties props = rdr.getProperties(is);
+         printProps(props);
+      }
+      finally
+      {
+         is.close();
+      }
    }
 
    public void testPDFDocumentReaderServiceXMPMetadata() throws Exception
    {
       InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/MyTest.pdf");
-      DocumentReader rdr = service_.getDocumentReader("application/pdf");
+      try
+      {
+         DocumentReader rdr = service.getDocumentReader("application/pdf");
 
-      Properties testprops = rdr.getProperties(is);
-      printProps(testprops);
+         Properties testprops = rdr.getProperties(is);
+         printProps(testprops);
 
-      Properties etalon = new Properties();
-      etalon.put(DCMetaData.TITLE, "Test de convertion de fichier tif");
-      etalon.put(DCMetaData.CREATOR, "Christian Klaus");
-      etalon.put(DCMetaData.SUBJECT, "20080901 TEST Christian Etat OK");
-      Calendar c = ISO8601.parseEx("2008-09-01T08:01:10+00:00");;
-      etalon.put(DCMetaData.DATE, c);
+         Properties etalon = new Properties();
+         etalon.put(DCMetaData.TITLE, "Test de convertion de fichier tif");
+         etalon.put(DCMetaData.CREATOR, "Christian Klaus");
+         etalon.put(DCMetaData.SUBJECT, "20080901 TEST Christian Etat OK");
+         Calendar c = ISO8601.parseEx("2008-09-01T08:01:10+00:00");;
+         etalon.put(DCMetaData.DATE, c);
 
-      evalProps(etalon, testprops);
+         evalProps(etalon, testprops);
+      }
+      finally
+      {
+         is.close();
+      }
    }
 
    public void testWordDocumentReaderService() throws Exception
    {
       InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/test.doc");
-      Properties props = service_.getDocumentReader("application/msword").getProperties(is);
-      printProps(props);
+      try
+      {
+         Properties props = service.getDocumentReader("application/msword").getProperties(is);
+         printProps(props);
+      }
+      finally
+      {
+         is.close();
+      }
    }
 
    public void testPPTDocumentReaderService() throws Exception
    {
       InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/test.ppt");
-      Properties props = service_.getDocumentReader("application/powerpoint").getProperties(is);
-      printProps(props);
+      try
+      {
+         Properties props = service.getDocumentReader("application/powerpoint").getProperties(is);
+         printProps(props);
+      }
+      finally
+      {
+         is.close();
+      }
    }
 
    public void testExcelDocumentReaderService() throws Exception
    {
       InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/test.xls");
-      Properties props = service_.getDocumentReader("application/excel").getProperties(is);
-      printProps(props);
+      try
+      {
+         Properties props = service.getDocumentReader("application/excel").getProperties(is);
+         printProps(props);
+      }
+      finally
+      {
+         is.close();
+      }
    }
 
    public void testOODocumentReaderService() throws Exception
    {
       InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/test.odt");
-      Properties props = service_.getDocumentReader("application/vnd.oasis.opendocument.text").getProperties(is);
-      printProps(props);
+      try
+      {
+         Properties props = service.getDocumentReader("application/vnd.oasis.opendocument.text").getProperties(is);
+         printProps(props);
+      }
+      finally
+      {
+         is.close();
+      }
    }
 
    private void printProps(Properties props)

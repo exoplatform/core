@@ -32,12 +32,12 @@ import java.io.InputStream;
 
 public class TestMSOutlookDocumentReader extends BaseStandaloneTest
 {
-   DocumentReaderService service_;
+   DocumentReaderService service;
 
    public void setUp() throws Exception
    {
       super.setUp();
-      service_ = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
+      service = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
    }
 
    public void testGetContentAsString() throws Exception
@@ -45,9 +45,15 @@ public class TestMSOutlookDocumentReader extends BaseStandaloneTest
       String name = "/test.msg";
       InputStream is = BasicTestCase.class.getResourceAsStream(name);
       assertNotNull(is);
-
-      String text = service_.getDocumentReader("application/vnd.ms-outlook").getContentAsText(is);
-      String etalon = "Goooogle\n" + "theme\n" + "Hello, this is the test outlook message.\r\n";
-      assertEquals("Wrong string returned", etalon, text);
+      try
+      {
+         String text = service.getDocumentReader("application/vnd.ms-outlook").getContentAsText(is);
+         String etalon = "Goooogle\n" + "theme\n" + "Hello, this is the test outlook message.\r\n";
+         assertEquals("Wrong string returned", etalon, text);
+      }
+      finally
+      {
+         is.close();
+      }
    }
 }

@@ -29,27 +29,36 @@ import java.io.InputStream;
  */
 public class TestMSXWordDocumentReader extends BaseStandaloneTest
 {
-   DocumentReaderService service_;
+   DocumentReaderService service;
 
    @Override
    public void setUp() throws Exception
    {
       super.setUp();
-      service_ = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
+      service = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
    }
 
    public void testGetContentAsStringDoc() throws Exception
    {
       InputStream is = TestMSXWordDocumentReader.class.getResourceAsStream("/test.docx");
-      String text = service_.getDocumentReader("application/vnd.openxmlformats-officedocument.wordprocessingml.document").getContentAsText(is);
-      System.out.println("text [" + text + "]");
+      try
+      {
+         String text =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+               .getContentAsText(is);
+         System.out.println("text [" + text + "]");
 
-      /*
-       * String etalon = "Hello.\n" +"This is the test document 12345\n"
-       * +"Table\n" +"Title One Two\n" +"Hello_Title Hello_One Hello_Two\n";
-       * System.out.println("etalon ["+etalon+"]");
-       * System.out.println("["+text.length()+"] ["+etalon.length()+"]");
-       * assertEquals("Wrong string returned",etalon ,text );
-       */
+         /*
+          * String etalon = "Hello.\n" +"This is the test document 12345\n"
+          * +"Table\n" +"Title One Two\n" +"Hello_Title Hello_One Hello_Two\n";
+          * System.out.println("etalon ["+etalon+"]");
+          * System.out.println("["+text.length()+"] ["+etalon.length()+"]");
+          * assertEquals("Wrong string returned",etalon ,text );
+          */
+      }
+      finally
+      {
+         is.close();
+      }
    }
 }

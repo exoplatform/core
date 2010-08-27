@@ -31,25 +31,32 @@ import java.io.InputStream;
 
 public class TestMSXPPTDocumentReader extends BaseStandaloneTest
 {
-   DocumentReaderService service_;
+   DocumentReaderService service;
 
    @Override
    public void setUp() throws Exception
    {
       super.setUp();
-      service_ = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
+      service = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
    }
 
    public void testGetContentAsString() throws Exception
    {
       InputStream is = TestMSXPPTDocumentReader.class.getResourceAsStream("/test.pptx");
-      String text =
-         service_.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation")
-            .getContentAsText(is);
-      String etalon =
-         "TEST POWERPOINT\n" + "Manchester United \n" + "AC Milan\n" + "SLIDE 2 \n" + "Eric Cantona\n" + "Kaka\n"
-            + "Ronaldo\n" + "The natural scients universitys\n";
+      try
+      {
+         String text =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation")
+               .getContentAsText(is);
+         String etalon =
+            "TEST POWERPOINT\n" + "Manchester United \n" + "AC Milan\n" + "SLIDE 2 \n" + "Eric Cantona\n" + "Kaka\n"
+               + "Ronaldo\n" + "The natural scients universitys\n";
 
-      assertEquals("Wrong string returned", etalon, text);
+         assertEquals("Wrong string returned", etalon, text);
+      }
+      finally
+      {
+         is.close();
+      }
    }
 }
