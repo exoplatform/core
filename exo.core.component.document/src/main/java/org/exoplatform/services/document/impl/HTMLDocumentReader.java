@@ -48,13 +48,13 @@ public class HTMLDocumentReader extends BaseDocumentReader
    }
 
    /**
-    * Get the text/html mime type.
+    * Get the text/html,application/x-groovy+html mime type.
     * 
-    * @return The string with text/html mime type.
+    * @return The string with text/html,application/x-groovy+html mime type.
     */
    public String[] getMimeTypes()
    {
-      return new String[]{"text/html"};
+      return new String[]{"text/html","application/x-groovy+html"};
    }
 
    /**
