@@ -18,7 +18,6 @@
  */
 package org.exoplatform.services.document.impl;
 
-import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.document.DocumentReadException;
 import org.htmlparser.Parser;
 import org.htmlparser.beans.StringBean;
@@ -43,7 +42,7 @@ public class HTMLDocumentReader extends BaseDocumentReader
     * 
     * @param params the container parameters.
     */
-   public HTMLDocumentReader(InitParams params)
+   public HTMLDocumentReader()
    {
    }
 
@@ -54,7 +53,7 @@ public class HTMLDocumentReader extends BaseDocumentReader
     */
    public String[] getMimeTypes()
    {
-      return new String[]{"text/html","application/x-groovy+html"};
+      return new String[]{"text/html", "application/x-groovy+html"};
    }
 
    /**
@@ -77,7 +76,9 @@ public class HTMLDocumentReader extends BaseDocumentReader
          int len;
          ByteArrayOutputStream bos = new ByteArrayOutputStream();
          while ((len = is.read(buffer)) > 0)
+         {
             bos.write(buffer, 0, len);
+         }
          bos.close();
 
          String html = new String(bos.toByteArray());

@@ -60,6 +60,12 @@ public class PPTDocumentReader extends BaseDocumentReader
       }
       try
       {
+         
+         if (is.available() == 0)
+         {
+            return "";
+         }
+         
          PowerPointExtractor ppe;
          try
          {
@@ -67,13 +73,14 @@ public class PPTDocumentReader extends BaseDocumentReader
          }
          catch (IOException e)
          {
-            return "";
+            throw new DocumentReadException("Can't open presentation.", e);
          }
          return ppe.getText(true, true);
       }
       finally
       {
          if (is != null)
+         {
             try
             {
                is.close();
@@ -81,6 +88,7 @@ public class PPTDocumentReader extends BaseDocumentReader
             catch (IOException e)
             {
             }
+         }
       }
    }
 

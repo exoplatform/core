@@ -53,7 +53,7 @@ public class TestDocumentReadersIncomVals extends BaseStandaloneTest
    public TestDocumentReadersIncomVals()
    {
       serviceList = new ArrayList<DocumentReader>();
-      serviceList.add(new HTMLDocumentReader(null));
+      serviceList.add(new HTMLDocumentReader());
       serviceList.add(new MSExcelDocumentReader());
       serviceList.add(new MSXExcelDocumentReader());
       serviceList.add(new MSOutlookDocumentReader());

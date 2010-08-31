@@ -22,13 +22,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.PDFDocumentReader</type>
             <description>to read the pdf inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.types</name>
-                  <description>description</description>
-                  <value>application/pdf</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -36,13 +29,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.MSWordDocumentReader</type>
             <description>to read the ms word inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.typesMSWord</name>
-                  <description>description</description>
-                  <value>application/msword</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -50,13 +36,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.MSXWordDocumentReader</type>
             <description>to read the ms word inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.typesMSXWord</name>
-                  <description>description</description>
-                  <value>application/msword</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -64,13 +43,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.MSExcelDocumentReader</type>
             <description>to read the ms excel inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.typesMSExcel</name>
-                  <description>description</description>
-                  <value>application/excel</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -78,13 +50,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.MSXExcelDocumentReader</type>
             <description>to read the ms excel inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.typesMSXExcel</name>
-                  <description>description</description>
-                  <value>application/excel</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -92,13 +57,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.MSOutlookDocumentReader</type>
             <description>to read the ms outlook inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.typesMSOutlook</name>
-                  <description>description</description>
-                  <value>application/vnd.ms-outlook</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -106,13 +64,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.PPTDocumentReader</type>
             <description>to read the ms ppt inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.typesPPT</name>
-                  <description>description</description>
-                  <value>application/ppt</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -120,13 +71,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.MSXPPTDocumentReader</type>
             <description>to read the ms pptx inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.typesPPTX</name>
-                  <description>description</description>
-                  <value>application/ppt</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -134,13 +78,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.HTMLDocumentReader</type>
             <description>to read the html inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.typesHTML</name>
-                  <description>description</description>
-                  <value>text/html</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -148,13 +85,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.XMLDocumentReader</type>
             <description>to read the xml inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.typesXML</name>
-                  <description>description</description>
-                  <value>text/xml</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -163,11 +93,6 @@
             <type>org.exoplatform.services.document.impl.TextPlainDocumentReader</type>
             <description>to read the plain text inputstream</description>
             <init-params>
-               <values-param>
-                  <name>document.known.typesTextPlain</name>
-                  <description>description</description>
-                  <value>text/plain</value>
-               </values-param>
                <!--
                   values-param> <name>defaultEncoding</name> <description>description</description> <value>UTF-8</value>
                   </values-param

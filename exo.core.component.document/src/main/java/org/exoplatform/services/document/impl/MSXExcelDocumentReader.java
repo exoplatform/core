@@ -18,8 +18,11 @@
  */
 package org.exoplatform.services.document.impl;
 
+import org.apache.poi.POIXMLDocument;
+import org.apache.poi.POIXMLPropertiesTextExtractor;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JRuntimeException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -44,8 +47,7 @@ import java.util.Properties;
  */
 public class MSXExcelDocumentReader extends BaseDocumentReader
 {
-
-   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+   private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSZ";
 
    /**
     * @see org.exoplatform.services.document.DocumentReader#getMimeTypes()
@@ -69,17 +71,25 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
       }
 
       StringBuilder builder = new StringBuilder("");
+      SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 
       try
       {
+         if (is.available() == 0)
+         {
+            return "";
+         }
+
          XSSFWorkbook wb;
          try
          {
             wb = new XSSFWorkbook(is);
+            OPCPackage pkg;
+
          }
          catch (IOException e)
          {
-            return builder.toString();
+            throw new DocumentReadException("Can't open spreadsheet.", e);
          }
          catch (OpenXML4JRuntimeException e)
          {
@@ -109,7 +119,7 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
                                  if (isCellDateFormatted(cell))
                                  {
                                     Date date = HSSFDateUtil.getJavaDate(d);
-                                    String cellText = this.DATE_FORMAT.format(date);
+                                    String cellText = dateFormat.format(date);
                                     builder.append(cellText).append(" ");
                                  }
                                  else
@@ -171,7 +181,7 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
    public Properties getProperties(InputStream is) throws IOException, DocumentReadException
    {
       POIPropertiesReader reader = new POIPropertiesReader();
-      reader.readDCProperties(is);
+      reader.readDCProperties(new XSSFWorkbook(is));
       return reader.getProperties();
    }
 

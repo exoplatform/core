@@ -46,15 +46,8 @@ public class TestMSXWordDocumentReader extends BaseStandaloneTest
          String text =
             service.getDocumentReader("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
                .getContentAsText(is);
-         System.out.println("text [" + text + "]");
-
-         /*
-          * String etalon = "Hello.\n" +"This is the test document 12345\n"
-          * +"Table\n" +"Title One Two\n" +"Hello_Title Hello_One Hello_Two\n";
-          * System.out.println("etalon ["+etalon+"]");
-          * System.out.println("["+text.length()+"] ["+etalon.length()+"]");
-          * assertEquals("Wrong string returned",etalon ,text );
-          */
+         assertTrue(text
+            .contains("Before the test starts there is a directions section, which takes a few minutes to read"));
       }
       finally
       {

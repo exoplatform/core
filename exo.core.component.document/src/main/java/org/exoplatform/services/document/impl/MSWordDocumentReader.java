@@ -61,6 +61,11 @@ public class MSWordDocumentReader extends BaseDocumentReader
       String text = "";
       try
       {
+         if (is.available() == 0)
+         {
+            return "";
+         }
+         
          HWPFDocument doc;
          try
          {
@@ -68,7 +73,7 @@ public class MSWordDocumentReader extends BaseDocumentReader
          }
          catch (IOException e)
          {
-            return "";
+            throw new DocumentReadException("Can't open document.", e);
          }
 
          Range range = doc.getRange();
@@ -77,6 +82,7 @@ public class MSWordDocumentReader extends BaseDocumentReader
       finally
       {
          if (is != null)
+         {
             try
             {
                is.close();
@@ -84,6 +90,7 @@ public class MSWordDocumentReader extends BaseDocumentReader
             catch (IOException e)
             {
             }
+         }
       }
       return text.trim();
    }
