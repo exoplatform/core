@@ -18,9 +18,7 @@
  */
 package org.exoplatform.services.document.test;
 
-import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.document.DocumentReaderService;
-import org.exoplatform.test.BasicTestCase;
 
 import java.io.InputStream;
 
@@ -29,29 +27,31 @@ import java.io.InputStream;
  * @version $Id: TestMSXWordDocumentReader.java 34360 2009-07-22 23:58:59Z nzamosenchuk $
  *
  */
-public class TestMSXWordDocumentReader extends BasicTestCase
+public class TestMSXWordDocumentReader extends BaseStandaloneTest
 {
-   DocumentReaderService service_;
+   DocumentReaderService service;
 
    @Override
    public void setUp() throws Exception
    {
-      PortalContainer pcontainer = PortalContainer.getInstance();
-      service_ = (DocumentReaderService)pcontainer.getComponentInstanceOfType(DocumentReaderService.class);
+      super.setUp();
+      service = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
    }
 
    public void testGetContentAsStringDoc() throws Exception
    {
       InputStream is = TestMSXWordDocumentReader.class.getResourceAsStream("/test.docx");
-      String text = service_.getDocumentReader("application/vnd.openxmlformats-officedocument.wordprocessingml.document").getContentAsText(is);
-      System.out.println("text [" + text + "]");
-
-      /*
-       * String etalon = "Hello.\n" +"This is the test document 12345\n"
-       * +"Table\n" +"Title One Two\n" +"Hello_Title Hello_One Hello_Two\n";
-       * System.out.println("etalon ["+etalon+"]");
-       * System.out.println("["+text.length()+"] ["+etalon.length()+"]");
-       * assertEquals("Wrong string returned",etalon ,text );
-       */
+      try
+      {
+         String text =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+               .getContentAsText(is);
+         assertTrue(text
+            .contains("Before the test starts there is a directions section, which takes a few minutes to read"));
+      }
+      finally
+      {
+         is.close();
+      }
    }
 }

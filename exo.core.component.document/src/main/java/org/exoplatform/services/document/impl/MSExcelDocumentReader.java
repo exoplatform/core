@@ -42,8 +42,8 @@ import java.util.Properties;
 public class MSExcelDocumentReader extends BaseDocumentReader
 {
 
-   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
-
+   private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSZ";
+   
    /**
     * Get the application/excel mime type.
     * 
@@ -68,9 +68,16 @@ public class MSExcelDocumentReader extends BaseDocumentReader
       }
 
       StringBuilder builder = new StringBuilder("");
+      
+      SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 
       try
       {
+         if (is.available() == 0)
+         {
+            return "";
+         }
+         
          HSSFWorkbook wb;
          try
          {
@@ -78,7 +85,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
          }
          catch (IOException e)
          {
-            return builder.toString();
+            throw new DocumentReadException("Can't open spreadsheet.", e);
          }
          for (int sheetNum = 0; sheetNum < wb.getNumberOfSheets(); sheetNum++)
          {
@@ -104,7 +111,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
                                  if (isCellDateFormatted(cell))
                                  {
                                     Date date = HSSFDateUtil.getJavaDate(d);
-                                    String cellText = this.DATE_FORMAT.format(date);
+                                    String cellText = dateFormat.format(date);
                                     builder.append(cellText).append(" ");
                                  }
                                  else

@@ -18,11 +18,11 @@
  */
 package org.exoplatform.services.document.test;
 
-import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.document.DocumentReaderService;
-import org.exoplatform.test.BasicTestCase;
 
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 /**
  * Created by The eXo Platform SAS Author : Sergey Karpenko
@@ -31,49 +31,96 @@ import java.io.InputStream;
  * @version $Id: $
  */
 
-public class TestMSXExcelDocumentReader extends BasicTestCase
+public class TestMSXExcelDocumentReader extends BaseStandaloneTest
 {
-   DocumentReaderService service_;
+
+   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+
+   DocumentReaderService service;
 
    @Override
    public void setUp() throws Exception
    {
-      PortalContainer pcontainer = PortalContainer.getInstance();
-      service_ = (DocumentReaderService)pcontainer.getComponentInstanceOfType(DocumentReaderService.class);
+      super.setUp();
+      service = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
    }
 
    public void testGetContentAsString() throws Exception
    {
       InputStream is = TestMSXExcelDocumentReader.class.getResourceAsStream("/test.xlsx");
-      String text = service_.getDocumentReader("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet").getContentAsText(is);
-      System.out.println(" text [" + text + "]");
-      /*
-       * String etalon =
-       * "Ronaldo Eric Cantona Kaka Ronaldonho ID Group Functionality Executor Begin End Tested "
-       * +
-       * "XNNL XNNL Xay dung vung quan li nguyen lieu NamPH 2005-02-02 00:00:00.000+0200 2005-10-02 00:00:00.000+0300 Tested "
-       * +
-       * "XNNL XNNL XNNL_HAVEST NamPH 1223554.0 2005-10-01 00:00:00.000+0300 Tested "
-       * +
-       * "XNNL XNNL XNNL_PIECE_OF_GROUND NamPH 2005-10-12 00:00:00.000+0300 2005-10-02 00:00:00.000+0300 Tested "
-       * +"XNNL XNNL XNNL_76 NamPH TRUE 1984-12-10 00:00:00.000+0200 No "
-       * +"XNNL XNNL XNNL_CREATE_REAP NamPH none 2005-10-03 00:00:00.000+0300 No "
-       * +
-       * "XNNL XNNL XNNL_SCALE NamPH 1984-12-10 00:00:00.000+0200 2005-10-05 00:00:00.000+0300 Tested "
-       * +
-       * "XNNL XNNL LASUCO_PROJECT NamPH 2005-10-05 00:00:00.000+0300 2005-10-06 00:00:00.000+0300 No "
-       * +"XNNL XNNL LASUCO_PROJECT NamPH Tested "+
-       * "XNNL XNNL XNNL_BRANCH NamPH 2005-12-12 00:00:00.000+0200 2005-06-10 00:00:00.000+0300 Tested "
-       * +
-       * "XNNL XNNL XNNL_SUGAR_RACE NamPH 2005-05-09 00:00:00.000+0300 2005-06-10 00:00:00.000+0300 No "
-       * +
-       * "XNNL XNNL F_XNNL_DISTRI NamPH 2005-05-09 00:00:00.000+0300 2005-06-10 00:00:00.000+0300 Tested "
-       * +
-       * "XNNL XNNL XNNL_LASUCO_USER NamPH 2005-09-09 00:00:00.000+0300 2005-06-10 00:00:00.000+0300 No "
-       * ; System.out.println(" etalon ["+etalon+"]");
-       * assertEquals("String length is incorect",etalon.length(),text.length());
-       * assertEquals("Wrong string returned",etalon ,text );
-       */
+      try
+      {
+         String text =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+               .getContentAsText(is);
 
+         String expected =
+            "Ronaldo Eric Cantona Kaka Ronaldonho " + "ID Group Functionality Executor Begin End Tested "
+               + "XNNL XNNL Xay dung vung quan li nguyen lieu NamPH "
+               + getDate(2005, 2, 2)
+               + " "
+               + getDate(2005, 10, 2)
+               + " Tested "
+               + "XNNL XNNL XNNL_HAVEST NamPH 1223554.0 "
+               + getDate(2005, 10, 1)
+               + " Tested "
+               + "XNNL XNNL XNNL_PIECE_OF_GROUND NamPH "
+               + getDate(2005, 10, 12)
+               + " "
+               + getDate(2005, 10, 2)
+               + " Tested "
+               + "XNNL XNNL XNNL_76 NamPH TRUE() "
+               + getDate(1984, 12, 10)
+               + " No "
+               + "XNNL XNNL XNNL_CREATE_REAP NamPH none "
+               + getDate(2005, 10, 3)
+               + " No "
+               + "XNNL XNNL XNNL_SCALE NamPH "
+               + getDate(1984, 12, 10)
+               + " "
+               + getDate(2005, 10, 5)
+               + " Tested "
+               + "XNNL XNNL LASUCO_PROJECT NamPH "
+               + getDate(2005, 10, 5)
+               + " "
+               + getDate(2005, 10, 6)
+               + " No "
+               + "XNNL XNNL LASUCO_PROJECT NamPH Tested "
+               + "XNNL XNNL XNNL_BRANCH NamPH "
+               + getDate(2005, 12, 12)
+               + " "
+               + getDate(2005, 6, 10)
+               + " Tested "
+               + "XNNL XNNL XNNL_SUGAR_RACE NamPH "
+               + getDate(2005, 5, 9)
+               + " "
+               + getDate(2005, 6, 10)
+               + " No "
+               + "XNNL XNNL F_XNNL_DISTRI NamPH "
+               + getDate(2005, 5, 9)
+               + " "
+               + getDate(2005, 6, 10)
+               + " Tested "
+               + "XNNL XNNL XNNL_LASUCO_USER NamPH "
+               + getDate(2005, 9, 9)
+               + " "
+               + getDate(2005, 6, 10) + " No";
+
+         assertEquals("Wrong string returned", normalizeWhitespaces(expected), normalizeWhitespaces(text));
+      }
+      finally
+      {
+         is.close();
+      }
    }
+
+   public String getDate(int year, int month, int day)
+   {
+      Calendar date = Calendar.getInstance();
+      date.setTimeInMillis(0);
+      date.set(year, month - 1, day, 0, 0, 0);
+
+      return (DATE_FORMAT.format(date.getTime()));
+   }
+
 }

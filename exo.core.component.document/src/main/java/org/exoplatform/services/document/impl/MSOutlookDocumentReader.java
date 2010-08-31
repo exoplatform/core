@@ -61,6 +61,11 @@ public class MSOutlookDocumentReader extends BaseDocumentReader
       }
       try
       {
+         if (is.available() == 0)
+         {
+            return "";
+         }
+         
          MAPIMessage message;
          try
          {
@@ -68,12 +73,12 @@ public class MSOutlookDocumentReader extends BaseDocumentReader
          }
          catch (IOException e)
          {
-            return "";
+            throw new DocumentReadException("Can't open message.", e);
          }
-         StringBuffer buffer = new StringBuffer();
+         StringBuilder builder = new StringBuilder();
          try
          {
-            buffer.append(message.getDisplayFrom()).append('\n');
+            builder.append(message.getDisplayFrom()).append('\n');
          }
          catch (ChunkNotFoundException e)
          {
@@ -81,7 +86,7 @@ public class MSOutlookDocumentReader extends BaseDocumentReader
          }
          try
          {
-            buffer.append(message.getDisplayTo()).append('\n');
+            builder.append(message.getDisplayTo()).append('\n');
          }
          catch (ChunkNotFoundException e)
          {
@@ -89,7 +94,7 @@ public class MSOutlookDocumentReader extends BaseDocumentReader
          }
          try
          {
-            buffer.append(message.getSubject()).append('\n');
+            builder.append(message.getSubject()).append('\n');
          }
          catch (ChunkNotFoundException e)
          {
@@ -97,13 +102,13 @@ public class MSOutlookDocumentReader extends BaseDocumentReader
          }
          try
          {
-            buffer.append(message.getTextBody());
+            builder.append(message.getTextBody());
          }
          catch (ChunkNotFoundException e)
          {
             // "textBody" is empty
          }
-         return buffer.toString();
+         return builder.toString();
 
       }
       finally

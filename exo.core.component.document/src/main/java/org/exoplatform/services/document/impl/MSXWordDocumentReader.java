@@ -62,6 +62,11 @@ public class MSXWordDocumentReader extends BaseDocumentReader
       String text = "";
       try
       {
+         if (is.available() == 0)
+         {
+            return "";
+         }
+         
          XWPFDocument doc;
          try
          {
@@ -69,11 +74,11 @@ public class MSXWordDocumentReader extends BaseDocumentReader
          }
          catch (IOException e)
          {
-            return "";
+            throw new DocumentReadException("Can't open message.", e);
          }
          catch (OpenXML4JRuntimeException e)
          {
-            return "";
+            throw new DocumentReadException("Can't open message.", e);
          }
 
          XWPFWordExtractor extractor = new XWPFWordExtractor(doc);
@@ -110,7 +115,7 @@ public class MSXWordDocumentReader extends BaseDocumentReader
    public Properties getProperties(InputStream is) throws IOException, DocumentReadException
    {
       POIPropertiesReader reader = new POIPropertiesReader();
-      reader.readDCProperties(is);
+      reader.readDCProperties(new XWPFDocument(is));
       return reader.getProperties();
    }
 

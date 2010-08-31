@@ -18,9 +18,11 @@
  */
 package org.exoplatform.services.document.impl;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JRuntimeException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.xslf.XSLFSlideShow;
 import org.apache.poi.xslf.extractor.XSLFPowerPointExtractor;
 import org.apache.xmlbeans.XmlException;
 import org.exoplatform.services.document.DocumentReadException;
@@ -62,6 +64,11 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
       }
       try
       {
+         if (is.available() == 0)
+         {
+            return "";
+         }
+         
          XSLFPowerPointExtractor ppe;
          try
          {
@@ -69,19 +76,19 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
          }
          catch (IOException e)
          {
-            return "";
+            throw new DocumentReadException("Can't open presentation.", e);
          }
          catch (OpenXML4JRuntimeException e)
          {
-            return "";
+            throw new DocumentReadException("Can't open presentation.", e);
          }
          catch (OpenXML4JException e)
          {
-            return "";
+            throw new DocumentReadException("Can't open presentation.", e);
          }
          catch (XmlException e)
          {
-            return "";
+            throw new DocumentReadException("Can't open presentation.", e);
          }
          return ppe.getText(true, true);
       }
@@ -115,7 +122,22 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
    public Properties getProperties(InputStream is) throws IOException, DocumentReadException
    {
       POIPropertiesReader reader = new POIPropertiesReader();
-      reader.readDCProperties(is);
+      try
+      {
+         reader.readDCProperties(new XSLFSlideShow(OPCPackage.open(is)));
+      }
+      catch (InvalidFormatException e)
+      {
+         throw new DocumentReadException("Can't read properties from OOXML document", e);
+      }
+      catch (OpenXML4JException e)
+      {
+         throw new DocumentReadException("Can't read properties from OOXML document", e);
+      }
+      catch (XmlException e)
+      {
+         throw new DocumentReadException("Can't read properties from OOXML document", e);
+      }
       return reader.getProperties();
    }
 

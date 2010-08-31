@@ -1,25 +1,16 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!--
+   <!--
 
-    Copyright (C) 2009 eXo Platform SAS.
-
-    This is free software; you can redistribute it and/or modify it
-    under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation; either version 2.1 of
-    the License, or (at your option) any later version.
-
-    This software is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public
-    License along with this software; if not, write to the Free
-    Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-    02110-1301 USA, or see the FSF site: http://www.fsf.org.
-
--->
-<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplaform.org/xml/ns/kernel_1_0.xsd http://www.exoplaform.org/xml/ns/kernel_1_0.xsd"
+      Copyright (C) 2009 eXo Platform SAS. This is free software; you can redistribute it and/or modify it under the
+      terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of
+      the License, or (at your option) any later version. This software is distributed in the hope that it will be
+      useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+      PURPOSE. See the GNU Lesser General Public License for more details. You should have received a copy of the GNU
+      Lesser General Public License along with this software; if not, write to the Free Software Foundation, Inc., 51
+      Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+   -->
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.exoplaform.org/xml/ns/kernel_1_0.xsd http://www.exoplaform.org/xml/ns/kernel_1_0.xsd"
    xmlns="http://www.exoplaform.org/xml/ns/kernel_1_0.xsd">
 
    <component>
@@ -31,13 +22,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.PDFDocumentReader</type>
             <description>to read the pdf inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.types</name>
-                  <description>description</description>
-                  <value>application/pdf</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -45,13 +29,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.MSWordDocumentReader</type>
             <description>to read the ms word inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.typesMSWord</name>
-                  <description>description</description>
-                  <value>application/msword</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -59,13 +36,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.MSXWordDocumentReader</type>
             <description>to read the ms word inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.typesMSXWord</name>
-                  <description>description</description>
-                  <value>application/msword</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -73,13 +43,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.MSExcelDocumentReader</type>
             <description>to read the ms excel inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.typesMSExcel</name>
-                  <description>description</description>
-                  <value>application/excel</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -87,13 +50,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.MSXExcelDocumentReader</type>
             <description>to read the ms excel inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.typesMSXExcel</name>
-                  <description>description</description>
-                  <value>application/excel</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -101,13 +57,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.MSOutlookDocumentReader</type>
             <description>to read the ms outlook inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.typesMSOutlook</name>
-                  <description>description</description>
-                  <value>application/vnd.ms-outlook</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -115,13 +64,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.PPTDocumentReader</type>
             <description>to read the ms ppt inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.typesPPT</name>
-                  <description>description</description>
-                  <value>application/ppt</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -129,13 +71,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.MSXPPTDocumentReader</type>
             <description>to read the ms pptx inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.typesPPTX</name>
-                  <description>description</description>
-                  <value>application/ppt</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -143,13 +78,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.HTMLDocumentReader</type>
             <description>to read the html inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.typesHTML</name>
-                  <description>description</description>
-                  <value>text/html</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -157,13 +85,6 @@
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.XMLDocumentReader</type>
             <description>to read the xml inputstream</description>
-            <init-params>
-               <values-param>
-                  <name>document.known.typesXML</name>
-                  <description>description</description>
-                  <value>text/xml</value>
-               </values-param>
-            </init-params>
          </component-plugin>
 
          <component-plugin>
@@ -172,16 +93,10 @@
             <type>org.exoplatform.services.document.impl.TextPlainDocumentReader</type>
             <description>to read the plain text inputstream</description>
             <init-params>
-               <values-param>
-                  <name>document.known.typesTextPlain</name>
-                  <description>description</description>
-                  <value>text/plain</value>
-               </values-param>
-               <!-- values-param>
-                  <name>defaultEncoding</name>
-                  <description>description</description>
-                  <value>UTF-8</value>
-               </values-param -->
+               <!--
+                  values-param> <name>defaultEncoding</name> <description>description</description> <value>UTF-8</value>
+                  </values-param
+               -->
             </init-params>
          </component-plugin>
 
