@@ -21,8 +21,6 @@ package org.exoplatform.services.document.impl;
 import org.apache.poi.POIXMLDocument;
 import org.apache.poi.POIXMLPropertiesTextExtractor;
 import org.apache.poi.POIXMLProperties.CoreProperties;
-import org.apache.poi.POIXMLProperties.CustomProperties;
-import org.apache.poi.POIXMLProperties.ExtendedProperties;
 import org.apache.poi.hpsf.MarkUnsupportedException;
 import org.apache.poi.hpsf.NoPropertySetStreamException;
 import org.apache.poi.hpsf.PropertySet;

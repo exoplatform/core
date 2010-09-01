@@ -18,11 +18,8 @@
  */
 package org.exoplatform.services.document.impl;
 
-import org.apache.poi.POIXMLDocument;
-import org.apache.poi.POIXMLPropertiesTextExtractor;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JRuntimeException;
-import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -84,8 +81,6 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
          try
          {
             wb = new XSSFWorkbook(is);
-            OPCPackage pkg;
-
          }
          catch (IOException e)
          {
