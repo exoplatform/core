@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.document.impl;
 
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.document.DocumentReadException;
 import org.htmlparser.Parser;
 import org.htmlparser.beans.StringBean;
@@ -39,13 +40,20 @@ public class HTMLDocumentReader extends BaseDocumentReader
 
    /**
     * Initializes a newly created object for text/html files format parsing.
-    * 
+    * @deprecated Use the default constructor instead
     * @param params the container parameters.
+    */
+   public HTMLDocumentReader(InitParams params)
+   {
+   }
+
+   /**
+    * Initializes a newly created object for text/html files format parsing.
     */
    public HTMLDocumentReader()
    {
    }
-
+   
    /**
     * Get the text/html,application/x-groovy+html mime type.
     * 
