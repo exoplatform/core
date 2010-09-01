@@ -216,13 +216,13 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
    private class OpenOfficeContentHandler extends DefaultHandler
    {
 
-      private StringBuffer content;
+      private StringBuilder content;
 
       private boolean appendChar;
 
       public OpenOfficeContentHandler()
       {
-         content = new StringBuffer();
+         content = new StringBuilder();
          appendChar = false;
       }
 
@@ -265,12 +265,12 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
 
       private QName curPropertyName;
 
-      private StringBuffer curPropertyValue;
+      private StringBuilder curPropertyValue;
 
       public OpenOfficeMetaHandler()
       {
          props = new Properties();
-         curPropertyValue = new StringBuffer();
+         curPropertyValue = new StringBuilder();
       }
 
       public Properties getProperties()
@@ -301,7 +301,7 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
          if (curPropertyName != null)
          {
             props.put(curPropertyName, curPropertyValue.toString());
-            curPropertyValue = new StringBuffer();
+            curPropertyValue = new StringBuilder();
             curPropertyName = null;
          }
       }
