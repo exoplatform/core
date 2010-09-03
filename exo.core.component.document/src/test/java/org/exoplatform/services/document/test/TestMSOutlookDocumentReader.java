@@ -18,7 +18,8 @@
  */
 package org.exoplatform.services.document.test;
 
-import org.exoplatform.services.document.DocumentReaderService;
+import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
+import org.exoplatform.services.document.impl.MSOutlookDocumentReader;
 import org.exoplatform.test.BasicTestCase;
 
 import java.io.InputStream;
@@ -32,12 +33,13 @@ import java.io.InputStream;
 
 public class TestMSOutlookDocumentReader extends BaseStandaloneTest
 {
-   DocumentReaderService service;
+   DocumentReaderServiceImpl service;
 
    public void setUp() throws Exception
    {
       super.setUp();
-      service = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
+      service = new DocumentReaderServiceImpl(null);
+      service.addDocumentReader(new MSOutlookDocumentReader());
    }
 
    public void testGetContentAsString() throws Exception

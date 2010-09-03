@@ -19,9 +19,22 @@
 package org.exoplatform.services.document.test;
 
 import org.exoplatform.commons.utils.ISO8601;
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReader;
-import org.exoplatform.services.document.DocumentReaderService;
+import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
+import org.exoplatform.services.document.impl.HTMLDocumentReader;
+import org.exoplatform.services.document.impl.MSExcelDocumentReader;
+import org.exoplatform.services.document.impl.MSOutlookDocumentReader;
+import org.exoplatform.services.document.impl.MSWordDocumentReader;
+import org.exoplatform.services.document.impl.MSXExcelDocumentReader;
+import org.exoplatform.services.document.impl.MSXPPTDocumentReader;
+import org.exoplatform.services.document.impl.MSXWordDocumentReader;
+import org.exoplatform.services.document.impl.OpenOfficeDocumentReader;
+import org.exoplatform.services.document.impl.PDFDocumentReader;
+import org.exoplatform.services.document.impl.PPTDocumentReader;
+import org.exoplatform.services.document.impl.TextPlainDocumentReader;
+import org.exoplatform.services.document.impl.XMLDocumentReader;
 
 import java.io.InputStream;
 import java.util.Calendar;
@@ -32,13 +45,26 @@ import java.util.Properties;
 
 public class TestPropertiesExtracting extends BaseStandaloneTest
 {
-   DocumentReaderService service;
+   DocumentReaderServiceImpl service;
 
    @Override
    public void setUp() throws Exception
    {
       super.setUp();
-      service = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
+      service = new DocumentReaderServiceImpl(null);
+      InitParams params = new InitParams();
+      service.addDocumentReader(new TextPlainDocumentReader(params));
+      service.addDocumentReader(new XMLDocumentReader());
+      service.addDocumentReader(new HTMLDocumentReader());
+      service.addDocumentReader(new MSExcelDocumentReader());
+      service.addDocumentReader(new MSOutlookDocumentReader());
+      service.addDocumentReader(new MSWordDocumentReader());
+      service.addDocumentReader(new MSXExcelDocumentReader());
+      service.addDocumentReader(new MSXPPTDocumentReader());
+      service.addDocumentReader(new MSXWordDocumentReader());
+      service.addDocumentReader(new OpenOfficeDocumentReader());
+      service.addDocumentReader(new PDFDocumentReader());
+      service.addDocumentReader(new PPTDocumentReader());
    }
 
    public void testPDFDocumentReaderServiceXMPMetadata() throws Exception
@@ -223,9 +249,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
 
          etalon.put(DCMetaData.TITLE, "test-Title");
          etalon.put(DCMetaData.LANGUAGE, "ru-RU");
-         etalon.put(DCMetaData.DATE, "2010-08-31T14:13:23");
+         etalon.put(DCMetaData.DATE, "2010-08-31T14:53:42.68");
          etalon.put(DCMetaData.SUBJECT, "test-Subject");
-         etalon.put(DCMetaData.CREATOR, "nikolaz ");
+         etalon.put(DCMetaData.CREATOR, "Sergiy Karpenko");
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
          evalProps(etalon, props);

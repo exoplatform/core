@@ -18,7 +18,8 @@
  */
 package org.exoplatform.services.document.test;
 
-import org.exoplatform.services.document.DocumentReaderService;
+import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
+import org.exoplatform.services.document.impl.OpenOfficeDocumentReader;
 
 import java.io.InputStream;
 
@@ -31,13 +32,14 @@ import java.io.InputStream;
 
 public class TestOpenOfficeDocumentReader extends BaseStandaloneTest
 {
-   DocumentReaderService service;
+   DocumentReaderServiceImpl service;
 
    @Override
    public void setUp() throws Exception
    {
       super.setUp();
-      service = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
+      service = new DocumentReaderServiceImpl(null);
+      service.addDocumentReader(new OpenOfficeDocumentReader());
    }
 
    public void testGetContentAsString() throws Exception
@@ -47,10 +49,9 @@ public class TestOpenOfficeDocumentReader extends BaseStandaloneTest
       {
          String text = service.getDocumentReader("application/vnd.oasis.opendocument.text").getContentAsText(is);
 
-         assertTrue(
-            "Wrong string returned",
-            text
-               .contains("Product documentation including user and admin guides to eXo platform portal, ECM, JCR, and Portlet Container. (currently we have all the docs accessible for free but it will not)"));
+         String expected = "This is a test Open Office document `1234567890-= !@#$%^ & *()_+~|”:? > < |\\,./[]{}";
+
+         assertEquals("Wrong string returned", normalizeWhitespaces(expected), normalizeWhitespaces(text));
       }
       finally
       {

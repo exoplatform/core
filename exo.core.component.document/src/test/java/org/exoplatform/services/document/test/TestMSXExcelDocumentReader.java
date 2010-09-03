@@ -18,7 +18,8 @@
  */
 package org.exoplatform.services.document.test;
 
-import org.exoplatform.services.document.DocumentReaderService;
+import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
+import org.exoplatform.services.document.impl.MSXExcelDocumentReader;
 
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -36,13 +37,14 @@ public class TestMSXExcelDocumentReader extends BaseStandaloneTest
 
    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
 
-   DocumentReaderService service;
+   DocumentReaderServiceImpl service;
 
    @Override
    public void setUp() throws Exception
    {
       super.setUp();
-      service = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
+      service = new DocumentReaderServiceImpl(null);
+      service.addDocumentReader(new MSXExcelDocumentReader());
    }
 
    public void testGetContentAsString() throws Exception

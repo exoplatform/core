@@ -18,7 +18,8 @@
  */
 package org.exoplatform.services.document.test;
 
-import org.exoplatform.services.document.DocumentReaderService;
+import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
+import org.exoplatform.services.document.impl.PPTDocumentReader;
 
 import java.io.InputStream;
 
@@ -31,12 +32,13 @@ import java.io.InputStream;
 
 public class TestPPTDocumentReader extends BaseStandaloneTest
 {
-   DocumentReaderService service;
+   DocumentReaderServiceImpl service;
 
    public void setUp() throws Exception
    {
       super.setUp();
-      service = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
+      service = new DocumentReaderServiceImpl(null);
+      service.addDocumentReader(new PPTDocumentReader());
    }
 
    public void testGetContentAsString() throws Exception

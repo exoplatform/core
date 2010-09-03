@@ -94,6 +94,19 @@
          </exclusions>
       </dependency>
 
+  <dependency>
+    <groupId>org.apache.tika</groupId>
+    <artifactId>tika-core</artifactId>
+  </dependency>
+
+  <dependency>
+    <groupId>org.apache.tika</groupId>
+    <artifactId>tika-parsers</artifactId>
+  </dependency>
+
+  
+
+
    </dependencies>
    <build>
       <testResources>
@@ -141,9 +154,9 @@
                <includes>
                   <include>org/exoplatform/services/document/**/Test*.java</include>
                </includes>
-               <!--excludes>
-                  <exclude>org/exoplatform/services/document/**/Test*.java</exclude>
-               </excludes-->
+               <excludes>
+                  <exclude>org/exoplatform/services/document/**/TestMSXExcelOnTikaDocumentReader.java</exclude>
+               </excludes>
             </configuration>
          </plugin>
          <plugin>

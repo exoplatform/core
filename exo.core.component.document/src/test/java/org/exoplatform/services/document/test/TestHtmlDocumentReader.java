@@ -19,7 +19,8 @@
 package org.exoplatform.services.document.test;
 
 import org.exoplatform.services.document.DocumentReader;
-import org.exoplatform.services.document.DocumentReaderService;
+import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
+import org.exoplatform.services.document.impl.HTMLDocumentReader;
 
 import java.io.InputStream;
 
@@ -32,12 +33,13 @@ import java.io.InputStream;
 
 public class TestHtmlDocumentReader extends BaseStandaloneTest
 {
-   DocumentReaderService service;
+   DocumentReaderServiceImpl service;
 
    public void setUp() throws Exception
    {
       super.setUp();
-      service = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
+      service = new DocumentReaderServiceImpl(null);
+      service.addDocumentReader(new HTMLDocumentReader());
    }
 
    public void testGetContentAsString() throws Exception

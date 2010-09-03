@@ -18,7 +18,9 @@
  */
 package org.exoplatform.services.document.test;
 
-import org.exoplatform.services.document.DocumentReaderService;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
+import org.exoplatform.services.document.impl.TextPlainDocumentReader;
 
 import java.io.InputStream;
 
@@ -31,12 +33,14 @@ import java.io.InputStream;
 
 public class TestTextPlainDocumentReader extends BaseStandaloneTest
 {
-   DocumentReaderService service;
+   DocumentReaderServiceImpl service;
 
    public void setUp() throws Exception
    {
       super.setUp();
-      service = (DocumentReaderService)getComponentInstanceOfType(DocumentReaderService.class);
+      service = new DocumentReaderServiceImpl(null);
+      InitParams params = new InitParams();
+      service.addDocumentReader(new TextPlainDocumentReader(params));
    }
 
    public void testGetContentAsString() throws Exception
