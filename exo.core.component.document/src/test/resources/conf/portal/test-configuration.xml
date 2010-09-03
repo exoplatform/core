@@ -26,11 +26,10 @@
       <key>org.exoplatform.services.document.DocumentReaderService</key>
       <type>org.exoplatform.services.document.impl.tika.TikaDocumentReaderServiceImpl</type>
       <init-params>
-         <properties-param>
-            <name>tika-config</name>
-            <description>Tika configuration</description>
-            <property name="tika-configuration-path" value="/conf/portal/tika-config.xml" />
-         </properties-param>
+        <value-param>
+          <name>tika-configuration</name>
+          <value>jar:/conf/portal/tika-config.xml</value>
+        </value-param>
       </init-params>
    </component>
 </configuration>

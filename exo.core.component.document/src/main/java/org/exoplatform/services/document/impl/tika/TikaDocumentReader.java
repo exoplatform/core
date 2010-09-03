@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.document.impl.tika;
 
-import org.apache.tika.config.TikaConfig;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.DublinCore;
 import org.apache.tika.metadata.MSOffice;
@@ -27,6 +26,7 @@ import org.apache.tika.parser.ParsingReader;
 import org.apache.tika.sax.BodyContentHandler;
 import org.apache.tika.sax.WriteOutContentHandler;
 import org.exoplatform.commons.utils.QName;
+import org.exoplatform.services.document.AdvancedDocumentReader;
 import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReadException;
 import org.exoplatform.services.document.HandlerNotFoundException;
@@ -45,7 +45,7 @@ import java.util.Properties;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
  * @version $Id: TikaDocumentReader.java 111 2008-11-11 11:11:11Z serg $
  */
-public class TikaDocumentReader extends BaseAdvancedDocumentReader
+public class TikaDocumentReader implements AdvancedDocumentReader
 {
    /**
     * Since Tika can not extract metadata without extracting document content,
@@ -53,13 +53,13 @@ public class TikaDocumentReader extends BaseAdvancedDocumentReader
     */
    private final int MAX_READED_SIZE = 10 * 1024;
 
-   final String mimeType;
+   private final String mimeType;
 
-   final TikaConfig conf;
+   private final Parser parser;
 
-   public TikaDocumentReader(TikaConfig conf, String mimeType) throws HandlerNotFoundException
+   public TikaDocumentReader(Parser tikaParser, String mimeType) throws HandlerNotFoundException
    {
-      this.conf = conf;
+      this.parser = tikaParser;
       this.mimeType = mimeType;
    }
 
@@ -68,7 +68,6 @@ public class TikaDocumentReader extends BaseAdvancedDocumentReader
       Metadata metadata = new Metadata();
       metadata.set(Metadata.CONTENT_TYPE, mimeType);
       metadata.set(Metadata.CONTENT_ENCODING, encoding);
-      Parser parser = conf.getParser(mimeType);
       ParseContext context = new ParseContext();
       context.set(Parser.class, parser);
       return new ParsingReader(parser, is, metadata, context);
@@ -78,7 +77,6 @@ public class TikaDocumentReader extends BaseAdvancedDocumentReader
    {
       Metadata metadata = new Metadata();
       metadata.set(Metadata.CONTENT_TYPE, mimeType);
-      Parser parser = conf.getParser(mimeType);
       ParseContext context = new ParseContext();
       context.set(Parser.class, parser);
       return new ParsingReader(parser, is, metadata, context);
@@ -86,108 +84,122 @@ public class TikaDocumentReader extends BaseAdvancedDocumentReader
 
    public String getContentAsText(InputStream is) throws IOException, DocumentReadException
    {
-      Metadata metadata = new Metadata();
-      metadata.set(Metadata.CONTENT_TYPE, mimeType);
-
-      Parser parser = conf.getParser(mimeType);
-
-      ContentHandler handler = new BodyContentHandler();
-      ParseContext context = new ParseContext();
-      context.set(Parser.class, parser);
       try
       {
-         parser.parse(is, handler, metadata, context);
-         return handler.toString();
+         Metadata metadata = new Metadata();
+         metadata.set(Metadata.CONTENT_TYPE, mimeType);
+
+         ContentHandler handler = new BodyContentHandler();
+         ParseContext context = new ParseContext();
+         context.set(Parser.class, parser);
+         try
+         {
+            parser.parse(is, handler, metadata, context);
+            return handler.toString();
+         }
+         catch (SAXException e)
+         {
+            throw new DocumentReadException(e.getMessage(), e);
+         }
+         catch (TikaException e)
+         {
+            throw new DocumentReadException(e.getMessage(), e);
+         }
       }
-      catch (SAXException e)
+      finally
       {
-         throw new DocumentReadException(e.getMessage(), e);
-      }
-      catch (TikaException e)
-      {
-         throw new DocumentReadException(e.getMessage(), e);
+         is.close();
       }
    }
 
    public String getContentAsText(InputStream is, String encoding) throws IOException, DocumentReadException
    {
-      Metadata metadata = new Metadata();
-      metadata.set(Metadata.CONTENT_TYPE, mimeType);
-      metadata.set(Metadata.CONTENT_ENCODING, encoding);
-
-      Parser parser = conf.getParser(mimeType);
-
-      ContentHandler handler = new BodyContentHandler();
-      ParseContext context = new ParseContext();
-      context.set(Parser.class, parser);
       try
       {
-         parser.parse(is, handler, metadata, context);
-         return handler.toString();
+         Metadata metadata = new Metadata();
+         metadata.set(Metadata.CONTENT_TYPE, mimeType);
+         metadata.set(Metadata.CONTENT_ENCODING, encoding);
+
+         ContentHandler handler = new BodyContentHandler();
+         ParseContext context = new ParseContext();
+         context.set(Parser.class, parser);
+         try
+         {
+            parser.parse(is, handler, metadata, context);
+            return handler.toString();
+         }
+         catch (SAXException e)
+         {
+            throw new DocumentReadException(e.getMessage(), e);
+         }
+         catch (TikaException e)
+         {
+            throw new DocumentReadException(e.getMessage(), e);
+         }
       }
-      catch (SAXException e)
+      finally
       {
-         throw new DocumentReadException(e.getMessage(), e);
-      }
-      catch (TikaException e)
-      {
-         throw new DocumentReadException(e.getMessage(), e);
+         is.close();
       }
    }
 
    public String[] getMimeTypes()
    {
-      String[] allMimeTypes = new String[conf.getParsers().keySet().size()];
-      conf.getParsers().keySet().toArray(allMimeTypes);
-      return allMimeTypes;
+      return new String[]{mimeType};
    }
 
    public Properties getProperties(InputStream is) throws IOException, DocumentReadException
    {
-      Metadata metadata = new Metadata();
-      metadata.set(Metadata.CONTENT_TYPE, mimeType);
-
-      Parser parser = conf.getParser(mimeType);
-
-      ContentHandler handler = new WriteOutContentHandler(MAX_READED_SIZE);
-      ParseContext context = new ParseContext();
-      context.set(Parser.class, parser);
       try
       {
-         parser.parse(is, handler, metadata, context);
-      }
-      catch (SAXException e)
-      {
-         throw new DocumentReadException(e.getMessage(), e);
-      }
-      catch (TikaException e)
-      {
-         throw new DocumentReadException(e.getMessage(), e);
-      }
+         Metadata metadata = new Metadata();
+         metadata.set(Metadata.CONTENT_TYPE, mimeType);
 
-      // construct Properties set
-      Properties props = new Properties();
-      convertProperty(metadata, props, DCMetaData.CONTRIBUTOR, new String[]{DublinCore.CONTRIBUTOR,
-         MSOffice.LAST_AUTHOR});
-      convertProperty(metadata, props, DCMetaData.COVERAGE, DublinCore.COVERAGE);
-      convertProperty(metadata, props, DCMetaData.CREATOR, new String[]{MSOffice.AUTHOR, DublinCore.CREATOR});
-      //TODO different parsers return date in different formats, so keep it as String
-      convertProperty(metadata, props, DCMetaData.DATE, new String[]{DublinCore.DATE, MSOffice.LAST_SAVED,
-         MSOffice.CREATION_DATE});
-      convertProperty(metadata, props, DCMetaData.DESCRIPTION, new String[]{DublinCore.DESCRIPTION, MSOffice.COMMENTS});
-      convertProperty(metadata, props, DCMetaData.FORMAT, DublinCore.FORMAT);
-      convertProperty(metadata, props, DCMetaData.IDENTIFIER, DublinCore.IDENTIFIER);
-      convertProperty(metadata, props, DCMetaData.LANGUAGE, DublinCore.LANGUAGE);
-      //convertProperty(metadata, props, DCMetaData.?, DublinCore.MODIFIED);
-      convertProperty(metadata, props, DCMetaData.PUBLISHER, DublinCore.PUBLISHER);
-      convertProperty(metadata, props, DCMetaData.RELATION, DublinCore.RELATION);
-      convertProperty(metadata, props, DCMetaData.RESOURCE, DublinCore.SOURCE);
-      convertProperty(metadata, props, DCMetaData.RIGHTS, DublinCore.RIGHTS);
-      convertProperty(metadata, props, DCMetaData.SUBJECT, new String[]{DublinCore.SUBJECT, MSOffice.KEYWORDS});
-      convertProperty(metadata, props, DCMetaData.TITLE, DublinCore.TITLE);
-      convertProperty(metadata, props, DCMetaData.TYPE, DublinCore.TYPE);
+         ContentHandler handler = new WriteOutContentHandler(MAX_READED_SIZE);
+         ParseContext context = new ParseContext();
+         context.set(Parser.class, parser);
+         try
+         {
+            parser.parse(is, handler, metadata, context);
+         }
+         catch (SAXException e)
+         {
+            throw new DocumentReadException(e.getMessage(), e);
+         }
+         catch (TikaException e)
+         {
+            throw new DocumentReadException(e.getMessage(), e);
+         }
 
-      return props;
+         // construct Properties set
+         Properties props = new Properties();
+         convertProperty(metadata, props, DCMetaData.CONTRIBUTOR, new String[]{DublinCore.CONTRIBUTOR,
+            MSOffice.LAST_AUTHOR});
+         convertProperty(metadata, props, DCMetaData.COVERAGE, DublinCore.COVERAGE);
+         convertProperty(metadata, props, DCMetaData.CREATOR, new String[]{MSOffice.AUTHOR, DublinCore.CREATOR});
+         //TODO different parsers return date in different formats, so keep it as String
+         convertProperty(metadata, props, DCMetaData.DATE, new String[]{DublinCore.DATE, MSOffice.LAST_SAVED,
+            MSOffice.CREATION_DATE});
+         convertProperty(metadata, props, DCMetaData.DESCRIPTION, new String[]{DublinCore.DESCRIPTION,
+            MSOffice.COMMENTS});
+         convertProperty(metadata, props, DCMetaData.FORMAT, DublinCore.FORMAT);
+         convertProperty(metadata, props, DCMetaData.IDENTIFIER, DublinCore.IDENTIFIER);
+         convertProperty(metadata, props, DCMetaData.LANGUAGE, DublinCore.LANGUAGE);
+         //convertProperty(metadata, props, DCMetaData.?, DublinCore.MODIFIED);
+         convertProperty(metadata, props, DCMetaData.PUBLISHER, DublinCore.PUBLISHER);
+         convertProperty(metadata, props, DCMetaData.RELATION, DublinCore.RELATION);
+         convertProperty(metadata, props, DCMetaData.RESOURCE, DublinCore.SOURCE);
+         convertProperty(metadata, props, DCMetaData.RIGHTS, DublinCore.RIGHTS);
+         convertProperty(metadata, props, DCMetaData.SUBJECT, new String[]{DublinCore.SUBJECT, MSOffice.KEYWORDS});
+         convertProperty(metadata, props, DCMetaData.TITLE, DublinCore.TITLE);
+         convertProperty(metadata, props, DCMetaData.TYPE, DublinCore.TYPE);
+
+         return props;
+      }
+      finally
+      {
+         is.close();
+      }
    }
 
    private void convertProperty(Metadata metadata, Properties props, QName jcrDCProp, String tikaDCProp)

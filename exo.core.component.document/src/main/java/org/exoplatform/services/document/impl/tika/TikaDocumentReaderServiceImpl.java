@@ -17,17 +17,14 @@
 package org.exoplatform.services.document.impl.tika;
 
 import org.apache.tika.config.TikaConfig;
-import org.exoplatform.container.component.ComponentPlugin;
+import org.apache.tika.parser.Parser;
+import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.document.DocumentReader;
-import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.services.document.HandlerNotFoundException;
-import org.exoplatform.services.document.impl.BaseDocumentReader;
+import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by The eXo Platform SAS.
@@ -37,33 +34,24 @@ import java.util.Map;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
  * @version $Id: TikaDocumentReaderServiceImpl.java 111 2008-11-11 11:11:11Z serg $
  */
-public class TikaDocumentReaderServiceImpl implements DocumentReaderService
+public class TikaDocumentReaderServiceImpl extends DocumentReaderServiceImpl
 {
-   public static final String TIKA_CONFIG = "tika-config";
-
-   public static final String TIKA_CONFIG_PATH = "tika-configuration-path";
-
-   /**
-    * User defined readers. Used to support previously created users DocumentReaders.
-    */
-   private final Map<String, BaseDocumentReader> userReaders;
+   public static final String TIKA_CONFIG_PATH = "tika-configuration";
 
    /**
     * Tika configuration - configured from tika-conf.xml, otherwise default used.
     */
    private final TikaConfig conf;
 
-   public TikaDocumentReaderServiceImpl(InitParams params) throws Exception
+   public TikaDocumentReaderServiceImpl(ConfigurationManager configManager, InitParams params) throws Exception
    {
-      userReaders = new HashMap<String, BaseDocumentReader>();
+      super(params);
 
       // get tika configuration
-      PropertiesParam param = params.getPropertiesParam(TIKA_CONFIG);
-      if (param != null && param.getProperty(TIKA_CONFIG_PATH) != null)
+      if (params != null && params.getValueParam(TIKA_CONFIG_PATH) != null)
       {
-         InputStream stream =
-            TikaDocumentReaderServiceImpl.class.getResourceAsStream(param.getProperty(TIKA_CONFIG_PATH));
-         conf = new TikaConfig(stream);
+         InputStream is = configManager.getInputStream(params.getValueParam(TIKA_CONFIG_PATH).getValue());
+         conf = new TikaConfig(is);
       }
       else
       {
@@ -71,28 +59,9 @@ public class TikaDocumentReaderServiceImpl implements DocumentReaderService
       }
    }
 
-   @Deprecated
-   public String getContentAsText(String mimeType, InputStream is) throws Exception
-   {
-      DocumentReader reader = getDocumentReader(mimeType);
-      if (reader != null)
-         return reader.getContentAsText(is);
-      throw new Exception("Cannot handle the document type: " + mimeType);
-   }
-
    /**
-    * This plugin registers and redefines default document reader with new one.
+    * Returns document reader by mimeType. DocumentReaders are registered only by first user call.
     * 
-    * @param plugin
-    */
-   public void addDocumentReader(ComponentPlugin plugin)
-   {
-      BaseDocumentReader reader = (BaseDocumentReader)plugin;
-      for (String mimeType : reader.getMimeTypes())
-         userReaders.put(mimeType.toLowerCase(), reader);
-   }
-
-   /**
     * (non-Javadoc)
     * @see
     * org.exoplatform.services.document.DocumentReaderService#getDocumentReader
@@ -100,14 +69,23 @@ public class TikaDocumentReaderServiceImpl implements DocumentReaderService
     */
    public DocumentReader getDocumentReader(String mimeType) throws HandlerNotFoundException
    {
-      BaseDocumentReader reader = userReaders.get(mimeType.toLowerCase());
-      if (reader != null)
-         return reader;
-      else
+      try
       {
-         if (conf.getParsers().containsKey(mimeType))
+         // first check user defined old-style and previously registered TikaDocumentReaders
+         return super.getDocumentReader(mimeType);
+      }
+      catch (HandlerNotFoundException e)
+      {
+         // tika-config may contain really big amount of mimetypes, but used only few,
+         // so to avoid load in memory many copies of DocumentReader, we will register it
+         // only if someone need it
+         Parser tikaParser = conf.getParser(mimeType);
+         if (tikaParser != null)
          {
-            return new TikaDocumentReader(conf, mimeType);
+            TikaDocumentReader reader = new TikaDocumentReader(tikaParser, mimeType);
+            //register new document reader
+            super.readers_.put(mimeType, reader);
+            return reader;
          }
          else
          {
@@ -115,5 +93,4 @@ public class TikaDocumentReaderServiceImpl implements DocumentReaderService
          }
       }
    }
-
 }
