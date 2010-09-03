@@ -68,14 +68,8 @@ public class TestHtmlOnTikaDocumentReader extends BaseStandaloneTest
 
       DocumentReader dr = service.getDocumentReader(mimeType);
       String text = dr.getContentAsText(is);
-      String expected =
-         "JBoss.orgCommunity Documentation Prev Next Chapter 58. eXo Core 58.1. eXo Core "
-            + "introduction 58.1. eXo Core introduction The eXo Core is a set of common services "
-            + "that are used by eXo products and modules, it also can be used in the business logic. "
-            + "It's Authentication and Security, Organization, Database, Logging, JNDI, LDAP,"
-            + " Document reader and other services. PrevPart III. eXoCore Top of page Front page"
-            + " NextChapter 59. Database Creator";
 
-      assertEquals("Wrong string returned", normalizeWhitespaces(expected), normalizeWhitespaces(text));
+      assertTrue((normalizeWhitespaces(text))
+         .contains("The eXo Core is a set of common services that are used by eXo products and modules, it also can be used in the business logic. It's Authentication and Security, Organization, Database, Logging, JNDI, LDAP, Document reader and other services."));
    }
 }

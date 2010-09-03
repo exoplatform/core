@@ -261,7 +261,7 @@ public class TestPropertiesExtractionOnTika extends BaseStandaloneTest
 
          etalon.put(DCMetaData.TITLE, "test-Title");
          etalon.put(DCMetaData.LANGUAGE, "ru-RU");
-         etalon.put(DCMetaData.DATE, "2010-08-31T14:53:42.68");
+         etalon.put(DCMetaData.DATE, "2010-09-03T14:37:59.10");
          etalon.put(DCMetaData.SUBJECT, "test-Subject");
          etalon.put(DCMetaData.CREATOR, "Sergiy Karpenko");
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");

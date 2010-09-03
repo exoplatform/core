@@ -49,7 +49,7 @@ public class TestOpenOfficeOnTikaDocumentReader extends BaseStandaloneTest
       {
          String text = service.getDocumentReader("application/vnd.oasis.opendocument.text").getContentAsText(is);
 
-         String expected = "This is a test Open Office document `1234567890-= !@#$%^&*()_+~|”:?><|\\,./[]{}";
+         String expected = "This is a test Open Office document `1234567890-= !@#$%^&*()_+~|:?><|\\,./[]{}";
          assertEquals("Wrong string returned", normalizeWhitespaces(expected), normalizeWhitespaces(text));
       }
       finally
@@ -77,7 +77,7 @@ public class TestOpenOfficeOnTikaDocumentReader extends BaseStandaloneTest
          }
 
          String text = buf.toString();
-         String expected = "This is a test Open Office document `1234567890-= !@#$%^&*()_+~|”:?><|\\,./[]{}";
+         String expected = "This is a test Open Office document `1234567890-= !@#$%^&*()_+~|:?><|\\,./[]{}";
          assertEquals("Wrong string returned", normalizeWhitespaces(expected), normalizeWhitespaces(text));
       }
       finally
