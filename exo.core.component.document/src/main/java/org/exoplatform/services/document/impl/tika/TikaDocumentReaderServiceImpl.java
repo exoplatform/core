@@ -79,17 +79,30 @@ public class TikaDocumentReaderServiceImpl extends DocumentReaderServiceImpl
          // tika-config may contain really big amount of mimetypes, but used only few,
          // so to avoid load in memory many copies of DocumentReader, we will register it
          // only if someone need it
-         Parser tikaParser = conf.getParser(mimeType);
-         if (tikaParser != null)
+         synchronized (this)
          {
-            TikaDocumentReader reader = new TikaDocumentReader(tikaParser, mimeType);
-            //register new document reader
-            super.readers_.put(mimeType, reader);
-            return reader;
-         }
-         else
-         {
-            throw new HandlerNotFoundException("No appropriate properties extractor for " + mimeType);
+            //check again - previous thread may register TikaDocumenReader that we are looking
+            try
+            {
+               return super.getDocumentReader(mimeType);
+            }
+            catch (HandlerNotFoundException ex)
+            {
+               // keep working
+            }
+
+            Parser tikaParser = conf.getParser(mimeType);
+            if (tikaParser != null)
+            {
+               TikaDocumentReader reader = new TikaDocumentReader(tikaParser, mimeType);
+               //register new document reader
+               super.readers_.put(mimeType, reader);
+               return reader;
+            }
+            else
+            {
+               throw new HandlerNotFoundException("No appropriate properties extractor for " + mimeType);
+            }
          }
       }
    }
