@@ -15,7 +15,8 @@
 
    <component>
       <key>org.exoplatform.services.document.DocumentReaderService</key>
-      <type>org.exoplatform.services.document.impl.DocumentReaderServiceImpl</type>
+      <type>org.exoplatform.services.document.impl.tika.TikaDocumentReaderServiceImpl</type>
+
       <component-plugins>
          <component-plugin>
             <name>pdf.document.reader</name>
@@ -108,5 +109,13 @@
          </component-plugin>
 
       </component-plugins>
+      
+      <init-params>
+        <value-param>
+          <name>tika-configuration</name>
+          <value>jar:/conf/portal/tika-config.xml</value>
+        </value-param>
+      </init-params>
+
    </component>
 </configuration>

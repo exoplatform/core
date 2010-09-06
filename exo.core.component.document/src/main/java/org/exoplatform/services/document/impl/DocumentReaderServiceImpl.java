@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public class DocumentReaderServiceImpl implements DocumentReaderService
 {
-   protected Map<String, DocumentReader> readers_;
+   protected volatile Map<String, DocumentReader> readers_;
 
    public DocumentReaderServiceImpl(InitParams params)
    {
