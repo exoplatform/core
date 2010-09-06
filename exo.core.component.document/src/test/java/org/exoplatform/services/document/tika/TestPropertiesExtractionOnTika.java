@@ -24,6 +24,7 @@ import org.exoplatform.services.document.test.TestPropertiesExtracting;
 
 import java.io.InputStream;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -96,7 +97,7 @@ public class TestPropertiesExtractionOnTika extends BaseStandaloneTest
          Properties props = service.getDocumentReader("application/msword").getProperties(is);
          Properties etalon = new Properties();
          etalon.put(DCMetaData.TITLE, "test-Title");
-         etalon.put(DCMetaData.DATE, "Tue Aug 31 12:31:00 EEST 2010");
+         etalon.put(DCMetaData.DATE, (new Date(1283247060000L)).toString());
          etalon.put(DCMetaData.SUBJECT, "test-Subject");
          etalon.put(DCMetaData.CREATOR, "Max Yakimenko");
          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
@@ -117,11 +118,8 @@ public class TestPropertiesExtractionOnTika extends BaseStandaloneTest
       {
          Properties props = service.getDocumentReader("application/powerpoint").getProperties(is);
          Properties etalon = new Properties();
-         Calendar date = Calendar.getInstance();
-         date.setTimeInMillis(41);
-         date.set(2010, 7, 31, 12, 34, 15);
          etalon.put(DCMetaData.TITLE, "test-Title");
-         etalon.put(DCMetaData.DATE, date.getTime().toString());
+         etalon.put(DCMetaData.DATE, (new Date(1283247255041L)).toString());
          etalon.put(DCMetaData.SUBJECT, "test-Subject");
          etalon.put(DCMetaData.CREATOR, "Max Yakimenko");
          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
@@ -141,12 +139,8 @@ public class TestPropertiesExtractionOnTika extends BaseStandaloneTest
       {
          Properties props = service.getDocumentReader("application/excel").getProperties(is);
          Properties etalon = new Properties();
-         Calendar date = Calendar.getInstance();
-         date.setTimeInMillis(0);
-         date.set(2010, 7, 31, 12, 34, 53);
-
          etalon.put(DCMetaData.TITLE, "test-Title");
-         etalon.put(DCMetaData.DATE, date.getTime().toString());
+         etalon.put(DCMetaData.DATE, (new Date(1283247293000L)).toString());
          etalon.put(DCMetaData.SUBJECT, "test-Subject");
          etalon.put(DCMetaData.CREATOR, "KHANH NGUYEN GIA");
          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
