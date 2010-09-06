@@ -25,6 +25,8 @@ import org.exoplatform.services.document.HandlerNotFoundException;
 import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
 
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by The eXo Platform SAS.
@@ -69,34 +71,37 @@ public class TikaDocumentReaderServiceImpl extends DocumentReaderServiceImpl
     */
    public DocumentReader getDocumentReader(String mimeType) throws HandlerNotFoundException
    {
-      try
+      // first check user defined old-style and previously registered TikaDocumentReaders
+      DocumentReader reader = readers_.get(mimeType.toLowerCase());
+
+      if (reader != null)
       {
-         // first check user defined old-style and previously registered TikaDocumentReaders
-         return super.getDocumentReader(mimeType);
+         return reader;
       }
-      catch (HandlerNotFoundException e)
+      else
       {
          // tika-config may contain really big amount of mimetypes, but used only few,
          // so to avoid load in memory many copies of DocumentReader, we will register it
          // only if someone need it
          synchronized (this)
          {
-            //check again - previous thread may register TikaDocumenReader that we are looking
-            try
+            // Check if the reader has been registered since the thread is blocked
+            reader = readers_.get(mimeType);
+            if (reader != null)
             {
-               return super.getDocumentReader(mimeType);
-            }
-            catch (HandlerNotFoundException ex)
-            {
-               // keep working
+               return reader;
             }
 
             Parser tikaParser = conf.getParser(mimeType);
             if (tikaParser != null)
             {
-               TikaDocumentReader reader = new TikaDocumentReader(tikaParser, mimeType);
-               //register new document reader
-               super.readers_.put(mimeType, reader);
+               reader = new TikaDocumentReader(tikaParser, mimeType);
+               // Initialize the map with the existing values 
+               Map<String, DocumentReader> tmpReaders = new HashMap<String, DocumentReader>(readers_);
+               // Register new document reader 
+               tmpReaders.put(mimeType, reader);
+               // Update the map of readers 
+               this.readers_ = tmpReaders;
                return reader;
             }
             else
