@@ -72,7 +72,8 @@ public class TikaDocumentReaderServiceImpl extends DocumentReaderServiceImpl
    public DocumentReader getDocumentReader(String mimeType) throws HandlerNotFoundException
    {
       // first check user defined old-style and previously registered TikaDocumentReaders
-      DocumentReader reader = readers_.get(mimeType.toLowerCase());
+      mimeType = mimeType.toLowerCase();
+      DocumentReader reader = readers_.get(mimeType);
 
       if (reader != null)
       {
@@ -83,31 +84,31 @@ public class TikaDocumentReaderServiceImpl extends DocumentReaderServiceImpl
          // tika-config may contain really big amount of mimetypes, but used only few,
          // so to avoid load in memory many copies of DocumentReader, we will register it
          // only if someone need it
-         synchronized (this)
+         Parser tikaParser = conf.getParser(mimeType);
+         if (tikaParser != null)
          {
-            // Check if the reader has been registered since the thread is blocked
-            reader = readers_.get(mimeType);
-            if (reader != null)
+            synchronized (this)
             {
-               return reader;
-            }
+               // Check if the reader has been registered since the thread is blocked
+               reader = readers_.get(mimeType);
+               if (reader != null)
+               {
+                  return reader;
+               }
 
-            Parser tikaParser = conf.getParser(mimeType);
-            if (tikaParser != null)
-            {
                reader = new TikaDocumentReader(tikaParser, mimeType);
                // Initialize the map with the existing values 
                Map<String, DocumentReader> tmpReaders = new HashMap<String, DocumentReader>(readers_);
                // Register new document reader 
                tmpReaders.put(mimeType, reader);
                // Update the map of readers 
-               this.readers_ = tmpReaders;
+               readers_ = tmpReaders;
                return reader;
             }
-            else
-            {
-               throw new HandlerNotFoundException("No appropriate properties extractor for " + mimeType);
-            }
+         }
+         else
+         {
+            throw new HandlerNotFoundException("No appropriate properties extractor for " + mimeType);
          }
       }
    }

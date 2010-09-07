@@ -108,7 +108,13 @@ public class TikaDocumentReader implements AdvancedDocumentReader
       }
       finally
       {
-         is.close();
+         try
+         {
+            is.close();
+         }
+         catch (Throwable e)
+         {
+         }
       }
    }
 
@@ -139,7 +145,13 @@ public class TikaDocumentReader implements AdvancedDocumentReader
       }
       finally
       {
-         is.close();
+         try
+         {
+            is.close();
+         }
+         catch (Throwable e)
+         {
+         }
       }
    }
 
@@ -198,7 +210,13 @@ public class TikaDocumentReader implements AdvancedDocumentReader
       }
       finally
       {
-         is.close();
+         try
+         {
+            is.close();
+         }
+         catch (Throwable e)
+         {
+         }
       }
    }
 
