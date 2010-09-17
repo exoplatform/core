@@ -32,6 +32,13 @@ import javax.servlet.http.HttpSessionEvent;
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
+ * @deprecated Since use tomcat as default web-container do need use this
+ *             listener any more. In tomcat 6.0.21 and later logout already
+ *             implemented in
+ *             <strong>org.apache.catalina.realm.GenericPrincipal</strong>.
+ *             Detains described <a
+ *             href="https://issues.apache.org/bugzilla/show_bug.cgi?id=39231"
+ *             >here</a> . Should use {@link ConversationStateListener} instead.
  */
 public class JAASConversationStateListener extends ConversationStateListener
 {
@@ -67,10 +74,12 @@ public class JAASConversationStateListener extends ConversationStateListener
             }
             else
             {
-               log.warn("Subject was not found in ConversationState attributes.");
+               if (log.isDebugEnabled())
+               {
+                  log.warn("Subject was not found in ConversationState attributes.");
+               }
             }
          }
-
       }
       catch (Exception e)
       {

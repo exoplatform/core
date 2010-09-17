@@ -23,6 +23,7 @@ import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.web.AbstractFilter;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.security.Authenticator;
 import org.exoplatform.services.security.ConversationRegistry;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
@@ -33,6 +34,7 @@ import org.exoplatform.services.security.StateKey;
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -41,7 +43,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  * Created by The eXo Platform SAS .
- * 
+ *
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady
  *         Azarenkov</a>
  * @version $Id: SimpleSessionFactoryInitializedFilter.java 7163 2006-07-19
@@ -50,10 +52,22 @@ import javax.servlet.http.HttpSession;
 public class SetCurrentIdentityFilter extends AbstractFilter
 {
 
+   private boolean restoreIdentity;
+
    /**
     * Logger.
     */
    private static Log log = ExoLogger.getLogger("exo.core.component.security.core.SetCurrentIdentityFilter");
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   protected void afterInit(FilterConfig config) throws ServletException
+   {
+      super.afterInit(config);
+      restoreIdentity = Boolean.parseBoolean(config.getInitParameter("restoreIdentity"));
+   }
 
    /**
     * Set current {@link ConversationState}, if it is not registered yet then
@@ -70,12 +84,7 @@ public class SetCurrentIdentityFilter extends AbstractFilter
       {
          ExoContainerContext.setCurrentContainer(container);
          ConversationState state = getCurrentState(container, httpRequest);
-         // NOTE may be set as null
          ConversationState.setCurrent(state);
-         if (state != null && log.isDebugEnabled())
-         {
-            log.debug(">>> Memberships " + state.getIdentity().getMemberships());
-         }
          chain.doFilter(request, response);
       }
       finally
@@ -137,12 +146,40 @@ public class SetCurrentIdentityFilter extends AbstractFilter
             if (identity != null)
             {
                state = new ConversationState(identity);
-               // keep subject as attribute in ConversationState
+               // Keep subject as attribute in ConversationState.
+               // TODO remove this, do not need it any more.
                state.setAttribute(ConversationState.SUBJECT, identity.getSubject());
             }
             else
             {
-               log.error("Not found identity in IdentityRegistry for user " + userId + ", check Login Module.");
+               if (restoreIdentity)
+               {
+                  if (log.isDebugEnabled())
+                  {
+                     log.debug("Not found identity for " + userId + " try to restore it. ");
+                  }
+
+                  Authenticator authenticator =
+                     (Authenticator)container.getComponentInstanceOfType(Authenticator.class);
+                  try
+                  {
+                     identity = authenticator.createIdentity(userId);
+                     identityRegistry.register(identity);
+                  }
+                  catch (Exception e)
+                  {
+                     log.error("Unable restore identity. " + e.getMessage(), e);
+                  }
+
+                  if (identity != null)
+                  {
+                     state = new ConversationState(identity);
+                  }
+               }
+               else
+               {
+                  log.error("Not found identity in IdentityRegistry for user " + userId + ", check Login Module.");
+               }
             }
 
             if (state != null)
@@ -152,7 +189,6 @@ public class SetCurrentIdentityFilter extends AbstractFilter
                {
                   log.debug("Register Conversation state " + httpSession.getId());
                }
-
             }
          }
       }

@@ -34,7 +34,7 @@ import javax.security.auth.login.LoginException;
 
 /**
  * Created by The eXo Platform SAS .
- * 
+ *
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -66,7 +66,7 @@ public class DefaultLoginModule extends AbstractLoginModule
    }
 
    /**
-    * {@inheritDoc} 
+    * {@inheritDoc}
     */
    public void afterInitialize()
    {
@@ -130,7 +130,7 @@ public class DefaultLoginModule extends AbstractLoginModule
          {
             log.debug(e.getMessage());
          }
-            
+
          throw new LoginException(e.getMessage());
       }
    }
@@ -149,6 +149,10 @@ public class DefaultLoginModule extends AbstractLoginModule
          if (singleLogin && identityRegistry.getIdentity(identity.getUserId()) != null)
             throw new LoginException("User " + identity.getUserId() + " already logined.");
 
+         // TODO Remove subject from identity if nod need it in eXo environment.
+         // Do not need implement logout by self if use tomcat 6.0.21 and later.
+         // See deprecation comments in
+         // org.exoplatform.services.security.web.JAASConversationStateListener
          identity.setSubject(subject);
          identityRegistry.register(identity);
 

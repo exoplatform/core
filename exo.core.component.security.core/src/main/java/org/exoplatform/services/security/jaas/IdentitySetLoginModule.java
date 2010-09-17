@@ -36,7 +36,7 @@ import javax.security.auth.login.LoginException;
  * Required name of user MUST be passed to LM via sharedState (see method
  * {@link #initialize(Subject, CallbackHandler, Map, Map)}), with name
  * javax.security.auth.login.name.
- * 
+ *
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
@@ -92,6 +92,10 @@ public class IdentitySetLoginModule extends AbstractLoginModule
             throw new LoginException("User " + userId + " already logined.");
 
          Identity identity = authenticator.createIdentity(userId);
+         // TODO Remove subject from identity if nod need it in eXo environment.
+         // Do not need implement logout by self if use tomcat 6.0.21 and later.
+         // See deprecation comments in
+         // org.exoplatform.services.security.web.JAASConversationStateListener
          identity.setSubject(subject);
 
          identityRegistry.register(identity);
@@ -99,7 +103,7 @@ public class IdentitySetLoginModule extends AbstractLoginModule
       }
       catch (Exception e)
       {
-         e.printStackTrace();
+         log.error(e.getMessage());
          throw new LoginException(e.getMessage());
       }
       return true;
@@ -114,7 +118,6 @@ public class IdentitySetLoginModule extends AbstractLoginModule
       {
          log.debug("in initialize");
       }
-
       String sl = (String)options.get("singleLogin");
       this.singleLogin = (sl != null && (sl.equalsIgnoreCase("yes") || sl.equalsIgnoreCase("true")));
    }

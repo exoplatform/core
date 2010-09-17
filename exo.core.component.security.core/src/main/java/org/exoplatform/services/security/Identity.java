@@ -22,7 +22,6 @@ import org.exoplatform.commons.utils.secure.SecureCollections;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.security.auth.Subject;
@@ -188,6 +187,9 @@ public class Identity
 
    /**
     * @return @see {@link Subject} .
+    * @deprecated Do not need store subject any more. It was used before to
+    *             perform logout, since tomcat 6.0.21 logout implemented in
+    *             web-container.
     */
    public Subject getSubject()
    {
@@ -196,6 +198,7 @@ public class Identity
 
    /**
     * @param subject @see {@link Subject} .
+    * @deprecated See {@link #getSubject()}
     */
    public void setSubject(Subject subject)
    {
