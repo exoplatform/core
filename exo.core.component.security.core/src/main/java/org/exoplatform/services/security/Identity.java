@@ -25,10 +25,11 @@ import java.util.Set;
 import javax.security.auth.Subject;
 
 /**
- * Created by The eXo Platform SAS .<br/> User Session encapsulates user's
- * principals such as name, groups along with JAAS subject (useful in J2EE
- * environment) as well as other optional attributes
- * 
+ * Created by The eXo Platform SAS .<br/>
+ * User Session encapsulates user's principals such as name, groups along with
+ * JAAS subject (useful in J2EE environment) as well as other optional
+ * attributes
+ *
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -118,7 +119,7 @@ public class Identity
 
    /**
     * Check is user member of group.
-    * 
+    *
     * @param group the group.
     * @return true if user has any membershipType for given group, false
     *         otherwise.
@@ -159,7 +160,7 @@ public class Identity
 
    /**
     * Sets the roles for J2EE environment using.
-    * 
+    *
     * @param roles the roles.
     */
    public void setRoles(Collection<String> roles)
@@ -177,6 +178,9 @@ public class Identity
 
    /**
     * @return @see {@link Subject} .
+    * @deprecated Do not need store subject any more. It was used before to
+    *             perform logout, since tomcat 6.0.21 logout implemented in
+    *             web-container.
     */
    public Subject getSubject()
    {
@@ -185,6 +189,7 @@ public class Identity
 
    /**
     * @param subject @see {@link Subject} .
+    * @deprecated See {@link #getSubject()}
     */
    public void setSubject(Subject subject)
    {
@@ -193,7 +198,7 @@ public class Identity
 
    /**
     * Check is given {@link MembershipEntry} presents in user's memberships.
-    * 
+    *
     * @param checkMe the MembershipEntry.
     * @return true if presents false otherwise.
     */
