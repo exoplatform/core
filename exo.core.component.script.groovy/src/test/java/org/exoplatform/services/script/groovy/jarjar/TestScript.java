@@ -23,26 +23,22 @@ import groovy.lang.GroovyObject;
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 
-import org.codehaus.groovy.control.CompilationFailedException;
 import org.exoplatform.commons.utils.PrivilegedSystemHelper;
-import org.exoplatform.commons.utils.SecurityHelper;
 
 import java.io.IOException;
 import java.net.URL;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 
 /**
  * @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a>
  * @version $Revision$
  */
-public class Script
+public class TestScript
 {
 
    /** . */
    private final String name;
 
-   public Script(String name)
+   public TestScript(String name)
    {
       this.name = name;
    }
@@ -51,7 +47,7 @@ public class Script
    {
 
       //
-      final JarJarClassLoader loader =
+      JarJarClassLoader loader =
          JarJarClassLoader.createJarJarClassLoaderInPrivilegedMode(Thread.currentThread().getContextClassLoader());
 
       //
@@ -72,34 +68,7 @@ public class Script
          throw err;
       }
 
-      Class testClass;
-      try
-      {
-         final GroovyCodeSource gGcs = gcs;
-         testClass = SecurityHelper.doPriviledgedExceptionAction(new PrivilegedExceptionAction<Class>()
-         {
-            public Class run() throws Exception
-            {
-               return loader.parseClass(gGcs);
-            }
-         });
-      }
-      catch (PrivilegedActionException pae)
-      {
-         Throwable cause = pae.getCause();
-         if (cause instanceof CompilationFailedException)
-         {
-            throw (CompilationFailedException)cause;
-         }
-         else if (cause instanceof RuntimeException)
-         {
-            throw (RuntimeException)cause;
-         }
-         else
-         {
-            throw new RuntimeException(cause);
-         }
-      }
+      Class testClass = loader.parseClass(gcs);;
 
       // Instantiate script
       GroovyObject testObject;

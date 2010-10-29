@@ -39,7 +39,7 @@ public class JarJarTest extends TestCase
       super(s);
    }
 
-   private void testTop(Script script)
+   private void testTop(TestScript script)
    {
       Mapping m1 = new Mapping();
       m1.addMapping("a", "b");
@@ -55,12 +55,12 @@ public class JarJarTest extends TestCase
 
    public void testTopClassLitteral() throws Exception
    {
-      testTop(new Script("classlitteral1.groovy"));
-      testTop(new Script("classlitteral_1.groovy"));
-      testTop(new Script("import1.groovy"));
+      testTop(new TestScript("classlitteral1.groovy"));
+      testTop(new TestScript("classlitteral_1.groovy"));
+      testTop(new TestScript("import1.groovy"));
    }
 
-   private void testPrefix(Script script) throws Exception
+   private void testPrefix(TestScript script) throws Exception
    {
       Mapping m1 = new Mapping();
       m1.addMapping("prefix1", "prefix2");
@@ -86,8 +86,8 @@ public class JarJarTest extends TestCase
 
    public void testPrefixClassLitteral() throws Exception
    {
-      testPrefix(new Script("classlitteral2.groovy"));
-      testPrefix(new Script("classlitteral_2.groovy"));
-      testPrefix(new Script("import2.groovy"));
+      testPrefix(new TestScript("classlitteral2.groovy"));
+      testPrefix(new TestScript("classlitteral_2.groovy"));
+      testPrefix(new TestScript("import2.groovy"));
    }
 }
