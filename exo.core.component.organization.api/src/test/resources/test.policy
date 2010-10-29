@@ -7,6 +7,11 @@ grant codeBase "@MAIN_CLASSES@-"{
 };
 
 grant codeBase "@TEST_CLASSES@-"{
-   permission java.lang.RuntimePermission "modifyIdentity";
-   permission java.lang.RuntimePermission "modifyConversationState";
 };
+
+grant codeBase "@MAIN_CLASSES@../../../exo.core.component.security.core/-"{
+   permission java.security.AllPermission;
+};
+
+
+

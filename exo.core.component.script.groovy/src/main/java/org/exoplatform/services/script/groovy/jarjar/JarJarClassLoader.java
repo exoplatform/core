@@ -29,8 +29,10 @@ import org.codehaus.groovy.control.CompilationUnit;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.Phases;
 import org.codehaus.groovy.control.SourceUnit;
+import org.exoplatform.commons.utils.SecurityHelper;
 
 import java.security.CodeSource;
+import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -92,15 +94,22 @@ public class JarJarClassLoader extends GroovyClassLoader
    }
 
    @Override
-   protected CompilationUnit createCompilationUnit(CompilerConfiguration compilerConfiguration, CodeSource codeSource)
+   protected CompilationUnit createCompilationUnit(final CompilerConfiguration compilerConfiguration,
+      final CodeSource codeSource)
    {
-
       //
-      final CompilationUnit unit = super.createCompilationUnit(compilerConfiguration, codeSource);
+      final CompilationUnit unit = SecurityHelper.doPriviledgedAction(new PrivilegedAction<CompilationUnit>()
+      {
+         public CompilationUnit run()
+         {
+            return JarJarClassLoader.super.createCompilationUnit(compilerConfiguration, codeSource);
+         }
+      });
 
       //
       unit.addPhaseOperation(new CompilationUnit.PrimaryClassNodeOperation()
       {
+         @Override
          public void call(SourceUnit sourceUnit, GeneratorContext generatorContext, ClassNode classNode)
             throws CompilationFailedException
          {
@@ -135,5 +144,16 @@ public class JarJarClassLoader extends GroovyClassLoader
       }, Phases.CONVERSION);
 
       return unit;
+   }
+
+   static protected JarJarClassLoader createJarJarClassLoaderInPrivilegedMode(final ClassLoader classLoader)
+   {
+      return SecurityHelper.doPriviledgedAction(new PrivilegedAction<JarJarClassLoader>()
+      {
+         public JarJarClassLoader run()
+         {
+            return new JarJarClassLoader(classLoader);
+         }
+      });
    }
 }

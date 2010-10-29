@@ -37,11 +37,13 @@
  */
 package org.exoplatform.services.organization.hibernate;
 
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.organization.User;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
+import java.security.PrivilegedAction;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -93,9 +95,16 @@ public class SimpleHibernateUserListAccess extends HibernateUserListAccess
     * {@inheritDoc}
     */
    @Override
-   protected int getSize(Session session) throws Exception
+   protected int getSize(final Session session) throws Exception
    {
-      Query query = session.createQuery(countQuery);
+      Query query = SecurityHelper.doPriviledgedAction(new PrivilegedAction<Query>()
+      {
+         public Query run()
+         {
+            return session.createQuery(countQuery);
+         }
+      });
+         
       bindFields(query);
 
       List l = query.list();
@@ -108,7 +117,7 @@ public class SimpleHibernateUserListAccess extends HibernateUserListAccess
     * {@inheritDoc}
     */
    @Override
-   protected User[] load(Session session, int index, int length) throws Exception
+   protected User[] load(final Session session, int index, int length) throws Exception
    {
       if (index < 0)
          throw new IllegalArgumentException("Illegal index: index must be a positive number");
@@ -118,7 +127,13 @@ public class SimpleHibernateUserListAccess extends HibernateUserListAccess
 
       User[] users = new User[length];
 
-      Query query = session.createQuery(findQuery);
+      Query query = SecurityHelper.doPriviledgedAction(new PrivilegedAction<Query>()
+      {
+         public Query run()
+         {
+            return session.createQuery(findQuery);
+         }
+      });
       bindFields(query);
 
       Iterator<Object> results = query.iterate();

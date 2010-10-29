@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.xml.transform.impl.trax;
 
+import org.exoplatform.commons.utils.PrivilegedSystemHelper;
 import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -116,11 +117,11 @@ public class TRAXTemplatesServiceImpl implements TRAXTemplatesService, Startable
             String xsltSchema = m.get(key);
             try
             {
-               if (Thread.currentThread().getContextClassLoader().getResource(xsltSchema) != null)
+               if (PrivilegedSystemHelper.getResource(xsltSchema) != null)
                {
                   LOGGER.info("XSLT schema found by relative path: " + xsltSchema);
-                  addTRAXTemplates(key, traxTransformerService_.getTemplates(new StreamSource(Thread.currentThread()
-                     .getContextClassLoader().getResourceAsStream(xsltSchema))));
+                  addTRAXTemplates(key, traxTransformerService_.getTemplates(new StreamSource(PrivilegedSystemHelper
+                     .getResourceAsStream(xsltSchema))));
                }
                else
                   LOGGER.error("XSLT schema not found: " + xsltSchema);

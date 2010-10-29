@@ -19,6 +19,8 @@
 package org.exoplatform.services.database.impl;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.commons.utils.PrivilegedSystemHelper;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.container.component.ComponentRequestLifecycle;
@@ -39,6 +41,7 @@ import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
 import java.io.Serializable;
 import java.net.URL;
+import java.security.PrivilegedAction;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -79,8 +82,14 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
    {
       threadLocal_ = new ThreadLocal<Session>();
       PropertiesParam param = initParams.getPropertiesParam("hibernate.properties");
-      HibernateSettingsFactory settingsFactory = new HibernateSettingsFactory(new ExoCacheProvider(cacheService));
-      conf_ = new HibernateConfigurationImpl(settingsFactory);
+      final HibernateSettingsFactory settingsFactory = new HibernateSettingsFactory(new ExoCacheProvider(cacheService));
+      conf_ = SecurityHelper.doPriviledgedAction(new PrivilegedAction<HibernateConfigurationImpl>()
+      {
+         public HibernateConfigurationImpl run()
+         {
+            return new HibernateConfigurationImpl(settingsFactory);
+         }
+      });
       Iterator properties = param.getPropertyIterator();
       while (properties.hasNext())
       {
@@ -108,7 +117,8 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
       String connectionURL = conf_.getProperty("hibernate.connection.url");
       if (connectionURL != null)
       {
-         connectionURL = connectionURL.replace("${java.io.tmpdir}", System.getProperty("java.io.tmpdir"));
+         connectionURL =
+            connectionURL.replace("${java.io.tmpdir}", PrivilegedSystemHelper.getProperty("java.io.tmpdir"));
          conf_.setProperty("hibernate.connection.url", connectionURL);
       }
 
@@ -280,8 +290,15 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
    {
       if (sessionFactory_ == null)
       {
-         sessionFactory_ = conf_.buildSessionFactory();
-         new SchemaUpdate(conf_).execute(false, true);
+         sessionFactory_ = SecurityHelper.doPriviledgedAction(new PrivilegedAction<SessionFactory>()
+         {
+            public SessionFactory run()
+            {
+               SessionFactory factory = conf_.buildSessionFactory();
+               new SchemaUpdate(conf_).execute(false, true);
+               return factory;
+            }
+         });
       }
       return sessionFactory_;
    }

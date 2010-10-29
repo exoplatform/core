@@ -23,6 +23,8 @@ import groovy.lang.GroovyObject;
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 
+import org.exoplatform.commons.utils.PrivilegedSystemHelper;
+
 import java.io.IOException;
 import java.net.URL;
 
@@ -45,13 +47,14 @@ public class Script
    {
 
       //
-      JarJarClassLoader loader = new JarJarClassLoader(Thread.currentThread().getContextClassLoader());
+      JarJarClassLoader loader =
+         JarJarClassLoader.createJarJarClassLoaderInPrivilegedMode(Thread.currentThread().getContextClassLoader());
 
       //
       mapping.configure(loader);
 
       // Obtain script class
-      URL url = Thread.currentThread().getContextClassLoader().getResource("jarjar/" + name);
+      URL url = PrivilegedSystemHelper.getResource("jarjar/" + name);
       Assert.assertNotNull(url);
       GroovyCodeSource gcs;
       try

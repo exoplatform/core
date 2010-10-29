@@ -20,15 +20,21 @@ package org.exoplatform.services.organization.hibernate;
 
 import org.exoplatform.commons.utils.LazyPageList;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.database.ObjectQuery;
-import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.Query;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserEventListener;
+import org.exoplatform.services.organization.UserEventListenerHandler;
+import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.impl.UserImpl;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -80,8 +86,15 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler
    {
       if (broadcast)
          preSave(user, true);
-      Session session = service_.openSession();
-      Transaction transaction = session.beginTransaction();
+
+      final Session session = service_.openSession();
+      Transaction transaction = SecurityHelper.doPriviledgedAction(new PrivilegedAction<Transaction>()
+      {
+         public Transaction run()
+         {
+            return session.beginTransaction();
+         }
+      });
 
       UserImpl userImpl = (UserImpl)user;
       userImpl.setId(user.getUserName());

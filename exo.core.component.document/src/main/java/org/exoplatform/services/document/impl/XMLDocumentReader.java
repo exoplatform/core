@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.document.impl;
 
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DocumentReadException;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.security.PrivilegedExceptionAction;
 import java.util.Properties;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -120,7 +122,7 @@ public class XMLDocumentReader extends BaseDocumentReader
     */
    private String parse(InputStream is)
    {
-      SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+      final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
       //      saxParserFactory.setNamespaceAware(true);
       //      saxParserFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
       SAXParser saxParser;
@@ -129,7 +131,15 @@ public class XMLDocumentReader extends BaseDocumentReader
       DefaultHandler dh = new WriteOutContentHandler(writer);
       try
       {
-         saxParser = saxParserFactory.newSAXParser();
+         saxParser =
+            SecurityHelper
+               .doPriviledgedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
+            {
+               public SAXParser run() throws Exception
+               {
+                  return saxParserFactory.newSAXParser();
+               }
+            });
          saxParser.parse(is, dh);
       }
       catch (SAXException e)

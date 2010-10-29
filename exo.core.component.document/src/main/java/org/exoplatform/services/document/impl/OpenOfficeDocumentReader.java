@@ -19,6 +19,7 @@
 package org.exoplatform.services.document.impl;
 
 import org.exoplatform.commons.utils.QName;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReadException;
 import org.xml.sax.Attributes;
@@ -29,6 +30,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.PrivilegedExceptionAction;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -73,11 +75,19 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
       }
       try
       {
-         SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+         final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
          saxParserFactory.setValidating(false);
-         SAXParser saxParser;
 
-         saxParser = saxParserFactory.newSAXParser();
+         SAXParser saxParser =
+            SecurityHelper
+               .doPriviledgedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
+            {
+               public SAXParser run() throws Exception
+               {
+                  return saxParserFactory.newSAXParser();
+               }
+            });
+
          XMLReader xmlReader = saxParser.getXMLReader();
          xmlReader.setFeature("http://xml.org/sax/features/validation", false);
 
@@ -160,10 +170,18 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
    {
       try
       {
-         SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+         final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
          saxParserFactory.setValidating(false);
-         SAXParser saxParser = saxParserFactory.newSAXParser();
-
+         SAXParser saxParser =
+            SecurityHelper
+               .doPriviledgedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
+            {
+               public SAXParser run() throws Exception
+               {
+                  return saxParserFactory.newSAXParser();
+               }
+            });
+            
          XMLReader xmlReader = saxParser.getXMLReader();
 
          xmlReader.setFeature("http://xml.org/sax/features/validation", false);
@@ -234,6 +252,7 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
          return content.toString();
       }
 
+      @Override
       public void startElement(String namespaceURI, String localName, String rawName, Attributes atts)
          throws SAXException
       {
@@ -243,6 +262,7 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
          }
       }
 
+      @Override
       public void characters(char[] ch, int start, int length) throws SAXException
       {
          if (appendChar)
@@ -251,6 +271,7 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
          }
       }
 
+      @Override
       public void endElement(java.lang.String namespaceURI, java.lang.String localName, java.lang.String qName)
          throws SAXException
       {
@@ -278,6 +299,7 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
          return props;
       }
 
+      @Override
       public void startElement(String namespaceURI, String localName, String rawName, Attributes atts)
          throws SAXException
       {
@@ -287,6 +309,7 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
          }
       }
 
+      @Override
       public void characters(char[] ch, int start, int length) throws SAXException
       {
          if (curPropertyName != null)
@@ -295,6 +318,7 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
          }
       }
 
+      @Override
       public void endElement(java.lang.String namespaceURI, java.lang.String localName, java.lang.String qName)
          throws SAXException
       {

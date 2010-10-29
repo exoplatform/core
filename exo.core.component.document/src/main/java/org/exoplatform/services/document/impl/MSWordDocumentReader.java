@@ -20,10 +20,12 @@ package org.exoplatform.services.document.impl;
 
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.usermodel.Range;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DocumentReadException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.PrivilegedExceptionAction;
 import java.util.Properties;
 
 /**
@@ -52,7 +54,7 @@ public class MSWordDocumentReader extends BaseDocumentReader
     * @param is an input stream with .doc file content.
     * @return The string only with text from file content.
     */
-   public String getContentAsText(InputStream is) throws IOException, DocumentReadException
+   public String getContentAsText(final InputStream is) throws IOException, DocumentReadException
    {
       if (is == null)
       {
@@ -69,7 +71,13 @@ public class MSWordDocumentReader extends BaseDocumentReader
          HWPFDocument doc;
          try
          {
-            doc = new HWPFDocument(is);
+            doc = SecurityHelper.doPriviledgedIOExceptionAction(new PrivilegedExceptionAction<HWPFDocument>()
+            {
+               public HWPFDocument run() throws Exception
+               {
+                  return new HWPFDocument(is);
+               }
+            });
          }
          catch (IOException e)
          {

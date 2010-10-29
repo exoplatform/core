@@ -79,7 +79,8 @@ public class GroovyInstantiatorTest extends TestCase
 
    public void testGroovyScriptInstantiatorXML() throws Exception
    {
-      String url = Thread.currentThread().getContextClassLoader().getResource("SimpleXMLGenerator.groovy").toString();
+      String url =
+         Thread.currentThread().getContextClassLoader().getResource("TestSimpleXMLGenerator.groovy").toString();
       GroovyObject groovyObject = (GroovyObject)groovyScriptInstantiator.instantiateScript(url);
       groovyObject.invokeMethod("generateXML", new Object[]{new Book()});
    }

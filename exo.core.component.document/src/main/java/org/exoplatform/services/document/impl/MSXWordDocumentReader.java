@@ -21,10 +21,13 @@ package org.exoplatform.services.document.impl;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JRuntimeException;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DocumentReadException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedExceptionAction;
 import java.util.Properties;
 
 /**
@@ -53,7 +56,7 @@ public class MSXWordDocumentReader extends BaseDocumentReader
     * @param is an input stream with .docx file content.
     * @return The string only with text from file content.
     */
-   public String getContentAsText(InputStream is) throws IOException, DocumentReadException
+   public String getContentAsText(final InputStream is) throws IOException, DocumentReadException
    {
       if (is == null)
       {
@@ -70,7 +73,13 @@ public class MSXWordDocumentReader extends BaseDocumentReader
          XWPFDocument doc;
          try
          {
-            doc = new XWPFDocument(is);
+            doc = SecurityHelper.doPriviledgedIOExceptionAction(new PrivilegedExceptionAction<XWPFDocument>()
+            {
+               public XWPFDocument run() throws Exception
+               {
+                  return new XWPFDocument(is);
+               }
+            });
          }
          catch (IOException e)
          {
@@ -81,8 +90,14 @@ public class MSXWordDocumentReader extends BaseDocumentReader
             throw new DocumentReadException("Can't open message.", e);
          }
 
-         XWPFWordExtractor extractor = new XWPFWordExtractor(doc);
-         text = extractor.getText();
+         final XWPFWordExtractor extractor = new XWPFWordExtractor(doc);
+         text = SecurityHelper.doPriviledgedAction(new PrivilegedAction<String>()
+         {
+            public String run()
+            {
+               return extractor.getText();
+            }
+         });
       }
       finally
       {
@@ -112,10 +127,18 @@ public class MSXWordDocumentReader extends BaseDocumentReader
    /**
     * @see org.exoplatform.services.document.DocumentReader#getProperties(java.io.InputStream)
     */
-   public Properties getProperties(InputStream is) throws IOException, DocumentReadException
+   public Properties getProperties(final InputStream is) throws IOException, DocumentReadException
    {
       POIPropertiesReader reader = new POIPropertiesReader();
-      reader.readDCProperties(new XWPFDocument(is));
+      reader.readDCProperties(SecurityHelper
+         .doPriviledgedIOExceptionAction(new PrivilegedExceptionAction<XWPFDocument>()
+         {
+            public XWPFDocument run() throws Exception
+            {
+               return new XWPFDocument(is);
+            }
+         }));
+
       return reader.getProperties();
    }
 

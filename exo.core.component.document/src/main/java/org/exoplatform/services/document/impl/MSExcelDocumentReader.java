@@ -24,10 +24,12 @@ import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DocumentReadException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.PrivilegedAction;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
@@ -67,7 +69,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
          throw new NullPointerException("InputStream is null.");
       }
 
-      StringBuilder builder = new StringBuilder("");
+      final StringBuilder builder = new StringBuilder("");
       
       SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 
@@ -101,7 +103,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
                      int lastcell = row.getLastCellNum();
                      for (int k = 0; k < lastcell; k++)
                      {
-                        HSSFCell cell = row.getCell((short)k);
+                        final HSSFCell cell = row.getCell((short)k);
                         if (cell != null)
                         {
                            switch (cell.getCellType())
@@ -121,16 +123,44 @@ public class MSExcelDocumentReader extends BaseDocumentReader
                                  break;
                               }
                               case HSSFCell.CELL_TYPE_FORMULA :
-                                 builder.append(cell.getCellFormula().toString()).append(" ");
+                                 SecurityHelper.doPriviledgedAction(new PrivilegedAction<Void>()
+                                 {
+                                    public Void run()
+                                    {
+                                       builder.append(cell.getCellFormula().toString()).append(" ");
+                                       return null;
+                                    }
+                                 });
                                  break;
                               case HSSFCell.CELL_TYPE_BOOLEAN :
-                                 builder.append(cell.getBooleanCellValue()).append(" ");
+                                 SecurityHelper.doPriviledgedAction(new PrivilegedAction<Void>()
+                                 {
+                                    public Void run()
+                                    {
+                                       builder.append(cell.getBooleanCellValue()).append(" ");
+                                       return null;
+                                    }
+                                 });
                                  break;
                               case HSSFCell.CELL_TYPE_ERROR :
-                                 builder.append(cell.getErrorCellValue()).append(" ");
+                                 SecurityHelper.doPriviledgedAction(new PrivilegedAction<Void>()
+                                 {
+                                    public Void run()
+                                    {
+                                       builder.append(cell.getErrorCellValue()).append(" ");
+                                       return null;
+                                    }
+                                 });
                                  break;
                               case HSSFCell.CELL_TYPE_STRING :
-                                 builder.append(cell.getStringCellValue().toString()).append(" ");
+                                 SecurityHelper.doPriviledgedAction(new PrivilegedAction<Void>()
+                                 {
+                                    public Void run()
+                                    {
+                                       builder.append(cell.getStringCellValue().toString()).append(" ");
+                                       return null;
+                                    }
+                                 });
                                  break;
                               default :
                                  break;

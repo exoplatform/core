@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.xml.transform.impl.trax;
 
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.xml.transform.NotSupportedIOTypeException;
 import org.exoplatform.services.xml.transform.impl.TransformerBase;
 import org.exoplatform.services.xml.transform.trax.TRAXTransformer;
@@ -28,6 +29,8 @@ import org.xml.sax.XMLReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Properties;
 
 import javax.xml.transform.ErrorListener;
@@ -70,10 +73,35 @@ public class TRAXTransformerImpl extends TransformerBase implements TRAXTransfor
       tHandler = saxTFactory.newTransformerHandler();
    }
 
-   public TRAXTransformerImpl(Source source) throws TransformerConfigurationException
+   public TRAXTransformerImpl(final Source source) throws TransformerConfigurationException
    {
-      SAXTransformerFactory saxTFactory = (SAXTransformerFactory)SAXTransformerFactory.newInstance();
-      tHandler = saxTFactory.newTransformerHandler(source);
+      final SAXTransformerFactory saxTFactory = (SAXTransformerFactory)SAXTransformerFactory.newInstance();
+      try
+      {
+         tHandler = SecurityHelper.doPriviledgedExceptionAction(new PrivilegedExceptionAction<TransformerHandler>()
+         {
+            public TransformerHandler run() throws Exception
+            {
+               return saxTFactory.newTransformerHandler(source);
+            }
+         });
+      }
+      catch (PrivilegedActionException pae)
+      {
+         Throwable cause = pae.getCause();
+         if (cause instanceof TransformerConfigurationException)
+         {
+            throw (TransformerConfigurationException)cause;
+         }
+         else if (cause instanceof RuntimeException)
+         {
+            throw (RuntimeException)cause;
+         }
+         else
+         {
+            throw new RuntimeException(cause);
+         }
+      }
    }
 
    public TRAXTransformerImpl(Templates templates) throws TransformerConfigurationException
@@ -82,6 +110,7 @@ public class TRAXTransformerImpl extends TransformerBase implements TRAXTransfor
       tHandler = saxTFactory.newTransformerHandler(templates);
    }
 
+   @Override
    protected void internalTransform(Source source) throws TransformerException, NotSupportedIOTypeException,
       IllegalStateException
    {
@@ -126,21 +155,43 @@ public class TRAXTransformerImpl extends TransformerBase implements TRAXTransfor
       {
          throw new NotSupportedIOTypeException(source);
       }
+
       try
       {
-         xmlReader.parse(inputSource);
+         final XMLReader fXMLReader = xmlReader;
+         final InputSource fInputSource = inputSource;
+         SecurityHelper.doPriviledgedExceptionAction(new PrivilegedExceptionAction<Void>()
+         {
+            public Void run() throws Exception
+            {
+               fXMLReader.parse(fInputSource);
+               return null;
+            }
+         });
       }
-      catch (SAXException ex)
+      catch (PrivilegedActionException pae)
       {
-         throw new TransformerException(ex);
+         Throwable cause = pae.getCause();
+         if (cause instanceof SAXException)
+         {
+            throw new TransformerException(cause);
+         }
+         else if (cause instanceof IOException)
+         {
+            throw new TransformerException(cause);
+         }
+         else if (cause instanceof RuntimeException)
+         {
+            throw (RuntimeException)cause;
+         }
+         else
+         {
+            throw new RuntimeException(cause);
+         }
       }
-      catch (IOException ex)
-      {
-         throw new TransformerException(ex);
-      }
-
    }
 
+   @Override
    protected void afterInitResult()
    {
       tHandler.setResult(getResult());

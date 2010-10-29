@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.xml.transform.impl.html;
 
+import org.exoplatform.commons.utils.PrivilegedSystemHelper;
 import org.exoplatform.services.xml.transform.EncodingMap;
 import org.exoplatform.services.xml.transform.NotSupportedIOTypeException;
 import org.exoplatform.services.xml.transform.html.HTMLTransformer;
@@ -96,6 +97,7 @@ public class TidyTransformerImpl extends TransformerBase implements HTMLTransfor
       log.debug("Transform from temp output to " + getResult().getClass().getName() + " complete");
    }
 
+   @Override
    protected void internalTransform(Source source) throws NotSupportedIOTypeException, TransformerException,
       IllegalStateException
    {
@@ -150,7 +152,7 @@ public class TidyTransformerImpl extends TransformerBase implements HTMLTransfor
    protected String getCurrentIANAEncoding() throws UnsupportedEncodingException
    {
       EncodingMap encodingMap = new EncodingMapImpl();
-      String ianaEncoding = encodingMap.convertJava2IANA(System.getProperty("file.encoding"));
+      String ianaEncoding = encodingMap.convertJava2IANA(PrivilegedSystemHelper.getProperty("file.encoding"));
       if (ianaEncoding == null)
       {
          throw new UnsupportedEncodingException("Can't find corresponding type of encoding for : "

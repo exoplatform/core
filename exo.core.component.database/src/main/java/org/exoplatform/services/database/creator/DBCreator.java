@@ -18,14 +18,16 @@
  */
 package org.exoplatform.services.database.creator;
 
+import org.exoplatform.commons.utils.PrivilegedFileHelper;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.container.configuration.ConfigurationException;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.security.PrivilegedExceptionAction;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -197,15 +199,13 @@ public class DBCreator
       {
          Class.forName(driver);
 
-         //         Properties props = new java.util.Properties();
-         //         props.put("user", adminName);
-         //         props.put("password", adminPwd);
-         //         if (internal_logon != null)
-         //         {
-         //            props.put("internal_logon", internal_logon);
-         //         }
-         //         conn = DriverManager.getConnection(serverUrl, props);
-         conn = DriverManager.getConnection(serverUrl, adminName, adminPwd);
+         conn = SecurityHelper.doPriviledgedSQLExceptionAction(new PrivilegedExceptionAction<Connection>()
+         {
+            public Connection run() throws Exception
+            {
+               return DriverManager.getConnection(serverUrl, adminName, adminPwd);
+            }
+         });
       }
       catch (SQLException e)
       {
@@ -219,7 +219,14 @@ public class DBCreator
       String dbProductName;
       try
       {
-         dbProductName = conn.getMetaData().getDatabaseProductName();
+         final Connection connection = conn;
+         dbProductName = SecurityHelper.doPriviledgedSQLExceptionAction(new PrivilegedExceptionAction<String>()
+         {
+            public String run() throws Exception
+            {
+               return connection.getMetaData().getDatabaseProductName();
+            }
+         });
 
          if (dbProductName.startsWith("Microsoft SQL Server") || dbProductName.startsWith("Adaptive Server Anywhere")
             || dbProductName.equals("Sybase SQL Server") || dbProductName.equals("Adaptive Server Enterprise"))
@@ -334,7 +341,7 @@ public class DBCreator
     */
    protected String readScriptResource(String path) throws IOException
    {
-      InputStream is = new FileInputStream(path);
+      InputStream is = PrivilegedFileHelper.fileInputStream(path);
       InputStreamReader isr = new InputStreamReader(is);
       try
       {

@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.ldap.impl;
 
+import org.exoplatform.commons.utils.PrivilegedSystemHelper;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.container.component.ComponentRequestLifecycle;
@@ -76,7 +77,7 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
       {
          String keystore = System.getProperty("java.home");
          keystore += File.separator + "lib" + File.separator + "security" + File.separator + "cacerts";
-         System.setProperty("javax.net.ssl.trustStore", keystore);
+         PrivilegedSystemHelper.setProperty("javax.net.ssl.trustStore", keystore);
       }
 
       env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");

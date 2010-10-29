@@ -24,6 +24,7 @@ import com.lowagie.text.pdf.PdfReader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
 import org.exoplatform.commons.utils.ISO8601;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReadException;
 import org.exoplatform.services.log.ExoLogger;
@@ -207,27 +208,48 @@ public class PDFDocumentReader extends BaseDocumentReader
     * @throws DocumentReadException
     * @throws Exception if extracting fails
     */
-   protected Properties getPropertiesFromMetadata(byte[] metadata) throws IOException, DocumentReadException
+   protected Properties getPropertiesFromMetadata(final byte[] metadata) throws IOException, DocumentReadException
    {
 
       Properties props = null;
 
       // parse xml
-
       Document doc;
       try
       {
-         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-         DocumentBuilder docBuilder = dbf.newDocumentBuilder();
-         doc = docBuilder.parse(new ByteArrayInputStream(metadata));
+         final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+         doc = SecurityHelper.doPriviledgedExceptionAction(new PrivilegedExceptionAction<Document>()
+         {
+            public Document run() throws Exception
+            {
+               DocumentBuilder docBuilder = dbf.newDocumentBuilder();
+               return docBuilder.parse(new ByteArrayInputStream(metadata));
+            }
+         });
       }
-      catch (SAXException e)
+      catch (PrivilegedActionException pae)
       {
-         throw new DocumentReadException(e.getMessage(), e);
-      }
-      catch (ParserConfigurationException e)
-      {
-         throw new DocumentReadException(e.getMessage(), e);
+         Throwable cause = pae.getCause();
+         if (cause instanceof SAXException)
+         {
+            throw new DocumentReadException(cause.getMessage(), cause);
+         }
+         else if (cause instanceof ParserConfigurationException)
+         {
+            throw (RuntimeException)cause;
+         }
+         else if (cause instanceof IOException)
+         {
+            throw (IOException)cause;
+         }
+         else if (cause instanceof RuntimeException)
+         {
+            throw new DocumentReadException(cause.getMessage(), cause);
+         }
+         else
+         {
+            throw new RuntimeException(cause);
+         }
       }
 
       // Check is there PDF/A-1 XMP

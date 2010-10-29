@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.xml.resolving.impl;
 
+import org.exoplatform.commons.utils.PrivilegedSystemHelper;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -66,11 +67,10 @@ public class XMLResolver implements EntityResolver
          entity = publicIDs_.get(publicId);
       if (entity != null)
       {
-         if (Thread.currentThread().getContextClassLoader().getResource(entity) != null)
+         if (PrivilegedSystemHelper.getResource(entity) != null)
          {
-            InputSource src =
-               new InputSource(Thread.currentThread().getContextClassLoader().getResourceAsStream(entity));
-            src.setSystemId(Thread.currentThread().getContextClassLoader().getResource(entity).getPath());
+            InputSource src = new InputSource(PrivilegedSystemHelper.getResourceAsStream(entity));
+            src.setSystemId(PrivilegedSystemHelper.getResource(entity).getPath());
             return src;
          }
       }

@@ -22,6 +22,7 @@ import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyCodeSource;
 
 import org.codehaus.groovy.control.CompilationFailedException;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.component.ComponentPlugin;
@@ -35,6 +36,9 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -128,13 +132,26 @@ public class GroovyScriptInstantiator
       GroovyClassLoader loader;
       if (mapping.size() > 0)
       {
-         JarJarClassLoader jarjarLoader = new JarJarClassLoader();
+         JarJarClassLoader jarjarLoader = SecurityHelper.doPriviledgedAction(new PrivilegedAction<JarJarClassLoader>()
+         {
+            public JarJarClassLoader run()
+            {
+               return new JarJarClassLoader();
+            }
+         });
+
          jarjarLoader.addMapping(mapping);
          loader = jarjarLoader;
       }
       else
       {
-         loader = new GroovyClassLoader();
+         loader = SecurityHelper.doPriviledgedAction(new PrivilegedAction<GroovyClassLoader>()
+         {
+            public GroovyClassLoader run()
+            {
+               return new GroovyClassLoader();
+            }
+         });
       }
       return instantiateScript(stream, name, loader);
    }
@@ -152,7 +169,8 @@ public class GroovyScriptInstantiator
     * @throws IOException if stream can't be parsed or object can't be created
     *         cause to illegal content of stream
     */
-   public Object instantiateScript(InputStream stream, String name, GroovyClassLoader loader) throws IOException
+   public Object instantiateScript(final InputStream stream, final String name, GroovyClassLoader loader)
+      throws IOException
    {
       if (loader == null)
       {
@@ -161,19 +179,39 @@ public class GroovyScriptInstantiator
       Class<?> clazz = null;
       try
       {
-         if (name != null && name.length() > 0)
+         final GroovyClassLoader fLoader = loader;
+         clazz = SecurityHelper.doPriviledgedExceptionAction(new PrivilegedExceptionAction<Class<?>>()
          {
-            clazz = loader.parseClass(stream, name);
+            public Class<?> run() throws Exception
+            {
+               if (name != null && name.length() > 0)
+               {
+                  return fLoader.parseClass(stream, name);
+               }
+               else
+               {
+                  return fLoader.parseClass(stream);
+               }
+            }
+         });
+      }
+      catch (PrivilegedActionException pae)
+      {
+         Throwable cause = pae.getCause();
+         if (cause instanceof CompilationFailedException)
+         {
+            throw new IOException("Error occurs when parse stream, compiler error:\n " + cause.getMessage());
+         }
+         else if (cause instanceof RuntimeException)
+         {
+            throw (RuntimeException)cause;
          }
          else
          {
-            clazz = loader.parseClass(stream);
+            throw new RuntimeException(cause);
          }
       }
-      catch (CompilationFailedException e)
-      {
-         throw new IOException("Error occurs when parse stream, compiler error:\n " + e.getMessage());
-      }
+
       try
       {
          return createObject(clazz);

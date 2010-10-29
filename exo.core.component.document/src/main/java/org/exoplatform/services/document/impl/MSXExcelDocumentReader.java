@@ -25,10 +25,12 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DocumentReadException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.PrivilegedExceptionAction;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
@@ -60,7 +62,7 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
     * @param is an input stream with .xls file content.
     * @return The string only with text from file content.
     */
-   public String getContentAsText(InputStream is) throws IOException, DocumentReadException
+   public String getContentAsText(final InputStream is) throws IOException, DocumentReadException
    {
       if (is == null)
       {
@@ -80,7 +82,13 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
          XSSFWorkbook wb;
          try
          {
-            wb = new XSSFWorkbook(is);
+            wb = SecurityHelper.doPriviledgedIOExceptionAction(new PrivilegedExceptionAction<XSSFWorkbook>()
+            {
+               public XSSFWorkbook run() throws Exception
+               {
+                  return new XSSFWorkbook(is);
+               }
+            });
          }
          catch (IOException e)
          {
@@ -173,10 +181,18 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
     * @see org.exoplatform.services.document.DocumentReader#getProperties(java.io.
     *      InputStream)
     */
-   public Properties getProperties(InputStream is) throws IOException, DocumentReadException
+   public Properties getProperties(final InputStream is) throws IOException, DocumentReadException
    {
       POIPropertiesReader reader = new POIPropertiesReader();
-      reader.readDCProperties(new XSSFWorkbook(is));
+      reader.readDCProperties(SecurityHelper
+         .doPriviledgedIOExceptionAction(new PrivilegedExceptionAction<XSSFWorkbook>()
+         {
+            public XSSFWorkbook run() throws Exception
+            {
+               return new XSSFWorkbook(is);
+            }
+         }));
+
       return reader.getProperties();
    }
 

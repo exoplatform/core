@@ -25,10 +25,14 @@ import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xslf.XSLFSlideShow;
 import org.apache.poi.xslf.extractor.XSLFPowerPointExtractor;
 import org.apache.xmlbeans.XmlException;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DocumentReadException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Properties;
 
 /**
@@ -56,7 +60,7 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
     * @param is an input stream with .pptx file content.
     * @return The string only with text from file content.
     */
-   public String getContentAsText(InputStream is) throws IOException, DocumentReadException
+   public String getContentAsText(final InputStream is) throws IOException, DocumentReadException
    {
       if (is == null)
       {
@@ -69,28 +73,52 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
             return "";
          }
          
-         XSLFPowerPointExtractor ppe;
+         final XSLFPowerPointExtractor ppe;
          try
          {
-            ppe = new XSLFPowerPointExtractor(OPCPackage.open(is));
+            ppe = SecurityHelper.doPriviledgedExceptionAction(new PrivilegedExceptionAction<XSLFPowerPointExtractor>()
+            {
+               public XSLFPowerPointExtractor run() throws Exception
+               {
+                  return new XSLFPowerPointExtractor(OPCPackage.open(is));
+               }
+            });
          }
-         catch (IOException e)
+         catch (PrivilegedActionException pae)
          {
-            throw new DocumentReadException("Can't open presentation.", e);
+            Throwable cause = pae.getCause();
+            if (cause instanceof IOException)
+            {
+               throw new DocumentReadException("Can't open presentation.", cause);
+            }
+            else if (cause instanceof OpenXML4JRuntimeException)
+            {
+               throw new DocumentReadException("Can't open presentation.", cause);
+            }
+            else if (cause instanceof OpenXML4JException)
+            {
+               throw new DocumentReadException("Can't open presentation.", cause);
+            }
+            else if (cause instanceof XmlException)
+            {
+               throw new DocumentReadException("Can't open presentation.", cause);
+            }
+            else if (cause instanceof RuntimeException)
+            {
+               throw (RuntimeException)cause;
+            }
+            else
+            {
+               throw new RuntimeException(cause);
+            }
          }
-         catch (OpenXML4JRuntimeException e)
+         return SecurityHelper.doPriviledgedAction(new PrivilegedAction<String>()
          {
-            throw new DocumentReadException("Can't open presentation.", e);
-         }
-         catch (OpenXML4JException e)
-         {
-            throw new DocumentReadException("Can't open presentation.", e);
-         }
-         catch (XmlException e)
-         {
-            throw new DocumentReadException("Can't open presentation.", e);
-         }
-         return ppe.getText(true, true);
+            public String run()
+            {
+               return ppe.getText(true, true);
+            }
+         });
       }
       finally
       {
@@ -119,24 +147,43 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
     * @see org.exoplatform.services.document.DocumentReader#getProperties(java.io.
     *      InputStream)
     */
-   public Properties getProperties(InputStream is) throws IOException, DocumentReadException
+   public Properties getProperties(final InputStream is) throws IOException, DocumentReadException
    {
-      POIPropertiesReader reader = new POIPropertiesReader();
+      final POIPropertiesReader reader = new POIPropertiesReader();
       try
       {
-         reader.readDCProperties(new XSLFSlideShow(OPCPackage.open(is)));
+         SecurityHelper.doPriviledgedExceptionAction(new PrivilegedExceptionAction<Void>()
+         {
+            public Void run() throws Exception
+            {
+               reader.readDCProperties(new XSLFSlideShow(OPCPackage.open(is)));
+               return null;
+            }
+         });
       }
-      catch (InvalidFormatException e)
+      catch (PrivilegedActionException pae)
       {
-         throw new DocumentReadException("Can't read properties from OOXML document", e);
-      }
-      catch (OpenXML4JException e)
-      {
-         throw new DocumentReadException("Can't read properties from OOXML document", e);
-      }
-      catch (XmlException e)
-      {
-         throw new DocumentReadException("Can't read properties from OOXML document", e);
+         Throwable cause = pae.getCause();
+         if (cause instanceof InvalidFormatException)
+         {
+            throw new DocumentReadException("Can't read properties from OOXML document", cause);
+         }
+         else if (cause instanceof OpenXML4JException)
+         {
+            throw new DocumentReadException("Can't read properties from OOXML document", cause);
+         }
+         else if (cause instanceof XmlException)
+         {
+            throw new DocumentReadException("Can't read properties from OOXML document", cause);
+         }
+         else if (cause instanceof RuntimeException)
+         {
+            throw (RuntimeException)cause;
+         }
+         else
+         {
+            throw new RuntimeException(cause);
+         }
       }
       return reader.getProperties();
    }
