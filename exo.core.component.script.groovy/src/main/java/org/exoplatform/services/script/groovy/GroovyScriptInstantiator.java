@@ -235,14 +235,22 @@ public class GroovyScriptInstantiator
     * @param loader
     * @return
     */
-   public Object instantiateScript(GroovyCodeSource codeSource, GroovyClassLoader loader)
+   public Object instantiateScript(final GroovyCodeSource codeSource, GroovyClassLoader loader)
    {
       if (loader == null)
       {
          loader = new GroovyClassLoader();
       }
-      Class<?> clazz = null;
-      clazz = loader.parseClass(codeSource);
+
+      final GroovyClassLoader fLoader = loader;
+      Class<?> clazz = SecurityHelper.doPriviledgedAction(new PrivilegedAction<Class<?>>()
+      {
+         public Class<?> run()
+         {
+            return fLoader.parseClass(codeSource);
+         }
+      });
+
       try
       {
          return createObject(clazz);
