@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.document.impl.diff;
 
+import org.exoplatform.commons.utils.PrivilegedSystemHelper;
 import org.exoplatform.services.document.diff.ToString;
 
 import java.io.BufferedReader;
@@ -41,6 +42,7 @@ public class ToStringImpl implements ToString
     * (non-Javadoc)
     * @see org.exoplatform.services.diff.ToString#toString()
     */
+   @Override
    public String toString()
    {
       StringBuffer s = new StringBuffer();
@@ -90,7 +92,7 @@ public class ToStringImpl implements ToString
     */
    public String arrayToString(Object[] o)
    {
-      return arrayToString(o, System.getProperty("line.separator"));
+      return arrayToString(o, PrivilegedSystemHelper.getProperty("line.separator"));
    }
 
    /**

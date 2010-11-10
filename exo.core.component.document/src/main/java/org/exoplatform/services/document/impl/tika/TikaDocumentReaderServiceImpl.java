@@ -18,6 +18,7 @@ package org.exoplatform.services.document.impl.tika;
 
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.parser.Parser;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.document.DocumentReader;
@@ -25,6 +26,7 @@ import org.exoplatform.services.document.HandlerNotFoundException;
 import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
 
 import java.io.InputStream;
+import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,8 +54,14 @@ public class TikaDocumentReaderServiceImpl extends DocumentReaderServiceImpl
       // get tika configuration
       if (params != null && params.getValueParam(TIKA_CONFIG_PATH) != null)
       {
-         InputStream is = configManager.getInputStream(params.getValueParam(TIKA_CONFIG_PATH).getValue());
-         conf = new TikaConfig(is);
+         final InputStream is = configManager.getInputStream(params.getValueParam(TIKA_CONFIG_PATH).getValue());
+         conf = SecurityHelper.doPriviledgedExceptionAction(new PrivilegedExceptionAction<TikaConfig>()
+         {
+            public TikaConfig run() throws Exception
+            {
+               return new TikaConfig(is);
+            }
+         });
       }
       else
       {
@@ -69,6 +77,7 @@ public class TikaDocumentReaderServiceImpl extends DocumentReaderServiceImpl
     * org.exoplatform.services.document.DocumentReaderService#getDocumentReader
     * (java.lang.String)
     */
+   @Override
    public DocumentReader getDocumentReader(String mimeType) throws HandlerNotFoundException
    {
       // first check user defined old-style and previously registered TikaDocumentReaders

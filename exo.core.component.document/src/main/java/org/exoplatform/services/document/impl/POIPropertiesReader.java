@@ -19,8 +19,8 @@
 package org.exoplatform.services.document.impl;
 
 import org.apache.poi.POIXMLDocument;
-import org.apache.poi.POIXMLPropertiesTextExtractor;
 import org.apache.poi.POIXMLProperties.CoreProperties;
+import org.apache.poi.POIXMLPropertiesTextExtractor;
 import org.apache.poi.hpsf.MarkUnsupportedException;
 import org.apache.poi.hpsf.NoPropertySetStreamException;
 import org.apache.poi.hpsf.PropertySet;
@@ -30,12 +30,14 @@ import org.apache.poi.openxml4j.util.Nullable;
 import org.apache.poi.poifs.eventfilesystem.POIFSReader;
 import org.apache.poi.poifs.eventfilesystem.POIFSReaderEvent;
 import org.apache.poi.poifs.eventfilesystem.POIFSReaderListener;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReadException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Properties;
 
 /**
@@ -63,7 +65,7 @@ public class POIPropertiesReader
     * @throws IOException
     * @throws DocumentReadException
     */
-   public Properties readDCProperties(InputStream is) throws IOException, DocumentReadException
+   public Properties readDCProperties(final InputStream is) throws IOException, DocumentReadException
    {
       if (is == null)
       {
@@ -158,9 +160,16 @@ public class POIPropertiesReader
 
       try
       {
-         POIFSReader poiFSReader = new POIFSReader();
+         final POIFSReader poiFSReader = new POIFSReader();
          poiFSReader.registerListener(readerListener, SummaryInformation.DEFAULT_STREAM_NAME);
-         poiFSReader.read(is);
+         SecurityHelper.doPriviledgedIOExceptionAction(new PrivilegedExceptionAction<Void>()
+         {
+            public Void run() throws Exception
+            {
+               poiFSReader.read(is);
+               return null;
+            }
+         });
       }
       catch (POIRuntimeException e)
       {

@@ -81,6 +81,7 @@
             <groupId>org.exoplatform.kernel</groupId>
             <artifactId>exo.kernel.commons.test</artifactId>
             <version>${org.exoplatform.kernel.version}</version>
+            <scope>test</scope>
          </dependency>  
          
          <dependency>
