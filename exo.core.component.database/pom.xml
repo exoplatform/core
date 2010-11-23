@@ -74,10 +74,6 @@
          <artifactId>jta</artifactId>
       </dependency>
       <dependency>
-         <groupId>pull-parser</groupId>
-         <artifactId>pull-parser</artifactId>
-      </dependency>
-      <dependency>
          <groupId>hsqldb</groupId>
          <artifactId>hsqldb</artifactId>
          <scope>runtime</scope>
