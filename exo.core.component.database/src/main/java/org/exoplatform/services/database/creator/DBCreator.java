@@ -261,22 +261,70 @@ public class DBCreator
          }
       }
 
-      // try to solve database url connection depending on specific database
-      String dbUrl = serverUrl;
-      if (dbProductName.startsWith("Microsoft SQL Server"))
+      return constructDBConnectionInfo(dbName, dbProductName);
+   }
+
+   /**
+    * Get database connection info.
+    * 
+    * @param dbName
+    *          new database name
+    * @throws DBCreatorException
+    *          if any error occurs 
+    */
+   public DBConnectionInfo getDBConnectionInfo(String dbName) throws DBCreatorException
+   {
+      Connection conn = null;
+      try
       {
-         dbUrl = dbUrl + (dbUrl.endsWith(";") ? "" : ";") + "databaseName=" + dbName + ";";
+         Class.forName(driver);
+
+         conn = SecurityHelper.doPriviledgedSQLExceptionAction(new PrivilegedExceptionAction<Connection>()
+         {
+            public Connection run() throws Exception
+            {
+               return DriverManager.getConnection(serverUrl, adminName, adminPwd);
+            }
+         });
       }
-      else if (dbProductName.equals("Oracle"))
+      catch (SQLException e)
       {
-         // do nothing
+         throw new DBCreatorException("Can't establish the JDBC connection to database " + serverUrl, e);
       }
-      else
+      catch (ClassNotFoundException e)
       {
-         dbUrl = dbUrl + (dbUrl.endsWith("/") ? "" : "/") + dbName;
+         throw new DBCreatorException("Can't load the JDBC driver " + driver, e);
       }
 
-      return new DBConnectionInfo(driver, dbUrl, dbUserName, dbPassword);
+      String dbProductName;
+      try
+      {
+         final Connection connection = conn;
+         dbProductName = SecurityHelper.doPriviledgedSQLExceptionAction(new PrivilegedExceptionAction<String>()
+         {
+            public String run() throws Exception
+            {
+               return connection.getMetaData().getDatabaseProductName();
+            }
+         });
+      }
+      catch (SQLException e)
+      {
+         throw new DBCreatorException("Can't resolve database product name ", e);
+      }
+      finally
+      {
+         try
+         {
+            conn.close();
+         }
+         catch (SQLException e)
+         {
+            throw new DBCreatorException("Can't close connection", e);
+         }
+      }
+
+      return constructDBConnectionInfo(dbName, dbProductName);
    }
 
    /**
@@ -305,6 +353,34 @@ public class DBCreator
          }
       }
       statement.executeBatch();
+   }
+
+   /**
+    * Construct database url connection depending on specific database.
+    * 
+    * @param dbName
+    *          database name
+    * @param dbProductName
+    *          database product name
+    * @return DBConnectionInfo
+    */
+   private DBConnectionInfo constructDBConnectionInfo(String dbName, String dbProductName)
+   {
+      String dbUrl = serverUrl;
+      if (dbProductName.startsWith("Microsoft SQL Server"))
+      {
+         dbUrl = dbUrl + (dbUrl.endsWith(";") ? "" : ";") + "databaseName=" + dbName + ";";
+      }
+      else if (dbProductName.equals("Oracle"))
+      {
+         // do nothing
+      }
+      else
+      {
+         dbUrl = dbUrl + (dbUrl.endsWith("/") ? "" : "/") + dbName;
+      }
+
+      return new DBConnectionInfo(driver, dbUrl, dbUserName, dbPassword);
    }
 
    /**

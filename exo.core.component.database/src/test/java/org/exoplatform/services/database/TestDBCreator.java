@@ -56,6 +56,12 @@ public class TestDBCreator extends TestCase
       assertNotNull(dbCreator);
 
       DBConnectionInfo dbInfo = dbCreator.createDatabase("testdb");
+      DBConnectionInfo dbInfo1 = dbCreator.getDBConnectionInfo("testdb");
+
+      assertEquals(dbInfo.getDriver(), dbInfo1.getDriver());
+      assertEquals(dbInfo.getPassword(), dbInfo1.getPassword());
+      assertEquals(dbInfo.getUrl(), dbInfo1.getUrl());
+      assertEquals(dbInfo.getUsername(), dbInfo1.getUsername());
 
       Map<String, String> refAddr = new HashMap<String, String>();
       refAddr.put("driverClassName", dbInfo.getDriver());
