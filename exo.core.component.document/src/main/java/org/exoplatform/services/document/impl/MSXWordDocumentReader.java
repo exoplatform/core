@@ -44,7 +44,15 @@ public class MSXWordDocumentReader extends BaseDocumentReader
     */
    public String[] getMimeTypes()
    {
-      return new String[]{"application/vnd.openxmlformats-officedocument.wordprocessingml.document"};
+      //Supported document types:
+      // "application/vnd.openxmlformats-officedocument.wordprocessingml.document" - "x.docx"
+      // "application/vnd.openxmlformats-officedocument.wordprocessingml.template" - "x.dotx"
+      // "application/vnd.ms-word.document.macroenabled.12" - "x.docm"
+      // "application/vnd.ms-word.template.macroenabled.12" - "x.dotm"
+
+      return new String[]{"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+         "application/vnd.openxmlformats-officedocument.wordprocessingml.template",
+         "application/vnd.ms-word.document.macroenabled.12", "application/vnd.ms-word.template.macroenabled.12"};
    }
 
    /**
@@ -66,7 +74,7 @@ public class MSXWordDocumentReader extends BaseDocumentReader
          {
             return "";
          }
-         
+
          XWPFDocument doc;
          try
          {

@@ -47,7 +47,21 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
     */
    public String[] getMimeTypes()
    {
-      return new String[]{"application/vnd.openxmlformats-officedocument.presentationml.presentation"};
+      //Supported mimetypes:
+      // "application/vnd.openxmlformats-officedocument.presentationml.presentation" -"x.pptx";
+      // "application/vnd.openxmlformats-officedocument.presentationml.slideshow" - "x.ppsx";
+      // "application/vnd.ms-powerpoint.presentation.macroenabled.12" - "testPPT.pptm";
+      // "application/vnd.ms-powerpoint.slideshow.macroenabled.12" - "testPPT.ppsm";
+      //
+      //Not supported mimetypes:
+      // "application/vnd.ms-powerpoint.template.macroenabled.12" - "testPPT.potm"; Has errors
+      // "application/vnd.openxmlformats-officedocument.presentationml.template" - "x.potx"; Not tested
+      // "application/vnd.ms-powerpoint.addin.macroenabled.12" - "x.ppam"; Not tested
+
+      return new String[]{"application/vnd.openxmlformats-officedocument.presentationml.presentation",
+         "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
+         "application/vnd.ms-powerpoint.presentation.macroenabled.12",
+         "application/vnd.ms-powerpoint.slideshow.macroenabled.12"};
    }
 
    /**
@@ -68,7 +82,7 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
          {
             return "";
          }
-         
+
          XSLFPowerPointExtractor ppe;
          try
          {

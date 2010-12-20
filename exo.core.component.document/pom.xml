@@ -87,16 +87,26 @@
             <directory>src/test/resources</directory>
             <includes>
                <include>**/*.properties</include>
+               <include>**/*.rtf</include>
                <include>**/*.xml</include>
                <include>**/*.drl</include>
                <include>**/*.vm</include>
                <include>**/*.doc</include>
                <include>**/*.docx</include>
+               <include>**/*.dotx</include>
+               <include>**/*.docm</include>
+               <include>**/*.dotm</include>
                <include>**/*.dot</include>
                <include>**/*.xls</include>
                <include>**/*.xlsx</include>
+               <include>**/*.xlsb</include>
+               <include>**/*.xltx</include>
                <include>**/*.ppt</include>
+               <include>**/*.pptm</include>
                <include>**/*.pptx</include>
+               <include>**/*.ppsx</include>
+               <include>**/*.ppsm</include>
+               <include>**/*.potm</include>
                <include>**/*.txt</include>
                <include>**/*.tiff</include>
                <include>**/*.pdf</include>

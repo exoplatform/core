@@ -34,9 +34,9 @@ import java.util.Calendar;
 public class TestMSExcelDocumentReader extends BaseStandaloneTest
 {
    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
-   
+
    DocumentReaderService service;
-   
+
    @Override
    public void setUp() throws Exception
    {
@@ -108,7 +108,24 @@ public class TestMSExcelDocumentReader extends BaseStandaloneTest
       {
          is.close();
       }
+   }
 
+   public void testClassicExcelGetContentAsString() throws Exception
+   {
+      InputStream is = TestMSXExcelDocumentReader.class.getResourceAsStream("/testEXCEL.xls");
+      try
+      {
+         String content = service.getDocumentReader("application/vnd.ms-excel").getContentAsText(is);
+         assertTrue(content.contains("Sample Excel Worksheet"));
+         assertTrue(content.contains("Numbers and their Squares"));
+         assertTrue(content.contains("Number"));
+         assertTrue(content.contains("9"));
+         assertFalse(content.contains("9.0"));
+      }
+      finally
+      {
+         is.close();
+      }
    }
 
    public String getDate(int year, int month, int day)

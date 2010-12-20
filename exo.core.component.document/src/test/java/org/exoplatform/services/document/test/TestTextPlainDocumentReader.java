@@ -68,5 +68,4 @@ public class TestTextPlainDocumentReader extends BaseStandaloneTest
          is.close();
       }
    }
-
 }
