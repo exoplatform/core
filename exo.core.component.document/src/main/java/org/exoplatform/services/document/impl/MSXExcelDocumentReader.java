@@ -53,6 +53,15 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
     */
    public String[] getMimeTypes()
    {
+      //Supported mimetypes:
+      // "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" - "x.xlsx"
+      //
+      //Unsupported mimetypes:
+      // "application/vnd.ms-excel.sheet.binary.macroenabled.12" - "*.xlsb"; There is exceptions at parsing
+      // "application/vnd.openxmlformats-officedocument.spreadsheetml.template" - "x.xltx"; Not tested
+      // "application/vnd.ms-excel.sheet.macroenabled.12" - "x.xlsm"; Not tested
+      // "application/vnd.ms-excel.template.macroenabled.12" - "x.xltm"; Not tested
+      // "application/vnd.ms-excel.addin.macroenabled.12" - "x.xlam"; Not tested
       return new String[]{"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"};
    }
 

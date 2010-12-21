@@ -53,7 +53,7 @@ public class HTMLDocumentReader extends BaseDocumentReader
    public HTMLDocumentReader()
    {
    }
-   
+
    /**
     * Get the text/html,application/x-groovy+html mime type.
     * 
@@ -61,7 +61,7 @@ public class HTMLDocumentReader extends BaseDocumentReader
     */
    public String[] getMimeTypes()
    {
-      return new String[]{"text/html", "application/x-groovy+html"};
+      return new String[]{"text/html", "application/x-groovy+html", "application/xhtml+xml"};
    }
 
    /**

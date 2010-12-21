@@ -58,4 +58,20 @@ public class TestHtmlDocumentReader extends BaseStandaloneTest
          is.close();
       }
    }
+
+   public void testXHTMLGetContentAsString() throws Exception
+   {
+      InputStream is = TestHtmlDocumentReader.class.getResourceAsStream("/testXHTML.html");
+      try
+      {
+         DocumentReader dr = service.getDocumentReader("application/xhtml+xml");
+         String text = dr.getContentAsText(is);
+         assertTrue(text
+            .contains("This document tests the ability of Apache Tika to extract content from an XHTML document."));
+      }
+      finally
+      {
+         is.close();
+      }
+   }
 }

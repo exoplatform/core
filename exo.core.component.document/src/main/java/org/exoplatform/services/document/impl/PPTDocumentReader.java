@@ -43,7 +43,7 @@ public class PPTDocumentReader extends BaseDocumentReader
     */
    public String[] getMimeTypes()
    {
-      return new String[]{"application/powerpoint", "application/ppt"};
+      return new String[]{"application/powerpoint", "application/ppt", "application/vnd.ms-powerpoint"};
    }
 
    /**

@@ -53,7 +53,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
     */
    public String[] getMimeTypes()
    {
-      return new String[]{"application/excel", "application/xls"};
+      return new String[]{"application/excel", "application/xls", "application/vnd.ms-excel"};
    }
 
    /**

@@ -40,7 +40,7 @@ public class TestMSXWordDocumentReader extends BaseStandaloneTest
       service.addDocumentReader(new MSXWordDocumentReader());
    }
 
-   public void testGetContentAsStringDoc() throws Exception
+   public void testDOCXGetContentAsStringDoc() throws Exception
    {
       InputStream is = TestMSXWordDocumentReader.class.getResourceAsStream("/test.docx");
       try
@@ -50,6 +50,52 @@ public class TestMSXWordDocumentReader extends BaseStandaloneTest
                .getContentAsText(is);
          assertTrue(text
             .contains("Before the test starts there is a directions section, which takes a few minutes to read"));
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testDOTXGetContentAsStringDoc() throws Exception
+   {
+      InputStream is = TestMSXWordDocumentReader.class.getResourceAsStream("/testWORD.dotx");
+      try
+      {
+         String text =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.wordprocessingml.template")
+               .getContentAsText(is);
+         assertTrue(text.contains("template"));
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testDOCMGetContentAsStringDoc() throws Exception
+   {
+      InputStream is = TestMSXWordDocumentReader.class.getResourceAsStream("/testWORD.docm");
+      try
+      {
+         String text =
+            service.getDocumentReader("application/vnd.ms-word.document.macroenabled.12").getContentAsText(is);
+         assertTrue(text.contains("template"));
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testDOTMGetContentAsStringDoc() throws Exception
+   {
+      InputStream is = TestMSXWordDocumentReader.class.getResourceAsStream("/testWORD.dotm");
+      try
+      {
+         String text =
+            service.getDocumentReader("application/vnd.ms-word.template.macroenabled.12").getContentAsText(is);
+         assertTrue(text.contains("Template with macros"));
       }
       finally
       {

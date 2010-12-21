@@ -46,6 +46,24 @@ public class TestMSExcelDocumentReader extends BaseStandaloneTest
       service.addDocumentReader(new MSExcelDocumentReader());
    }
 
+   public void testClassicExcelGetContentAsString() throws Exception
+   {
+      InputStream is = TestMSXExcelDocumentReader.class.getResourceAsStream("/testEXCEL.xls");
+      try
+      {
+         String content = service.getDocumentReader("application/vnd.ms-excel").getContentAsText(is);
+         assertTrue(content.contains("Sample Excel Worksheet"));
+         assertTrue(content.contains("Numbers and their Squares"));
+         assertTrue(content.contains("Number"));
+         assertTrue(content.contains("9"));
+         assertFalse(content.contains("9.0"));
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
    public void testGetContentAsString() throws Exception
    {
       InputStream is = TestMSExcelDocumentReader.class.getResourceAsStream("/test.xls");

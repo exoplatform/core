@@ -61,4 +61,72 @@ public class TestMSXPPTDocumentReader extends BaseStandaloneTest
          is.close();
       }
    }
+
+   public void testPPSXGetContentAsString() throws Exception
+   {
+      InputStream is = TestMSXPPTDocumentReader.class.getResourceAsStream("/testPPT.ppsx");
+      try
+      {
+         String content =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.slideshow")
+               .getContentAsText(is);
+         assertTrue(content
+            .contains("This is a test file data with the same content as every other file being tested for"));
+         assertTrue(content.contains("Different words to test against"));
+         assertTrue(content.contains("Quest"));
+         assertTrue(content.contains("Hello"));
+         assertTrue(content.contains("Watershed"));
+         assertTrue(content.contains("Avalanche"));
+         assertTrue(content.contains("Black Panther"));
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testPPTMGetContentAsString() throws Exception
+   {
+      InputStream is = TestMSXPPTDocumentReader.class.getResourceAsStream("/testPPT.pptm");
+      try
+      {
+         String content =
+            service.getDocumentReader("application/vnd.ms-powerpoint.presentation.macroenabled.12")
+               .getContentAsText(is);
+         assertTrue(content
+            .contains("This is a test file data with the same content as every other file being tested for"));
+         assertTrue(content.contains("Different words to test against"));
+         assertTrue(content.contains("Quest"));
+         assertTrue(content.contains("Hello"));
+         assertTrue(content.contains("Watershed"));
+         assertTrue(content.contains("Avalanche"));
+         assertTrue(content.contains("Black Panther"));
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testPPSMGetContentAsString() throws Exception
+   {
+      InputStream is = TestMSXPPTDocumentReader.class.getResourceAsStream("/testPPT.ppsm");
+      try
+      {
+         String content =
+            service.getDocumentReader("application/vnd.ms-powerpoint.slideshow.macroenabled.12").getContentAsText(is);
+         assertTrue(content
+            .contains("This is a test file data with the same content as every other file being tested for"));
+         assertTrue(content.contains("Different words to test against"));
+         assertTrue(content.contains("Quest"));
+         assertTrue(content.contains("Hello"));
+         assertTrue(content.contains("Watershed"));
+         assertTrue(content.contains("Avalanche"));
+         assertTrue(content.contains("Black Panther"));
+      }
+      finally
+      {
+         is.close();
+      }
+   }
 }

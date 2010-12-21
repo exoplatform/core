@@ -67,10 +67,10 @@ public class TextPlainDocumentReader extends BaseDocumentReader
     */
    public String[] getMimeTypes()
    {
-      return new String[]{"text/plain","script/groovy",
-                          "application/x-groovy","application/x-javascript",
-                          "application/javascript","text/javascript",
-                          "application/x-jaxrs+groovy"};
+      return new String[]{"text/plain", "script/groovy", "application/x-groovy", "application/x-javascript",
+         "application/javascript", "text/javascript", "application/x-jaxrs+groovy"};
+      // "text/rtf", "application/rtf" excluded since there must be RTF parser - because plain text contains a lot formatting tags.
+
    }
 
    /**

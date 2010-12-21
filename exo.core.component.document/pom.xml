@@ -129,6 +129,15 @@
                <include>**/*.msg</include>
                <include>**/*.pst</include>
                <include>**/*.policy</include>
+               <include>**/*.rtf</include>
+               <include>**/*.dotx</include>
+               <include>**/*.docm</include>
+               <include>**/*.dotm</include>
+               <include>**/*.xlsb</include>
+               <include>**/*.pptm</include>
+               <include>**/*.ppsx</include>
+               <include>**/*.ppsm</include>
+               <include>**/*.potm</include>
             </includes>
          </testResource>
       </testResources>
