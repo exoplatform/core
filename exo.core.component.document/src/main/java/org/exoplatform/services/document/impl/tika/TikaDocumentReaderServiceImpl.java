@@ -55,7 +55,7 @@ public class TikaDocumentReaderServiceImpl extends DocumentReaderServiceImpl
       if (params != null && params.getValueParam(TIKA_CONFIG_PATH) != null)
       {
          final InputStream is = configManager.getInputStream(params.getValueParam(TIKA_CONFIG_PATH).getValue());
-         conf = SecurityHelper.doPriviledgedExceptionAction(new PrivilegedExceptionAction<TikaConfig>()
+         conf = SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<TikaConfig>()
          {
             public TikaConfig run() throws Exception
             {

@@ -162,7 +162,7 @@ public class POIPropertiesReader
       {
          final POIFSReader poiFSReader = new POIFSReader();
          poiFSReader.registerListener(readerListener, SummaryInformation.DEFAULT_STREAM_NAME);
-         SecurityHelper.doPriviledgedIOExceptionAction(new PrivilegedExceptionAction<Void>()
+         SecurityHelper.doPrivilegedIOExceptionAction(new PrivilegedExceptionAction<Void>()
          {
             public Void run() throws Exception
             {

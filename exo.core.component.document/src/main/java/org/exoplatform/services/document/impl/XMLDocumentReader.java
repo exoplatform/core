@@ -133,7 +133,7 @@ public class XMLDocumentReader extends BaseDocumentReader
       {
          saxParser =
             SecurityHelper
-               .doPriviledgedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
+               .doPrivilegedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
             {
                public SAXParser run() throws Exception
                {

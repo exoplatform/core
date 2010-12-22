@@ -98,7 +98,7 @@ public class JarJarClassLoader extends GroovyClassLoader
       final CodeSource codeSource)
    {
       //
-      final CompilationUnit unit = SecurityHelper.doPriviledgedAction(new PrivilegedAction<CompilationUnit>()
+      final CompilationUnit unit = SecurityHelper.doPrivilegedAction(new PrivilegedAction<CompilationUnit>()
       {
          public CompilationUnit run()
          {
@@ -148,7 +148,7 @@ public class JarJarClassLoader extends GroovyClassLoader
 
    static protected JarJarClassLoader createJarJarClassLoaderInPrivilegedMode(final ClassLoader classLoader)
    {
-      return SecurityHelper.doPriviledgedAction(new PrivilegedAction<JarJarClassLoader>()
+      return SecurityHelper.doPrivilegedAction(new PrivilegedAction<JarJarClassLoader>()
       {
          public JarJarClassLoader run()
          {

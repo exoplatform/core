@@ -132,7 +132,7 @@ public class GroovyScriptInstantiator
       GroovyClassLoader loader;
       if (mapping.size() > 0)
       {
-         JarJarClassLoader jarjarLoader = SecurityHelper.doPriviledgedAction(new PrivilegedAction<JarJarClassLoader>()
+         JarJarClassLoader jarjarLoader = SecurityHelper.doPrivilegedAction(new PrivilegedAction<JarJarClassLoader>()
          {
             public JarJarClassLoader run()
             {
@@ -145,7 +145,7 @@ public class GroovyScriptInstantiator
       }
       else
       {
-         loader = SecurityHelper.doPriviledgedAction(new PrivilegedAction<GroovyClassLoader>()
+         loader = SecurityHelper.doPrivilegedAction(new PrivilegedAction<GroovyClassLoader>()
          {
             public GroovyClassLoader run()
             {
@@ -180,7 +180,7 @@ public class GroovyScriptInstantiator
       try
       {
          final GroovyClassLoader fLoader = loader;
-         clazz = SecurityHelper.doPriviledgedExceptionAction(new PrivilegedExceptionAction<Class<?>>()
+         clazz = SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<Class<?>>()
          {
             public Class<?> run() throws Exception
             {
@@ -243,7 +243,7 @@ public class GroovyScriptInstantiator
       }
 
       final GroovyClassLoader fLoader = loader;
-      Class<?> clazz = SecurityHelper.doPriviledgedAction(new PrivilegedAction<Class<?>>()
+      Class<?> clazz = SecurityHelper.doPrivilegedAction(new PrivilegedAction<Class<?>>()
       {
          public Class<?> run()
          {

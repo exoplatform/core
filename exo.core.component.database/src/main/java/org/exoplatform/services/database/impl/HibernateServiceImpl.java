@@ -83,7 +83,7 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
       threadLocal_ = new ThreadLocal<Session>();
       PropertiesParam param = initParams.getPropertiesParam("hibernate.properties");
       final HibernateSettingsFactory settingsFactory = new HibernateSettingsFactory(new ExoCacheProvider(cacheService));
-      conf_ = SecurityHelper.doPriviledgedAction(new PrivilegedAction<HibernateConfigurationImpl>()
+      conf_ = SecurityHelper.doPrivilegedAction(new PrivilegedAction<HibernateConfigurationImpl>()
       {
          public HibernateConfigurationImpl run()
          {
@@ -290,7 +290,7 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
    {
       if (sessionFactory_ == null)
       {
-         sessionFactory_ = SecurityHelper.doPriviledgedAction(new PrivilegedAction<SessionFactory>()
+         sessionFactory_ = SecurityHelper.doPrivilegedAction(new PrivilegedAction<SessionFactory>()
          {
             public SessionFactory run()
             {

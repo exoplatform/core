@@ -73,7 +73,7 @@ public abstract class TransformerBase implements AbstractTransformer
     */
    static public XMLReader getXMLReader() throws SAXException
    {
-      return SecurityHelper.doPriviledgedSAXExceptionAction(new PrivilegedExceptionAction<XMLReader>()
+      return SecurityHelper.doPrivilegedSAXExceptionAction(new PrivilegedExceptionAction<XMLReader>()
       {
          public XMLReader run() throws Exception
          {

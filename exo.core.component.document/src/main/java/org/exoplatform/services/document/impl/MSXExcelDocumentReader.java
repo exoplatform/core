@@ -91,7 +91,7 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
          XSSFWorkbook wb;
          try
          {
-            wb = SecurityHelper.doPriviledgedIOExceptionAction(new PrivilegedExceptionAction<XSSFWorkbook>()
+            wb = SecurityHelper.doPrivilegedIOExceptionAction(new PrivilegedExceptionAction<XSSFWorkbook>()
             {
                public XSSFWorkbook run() throws Exception
                {
@@ -194,7 +194,7 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
    {
       POIPropertiesReader reader = new POIPropertiesReader();
       reader.readDCProperties(SecurityHelper
-         .doPriviledgedIOExceptionAction(new PrivilegedExceptionAction<XSSFWorkbook>()
+         .doPrivilegedIOExceptionAction(new PrivilegedExceptionAction<XSSFWorkbook>()
          {
             public XSSFWorkbook run() throws Exception
             {

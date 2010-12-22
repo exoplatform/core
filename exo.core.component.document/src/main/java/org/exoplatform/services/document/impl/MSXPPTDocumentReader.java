@@ -90,7 +90,7 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
          final XSLFPowerPointExtractor ppe;
          try
          {
-            ppe = SecurityHelper.doPriviledgedExceptionAction(new PrivilegedExceptionAction<XSLFPowerPointExtractor>()
+            ppe = SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<XSLFPowerPointExtractor>()
             {
                public XSLFPowerPointExtractor run() throws Exception
                {
@@ -126,7 +126,7 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
                throw new RuntimeException(cause);
             }
          }
-         return SecurityHelper.doPriviledgedAction(new PrivilegedAction<String>()
+         return SecurityHelper.doPrivilegedAction(new PrivilegedAction<String>()
          {
             public String run()
             {
@@ -166,7 +166,7 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
       final POIPropertiesReader reader = new POIPropertiesReader();
       try
       {
-         SecurityHelper.doPriviledgedExceptionAction(new PrivilegedExceptionAction<Void>()
+         SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<Void>()
          {
             public Void run() throws Exception
             {

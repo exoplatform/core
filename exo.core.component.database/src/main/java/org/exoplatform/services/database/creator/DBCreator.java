@@ -199,7 +199,7 @@ public class DBCreator
       {
          Class.forName(driver);
 
-         conn = SecurityHelper.doPriviledgedSQLExceptionAction(new PrivilegedExceptionAction<Connection>()
+         conn = SecurityHelper.doPrivilegedSQLExceptionAction(new PrivilegedExceptionAction<Connection>()
          {
             public Connection run() throws Exception
             {
@@ -220,7 +220,7 @@ public class DBCreator
       try
       {
          final Connection connection = conn;
-         dbProductName = SecurityHelper.doPriviledgedSQLExceptionAction(new PrivilegedExceptionAction<String>()
+         dbProductName = SecurityHelper.doPrivilegedSQLExceptionAction(new PrivilegedExceptionAction<String>()
          {
             public String run() throws Exception
             {
@@ -279,7 +279,7 @@ public class DBCreator
       {
          Class.forName(driver);
 
-         conn = SecurityHelper.doPriviledgedSQLExceptionAction(new PrivilegedExceptionAction<Connection>()
+         conn = SecurityHelper.doPrivilegedSQLExceptionAction(new PrivilegedExceptionAction<Connection>()
          {
             public Connection run() throws Exception
             {
@@ -300,7 +300,7 @@ public class DBCreator
       try
       {
          final Connection connection = conn;
-         dbProductName = SecurityHelper.doPriviledgedSQLExceptionAction(new PrivilegedExceptionAction<String>()
+         dbProductName = SecurityHelper.doPrivilegedSQLExceptionAction(new PrivilegedExceptionAction<String>()
          {
             public String run() throws Exception
             {

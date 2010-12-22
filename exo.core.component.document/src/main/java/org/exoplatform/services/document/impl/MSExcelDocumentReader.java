@@ -123,7 +123,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
                                  break;
                               }
                               case HSSFCell.CELL_TYPE_FORMULA :
-                                 SecurityHelper.doPriviledgedAction(new PrivilegedAction<Void>()
+                                 SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>()
                                  {
                                     public Void run()
                                     {
@@ -133,7 +133,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
                                  });
                                  break;
                               case HSSFCell.CELL_TYPE_BOOLEAN :
-                                 SecurityHelper.doPriviledgedAction(new PrivilegedAction<Void>()
+                                 SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>()
                                  {
                                     public Void run()
                                     {
@@ -143,7 +143,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
                                  });
                                  break;
                               case HSSFCell.CELL_TYPE_ERROR :
-                                 SecurityHelper.doPriviledgedAction(new PrivilegedAction<Void>()
+                                 SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>()
                                  {
                                     public Void run()
                                     {
@@ -153,7 +153,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
                                  });
                                  break;
                               case HSSFCell.CELL_TYPE_STRING :
-                                 SecurityHelper.doPriviledgedAction(new PrivilegedAction<Void>()
+                                 SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>()
                                  {
                                     public Void run()
                                     {

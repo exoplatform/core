@@ -97,7 +97,7 @@ public class SimpleHibernateUserListAccess extends HibernateUserListAccess
    @Override
    protected int getSize(final Session session) throws Exception
    {
-      Query query = SecurityHelper.doPriviledgedAction(new PrivilegedAction<Query>()
+      Query query = SecurityHelper.doPrivilegedAction(new PrivilegedAction<Query>()
       {
          public Query run()
          {
@@ -127,7 +127,7 @@ public class SimpleHibernateUserListAccess extends HibernateUserListAccess
 
       User[] users = new User[length];
 
-      Query query = SecurityHelper.doPriviledgedAction(new PrivilegedAction<Query>()
+      Query query = SecurityHelper.doPrivilegedAction(new PrivilegedAction<Query>()
       {
          public Query run()
          {

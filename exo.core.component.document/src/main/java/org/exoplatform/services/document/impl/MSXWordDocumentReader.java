@@ -81,7 +81,7 @@ public class MSXWordDocumentReader extends BaseDocumentReader
          XWPFDocument doc;
          try
          {
-            doc = SecurityHelper.doPriviledgedIOExceptionAction(new PrivilegedExceptionAction<XWPFDocument>()
+            doc = SecurityHelper.doPrivilegedIOExceptionAction(new PrivilegedExceptionAction<XWPFDocument>()
             {
                public XWPFDocument run() throws Exception
                {
@@ -99,7 +99,7 @@ public class MSXWordDocumentReader extends BaseDocumentReader
          }
 
          final XWPFWordExtractor extractor = new XWPFWordExtractor(doc);
-         text = SecurityHelper.doPriviledgedAction(new PrivilegedAction<String>()
+         text = SecurityHelper.doPrivilegedAction(new PrivilegedAction<String>()
          {
             public String run()
             {
@@ -139,7 +139,7 @@ public class MSXWordDocumentReader extends BaseDocumentReader
    {
       POIPropertiesReader reader = new POIPropertiesReader();
       reader.readDCProperties(SecurityHelper
-         .doPriviledgedIOExceptionAction(new PrivilegedExceptionAction<XWPFDocument>()
+         .doPrivilegedIOExceptionAction(new PrivilegedExceptionAction<XWPFDocument>()
          {
             public XWPFDocument run() throws Exception
             {

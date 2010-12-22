@@ -218,7 +218,7 @@ public class PDFDocumentReader extends BaseDocumentReader
       try
       {
          final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-         doc = SecurityHelper.doPriviledgedExceptionAction(new PrivilegedExceptionAction<Document>()
+         doc = SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<Document>()
          {
             public Document run() throws Exception
             {

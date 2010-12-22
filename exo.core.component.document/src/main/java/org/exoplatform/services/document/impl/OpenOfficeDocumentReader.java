@@ -80,7 +80,7 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
 
          SAXParser saxParser =
             SecurityHelper
-               .doPriviledgedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
+               .doPrivilegedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
             {
                public SAXParser run() throws Exception
                {
@@ -174,7 +174,7 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
          saxParserFactory.setValidating(false);
          SAXParser saxParser =
             SecurityHelper
-               .doPriviledgedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
+               .doPrivilegedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
             {
                public SAXParser run() throws Exception
                {

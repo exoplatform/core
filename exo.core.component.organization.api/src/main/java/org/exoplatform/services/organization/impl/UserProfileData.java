@@ -82,7 +82,7 @@ public class UserProfileData
    public org.exoplatform.services.organization.UserProfile getUserProfile()
    {
       final XStream xstream = getXStream();
-      UserProfileImpl up = SecurityHelper.doPriviledgedAction(new PrivilegedAction<UserProfileImpl>()
+      UserProfileImpl up = SecurityHelper.doPrivilegedAction(new PrivilegedAction<UserProfileImpl>()
       {
          public UserProfileImpl run()
          {
@@ -102,7 +102,7 @@ public class UserProfileData
       final UserProfileImpl impl = (UserProfileImpl)up;
       userName = up.getUserName();
       final XStream xstream = getXStream();
-      profile = SecurityHelper.doPriviledgedAction(new PrivilegedAction<String>()
+      profile = SecurityHelper.doPrivilegedAction(new PrivilegedAction<String>()
       {
          public String run()
          {
@@ -115,7 +115,7 @@ public class UserProfileData
    {
       if (xstream_ == null)
       {
-         xstream_ = SecurityHelper.doPriviledgedAction(new PrivilegedAction<XStream>()
+         xstream_ = SecurityHelper.doPrivilegedAction(new PrivilegedAction<XStream>()
          {
             public XStream run()
             {

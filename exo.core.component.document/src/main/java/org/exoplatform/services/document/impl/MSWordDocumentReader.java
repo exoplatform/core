@@ -71,7 +71,7 @@ public class MSWordDocumentReader extends BaseDocumentReader
          HWPFDocument doc;
          try
          {
-            doc = SecurityHelper.doPriviledgedIOExceptionAction(new PrivilegedExceptionAction<HWPFDocument>()
+            doc = SecurityHelper.doPrivilegedIOExceptionAction(new PrivilegedExceptionAction<HWPFDocument>()
             {
                public HWPFDocument run() throws Exception
                {

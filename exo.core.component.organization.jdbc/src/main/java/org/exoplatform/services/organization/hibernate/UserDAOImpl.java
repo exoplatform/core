@@ -88,7 +88,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler
          preSave(user, true);
 
       final Session session = service_.openSession();
-      Transaction transaction = SecurityHelper.doPriviledgedAction(new PrivilegedAction<Transaction>()
+      Transaction transaction = SecurityHelper.doPrivilegedAction(new PrivilegedAction<Transaction>()
       {
          public Transaction run()
          {

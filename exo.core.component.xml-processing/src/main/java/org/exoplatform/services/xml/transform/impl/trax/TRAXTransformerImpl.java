@@ -78,7 +78,7 @@ public class TRAXTransformerImpl extends TransformerBase implements TRAXTransfor
       final SAXTransformerFactory saxTFactory = (SAXTransformerFactory)SAXTransformerFactory.newInstance();
       try
       {
-         tHandler = SecurityHelper.doPriviledgedExceptionAction(new PrivilegedExceptionAction<TransformerHandler>()
+         tHandler = SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<TransformerHandler>()
          {
             public TransformerHandler run() throws Exception
             {
@@ -160,7 +160,7 @@ public class TRAXTransformerImpl extends TransformerBase implements TRAXTransfor
       {
          final XMLReader fXMLReader = xmlReader;
          final InputSource fInputSource = inputSource;
-         SecurityHelper.doPriviledgedExceptionAction(new PrivilegedExceptionAction<Void>()
+         SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<Void>()
          {
             public Void run() throws Exception
             {
