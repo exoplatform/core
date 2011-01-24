@@ -77,29 +77,14 @@ public class DBCreator
    public static final String PASSWORD_TEMPLATE = "${password}";
 
    /**
-    * Driver class name.
-    */
-   protected final String driver;
-
-   /**
     * Server url.
     */
    protected final String serverUrl;
 
    /**
-    * User name with administrative rights for connection to server.
+    * Connection properties.
     */
-   protected final String adminName;
-
-   /**
-    * User's password.
-    */
-   protected final String adminPwd;
-
-   /**
-    * Internal login connection property needed for Oracle.
-    */
-   protected final String internal_logon;
+   protected final Map<String, String> connectionProperties;
 
    /**
     * DDL script database creation.
@@ -115,11 +100,6 @@ public class DBCreator
     * User's password.
     */
    protected final String dbPassword;
-
-   /**
-    * Connection properties.
-    */
-   protected final Map<String, String> connectionProperties;
 
    /**
     * DBCreator constructor.
@@ -138,44 +118,38 @@ public class DBCreator
 
       if (prop != null)
       {
-         this.driver = prop.getProperty(DB_DRIVER);
-         if (driver == null)
+         if (prop.getProperty(DB_DRIVER) == null)
          {
             throw new ConfigurationException("driverClassName expected in db-connection properties section");
          }
 
-         this.serverUrl = prop.getProperty(DB_URL);
+         serverUrl = prop.getProperty(DB_URL);
          if (serverUrl == null)
          {
             throw new ConfigurationException("url expected in db-connection properties section");
          }
 
-         this.adminName = prop.getProperty(DB_USERNAME);
-         if (adminName == null)
+         if (prop.getProperty(DB_USERNAME) == null)
          {
             throw new ConfigurationException("username expected in db-connection properties section");
          }
 
-         this.adminPwd = prop.getProperty(DB_PASSWORD);
-         if (adminPwd == null)
+         if (prop.getProperty(DB_PASSWORD) == null)
          {
             throw new ConfigurationException("password expected in db-connection properties section");
          }
 
-         this.internal_logon = prop.getProperty(DB_ORCL_INTERNAL_LOGON);
-
          // Store all connection properties into single map          
          Iterator<Property> pit = prop.getPropertyIterator();
-         Map<String, String> tempMap = new HashMap<String, String>();
+         connectionProperties = new HashMap<String, String>();
          while (pit.hasNext())
          {
             Property p = pit.next();
             if (!p.getName().equalsIgnoreCase(DB_URL))
             {
-               tempMap.put(p.getName(), p.getValue());
+               connectionProperties.put(p.getName(), p.getValue());
             }
          }
-         connectionProperties = tempMap;
       }
       else
       {
@@ -236,13 +210,14 @@ public class DBCreator
       Connection conn = null;
       try
       {
-         Class.forName(driver);
+         Class.forName(connectionProperties.get(DB_DRIVER));
 
          conn = SecurityHelper.doPrivilegedSQLExceptionAction(new PrivilegedExceptionAction<Connection>()
          {
             public Connection run() throws Exception
             {
-               return DriverManager.getConnection(serverUrl, adminName, adminPwd);
+               return DriverManager.getConnection(serverUrl, connectionProperties.get(DB_USERNAME),
+                  connectionProperties.get(DB_PASSWORD));
             }
          });
       }
@@ -252,7 +227,7 @@ public class DBCreator
       }
       catch (ClassNotFoundException e)
       {
-         throw new DBCreatorException("Can't load the JDBC driver " + driver, e);
+         throw new DBCreatorException("Can't load the JDBC driver " + connectionProperties.get(DB_DRIVER), e);
       }
 
       String dbProductName;
@@ -316,13 +291,14 @@ public class DBCreator
       Connection conn = null;
       try
       {
-         Class.forName(driver);
+         Class.forName(connectionProperties.get(DB_DRIVER));
 
          conn = SecurityHelper.doPrivilegedSQLExceptionAction(new PrivilegedExceptionAction<Connection>()
          {
             public Connection run() throws Exception
             {
-               return DriverManager.getConnection(serverUrl, adminName, adminPwd);
+               return DriverManager.getConnection(serverUrl, connectionProperties.get(DB_USERNAME),
+                  connectionProperties.get(DB_PASSWORD));
             }
          });
       }
@@ -332,7 +308,7 @@ public class DBCreator
       }
       catch (ClassNotFoundException e)
       {
-         throw new DBCreatorException("Can't load the JDBC driver " + driver, e);
+         throw new DBCreatorException("Can't load the JDBC driver " + connectionProperties.get(DB_DRIVER), e);
       }
 
       String dbProductName;
