@@ -36,6 +36,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * @author <a href="anatoliy.bazko@exoplatform.org">Anatoliy Bazko</a>
@@ -43,6 +44,22 @@ import java.util.Map;
  */
 public class DBCreator
 {
+
+   private final static String DB_CONNECTION = "db-connection";
+
+   private final static String DB_DRIVER = "driverClassName";
+
+   private final static String DB_URL = "url";
+
+   private final static String DB_USERNAME = "username";
+
+   private final static String DB_PASSWORD = "password";
+
+   private final static String DB_ORCL_INTERNAL_LOGON = "internal_logon";
+
+   private final static String DB_CREATION = "db-creation";
+
+   private final static String DB_SCRIPT_PATH = "scriptPath";
 
    /**
     * Database template.
@@ -100,9 +117,9 @@ public class DBCreator
    protected final String dbPassword;
 
    /**
-    * Additional connection properties.
+    * Connection properties.
     */
-   protected final Map<String, String> additionalProperties;
+   protected final Map<String, String> connectionProperties;
 
    /**
     * DBCreator constructor.
@@ -117,63 +134,58 @@ public class DBCreator
          throw new ConfigurationException("Initializations parameters expected");
       }
 
-      PropertiesParam prop = params.getPropertiesParam("db-connection");
+      PropertiesParam prop = params.getPropertiesParam(DB_CONNECTION);
 
       if (prop != null)
       {
-         this.driver = prop.getProperty("driverClassName");
+         this.driver = prop.getProperty(DB_DRIVER);
          if (driver == null)
          {
             throw new ConfigurationException("driverClassName expected in db-connection properties section");
          }
 
-         this.serverUrl = prop.getProperty("url");
+         this.serverUrl = prop.getProperty(DB_URL);
          if (serverUrl == null)
          {
             throw new ConfigurationException("url expected in db-connection properties section");
          }
 
-         this.adminName = prop.getProperty("username");
+         this.adminName = prop.getProperty(DB_USERNAME);
          if (adminName == null)
          {
             throw new ConfigurationException("username expected in db-connection properties section");
          }
 
-         this.adminPwd = prop.getProperty("password");
+         this.adminPwd = prop.getProperty(DB_PASSWORD);
          if (adminPwd == null)
          {
             throw new ConfigurationException("password expected in db-connection properties section");
          }
 
-         this.internal_logon = prop.getProperty("internal_logon");
+         this.internal_logon = prop.getProperty(DB_ORCL_INTERNAL_LOGON);
 
-         // Store additional properties into map          
+         // Store all connection properties into single map          
          Iterator<Property> pit = prop.getPropertyIterator();
-
-         additionalProperties = new HashMap<String, String>();
-
+         Map<String, String> tempMap = new HashMap<String, String>();
          while (pit.hasNext())
          {
             Property p = pit.next();
-            String name = p.getName();
-            if (name.equalsIgnoreCase("driverClassName") || name.equalsIgnoreCase("url")
-               || name.equalsIgnoreCase("username") || name.equalsIgnoreCase("password")
-               || name.equalsIgnoreCase("internal_logon"))
+            if (!p.getName().equalsIgnoreCase(DB_URL))
             {
-               continue;
+               tempMap.put(p.getName(), p.getValue());
             }
-            additionalProperties.put(name, p.getValue());
          }
+         connectionProperties = tempMap;
       }
       else
       {
          throw new ConfigurationException("db-connection properties expected in initializations parameters");
       }
 
-      prop = params.getPropertiesParam("db-creation");
+      prop = params.getPropertiesParam(DB_CREATION);
       if (prop != null)
       {
-         String scriptPath = prop.getProperty("scriptPath");
+         String scriptPath = prop.getProperty(DB_SCRIPT_PATH);
          if (scriptPath != null)
          {
             try
@@ -190,13 +202,13 @@ public class DBCreator
             throw new ConfigurationException("scriptPath expected in db-creation properties section");
          }
 
-         this.dbUserName = prop.getProperty("username");
+         this.dbUserName = prop.getProperty(DB_USERNAME);
          if (dbUserName == null)
          {
             throw new ConfigurationException("username expected in db-creation properties section");
          }
 
-         this.dbPassword = prop.getProperty("password");
+         this.dbPassword = prop.getProperty(DB_PASSWORD);
          if (dbPassword == null)
          {
             throw new ConfigurationException("password expected in db-creation properties section");
@@ -407,7 +419,17 @@ public class DBCreator
          dbUrl = dbUrl + (dbUrl.endsWith("/") ? "" : "/") + dbName;
       }
 
-      return new DBConnectionInfo(driver, dbUrl, dbUserName, dbPassword, additionalProperties);
+      // clone connection properties
+      Map<String, String> connProperties = new HashMap<String, String>();
+
+      for (Entry<String, String> entry : this.connectionProperties.entrySet())
+      {
+         connProperties.put(entry.getKey(), entry.getValue());
+      }
+
+      connProperties.put(DB_URL, dbUrl);
+
+      return new DBConnectionInfo(connProperties);
    }
 
    /**

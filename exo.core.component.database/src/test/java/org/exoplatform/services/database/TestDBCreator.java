@@ -26,7 +26,6 @@ import org.exoplatform.services.database.creator.DBCreator;
 import org.exoplatform.services.naming.InitialContextInitializer;
 
 import java.sql.Connection;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -58,16 +57,15 @@ public class TestDBCreator extends TestCase
       DBConnectionInfo dbInfo = dbCreator.createDatabase("testdb");
       DBConnectionInfo dbInfo1 = dbCreator.getDBConnectionInfo("testdb");
 
-      assertEquals(dbInfo.getDriver(), dbInfo1.getDriver());
-      assertEquals(dbInfo.getPassword(), dbInfo1.getPassword());
-      assertEquals(dbInfo.getUrl(), dbInfo1.getUrl());
-      assertEquals(dbInfo.getUsername(), dbInfo1.getUsername());
+      Map<String, String> connProps = dbInfo.getProperties();
+      Map<String, String> connProps1 = dbInfo1.getProperties();
 
-      Map<String, String> refAddr = new HashMap<String, String>();
-      refAddr.put("driverClassName", dbInfo.getDriver());
-      refAddr.put("url", dbInfo.getUrl());
-      refAddr.put("username", dbInfo.getUsername());
-      refAddr.put("password", dbInfo.getPassword());
+      assertEquals(connProps.get("driverClassName"), connProps1.get("driverClassName"));
+      assertEquals(connProps.get("password"), connProps1.get("password"));
+      assertEquals(connProps.get("url"), connProps1.get("url"));
+      assertEquals(connProps.get("username"), connProps1.get("username"));
+
+      Map<String, String> refAddr = dbInfo.getProperties();
 
       initContext.bind("testjdbcjcr", "javax.sql.DataSource", "org.apache.commons.dbcp.BasicDataSourceFactory", null,
          refAddr);
@@ -125,11 +123,7 @@ public class TestDBCreator extends TestCase
          {
             DBConnectionInfo dbInfo = dbCreator.createDatabase("testdb_" + threadNumber);
 
-            Map<String, String> refAddr = new HashMap<String, String>();
-            refAddr.put("driverClassName", dbInfo.getDriver());
-            refAddr.put("url", dbInfo.getUrl());
-            refAddr.put("username", dbInfo.getUsername());
-            refAddr.put("password", dbInfo.getPassword());
+            Map<String, String> refAddr = dbInfo.getProperties();
 
             initContext.bind("testjdbcjcr_" + threadNumber, "javax.sql.DataSource",
                "org.apache.commons.dbcp.BasicDataSourceFactory", null, refAddr);

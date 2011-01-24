@@ -28,103 +28,20 @@ import java.util.Map;
  */
 public class DBConnectionInfo
 {
-   /**
-    * Driver class name.
-    */
-   private final String driver;
-
-   /**
-    * DB connection url;
-    */
-   private final String url;
-
-   /**
-    * DB connection user name;
-    */
-   private final String username;
-
-   /**
-    * User's password.
-    */
-   private final String password;
-
-   private final Map<String, String> additionalProperties;
+   private final Map<String, String> connectionProperties;
 
    /**
     * DBConnectionInfo constructor.
-    * 
-    * @param driver
-    *          driver class name
-    * @param url
-    *          db connection url
-    * @param username
-    *          db connection user name
-    * @param password
-    *          user's password      
+    * @param connectionProperties
+    *          connection properties      
     */
-   public DBConnectionInfo(String driver, String url, String username, String password)
+   public DBConnectionInfo(Map<String, String> connectionProperties)
    {
-      this(driver, url, username, password, null);
+      this.connectionProperties = connectionProperties;
    }
 
-   /**
-    * DBConnectionInfo constructor.
-    * 
-    * @param driver
-    *          driver class name
-    * @param url
-    *          db connection url
-    * @param username
-    *          db connection user name
-    * @param password
-    *          user's password
-    * @param additionalProperties
-    *          additonal connection properties      
-    */
-   public DBConnectionInfo(String driver, String url, String username, String password,
-      Map<String, String> additionalProperties)
+   public Map<String, String> getProperties()
    {
-      this.driver = driver;
-      this.url = url;
-      this.username = username;
-      this.password = password;
-      this.additionalProperties = additionalProperties;
-   }
-
-   /**
-    * @return the driver
-    */
-   public String getDriver()
-   {
-      return driver;
-   }
-
-   /**
-    * @return the url
-    */
-   public String getUrl()
-   {
-      return url;
-   }
-
-   /**
-    * @return the username
-    */
-   public String getUsername()
-   {
-      return username;
-   }
-
-   /**
-    * @return the password
-    */
-   public String getPassword()
-   {
-      return password;
-   }
-
-   public Map<String, String> getAdditionalProperties()
-   {
-      return additionalProperties;
+      return connectionProperties;
    }
 }
