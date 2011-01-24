@@ -18,6 +18,8 @@
  */
 package org.exoplatform.services.database.creator;
 
+import java.util.Map;
+
 /**
  * Class contains needed database connection information. 
  * 
@@ -46,6 +48,8 @@ public class DBConnectionInfo
     */
    private final String password;
 
+   private final Map<String, String> additionalProperties;
+
    /**
     * DBConnectionInfo constructor.
     * 
@@ -60,10 +64,31 @@ public class DBConnectionInfo
     */
    public DBConnectionInfo(String driver, String url, String username, String password)
    {
+      this(driver, url, username, password, null);
+   }
+
+   /**
+    * DBConnectionInfo constructor.
+    * 
+    * @param driver
+    *          driver class name
+    * @param url
+    *          db connection url
+    * @param username
+    *          db connection user name
+    * @param password
+    *          user's password
+    * @param additionalProperties
+    *          additonal connection properties      
+    */
+   public DBConnectionInfo(String driver, String url, String username, String password,
+      Map<String, String> additionalProperties)
+   {
       this.driver = driver;
       this.url = url;
       this.username = username;
       this.password = password;
+      this.additionalProperties = additionalProperties;
    }
 
    /**
@@ -98,4 +123,8 @@ public class DBConnectionInfo
       return password;
    }
 
+   public Map<String, String> getAdditionalProperties()
+   {
+      return additionalProperties;
+   }
 }

@@ -23,6 +23,7 @@ import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.container.configuration.ConfigurationException;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
+import org.exoplatform.container.xml.Property;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +33,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * @author <a href="anatoliy.bazko@exoplatform.org">Anatoliy Bazko</a>
@@ -96,6 +100,11 @@ public class DBCreator
    protected final String dbPassword;
 
    /**
+    * Additional connection properties.
+    */
+   protected final Map<String, String> additionalProperties;
+
+   /**
     * DBCreator constructor.
     * 
     * @param params
@@ -137,6 +146,24 @@ public class DBCreator
          }
 
          this.internal_logon = prop.getProperty("internal_logon");
+
+         // Store additional properties into map          
+         Iterator<Property> pit = prop.getPropertyIterator();
+
+         additionalProperties = new HashMap<String, String>();
+
+         while (pit.hasNext())
+         {
+            Property p = pit.next();
+            String name = p.getName();
+            if (name.equalsIgnoreCase("driverClassName") || name.equalsIgnoreCase("url")
+               || name.equalsIgnoreCase("username") || name.equalsIgnoreCase("password")
+               || name.equalsIgnoreCase("internal_logon"))
+            {
+               continue;
+            }
+            additionalProperties.put(name, p.getValue());
+         }
       }
       else
       {
@@ -380,7 +407,7 @@ public class DBCreator
          dbUrl = dbUrl + (dbUrl.endsWith("/") ? "" : "/") + dbName;
       }
 
-      return new DBConnectionInfo(driver, dbUrl, dbUserName, dbPassword);
+      return new DBConnectionInfo(driver, dbUrl, dbUserName, dbPassword, additionalProperties);
    }
 
    /**
