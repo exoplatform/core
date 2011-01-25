@@ -77,7 +77,7 @@ public class MSXWordDocumentReader extends BaseDocumentReader
          {
             return "";
          }
-         
+
          XWPFDocument doc;
          try
          {
@@ -137,17 +137,47 @@ public class MSXWordDocumentReader extends BaseDocumentReader
     */
    public Properties getProperties(final InputStream is) throws IOException, DocumentReadException
    {
-      POIPropertiesReader reader = new POIPropertiesReader();
-      reader.readDCProperties(SecurityHelper
-         .doPrivilegedIOExceptionAction(new PrivilegedExceptionAction<XWPFDocument>()
-         {
-            public XWPFDocument run() throws Exception
+      try
+      {
+         POIPropertiesReader reader = new POIPropertiesReader();
+         reader.readDCProperties(SecurityHelper
+            .doPrivilegedIOExceptionAction(new PrivilegedExceptionAction<XWPFDocument>()
             {
-               return new XWPFDocument(is);
-            }
-         }));
+               public XWPFDocument run() throws Exception
+               {
+                  return new XWPFDocument(is);
+               }
+            }));
 
-      return reader.getProperties();
+         return reader.getProperties();
+      }
+      catch (IOException e)
+      {
+         throw e;
+      }
+      catch (DocumentReadException e)
+      {
+         throw e;
+      }
+      catch (Exception e)
+      {
+         // Properties extraction is a very low priority operation, so no any exception 
+         // should interrupt work.
+         throw new DocumentReadException(e.getMessage(), e);
+      }
+      finally
+      {
+         if (is != null)
+         {
+            try
+            {
+               is.close();
+            }
+            catch (IOException e)
+            {
+            }
+         }
+      }
    }
 
 }

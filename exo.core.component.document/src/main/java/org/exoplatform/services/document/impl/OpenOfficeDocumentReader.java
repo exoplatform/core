@@ -81,12 +81,12 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
          SAXParser saxParser =
             SecurityHelper
                .doPrivilegedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
-            {
-               public SAXParser run() throws Exception
                {
-                  return saxParserFactory.newSAXParser();
-               }
-            });
+                  public SAXParser run() throws Exception
+                  {
+                     return saxParserFactory.newSAXParser();
+                  }
+               });
 
          XMLReader xmlReader = saxParser.getXMLReader();
          xmlReader.setFeature("http://xml.org/sax/features/validation", false);
@@ -175,13 +175,13 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
          SAXParser saxParser =
             SecurityHelper
                .doPrivilegedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
-            {
-               public SAXParser run() throws Exception
                {
-                  return saxParserFactory.newSAXParser();
-               }
-            });
-            
+                  public SAXParser run() throws Exception
+                  {
+                     return saxParserFactory.newSAXParser();
+                  }
+               });
+
          XMLReader xmlReader = saxParser.getXMLReader();
 
          xmlReader.setFeature("http://xml.org/sax/features/validation", false);
@@ -208,12 +208,22 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
          return metaHandler.getProperties();
 
       }
+      catch (IOException e)
+      {
+         throw e;
+      }
       catch (ParserConfigurationException e)
       {
          throw new DocumentReadException(e.getMessage(), e);
       }
       catch (SAXException e)
       {
+         throw new DocumentReadException(e.getMessage(), e);
+      }
+      catch (Exception e)
+      {
+         // Properties extraction is a very low priority operation, so no any exception 
+         // should interrupt work.
          throw new DocumentReadException(e.getMessage(), e);
       }
       finally

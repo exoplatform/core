@@ -67,7 +67,7 @@ public class MSWordDocumentReader extends BaseDocumentReader
          {
             return "";
          }
-         
+
          HWPFDocument doc;
          try
          {
@@ -117,9 +117,39 @@ public class MSWordDocumentReader extends BaseDocumentReader
     */
    public Properties getProperties(InputStream is) throws IOException, DocumentReadException
    {
-      POIPropertiesReader reader = new POIPropertiesReader();
-      reader.readDCProperties(is);
-      return reader.getProperties();
+      try
+      {
+         POIPropertiesReader reader = new POIPropertiesReader();
+         reader.readDCProperties(is);
+         return reader.getProperties();
+      }
+      catch (IOException e)
+      {
+         throw e;
+      }
+      catch (DocumentReadException e)
+      {
+         throw e;
+      }
+      catch (Exception e)
+      {
+         // Properties extraction is a very low priority operation, so no any exception 
+         // should interrupt work.
+         throw new DocumentReadException(e.getMessage(), e);
+      }
+      finally
+      {
+         if (is != null)
+         {
+            try
+            {
+               is.close();
+            }
+            catch (IOException e)
+            {
+            }
+         }
+      }
    }
 
 }

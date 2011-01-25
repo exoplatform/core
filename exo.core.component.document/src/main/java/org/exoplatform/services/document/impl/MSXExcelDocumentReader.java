@@ -192,17 +192,47 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
     */
    public Properties getProperties(final InputStream is) throws IOException, DocumentReadException
    {
-      POIPropertiesReader reader = new POIPropertiesReader();
-      reader.readDCProperties(SecurityHelper
-         .doPrivilegedIOExceptionAction(new PrivilegedExceptionAction<XSSFWorkbook>()
-         {
-            public XSSFWorkbook run() throws Exception
+      try
+      {
+         POIPropertiesReader reader = new POIPropertiesReader();
+         reader.readDCProperties(SecurityHelper
+            .doPrivilegedIOExceptionAction(new PrivilegedExceptionAction<XSSFWorkbook>()
             {
-               return new XSSFWorkbook(is);
-            }
-         }));
+               public XSSFWorkbook run() throws Exception
+               {
+                  return new XSSFWorkbook(is);
+               }
+            }));
 
-      return reader.getProperties();
+         return reader.getProperties();
+      }
+      catch (IOException e)
+      {
+         throw e;
+      }
+      catch (DocumentReadException e)
+      {
+         throw e;
+      }
+      catch (Exception e)
+      {
+         // Properties extraction is a very low priority operation, so no any exception 
+         // should interrupt work.
+         throw new DocumentReadException(e.getMessage(), e);
+      }
+      finally
+      {
+         if (is != null)
+         {
+            try
+            {
+               is.close();
+            }
+            catch (IOException e)
+            {
+            }
+         }
+      }
    }
 
    public static boolean isCellDateFormatted(XSSFCell cell)
