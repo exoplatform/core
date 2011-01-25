@@ -1,0 +1,514 @@
+Index: exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/MSExcelDocumentReader.java
+===================================================================
+--- exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/MSExcelDocumentReader.java	(revision 3863)
++++ exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/MSExcelDocumentReader.java	(working copy)
+@@ -172,9 +172,39 @@
+     */
+    public Properties getProperties(InputStream is) throws IOException, DocumentReadException
+    {
+-      POIPropertiesReader reader = new POIPropertiesReader();
+-      reader.readDCProperties(is);
+-      return reader.getProperties();
++      try
++      {
++         POIPropertiesReader reader = new POIPropertiesReader();
++         reader.readDCProperties(is);
++         return reader.getProperties();
++      }
++      catch (IOException e)
++      {
++         throw e;
++      }
++      catch (DocumentReadException e)
++      {
++         throw e;
++      }
++      catch (Exception e)
++      {
++         // Properties extraction is a very low priority operation, so no any exception 
++         // should interrupt work.
++         throw new DocumentReadException(e.getMessage(), e);
++      }
++      finally
++      {
++         if (is != null)
++         {
++            try
++            {
++               is.close();
++            }
++            catch (IOException e)
++            {
++            }
++         }
++      }
+    }
+ 
+    public static boolean isCellDateFormatted(HSSFCell cell)
+Index: exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/MSWordDocumentReader.java
+===================================================================
+--- exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/MSWordDocumentReader.java	(revision 3863)
++++ exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/MSWordDocumentReader.java	(working copy)
+@@ -65,7 +65,7 @@
+          {
+             return "";
+          }
+-         
++
+          HWPFDocument doc;
+          try
+          {
+@@ -109,9 +109,39 @@
+     */
+    public Properties getProperties(InputStream is) throws IOException, DocumentReadException
+    {
+-      POIPropertiesReader reader = new POIPropertiesReader();
+-      reader.readDCProperties(is);
+-      return reader.getProperties();
++      try
++      {
++         POIPropertiesReader reader = new POIPropertiesReader();
++         reader.readDCProperties(is);
++         return reader.getProperties();
++      }
++      catch (IOException e)
++      {
++         throw e;
++      }
++      catch (DocumentReadException e)
++      {
++         throw e;
++      }
++      catch (Exception e)
++      {
++         // Properties extraction is a very low priority operation, so no any exception 
++         // should interrupt work.
++         throw new DocumentReadException(e.getMessage(), e);
++      }
++      finally
++      {
++         if (is != null)
++         {
++            try
++            {
++               is.close();
++            }
++            catch (IOException e)
++            {
++            }
++         }
++      }
+    }
+ 
+ }
+Index: exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/MSXExcelDocumentReader.java
+===================================================================
+--- exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/MSXExcelDocumentReader.java	(revision 3863)
++++ exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/MSXExcelDocumentReader.java	(working copy)
+@@ -185,9 +185,39 @@
+     */
+    public Properties getProperties(InputStream is) throws IOException, DocumentReadException
+    {
+-      POIPropertiesReader reader = new POIPropertiesReader();
+-      reader.readDCProperties(new XSSFWorkbook(is));
+-      return reader.getProperties();
++      try
++      {
++         POIPropertiesReader reader = new POIPropertiesReader();
++         reader.readDCProperties(new XSSFWorkbook(is));
++         return reader.getProperties();
++      }
++      catch (IOException e)
++      {
++         throw e;
++      }
++      catch (DocumentReadException e)
++      {
++         throw e;
++      }
++      catch (Exception e)
++      {
++         // Properties extraction is a very low priority operation, so no any exception 
++         // should interrupt work.
++         throw new DocumentReadException(e.getMessage(), e);
++      }
++      finally
++      {
++         if (is != null)
++         {
++            try
++            {
++               is.close();
++            }
++            catch (IOException e)
++            {
++            }
++         }
++      }
+    }
+ 
+    public static boolean isCellDateFormatted(XSSFCell cell)
+Index: exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/MSXPPTDocumentReader.java
+===================================================================
+--- exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/MSXPPTDocumentReader.java	(revision 3863)
++++ exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/MSXPPTDocumentReader.java	(working copy)
+@@ -135,24 +135,54 @@
+     */
+    public Properties getProperties(InputStream is) throws IOException, DocumentReadException
+    {
+-      POIPropertiesReader reader = new POIPropertiesReader();
+       try
+       {
+-         reader.readDCProperties(new XSLFSlideShow(OPCPackage.open(is)));
++         POIPropertiesReader reader = new POIPropertiesReader();
++         try
++         {
++            reader.readDCProperties(new XSLFSlideShow(OPCPackage.open(is)));
++         }
++         catch (InvalidFormatException e)
++         {
++            throw new DocumentReadException("Can't read properties from OOXML document", e);
++         }
++         catch (OpenXML4JException e)
++         {
++            throw new DocumentReadException("Can't read properties from OOXML document", e);
++         }
++         catch (XmlException e)
++         {
++            throw new DocumentReadException("Can't read properties from OOXML document", e);
++         }
++         return reader.getProperties();
+       }
+-      catch (InvalidFormatException e)
++      catch (IOException e)
+       {
+-         throw new DocumentReadException("Can't read properties from OOXML document", e);
++         throw e;
+       }
+-      catch (OpenXML4JException e)
++      catch (DocumentReadException e)
+       {
+-         throw new DocumentReadException("Can't read properties from OOXML document", e);
++         throw e;
+       }
+-      catch (XmlException e)
++      catch (Exception e)
+       {
+-         throw new DocumentReadException("Can't read properties from OOXML document", e);
++         // Properties extraction is a very low priority operation, so no any exception 
++         // should interrupt work.
++         throw new DocumentReadException(e.getMessage(), e);
+       }
+-      return reader.getProperties();
++      finally
++      {
++         if (is != null)
++         {
++            try
++            {
++               is.close();
++            }
++            catch (IOException e)
++            {
++            }
++         }
++      }
+    }
+ 
+ }
+Index: exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/MSXWordDocumentReader.java
+===================================================================
+--- exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/MSXWordDocumentReader.java	(revision 3863)
++++ exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/MSXWordDocumentReader.java	(working copy)
+@@ -122,9 +122,39 @@
+     */
+    public Properties getProperties(InputStream is) throws IOException, DocumentReadException
+    {
+-      POIPropertiesReader reader = new POIPropertiesReader();
+-      reader.readDCProperties(new XWPFDocument(is));
+-      return reader.getProperties();
++      try
++      {
++         POIPropertiesReader reader = new POIPropertiesReader();
++         reader.readDCProperties(new XWPFDocument(is));
++         return reader.getProperties();
++      }
++      catch (IOException e)
++      {
++         throw e;
++      }
++      catch (DocumentReadException e)
++      {
++         throw e;
++      }
++      catch (Exception e)
++      {
++         // Properties extraction is a very low priority operation, so no any exception 
++         // should interrupt work.
++         throw new DocumentReadException(e.getMessage(), e);
++      }
++      finally
++      {
++         if (is != null)
++         {
++            try
++            {
++               is.close();
++            }
++            catch (IOException e)
++            {
++            }
++         }
++      }
+    }
+ 
+ }
+Index: exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/OpenOfficeDocumentReader.java
+===================================================================
+--- exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/OpenOfficeDocumentReader.java	(revision 3863)
++++ exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/OpenOfficeDocumentReader.java	(working copy)
+@@ -198,6 +198,16 @@
+       {
+          throw new DocumentReadException(e.getMessage(), e);
+       }
++      catch (IOException e)
++      {
++         throw e;
++      }
++      catch (Exception e)
++      {
++         // Properties extraction is a very low priority operation, so no any exception 
++         // should interrupt work.
++         throw new DocumentReadException(e.getMessage(), e);
++      }
+       finally
+       {
+          if (is != null)
+Index: exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/PDFDocumentReader.java
+===================================================================
+--- exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/PDFDocumentReader.java	(revision 3863)
++++ exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/PDFDocumentReader.java	(working copy)
+@@ -168,35 +168,56 @@
+     */
+    public Properties getProperties(InputStream is) throws IOException, DocumentReadException
+    {
++      try
++      {
++         Properties props = null;
+ 
+-      Properties props = null;
++         PdfReader reader = new PdfReader(is, "".getBytes());
+ 
+-      PdfReader reader = new PdfReader(is, "".getBytes());
++         // Read the file metadata
++         byte[] metadata = reader.getMetadata();
+ 
+-      // Read the file metadata
+-      byte[] metadata = reader.getMetadata();
++         if (metadata != null)
++         {
++            // there is XMP metadata try exctract it
++            props = getPropertiesFromMetadata(metadata);
++         }
+ 
+-      if (metadata != null)
++         if (props == null)
++         {
++            // it's old pdf document version
++            props = getPropertiesFromInfo(reader.getInfo());
++         }
++         reader.close();
++         return props;
++      }
++      catch (IOException e)
+       {
+-         // there is XMP metadata try exctract it
+-         props = getPropertiesFromMetadata(metadata);
++         throw e;
+       }
+-
+-      if (props == null)
++      catch (DocumentReadException e)
+       {
+-         // it's old pdf document version
+-         props = getPropertiesFromInfo(reader.getInfo());
++         throw e;
+       }
+-      reader.close();
+-      if (is != null)
+-         try
++      catch (Exception e)
++      {
++         // Properties extraction is a very low priority operation, so no any exception 
++         // should interrupt work.
++         throw new DocumentReadException(e.getMessage(), e);
++      }
++      finally
++      {
++         if (is != null)
+          {
+-            is.close();
++            try
++            {
++               is.close();
++            }
++            catch (IOException e)
++            {
++            }
+          }
+-         catch (IOException e)
+-         {
+-         }
+-      return props;
++      }
+    }
+ 
+    /**
+Index: exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/PPTDocumentReader.java
+===================================================================
+--- exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/PPTDocumentReader.java	(revision 3863)
++++ exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/PPTDocumentReader.java	(working copy)
+@@ -106,9 +106,39 @@
+     */
+    public Properties getProperties(InputStream is) throws IOException, DocumentReadException
+    {
+-      POIPropertiesReader reader = new POIPropertiesReader();
+-      reader.readDCProperties(is);
+-      return reader.getProperties();
++      try
++      {
++         POIPropertiesReader reader = new POIPropertiesReader();
++         reader.readDCProperties(is);
++         return reader.getProperties();
++      }
++      catch (IOException e)
++      {
++         throw e;
++      }
++      catch (DocumentReadException e)
++      {
++         throw e;
++      }
++      catch (Exception e)
++      {
++         // Properties extraction is a very low priority operation, so no any exception 
++         // should interrupt work.
++         throw new DocumentReadException(e.getMessage(), e);
++      }
++      finally
++      {
++         if (is != null)
++         {
++            try
++            {
++               is.close();
++            }
++            catch (IOException e)
++            {
++            }
++         }
++      }
+    }
+ 
+ }
+Index: exo.core.component.document/src/test/java/org/exoplatform/services/document/test/usecases/TestPDFNullPointer.java
+===================================================================
+--- exo.core.component.document/src/test/java/org/exoplatform/services/document/test/usecases/TestPDFNullPointer.java	(revision 0)
++++ exo.core.component.document/src/test/java/org/exoplatform/services/document/test/usecases/TestPDFNullPointer.java	(revision 0)
+@@ -0,0 +1,86 @@
++/*
++ * Copyright (C) 2003-2011 eXo Platform SAS.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Affero General Public License
++ * as published by the Free Software Foundation; either version 3
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, see<http://www.gnu.org/licenses/>.
++ */
++package org.exoplatform.services.document.test.usecases;
++
++import org.exoplatform.services.document.DocumentReadException;
++import org.exoplatform.services.document.DocumentReader;
++import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
++import org.exoplatform.services.document.impl.PDFDocumentReader;
++import org.exoplatform.services.document.test.BaseStandaloneTest;
++import org.exoplatform.services.document.test.TestPropertiesExtracting;
++
++import java.io.InputStream;
++import java.util.Iterator;
++import java.util.Map;
++import java.util.Properties;
++
++/**
++ * Created by The eXo Platform SAS.
++ * 
++ * <br/>Date: 
++ *
++ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
++ * @version $Id: TestPDFNullPointer.java 111 2008-11-11 11:11:11Z serg $
++ */
++public class TestPDFNullPointer extends BaseStandaloneTest
++{
++   DocumentReaderServiceImpl service;
++
++   @Override
++   public void setUp() throws Exception
++   {
++      super.setUp();
++      service = new DocumentReaderServiceImpl(null);
++      service.addDocumentReader(new PDFDocumentReader());
++   }
++
++   public void testPDFDocumentReaderServiceXMPMetadata() throws Exception
++   {
++      InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/pfs_accapp.pdf");
++      try
++      {
++         try
++         {
++            DocumentReader rdr = service.getDocumentReader("application/pdf");
++            Properties testprops = rdr.getProperties(is);
++            fail("There must be exception.");
++         }
++         catch (DocumentReadException e)
++         {
++            //ok
++         }
++      }
++      finally
++      {
++         is.close();
++      }
++   }
++
++   private void evalProps(Properties etalon, Properties testedProps)
++   {
++      Iterator it = etalon.entrySet().iterator();
++      while (it.hasNext())
++      {
++         Map.Entry prop = (Map.Entry)it.next();
++         Object tval = testedProps.get(prop.getKey());
++         assertNotNull(prop.getKey() + " property not founded. ", tval);
++         assertEquals(prop.getKey() + " property value is incorrect", prop.getValue(), tval);
++      }
++      assertEquals("size is incorrect", etalon.size(), testedProps.size());
++   }
++
++}
+Index: exo.core.component.document/src/test/resources/pfs_accapp.pdf
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+
+Property changes on: exo.core.component.document\src\test\resources\pfs_accapp.pdf
+___________________________________________________________________
+Added: svn:mime-type
+   + application/octet-stream
+
