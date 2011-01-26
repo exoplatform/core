@@ -18,7 +18,6 @@
  */
 package org.exoplatform.services.document.test;
 
-import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReader;
@@ -77,10 +76,30 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          Properties etalon = new Properties();
          etalon.put(DCMetaData.TITLE, "Test de convertion de fichier tif");
          etalon.put(DCMetaData.CREATOR, "Christian Klaus");
-         etalon.put(DCMetaData.SUBJECT, "20080901 TEST Christian Etat OK");
-         Calendar c = ISO8601.parseEx("2008-09-01T08:01:10+00:00");
-         etalon.put(DCMetaData.DATE, c);
-         evalProps(etalon, testprops);
+         etalon.put(DCMetaData.DESCRIPTION, "20080901 TEST Christian Etat OK");
+         //         Calendar c = ISO8601.parseEx("2008-09-01T08:01:10+00:00");
+         //         etalon.put(DCMetaData.DATE, c);
+         evalProps(etalon, testprops, false);
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testPDFDocumentReaderServiceBrokenFile() throws Exception
+   {
+      InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/pfs_accapp.pdf");
+      try
+      {
+
+         DocumentReader rdr = service.getDocumentReader("application/pdf");
+         Properties testprops = rdr.getProperties(is);
+         Properties etalon = new Properties();
+         etalon.put(DCMetaData.TITLE, "Personal Account Opening Form VN");
+         etalon.put(DCMetaData.CREATOR, "mr");
+         etalon.put(DCMetaData.PUBLISHER, "Adobe LiveCycle Designer ES 8.2");
+         evalProps(etalon, testprops, false);
       }
       finally
       {
@@ -101,7 +120,7 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.CREATOR, "Max Yakimenko");
          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
-         evalProps(etalon, props);
+         evalProps(etalon, props, true);
       }
       finally
       {
@@ -122,7 +141,7 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.CREATOR, "Max Yakimenko");
          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
-         evalProps(etalon, props);
+         evalProps(etalon, props, true);
       }
       finally
       {
@@ -144,7 +163,7 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
-         evalProps(etalon, props);
+         evalProps(etalon, props, true);
       }
       finally
       {
@@ -172,7 +191,7 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
-         evalProps(etalon, props);
+         evalProps(etalon, props, true);
       }
       finally
       {
@@ -200,7 +219,7 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
-         evalProps(etalon, props);
+         evalProps(etalon, props, true);
       }
       finally
       {
@@ -228,7 +247,7 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
-         evalProps(etalon, props);
+         evalProps(etalon, props, true);
       }
       finally
       {
@@ -254,7 +273,7 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.CREATOR, "Sergiy Karpenko");
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
-         evalProps(etalon, props);
+         evalProps(etalon, props, true);
       }
       finally
       {
@@ -262,7 +281,7 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
       }
    }
 
-   private void evalProps(Properties etalon, Properties testedProps)
+   private void evalProps(Properties etalon, Properties testedProps, boolean testSize)
    {
       Iterator it = etalon.entrySet().iterator();
       while (it.hasNext())
@@ -272,7 +291,10 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          assertNotNull(prop.getKey() + " property not founded. ", tval);
          assertEquals(prop.getKey() + " property value is incorrect", prop.getValue(), tval);
       }
-      assertEquals("size is incorrect", etalon.size(), testedProps.size());
+      if (testSize)
+      {
+         assertEquals("size is incorrect", etalon.size(), testedProps.size());
+      }
    }
 
 }
