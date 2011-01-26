@@ -1,0 +1,1390 @@
+Index: exo.core.component.document/pom.xml
+===================================================================
+--- exo.core.component.document/pom.xml	(revision 3863)
++++ exo.core.component.document/pom.xml	(working copy)
+@@ -41,10 +41,6 @@
+          <artifactId>pdfbox</artifactId>
+       </dependency>
+       <dependency>
+-         <groupId>com.lowagie</groupId>
+-         <artifactId>itext</artifactId>
+-      </dependency>
+-      <dependency>
+          <groupId>org.htmlparser</groupId>
+          <artifactId>htmlparser</artifactId>
+       </dependency>
+Index: exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/PDFDocumentReader.java
+===================================================================
+--- exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/PDFDocumentReader.java	(revision 3863)
++++ exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/PDFDocumentReader.java	(working copy)
+@@ -18,37 +18,30 @@
+  */
+ package org.exoplatform.services.document.impl;
+ 
+-import com.lowagie.text.pdf.PdfDate;
+-import com.lowagie.text.pdf.PdfReader;
+-
++import org.apache.jempbox.xmp.XMPMetadata;
++import org.apache.jempbox.xmp.XMPSchemaBasic;
++import org.apache.jempbox.xmp.XMPSchemaDublinCore;
++import org.apache.jempbox.xmp.XMPSchemaPDF;
++import org.apache.pdfbox.exceptions.InvalidPasswordException;
+ import org.apache.pdfbox.pdmodel.PDDocument;
++import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
++import org.apache.pdfbox.pdmodel.PDDocumentInformation;
++import org.apache.pdfbox.pdmodel.common.PDMetadata;
+ import org.apache.pdfbox.util.PDFTextStripper;
+-import org.exoplatform.commons.utils.ISO8601;
+ import org.exoplatform.services.document.DCMetaData;
+ import org.exoplatform.services.document.DocumentReadException;
+ import org.exoplatform.services.log.ExoLogger;
+ import org.exoplatform.services.log.Log;
+-import org.w3c.dom.Document;
+-import org.w3c.dom.Node;
+-import org.w3c.dom.NodeList;
+-import org.xml.sax.SAXException;
+ 
+-import java.io.ByteArrayInputStream;
+ import java.io.IOException;
+ import java.io.InputStream;
+ import java.io.StringWriter;
+ import java.security.AccessController;
+ import java.security.PrivilegedActionException;
+ import java.security.PrivilegedExceptionAction;
+-import java.text.ParseException;
+ import java.util.Calendar;
+-import java.util.HashMap;
+ import java.util.Properties;
+ 
+-import javax.xml.parsers.DocumentBuilder;
+-import javax.xml.parsers.DocumentBuilderFactory;
+-import javax.xml.parsers.ParserConfigurationException;
+-
+ /**
+  * Created by The eXo Platform SAS A parser of Adobe PDF files.
+  * 
+@@ -168,204 +161,233 @@
+     */
+    public Properties getProperties(InputStream is) throws IOException, DocumentReadException
+    {
+-
+-      Properties props = null;
+-
+-      PdfReader reader = new PdfReader(is, "".getBytes());
+-
+-      // Read the file metadata
+-      byte[] metadata = reader.getMetadata();
+-
+-      if (metadata != null)
++      PDDocument pdDocument = PDDocument.load(is);
++      Properties props = new Properties();
++      try
+       {
+-         // there is XMP metadata try exctract it
+-         props = getPropertiesFromMetadata(metadata);
+-      }
+-
+-      if (props == null)
+-      {
+-         // it's old pdf document version
+-         props = getPropertiesFromInfo(reader.getInfo());
+-      }
+-      reader.close();
+-      if (is != null)
+-         try
++         if (pdDocument.isEncrypted())
+          {
+-            is.close();
++            try
++            {
++               pdDocument.decrypt("");
++            }
++            catch (InvalidPasswordException e)
++            {
++               throw new DocumentReadException("The pdf document is encrypted.", e);
++            }
++            catch (org.apache.pdfbox.exceptions.CryptographyException e)
++            {
++               throw new DocumentReadException(e.getMessage(), e);
++            }
+          }
+-         catch (IOException e)
++
++         PDDocumentCatalog catalog = pdDocument.getDocumentCatalog();
++         PDMetadata meta = catalog.getMetadata();
++         if (meta != null)
+          {
+-         }
+-      return props;
+-   }
++            XMPMetadata metadata = meta.exportXMPMetadata();
+ 
+-   /**
+-    * Extract properties from XMP xml.
+-    * 
+-    * @param metadata XML as byte array
+-    * @return extracted properties
+-    * @throws DocumentReadException
+-    * @throws Exception if extracting fails
+-    */
+-   protected Properties getPropertiesFromMetadata(byte[] metadata) throws IOException, DocumentReadException
+-   {
++            XMPSchemaDublinCore dc = metadata.getDublinCoreSchema();
++            if (dc != null)
++            {
++               try
++               {
++                  if (dc.getTitle() != null)
++                     props.put(DCMetaData.TITLE, dc.getTitle());
++               }
++               catch (Exception e)
++               {
++                  log.warn("getTitle failed: " + e);
++               }
++               try
++               {
++                  if (dc.getDescription() != null)
++                     props.put(DCMetaData.DESCRIPTION, dc.getDescription());
++               }
++               catch (Exception e)
++               {
++                  log.warn("getSubject failed: " + e);
++               }
+ 
+-      Properties props = null;
++               try
++               {
++                  if (dc.getCreators() != null)
++                  {
++                     for (String creator : dc.getCreators())
++                     {
++                        props.put(DCMetaData.CREATOR, creator);
++                     }
++                  }
++               }
++               catch (Exception e)
++               {
++                  log.warn("getCreator failed: " + e);
++               }
+ 
+-      // parse xml
++               try
++               {
++                  if (dc.getDates() != null)
++                  {
++                     for (Calendar date : dc.getDates())
++                     {
++                        props.put(DCMetaData.DATE, date);
++                     }
++                  }
++               }
++               catch (Exception e)
++               {
++                  log.warn("getDate failed: " + e);
++               }
++            }
+ 
+-      Document doc;
+-      try
+-      {
+-         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+-         DocumentBuilder docBuilder = dbf.newDocumentBuilder();
+-         doc = docBuilder.parse(new ByteArrayInputStream(metadata));
+-      }
+-      catch (SAXException e)
+-      {
+-         throw new DocumentReadException(e.getMessage(), e);
+-      }
+-      catch (ParserConfigurationException e)
+-      {
+-         throw new DocumentReadException(e.getMessage(), e);
+-      }
+-
+-      // Check is there PDF/A-1 XMP
+-      String version = "";
+-      NodeList list = doc.getElementsByTagName("pdfaid:conformance");
+-      if (list != null && list.item(0) != null)
+-      {
+-         version += list.item(0).getTextContent() + "-";
+-      }
+-
+-      list = doc.getElementsByTagName("pdfaid:part");
+-      if (list != null && list.item(0) != null)
+-      {
+-         version += list.item(0).getTextContent();
+-      }
+-
+-      // PDF/A-1a or PDF/A-1b
+-      if (version.equalsIgnoreCase("A-1"))
+-      {
+-         props = getPropsFromPDFAMetadata(doc);
+-      }
+-
+-      return props;
+-   }
+-
+-   /**
+-    * Extracts properties from PDF Info hash set.
+-    * 
+-    * @param Pdf Info hash set
+-    * @return Extracted properties
+-    * @throws Exception if extracting fails
+-    */
+-   @SuppressWarnings("unchecked")
+-   protected Properties getPropertiesFromInfo(HashMap info) throws IOException
+-   {
+-      Properties props = new Properties();
+-
+-      String title = (String)info.get("Title");
+-      if (title != null)
+-      {
+-         props.put(DCMetaData.TITLE, title);
+-      }
+-
+-      String author = (String)info.get("Author");
+-      if (author != null)
+-      {
+-         props.put(DCMetaData.CREATOR, author);
+-      }
+-
+-      String subject = (String)info.get("Subject");
+-      if (subject != null)
+-      {
+-         props.put(DCMetaData.SUBJECT, subject);
+-      }
+-
+-      String creationDate = (String)info.get("CreationDate");
+-      if (creationDate != null)
+-      {
+-         props.put(DCMetaData.DATE, PdfDate.decode(creationDate));
+-      }
+-
+-      String modDate = (String)info.get("ModDate");
+-      if (modDate != null)
+-      {
+-         props.put(DCMetaData.DATE, PdfDate.decode(modDate));
+-      }
+-
+-      return props;
+-   }
+-
+-   private Properties getPropsFromPDFAMetadata(Document doc) throws IOException, DocumentReadException
+-   {
+-      Properties props = new Properties();
+-      // get properties
+-      NodeList list = doc.getElementsByTagName("rdf:li");
+-      if (list != null && list.getLength() > 0)
+-      {
+-         for (int i = 0; i < list.getLength(); i++)
+-         {
+-
+-            Node n = list.item(i);
+-            // dc:title - TITLE
+-            if (n.getParentNode().getParentNode().getNodeName().equals("dc:title"))
++            XMPSchemaPDF pdf = metadata.getPDFSchema();
++            if (pdf != null)
+             {
+-               String title = n.getLastChild().getTextContent();
+-               props.put(DCMetaData.TITLE, title);
+-            }
++               try
++               {
++                  if (pdf.getKeywords() != null)
++                     props.put(DCMetaData.SUBJECT, pdf.getKeywords());
++               }
++               catch (Exception e)
++               {
++                  log.warn("getKeywords failed: " + e);
++               }
+ 
+-            // dc:creator - CREATOR
+-            if (n.getParentNode().getParentNode().getNodeName().equals("dc:creator"))
+-            {
+-               String author = n.getLastChild().getTextContent();
+-               props.put(DCMetaData.CREATOR, author);
++               try
++               {
++                  if (pdf.getProducer() != null)
++                     props.put(DCMetaData.PUBLISHER, pdf.getProducer());
++               }
++               catch (Exception e)
++               {
++                  log.warn("getProducer failed: " + e);
++               }
+             }
+ 
+-            // DC:description - SUBJECT
+-            if (n.getParentNode().getParentNode().getNodeName().equals("dc:description"))
++            XMPSchemaBasic basic = metadata.getBasicSchema();
++            if (basic != null)
+             {
+-               String description = n.getLastChild().getTextContent();
+-               props.put(DCMetaData.SUBJECT, description);
+-               // props.put(DCMetaData.DESCRIPTION, description);
++               try
++               {
++                  if (basic.getCreateDate() != null)
++                     props.put(DCMetaData.DATE, basic.getCreateDate());
++               }
++               catch (Exception e)
++               {
++                  log.warn("getCreationDate failed: " + e);
++               }
++               try
++               {
++                  if (basic.getModifyDate() != null)
++                     props.put(DCMetaData.DATE, basic.getModifyDate());
++               }
++               catch (Exception e)
++               {
++                  log.warn("getModificationDate failed: " + e);
++               }
++               // try
++               // {
++               // if (basic.getCreatorTool() != null)
++               // props.put(DCMetaData.PUBLISHER, basic.getCreatorTool());
++               // }
++               // catch (Exception e)
++               // {
++               // log.warn("getCreatorTool failed: " + e);
++               // }
+             }
+          }
+-      }
++         else
++         {
++            // The pdf doesn't contain any metadata, try to use the document
++            // information instead
++            PDDocumentInformation docInfo = pdDocument.getDocumentInformation();
+ 
+-      try
+-      {
+-         // xmp:CreateDate - DATE
+-         list = doc.getElementsByTagName("xmp:CreateDate");
+-         if (list != null && list.item(0) != null)
+-         {
+-            Node creationDateNode = list.item(0).getLastChild();
+-            if (creationDateNode != null)
++            if (docInfo != null)
+             {
+-               String creationDate = creationDateNode.getTextContent();
+-               Calendar c = ISO8601.parseEx(creationDate);
+-               props.put(DCMetaData.DATE, c);
+-            }
+-         }
++               try
++               {
++                  if (docInfo.getAuthor() != null)
++                     props.put(DCMetaData.CONTRIBUTOR, docInfo.getAuthor());
++               }
++               catch (Exception e)
++               {
++                  log.warn("getAuthor failed: " + e);
++               }
++               try
++               {
++                  if (docInfo.getCreationDate() != null)
++                     props.put(DCMetaData.DATE, docInfo.getCreationDate());
++               }
++               catch (Exception e)
++               {
++                  log.warn("getCreationDate failed: " + e);
++               }
++               try
++               {
++                  if (docInfo.getCreator() != null)
++                     props.put(DCMetaData.CREATOR, docInfo.getCreator());
++               }
++               catch (Exception e)
++               {
++                  log.warn("getCreator failed: " + e);
++               }
++               try
++               {
+ 
+-         // xmp:ModifyDate - DATE
+-         list = doc.getElementsByTagName("xmp:ModifyDate");
+-         if (list != null && list.item(0) != null)
+-         {
+-            Node modifyDateNode = list.item(0).getLastChild();
+-            if (modifyDateNode != null)
+-            {
+-               String modifyDate = modifyDateNode.getTextContent();
+-               Calendar c = ISO8601.parseEx(modifyDate);
+-               props.put(DCMetaData.DATE, c);
++                  if (docInfo.getKeywords() != null)
++                     props.put(DCMetaData.SUBJECT, docInfo.getKeywords());
++               }
++               catch (Exception e)
++               {
++                  log.warn("getKeywords failed: " + e);
++               }
++               try
++               {
++                  if (docInfo.getModificationDate() != null)
++                     props.put(DCMetaData.DATE, docInfo.getModificationDate());
++               }
++               catch (Exception e)
++               {
++                  log.warn("getModificationDate failed: " + e);
++               }
++               try
++               {
++                  if (docInfo.getProducer() != null)
++                     props.put(DCMetaData.PUBLISHER, docInfo.getProducer());
++               }
++               catch (Exception e)
++               {
++                  log.warn("getProducer failed: " + e);
++               }
++               try
++               {
++                  if (docInfo.getSubject() != null)
++                     props.put(DCMetaData.DESCRIPTION, docInfo.getSubject());
++               }
++               catch (Exception e)
++               {
++                  log.warn("getSubject failed: " + e);
++               }
++               try
++               {
++                  if (docInfo.getTitle() != null)
++                     props.put(DCMetaData.TITLE, docInfo.getTitle());
++               }
++               catch (Exception e)
++               {
++                  log.warn("getTitle failed: " + e);
++               }
+             }
+          }
+       }
+-      catch (ParseException e)
++      finally
+       {
+-         throw new DocumentReadException(e.getMessage(), e);
++         if (pdDocument != null)
++         {
++            pdDocument.close();
++         }
+       }
++
+       return props;
+    }
+-
+ }
+Index: exo.core.component.document/src/test/java/org/exoplatform/services/document/test/TestPropertiesExtracting.java
+===================================================================
+--- exo.core.component.document/src/test/java/org/exoplatform/services/document/test/TestPropertiesExtracting.java	(revision 3863)
++++ exo.core.component.document/src/test/java/org/exoplatform/services/document/test/TestPropertiesExtracting.java	(working copy)
+@@ -18,7 +18,6 @@
+  */
+ package org.exoplatform.services.document.test;
+ 
+-import org.exoplatform.commons.utils.ISO8601;
+ import org.exoplatform.services.document.DCMetaData;
+ import org.exoplatform.services.document.DocumentReader;
+ import org.exoplatform.services.document.DocumentReaderService;
+@@ -51,10 +50,10 @@
+          Properties etalon = new Properties();
+          etalon.put(DCMetaData.TITLE, "Test de convertion de fichier tif");
+          etalon.put(DCMetaData.CREATOR, "Christian Klaus");
+-         etalon.put(DCMetaData.SUBJECT, "20080901 TEST Christian Etat OK");
+-         Calendar c = ISO8601.parseEx("2008-09-01T08:01:10+00:00");
+-         etalon.put(DCMetaData.DATE, c);
+-         evalProps(etalon, testprops);
++         etalon.put(DCMetaData.DESCRIPTION, "20080901 TEST Christian Etat OK");
++         //         Calendar c = ISO8601.parseEx("2008-09-01T08:01:10+00:00");
++         //         etalon.put(DCMetaData.DATE, c);
++         evalProps(etalon, testprops, false);
+       }
+       finally
+       {
+@@ -62,6 +61,26 @@
+       }
+    }
+ 
++   public void testPDFDocumentReaderServiceBrokenFile() throws Exception
++   {
++      InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/pfs_accapp.pdf");
++      try
++      {
++
++         DocumentReader rdr = service.getDocumentReader("application/pdf");
++         Properties testprops = rdr.getProperties(is);
++         Properties etalon = new Properties();
++         etalon.put(DCMetaData.TITLE, "Personal Account Opening Form VN");
++         etalon.put(DCMetaData.CREATOR, "mr");
++         etalon.put(DCMetaData.PUBLISHER, "Adobe LiveCycle Designer ES 8.2");
++         evalProps(etalon, testprops, false);
++      }
++      finally
++      {
++         is.close();
++      }
++   }
++
+    public void testWordDocumentReaderService() throws Exception
+    {
+       InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/test.doc");
+@@ -75,7 +94,7 @@
+          etalon.put(DCMetaData.CREATOR, "Max Yakimenko");
+          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
+          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
+-         evalProps(etalon, props);
++         evalProps(etalon, props, true);
+       }
+       finally
+       {
+@@ -96,7 +115,7 @@
+          etalon.put(DCMetaData.CREATOR, "Max Yakimenko");
+          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
+          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
+-         evalProps(etalon, props);
++         evalProps(etalon, props, true);
+       }
+       finally
+       {
+@@ -118,7 +137,7 @@
+          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
+          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
+ 
+-         evalProps(etalon, props);
++         evalProps(etalon, props, true);
+       }
+       finally
+       {
+@@ -146,7 +165,7 @@
+          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
+          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
+ 
+-         evalProps(etalon, props);
++         evalProps(etalon, props, true);
+       }
+       finally
+       {
+@@ -174,7 +193,7 @@
+          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
+          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
+ 
+-         evalProps(etalon, props);
++         evalProps(etalon, props, true);
+       }
+       finally
+       {
+@@ -202,7 +221,7 @@
+          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
+          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
+ 
+-         evalProps(etalon, props);
++         evalProps(etalon, props, true);
+       }
+       finally
+       {
+@@ -228,7 +247,7 @@
+          etalon.put(DCMetaData.CREATOR, "nikolaz ");
+          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
+ 
+-         evalProps(etalon, props);
++         evalProps(etalon, props, true);
+       }
+       finally
+       {
+@@ -236,7 +255,7 @@
+       }
+    }
+ 
+-   private void evalProps(Properties etalon, Properties testedProps)
++   private void evalProps(Properties etalon, Properties testedProps, boolean testSize)
+    {
+       Iterator it = etalon.entrySet().iterator();
+       while (it.hasNext())
+@@ -244,13 +263,12 @@
+          Map.Entry prop = (Map.Entry)it.next();
+          Object tval = testedProps.get(prop.getKey());
+          assertNotNull(prop.getKey() + " property not founded. ", tval);
+-         if (tval instanceof Date)
+-         {
+-            System.out.println("was:" + ((Date)tval).getTime() + " expected: " + ((Date)prop.getValue()).getTime());
+-         }
+          assertEquals(prop.getKey() + " property value is incorrect", prop.getValue(), tval);
+       }
+-      assertEquals("size is incorrect", etalon.size(), testedProps.size());
++      if (testSize)
++      {
++         assertEquals("size is incorrect", etalon.size(), testedProps.size());
++      }
+    }
+ 
+ }
+Index: exo.core.component.document/src/test/resources/pfs_accapp.pdf
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+
+Property changes on: exo.core.component.document\src\test\resources\pfs_accapp.pdf
+___________________________________________________________________
+Added: svn:mime-type
+   + application/octet-stream
+
+Index: pom.xml
+===================================================================
+--- pom.xml	(revision 3863)
++++ pom.xml	(working copy)
+@@ -1,382 +1,375 @@
+-<!--
+-
+-    Copyright (C) 2009 eXo Platform SAS.
+-
+-    This is free software; you can redistribute it and/or modify it
+-    under the terms of the GNU Lesser General Public License as
+-    published by the Free Software Foundation; either version 2.1 of
+-    the License, or (at your option) any later version.
+-
+-    This software is distributed in the hope that it will be useful,
+-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+-    Lesser General Public License for more details.
+-
+-    You should have received a copy of the GNU Lesser General Public
+-    License along with this software; if not, write to the Free
+-    Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+-    02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-
+--->
+-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+-   <modelVersion>4.0.0</modelVersion>
+-
+-   <parent>
+-      <groupId>org.exoplatform</groupId>
+-      <artifactId>foundation-parent</artifactId>
+-      <version>7</version>
+-   </parent>
+-
+-   <groupId>org.exoplatform.core</groupId>
+-   <artifactId>core-parent</artifactId>
+-   <version>2.3.7-GA-SNAPSHOT</version>
+-   <packaging>pom</packaging>
+-
+-   <name>eXo Core</name>
+-
+-   <properties>
+-      <exo.product.name>exo-core</exo.product.name>
+-      <exo.product.specification>2.3</exo.product.specification>
+-      
+-      <org.exoplatform.framework.junit.version>1.2.1-GA</org.exoplatform.framework.junit.version>
+-      <org.exoplatform.kernel.version>2.2.7-GA-SNAPSHOT</org.exoplatform.kernel.version>
+-   </properties>
+-
+-   <scm>
+-      <connection>scm:svn:http://anonsvn.jboss.org/repos/exo-jcr/core/branches/2.3.x/</connection>
+-      <developerConnection>scm:svn:https://svn.jboss.org/repos/exo-jcr/core/branches/2.3.x/</developerConnection>
+-      <url>http://fisheye.jboss.org/browse/exo-jcr/core/branches/2.3.x</url>
+-   </scm>
+-
+-   <modules>
+-      <module>exo.core.component.security.core</module>
+-      <module>exo.core.component.database</module>
+-      <module>exo.core.component.document</module>
+-      <module>exo.core.component.ldap</module>
+-      <module>exo.core.component.organization.api</module>
+-      <module>exo.core.component.organization.jdbc</module>
+-      <module>exo.core.component.organization.ldap</module>
+-      <module>exo.core.component.xml-processing</module>
+-      <module>exo.core.component.script.groovy</module>
+-      <module>exo.core.component.web.css</module>
+-      <module>packaging/module</module>
+-   </modules>
+-
+-   <dependencyManagement>
+-      <dependencies>
+-      
+-         <dependency>
+-            <groupId>org.exoplatform.tool</groupId>
+-            <artifactId>exo.tool.framework.junit</artifactId>
+-            <version>${org.exoplatform.framework.junit.version}</version>
+-         </dependency>
+-      
+-         <dependency>
+-            <groupId>org.exoplatform.kernel</groupId>
+-            <artifactId>exo.kernel.commons</artifactId>
+-            <version>${org.exoplatform.kernel.version}</version>
+-         </dependency>  
+-         
+-         <dependency>
+-            <groupId>org.exoplatform.kernel</groupId>
+-            <artifactId>exo.kernel.component.common</artifactId>
+-            <version>${org.exoplatform.kernel.version}</version>
+-         </dependency>         
+-
+-         <dependency>
+-            <groupId>org.exoplatform.kernel</groupId>
+-            <artifactId>exo.kernel.container</artifactId>
+-            <version>${org.exoplatform.kernel.version}</version>
+-         </dependency>
+-         
+-         <dependency>
+-            <groupId>org.exoplatform.kernel</groupId>
+-            <artifactId>exo.kernel.component.cache</artifactId>
+-            <version>${org.exoplatform.kernel.version}</version>
+-         </dependency>
+-         
+-          <dependency>
+-            <groupId>org.exoplatform.core</groupId>
+-            <artifactId>exo.core.component.database</artifactId>
+-            <version>${project.version}</version>
+-         </dependency>
+-         
+-         <dependency>
+-            <groupId>org.exoplatform.core</groupId>
+-            <artifactId>exo.core.component.ldap</artifactId>
+-            <version>${project.version}</version>
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>org.exoplatform.core</groupId>
+-            <artifactId>exo.core.component.organization.api</artifactId>
+-            <version>${project.version}</version>
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>org.exoplatform.core</groupId>
+-            <artifactId>exo.core.component.organization.jdbc</artifactId>
+-            <version>${project.version}</version>
+-         </dependency>
+-         
+-         <dependency>
+-            <groupId>org.exoplatform.core</groupId>
+-            <artifactId>exo.core.component.security.core</artifactId>
+-            <version>${project.version}</version>
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>javax.resource</groupId>
+-            <artifactId>connector-api</artifactId>
+-            <version>1.5</version>
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>javax.servlet</groupId>
+-            <artifactId>servlet-api</artifactId>
+-            <version>2.4</version>            
+-         </dependency>
+-         
+-         <dependency>
+-            <groupId>javax.transaction</groupId>
+-            <artifactId>jta</artifactId>
+-            <version>1.0.1B</version>            
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>org.slf4j</groupId>
+-            <artifactId>slf4j-api</artifactId>
+-            <version>1.5.8</version>
+-            <scope>test</scope>
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>org.slf4j</groupId>
+-            <artifactId>slf4j-log4j12</artifactId>
+-            <version>1.5.8</version>
+-            <scope>test</scope>
+-         </dependency>
+-   
+-      
+-         <dependency>
+-            <groupId>pull-parser</groupId>
+-            <artifactId>pull-parser</artifactId>
+-            <version>2</version>                        
+-         </dependency>
+-         
+-         <dependency>
+-            <groupId>commons-lang</groupId>
+-            <artifactId>commons-lang</artifactId>
+-            <version>2.4</version>
+-         </dependency>
+-         
+-         <dependency>
+-            <groupId>hsqldb</groupId>
+-            <artifactId>hsqldb</artifactId>
+-            <version>1.8.0.7</version>
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>com.experlog</groupId>
+-            <artifactId>xapool</artifactId>
+-            <version>1.5.0</version>
+-         </dependency>
+-         
+-         <dependency>
+-            <groupId>org.hibernate</groupId>
+-            <artifactId>hibernate-core</artifactId>
+-            <version>3.3.2.GA</version>
+-         </dependency>
+-         
+-         <dependency>
+-            <groupId>xstream</groupId>
+-            <artifactId>xstream</artifactId>
+-            <version>1.0.2</version>
+-         </dependency>
+-      
+-         <dependency>
+-            <groupId>picocontainer</groupId>
+-            <artifactId>picocontainer</artifactId>
+-            <version>1.1</version>            
+-         </dependency>
+-         
+-         <dependency>
+-            <groupId>xdoclet</groupId>
+-            <artifactId>xdoclet-hibernate-module</artifactId>
+-            <version>1.2.3</version>
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>xdoclet</groupId>
+-            <artifactId>xdoclet-xdoclet-module</artifactId>
+-            <version>1.2.3</version>
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>xdoclet</groupId>
+-            <artifactId>xjavadoc</artifactId>
+-            <version>1.2.3</version>
+-         </dependency>
+-         
+-         <dependency>
+-            <groupId>com.microsoft</groupId>
+-            <artifactId>sqljdbc</artifactId>
+-            <version>1.1.1501</version>
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>com.ibm.db2</groupId>
+-            <artifactId>db2jcc</artifactId>
+-            <version>9.1</version>
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>com.ibm.db2</groupId>
+-            <artifactId>db2jcc_license_cu</artifactId>
+-            <version>9.1</version>
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>oracle</groupId>
+-            <artifactId>ojdbc</artifactId>
+-            <version>1.4</version>
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>postgresql</groupId>
+-            <artifactId>postgresql</artifactId>
+-            <version>8.3-603.jdbc3</version>
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>mysql</groupId>
+-            <artifactId>mysql-connector-java</artifactId>
+-            <version>5.0.8</version>
+-         </dependency>
+-         
+-         <dependency>
+-            <groupId>org.codehaus.groovy</groupId>
+-            <artifactId>groovy-all</artifactId>
+-            <version>1.6.5</version>
+-         </dependency>
+-         
+-         <dependency>
+-            <groupId>org.hibernate</groupId>
+-            <artifactId>hibernate-annotations</artifactId>
+-            <version>3.4.0.GA</version>
+-         </dependency>
+-         
+-         <dependency>
+-            <groupId>org.apache.pdfbox</groupId>
+-            <artifactId>pdfbox</artifactId>
+-            <version>1.1.0</version>
+-         </dependency>
+-         
+-         <dependency>
+-            <groupId>com.lowagie</groupId>
+-            <artifactId>itext</artifactId>
+-            <version>2.1.0</version>
+-            <scope>compile</scope>
+-         </dependency>
+-         
+-         <dependency>
+-            <groupId>org.htmlparser</groupId>
+-            <artifactId>htmlparser</artifactId>
+-            <version>1.6</version>
+-            <scope>compile</scope>
+-            <exclusions>
+-               <exclusion>
+-                  <groupId>com.sun</groupId>
+-                  <artifactId>tools</artifactId>
+-               </exclusion>
+-            </exclusions>
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>org.apache.poi</groupId>
+-            <artifactId>poi</artifactId>
+-            <version>3.6</version>
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>org.apache.poi</groupId>
+-            <artifactId>poi-scratchpad</artifactId>
+-            <version>3.6</version>
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>org.apache.poi</groupId>
+-            <artifactId>poi-ooxml</artifactId>
+-            <version>3.6</version>
+-         </dependency>
+-         
+-         <dependency>
+-            <groupId>com.novell.ldap</groupId>
+-            <artifactId>jldap</artifactId>
+-            <version>4.3</version>
+-         </dependency>
+-         
+-         <dependency>
+-            <groupId>jtidy</groupId>
+-            <artifactId>jtidy</artifactId>
+-            <version>4aug2000r7-dev</version>
+-         </dependency>
+-         
+-         <dependency>
+-            <groupId>org.w3c</groupId>
+-            <artifactId>sac</artifactId>
+-            <version>1.3</version>
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>batik</groupId>
+-            <artifactId>batik-util</artifactId>
+-            <version>1.7</version>
+-         </dependency>
+-
+-         <dependency>
+-            <groupId>batik</groupId>
+-            <artifactId>batik-css</artifactId>
+-            <version>1.7</version>
+-         </dependency>
+-
+-        <dependency>
+-           <groupId>commons-dbcp</groupId>
+-           <artifactId>commons-dbcp</artifactId>
+-           <version>1.2.2</version>
+-           <exclusions>
+-              <exclusion>
+-                 <groupId>commons-pool</groupId>
+-                 <artifactId>commons-pool</artifactId>
+-              </exclusion>
+-           </exclusions>
+-        </dependency>
+-
+-        <dependency>
+-           <groupId>commons-pool</groupId>
+-           <artifactId>commons-pool</artifactId>
+-           <version>1.5.4</version>
+-        </dependency>
+-        
+-        <dependency>
+-           <groupId>javassist</groupId>
+-           <artifactId>javassist</artifactId>
+-           <version>3.4.GA</version>
+-        </dependency>
+-
+-      </dependencies>
+-   </dependencyManagement>
+-
+-   <dependencies>
+-      <dependency>
+-         <groupId>junit</groupId>
+-         <artifactId>junit</artifactId>
+-         <scope>test</scope>
+-      </dependency>
+-      <dependency>
+-         <groupId>org.slf4j</groupId>
+-         <artifactId>slf4j-log4j12</artifactId>
+-         <scope>test</scope>
+-      </dependency>
+-   </dependencies>
+-</project>
++<!--
++
++    Copyright (C) 2009 eXo Platform SAS.
++
++    This is free software; you can redistribute it and/or modify it
++    under the terms of the GNU Lesser General Public License as
++    published by the Free Software Foundation; either version 2.1 of
++    the License, or (at your option) any later version.
++
++    This software is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++    Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public
++    License along with this software; if not, write to the Free
++    Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
++    02110-1301 USA, or see the FSF site: http://www.fsf.org.
++
++-->
++<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
++   <modelVersion>4.0.0</modelVersion>
++
++   <parent>
++      <groupId>org.exoplatform</groupId>
++      <artifactId>foundation-parent</artifactId>
++      <version>7</version>
++   </parent>
++
++   <groupId>org.exoplatform.core</groupId>
++   <artifactId>core-parent</artifactId>
++   <version>2.3.7-GA-SNAPSHOT</version>
++   <packaging>pom</packaging>
++
++   <name>eXo Core</name>
++
++   <properties>
++      <exo.product.name>exo-core</exo.product.name>
++      <exo.product.specification>2.3</exo.product.specification>
++      
++      <org.exoplatform.framework.junit.version>1.2.1-GA</org.exoplatform.framework.junit.version>
++      <org.exoplatform.kernel.version>2.2.7-GA-SNAPSHOT</org.exoplatform.kernel.version>
++   </properties>
++
++   <scm>
++      <connection>scm:svn:http://anonsvn.jboss.org/repos/exo-jcr/core/branches/2.3.x/</connection>
++      <developerConnection>scm:svn:https://svn.jboss.org/repos/exo-jcr/core/branches/2.3.x/</developerConnection>
++      <url>http://fisheye.jboss.org/browse/exo-jcr/core/branches/2.3.x</url>
++   </scm>
++
++   <modules>
++      <module>exo.core.component.security.core</module>
++      <module>exo.core.component.database</module>
++      <module>exo.core.component.document</module>
++      <module>exo.core.component.ldap</module>
++      <module>exo.core.component.organization.api</module>
++      <module>exo.core.component.organization.jdbc</module>
++      <module>exo.core.component.organization.ldap</module>
++      <module>exo.core.component.xml-processing</module>
++      <module>exo.core.component.script.groovy</module>
++      <module>exo.core.component.web.css</module>
++      <module>packaging/module</module>
++   </modules>
++
++   <dependencyManagement>
++      <dependencies>
++      
++         <dependency>
++            <groupId>org.exoplatform.tool</groupId>
++            <artifactId>exo.tool.framework.junit</artifactId>
++            <version>${org.exoplatform.framework.junit.version}</version>
++         </dependency>
++      
++         <dependency>
++            <groupId>org.exoplatform.kernel</groupId>
++            <artifactId>exo.kernel.commons</artifactId>
++            <version>${org.exoplatform.kernel.version}</version>
++         </dependency>  
++         
++         <dependency>
++            <groupId>org.exoplatform.kernel</groupId>
++            <artifactId>exo.kernel.component.common</artifactId>
++            <version>${org.exoplatform.kernel.version}</version>
++         </dependency>         
++
++         <dependency>
++            <groupId>org.exoplatform.kernel</groupId>
++            <artifactId>exo.kernel.container</artifactId>
++            <version>${org.exoplatform.kernel.version}</version>
++         </dependency>
++         
++         <dependency>
++            <groupId>org.exoplatform.kernel</groupId>
++            <artifactId>exo.kernel.component.cache</artifactId>
++            <version>${org.exoplatform.kernel.version}</version>
++         </dependency>
++         
++          <dependency>
++            <groupId>org.exoplatform.core</groupId>
++            <artifactId>exo.core.component.database</artifactId>
++            <version>${project.version}</version>
++         </dependency>
++         
++         <dependency>
++            <groupId>org.exoplatform.core</groupId>
++            <artifactId>exo.core.component.ldap</artifactId>
++            <version>${project.version}</version>
++         </dependency>
++
++         <dependency>
++            <groupId>org.exoplatform.core</groupId>
++            <artifactId>exo.core.component.organization.api</artifactId>
++            <version>${project.version}</version>
++         </dependency>
++
++         <dependency>
++            <groupId>org.exoplatform.core</groupId>
++            <artifactId>exo.core.component.organization.jdbc</artifactId>
++            <version>${project.version}</version>
++         </dependency>
++         
++         <dependency>
++            <groupId>org.exoplatform.core</groupId>
++            <artifactId>exo.core.component.security.core</artifactId>
++            <version>${project.version}</version>
++         </dependency>
++
++         <dependency>
++            <groupId>javax.resource</groupId>
++            <artifactId>connector-api</artifactId>
++            <version>1.5</version>
++         </dependency>
++
++         <dependency>
++            <groupId>javax.servlet</groupId>
++            <artifactId>servlet-api</artifactId>
++            <version>2.4</version>            
++         </dependency>
++         
++         <dependency>
++            <groupId>javax.transaction</groupId>
++            <artifactId>jta</artifactId>
++            <version>1.0.1B</version>            
++         </dependency>
++
++         <dependency>
++            <groupId>org.slf4j</groupId>
++            <artifactId>slf4j-api</artifactId>
++            <version>1.5.8</version>
++            <scope>test</scope>
++         </dependency>
++
++         <dependency>
++            <groupId>org.slf4j</groupId>
++            <artifactId>slf4j-log4j12</artifactId>
++            <version>1.5.8</version>
++            <scope>test</scope>
++         </dependency>
++   
++      
++         <dependency>
++            <groupId>pull-parser</groupId>
++            <artifactId>pull-parser</artifactId>
++            <version>2</version>                        
++         </dependency>
++         
++         <dependency>
++            <groupId>commons-lang</groupId>
++            <artifactId>commons-lang</artifactId>
++            <version>2.4</version>
++         </dependency>
++         
++         <dependency>
++            <groupId>hsqldb</groupId>
++            <artifactId>hsqldb</artifactId>
++            <version>1.8.0.7</version>
++         </dependency>
++
++         <dependency>
++            <groupId>com.experlog</groupId>
++            <artifactId>xapool</artifactId>
++            <version>1.5.0</version>
++         </dependency>
++         
++         <dependency>
++            <groupId>org.hibernate</groupId>
++            <artifactId>hibernate-core</artifactId>
++            <version>3.3.2.GA</version>
++         </dependency>
++         
++         <dependency>
++            <groupId>xstream</groupId>
++            <artifactId>xstream</artifactId>
++            <version>1.0.2</version>
++         </dependency>
++      
++         <dependency>
++            <groupId>picocontainer</groupId>
++            <artifactId>picocontainer</artifactId>
++            <version>1.1</version>            
++         </dependency>
++         
++         <dependency>
++            <groupId>xdoclet</groupId>
++            <artifactId>xdoclet-hibernate-module</artifactId>
++            <version>1.2.3</version>
++         </dependency>
++
++         <dependency>
++            <groupId>xdoclet</groupId>
++            <artifactId>xdoclet-xdoclet-module</artifactId>
++            <version>1.2.3</version>
++         </dependency>
++
++         <dependency>
++            <groupId>xdoclet</groupId>
++            <artifactId>xjavadoc</artifactId>
++            <version>1.2.3</version>
++         </dependency>
++         
++         <dependency>
++            <groupId>com.microsoft</groupId>
++            <artifactId>sqljdbc</artifactId>
++            <version>1.1.1501</version>
++         </dependency>
++
++         <dependency>
++            <groupId>com.ibm.db2</groupId>
++            <artifactId>db2jcc</artifactId>
++            <version>9.1</version>
++         </dependency>
++
++         <dependency>
++            <groupId>com.ibm.db2</groupId>
++            <artifactId>db2jcc_license_cu</artifactId>
++            <version>9.1</version>
++         </dependency>
++
++         <dependency>
++            <groupId>oracle</groupId>
++            <artifactId>ojdbc</artifactId>
++            <version>1.4</version>
++         </dependency>
++
++         <dependency>
++            <groupId>postgresql</groupId>
++            <artifactId>postgresql</artifactId>
++            <version>8.3-603.jdbc3</version>
++         </dependency>
++
++         <dependency>
++            <groupId>mysql</groupId>
++            <artifactId>mysql-connector-java</artifactId>
++            <version>5.0.8</version>
++         </dependency>
++         
++         <dependency>
++            <groupId>org.codehaus.groovy</groupId>
++            <artifactId>groovy-all</artifactId>
++            <version>1.6.5</version>
++         </dependency>
++         
++         <dependency>
++            <groupId>org.hibernate</groupId>
++            <artifactId>hibernate-annotations</artifactId>
++            <version>3.4.0.GA</version>
++         </dependency>
++         
++         <dependency>
++            <groupId>org.apache.pdfbox</groupId>
++            <artifactId>pdfbox</artifactId>
++            <version>1.1.0</version>
++         </dependency>
++         
++         <dependency>
++            <groupId>org.htmlparser</groupId>
++            <artifactId>htmlparser</artifactId>
++            <version>1.6</version>
++            <scope>compile</scope>
++            <exclusions>
++               <exclusion>
++                  <groupId>com.sun</groupId>
++                  <artifactId>tools</artifactId>
++               </exclusion>
++            </exclusions>
++         </dependency>
++
++         <dependency>
++            <groupId>org.apache.poi</groupId>
++            <artifactId>poi</artifactId>
++            <version>3.6</version>
++         </dependency>
++
++         <dependency>
++            <groupId>org.apache.poi</groupId>
++            <artifactId>poi-scratchpad</artifactId>
++            <version>3.6</version>
++         </dependency>
++
++         <dependency>
++            <groupId>org.apache.poi</groupId>
++            <artifactId>poi-ooxml</artifactId>
++            <version>3.6</version>
++         </dependency>
++         
++         <dependency>
++            <groupId>com.novell.ldap</groupId>
++            <artifactId>jldap</artifactId>
++            <version>4.3</version>
++         </dependency>
++         
++         <dependency>
++            <groupId>jtidy</groupId>
++            <artifactId>jtidy</artifactId>
++            <version>4aug2000r7-dev</version>
++         </dependency>
++         
++         <dependency>
++            <groupId>org.w3c</groupId>
++            <artifactId>sac</artifactId>
++            <version>1.3</version>
++         </dependency>
++
++         <dependency>
++            <groupId>batik</groupId>
++            <artifactId>batik-util</artifactId>
++            <version>1.7</version>
++         </dependency>
++
++         <dependency>
++            <groupId>batik</groupId>
++            <artifactId>batik-css</artifactId>
++            <version>1.7</version>
++         </dependency>
++
++        <dependency>
++           <groupId>commons-dbcp</groupId>
++           <artifactId>commons-dbcp</artifactId>
++           <version>1.2.2</version>
++           <exclusions>
++              <exclusion>
++                 <groupId>commons-pool</groupId>
++                 <artifactId>commons-pool</artifactId>
++              </exclusion>
++           </exclusions>
++        </dependency>
++
++        <dependency>
++           <groupId>commons-pool</groupId>
++           <artifactId>commons-pool</artifactId>
++           <version>1.5.4</version>
++        </dependency>
++        
++        <dependency>
++           <groupId>javassist</groupId>
++           <artifactId>javassist</artifactId>
++           <version>3.4.GA</version>
++        </dependency>
++
++      </dependencies>
++   </dependencyManagement>
++
++   <dependencies>
++      <dependency>
++         <groupId>junit</groupId>
++         <artifactId>junit</artifactId>
++         <scope>test</scope>
++      </dependency>
++      <dependency>
++         <groupId>org.slf4j</groupId>
++         <artifactId>slf4j-log4j12</artifactId>
++         <scope>test</scope>
++      </dependency>
++   </dependencies>
++</project>
