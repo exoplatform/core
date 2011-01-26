@@ -86,7 +86,7 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
          {
             return "";
          }
-
+         
          final XSLFPowerPointExtractor ppe;
          try
          {
@@ -163,77 +163,43 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
     */
    public Properties getProperties(final InputStream is) throws IOException, DocumentReadException
    {
+      final POIPropertiesReader reader = new POIPropertiesReader();
       try
       {
-         final POIPropertiesReader reader = new POIPropertiesReader();
-         try
+         SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<Void>()
          {
-            SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<Void>()
+            public Void run() throws Exception
             {
-               public Void run() throws Exception
-               {
-                  reader.readDCProperties(new XSLFSlideShow(OPCPackage.open(is)));
-                  return null;
-               }
-            });
+               reader.readDCProperties(new XSLFSlideShow(OPCPackage.open(is)));
+               return null;
+            }
+         });
+      }
+      catch (PrivilegedActionException pae)
+      {
+         Throwable cause = pae.getCause();
+         if (cause instanceof InvalidFormatException)
+         {
+            throw new DocumentReadException("Can't read properties from OOXML document", cause);
          }
-         catch (PrivilegedActionException pae)
+         else if (cause instanceof OpenXML4JException)
          {
-            Throwable cause = pae.getCause();
-            if (cause instanceof IOException)
-            {
-               throw (IOException)cause;
-            }
-            if (cause instanceof InvalidFormatException)
-            {
-               throw new DocumentReadException("Can't read properties from OOXML document", cause);
-            }
-            else if (cause instanceof OpenXML4JException)
-            {
-               throw new DocumentReadException("Can't read properties from OOXML document", cause);
-            }
-            else if (cause instanceof XmlException)
-            {
-               throw new DocumentReadException("Can't read properties from OOXML document", cause);
-            }
-            else if (cause instanceof RuntimeException)
-            {
-               throw (RuntimeException)cause;
-            }
-            else
-            {
-               throw new RuntimeException(cause);
-            }
+            throw new DocumentReadException("Can't read properties from OOXML document", cause);
          }
-         return reader.getProperties();
-      }
-      catch (IOException e)
-      {
-         throw e;
-      }
-      catch (DocumentReadException e)
-      {
-         throw e;
-      }
-      catch (Exception e)
-      {
-         // Properties extraction is a very low priority operation, so no any exception 
-         // should interrupt work.
-         throw new DocumentReadException(e.getMessage(), e);
-      }
-      finally
-      {
-         if (is != null)
+         else if (cause instanceof XmlException)
          {
-            try
-            {
-               is.close();
-            }
-            catch (IOException e)
-            {
-            }
+            throw new DocumentReadException("Can't read properties from OOXML document", cause);
+         }
+         else if (cause instanceof RuntimeException)
+         {
+            throw (RuntimeException)cause;
+         }
+         else
+         {
+            throw new RuntimeException(cause);
          }
       }
+      return reader.getProperties();
    }
 
 }

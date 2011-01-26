@@ -60,12 +60,12 @@ public class PPTDocumentReader extends BaseDocumentReader
       }
       try
       {
-
+         
          if (is.available() == 0)
          {
             return "";
          }
-
+         
          PowerPointExtractor ppe;
          try
          {
@@ -106,39 +106,9 @@ public class PPTDocumentReader extends BaseDocumentReader
     */
    public Properties getProperties(InputStream is) throws IOException, DocumentReadException
    {
-      try
-      {
-         POIPropertiesReader reader = new POIPropertiesReader();
-         reader.readDCProperties(is);
-         return reader.getProperties();
-      }
-      catch (IOException e)
-      {
-         throw e;
-      }
-      catch (DocumentReadException e)
-      {
-         throw e;
-      }
-      catch (Exception e)
-      {
-         // Properties extraction is a very low priority operation, so no any exception 
-         // should interrupt work.
-         throw new DocumentReadException(e.getMessage(), e);
-      }
-      finally
-      {
-         if (is != null)
-         {
-            try
-            {
-               is.close();
-            }
-            catch (IOException e)
-            {
-            }
-         }
-      }
+      POIPropertiesReader reader = new POIPropertiesReader();
+      reader.readDCProperties(is);
+      return reader.getProperties();
    }
 
 }

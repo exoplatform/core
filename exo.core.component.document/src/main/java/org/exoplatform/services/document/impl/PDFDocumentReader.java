@@ -80,6 +80,7 @@ public class PDFDocumentReader extends BaseDocumentReader
     */
    public String getContentAsText(final InputStream is) throws IOException, DocumentReadException
    {
+
       try
       {
          return (String)AccessController.doPrivileged(new PrivilegedExceptionAction<Object>()
@@ -168,56 +169,35 @@ public class PDFDocumentReader extends BaseDocumentReader
     */
    public Properties getProperties(InputStream is) throws IOException, DocumentReadException
    {
-      try
+
+      Properties props = null;
+
+      PdfReader reader = new PdfReader(is, "".getBytes());
+
+      // Read the file metadata
+      byte[] metadata = reader.getMetadata();
+
+      if (metadata != null)
       {
-         Properties props = null;
+         // there is XMP metadata try exctract it
+         props = getPropertiesFromMetadata(metadata);
+      }
 
-         PdfReader reader = new PdfReader(is, "".getBytes());
-
-         // Read the file metadata
-         byte[] metadata = reader.getMetadata();
-
-         if (metadata != null)
+      if (props == null)
+      {
+         // it's old pdf document version
+         props = getPropertiesFromInfo(reader.getInfo());
+      }
+      reader.close();
+      if (is != null)
+         try
          {
-            // there is XMP metadata try exctract it
-            props = getPropertiesFromMetadata(metadata);
+            is.close();
          }
-
-         if (props == null)
+         catch (IOException e)
          {
-            // it's old pdf document version
-            props = getPropertiesFromInfo(reader.getInfo());
          }
-         reader.close();
-         return props;
-      }
-      catch (IOException e)
-      {
-         throw e;
-      }
-      catch (DocumentReadException e)
-      {
-         throw e;
-      }
-      catch (Exception e)
-      {
-         // Properties extraction is a very low priority operation, so no any exception 
-         // should interrupt work.
-         throw new DocumentReadException(e.getMessage(), e);
-      }
-      finally
-      {
-         if (is != null)
-         {
-            try
-            {
-               is.close();
-            }
-            catch (IOException e)
-            {
-            }
-         }
-      }
+      return props;
    }
 
    /**
@@ -256,7 +236,7 @@ public class PDFDocumentReader extends BaseDocumentReader
          }
          else if (cause instanceof ParserConfigurationException)
          {
-            throw new DocumentReadException(cause.getMessage(), cause);
+            throw (RuntimeException)cause;
          }
          else if (cause instanceof IOException)
          {

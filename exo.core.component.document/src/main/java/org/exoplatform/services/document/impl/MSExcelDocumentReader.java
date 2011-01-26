@@ -45,7 +45,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
 {
 
    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSZ";
-
+   
    /**
     * Get the application/excel mime type.
     * 
@@ -70,7 +70,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
       }
 
       final StringBuilder builder = new StringBuilder("");
-
+      
       SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 
       try
@@ -79,7 +79,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
          {
             return "";
          }
-
+         
          HSSFWorkbook wb;
          try
          {
@@ -118,7 +118,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
                                  }
                                  else
                                  {
-                                    builder.append(d).append(" ");
+                                   builder.append(d).append(" ");
                                  }
                                  break;
                               }
@@ -202,39 +202,9 @@ public class MSExcelDocumentReader extends BaseDocumentReader
     */
    public Properties getProperties(InputStream is) throws IOException, DocumentReadException
    {
-      try
-      {
-         POIPropertiesReader reader = new POIPropertiesReader();
-         reader.readDCProperties(is);
-         return reader.getProperties();
-      }
-      catch (IOException e)
-      {
-         throw e;
-      }
-      catch (DocumentReadException e)
-      {
-         throw e;
-      }
-      catch (Exception e)
-      {
-         // Properties extraction is a very low priority operation, so no any exception 
-         // should interrupt work.
-         throw new DocumentReadException(e.getMessage(), e);
-      }
-      finally
-      {
-         if (is != null)
-         {
-            try
-            {
-               is.close();
-            }
-            catch (IOException e)
-            {
-            }
-         }
-      }
+      POIPropertiesReader reader = new POIPropertiesReader();
+      reader.readDCProperties(is);
+      return reader.getProperties();
    }
 
    public static boolean isCellDateFormatted(HSSFCell cell)

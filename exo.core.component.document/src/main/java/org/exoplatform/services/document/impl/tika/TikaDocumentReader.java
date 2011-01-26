@@ -346,9 +346,9 @@ public class TikaDocumentReader implements AdvancedDocumentReader
          {
             throw (IOException)cause;
          }
-         else if (cause instanceof Exception)
+         else if (cause instanceof RuntimeException)
          {
-            throw new DocumentReadException(cause.getMessage(), cause);
+            throw (RuntimeException)cause;
          }
          else
          {
