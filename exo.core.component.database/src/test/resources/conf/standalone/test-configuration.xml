@@ -100,7 +100,7 @@
          <properties-param>
             <name>db-creation</name>
             <description>database creation properties</description>
-            <property name="scriptPath" value="src/test/resources/dbcreator/test.sql" />
+            <property name="scriptPath" value="classpath:/dbcreator/test.sql" />
             <property name="username" value="sa" />
             <property name="password" value="" />
          </properties-param>
