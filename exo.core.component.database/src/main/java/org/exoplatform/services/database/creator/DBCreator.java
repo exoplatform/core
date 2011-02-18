@@ -21,6 +21,7 @@ package org.exoplatform.services.database.creator;
 import org.exoplatform.commons.utils.PrivilegedFileHelper;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.container.configuration.ConfigurationException;
+import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.Property;
@@ -106,8 +107,10 @@ public class DBCreator
     * 
     * @param params
     *          Initializations parameters
+    * @configurationManager 
+    *          configuration manager instance          
     */
-   public DBCreator(InitParams params) throws ConfigurationException
+   public DBCreator(InitParams params, ConfigurationManager configurationManager) throws ConfigurationException
    {
       if (params == null)
       {
@@ -162,14 +165,23 @@ public class DBCreator
          String scriptPath = prop.getProperty(DB_SCRIPT_PATH);
          if (scriptPath != null)
          {
+            String dbScript;
             try
             {
-               dbScript = readScriptResource(scriptPath);
+               dbScript = readScriptResource(configurationManager.getInputStream(scriptPath));
             }
-            catch (IOException e)
+            catch (Exception e)
             {
-               throw new ConfigurationException("Can't read script resource " + scriptPath, e);
+               try
+               {
+                  dbScript = readScriptResource(PrivilegedFileHelper.fileInputStream(scriptPath));
+               }
+               catch (IOException ioe)
+               {
+                  throw new ConfigurationException("Can't read script resource " + scriptPath, e);
+               }
             }
+            this.dbScript = dbScript;
          }
          else
          {
@@ -438,11 +450,10 @@ public class DBCreator
    }
 
    /**
-    * Read SQL script from file resource.
+    * Read SQL script from {@link InputStream}.
     */
-   protected String readScriptResource(String path) throws IOException
+   protected String readScriptResource(InputStream is) throws IOException
    {
-      InputStream is = PrivilegedFileHelper.fileInputStream(path);
       InputStreamReader isr = new InputStreamReader(is);
       try
       {
