@@ -21,15 +21,15 @@ function getModule(params) {
     addDependency(new Project("org.hibernate", "hibernate-annotations", "jar", "3.4.0.GA")).
     addDependency(new Project("org.hibernate", "hibernate-commons-annotations", "jar", "3.1.0.GA")).
     addDependency(new Project("org.hibernate", "ejb3-persistence", "jar", "1.0.2.GA")).
-    addDependency(new Project("javassist", "javassist", "jar", "3.4.GA")).
+    addDependency(new Project("org.javassist", "javassist", "jar", "3.14.0-GA")).
    //addDependency(new Project("xdoclet", "xdoclet-hibernate-module", "jar", "1.2.3")).
    //addDependency(new Project("xdoclet", "xdoclet", "jar", "1.2.3")).
    //addDependency(new Project("xdoclet", "xdoclet-xdoclet-module", "jar", "1.2.3")).
    //addDependency(new Project("xdoclet", "xjavadoc", "jar", "1.2.3")).
-    addDependency(new Project("commons-collections", "commons-collections", "jar", "3.2")).
+    addDependency(new Project("commons-collections", "commons-collections", "jar", "3.2.1")).
     addDependency(new Project("c3p0", "c3p0", "jar", "0.9.1.2")).
     addDependency(new Project("antlr", "antlr", "jar", "2.7.6rc1")).
-    addDependency(new Project("javax.transaction", "jta", "jar", "1.0.1B")).
+    addDependency(new Project("javax.transaction", "jta", "jar", "1.1")).
    //addDependency(new Project("jotm", "jotm_jrmp_stubs", "jar", "2.0.10")).
    //addDependency(new Project("jotm", "jotm", "jar", "2.0.10")).
    //addDependency(new Project("howl", "howl-logger", "jar", "0.1.11")).
@@ -38,7 +38,7 @@ function getModule(params) {
 
   module.component.documents =
     new Project("org.exoplatform.core", "exo.core.component.document", "jar", module.version).
-    addDependency(new Project("org.apache.pdfbox", "pdfbox", "jar", "1.1.0")).
+    addDependency(new Project("org.apache.pdfbox", "pdfbox", "jar", "1.4.0")).
     addDependency(new Project("bouncycastle", "bcmail-jdk14", "jar", "136")).
     addDependency(new Project("bouncycastle", "bcprov-jdk14", "jar", "136")).
     addDependency(new Project("html-parser", "html-parser", "jar", "1.6")).
