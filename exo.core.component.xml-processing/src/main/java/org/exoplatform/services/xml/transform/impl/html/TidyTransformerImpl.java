@@ -19,6 +19,7 @@
 package org.exoplatform.services.xml.transform.impl.html;
 
 import org.exoplatform.commons.utils.PrivilegedSystemHelper;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.xml.transform.EncodingMap;
 import org.exoplatform.services.xml.transform.NotSupportedIOTypeException;
 import org.exoplatform.services.xml.transform.html.HTMLTransformer;
@@ -32,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.security.PrivilegedAction;
 import java.util.Properties;
 
 import javax.xml.transform.Source;
@@ -54,7 +56,13 @@ public class TidyTransformerImpl extends TransformerBase implements HTMLTransfor
    public TidyTransformerImpl()
    {
       super();
-      tidy = new Tidy();
+      tidy = SecurityHelper.doPrivilegedAction(new PrivilegedAction<Tidy>()
+      {
+         public Tidy run()
+         {
+            return new Tidy();
+         }
+      });
       initProps();
    }
 
