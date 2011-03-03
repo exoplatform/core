@@ -33,7 +33,7 @@ function getModule(params) {
    //addDependency(new Project("jotm", "jotm_jrmp_stubs", "jar", "2.0.10")).
    //addDependency(new Project("jotm", "jotm", "jar", "2.0.10")).
    //addDependency(new Project("howl", "howl-logger", "jar", "0.1.11")).
-    addDependency(new Project("hsqldb", "hsqldb", "jar", "1.8.0.7")).
+    addDependency(new Project("org.hsqldb", "hsqldb", "jar", "2.0.0")).
     addDependency(new Project("javax.resource", "connector-api", "jar", "1.5"));
 
   module.component.documents =
