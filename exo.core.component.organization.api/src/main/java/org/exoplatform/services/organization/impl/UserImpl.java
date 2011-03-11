@@ -173,7 +173,7 @@ public class UserImpl implements User
    // toString
    public String toString()
    {
-      return "User[" + id + "|" + userName + "]" + organizationId == null ? "" : ("@" + organizationId);
+      return "User[" + id + "|" + userName + "]" + (organizationId == null ? "" : ("@" + organizationId));
    }
 
    public String getOrganizationId()
