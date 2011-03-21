@@ -2,7 +2,7 @@
    <parent>
       <groupId>org.exoplatform.core</groupId>
       <artifactId>core-parent</artifactId>
-      <version>2.3.8-GA-SNAPSHOT</version>
+      <version>2.3.8-GA</version>
    </parent>
 
    <modelVersion>4.0.0</modelVersion>
@@ -18,13 +18,13 @@
 
    <!-- declare the same dependencies than in the module.js -->
    <dependencies>
-        <dependency><groupId>org.exoplatform.core</groupId><artifactId>exo.core.component.database</artifactId><version>2.3.8-GA-SNAPSHOT</version></dependency>
-        <dependency><groupId>org.exoplatform.core</groupId><artifactId>exo.core.component.document</artifactId><version>2.3.8-GA-SNAPSHOT</version></dependency>
-        <dependency><groupId>org.exoplatform.core</groupId><artifactId>exo.core.component.organization.api</artifactId><version>2.3.8-GA-SNAPSHOT</version></dependency>
-        <dependency><groupId>org.exoplatform.core</groupId><artifactId>exo.core.component.organization.ldap</artifactId><version>2.3.8-GA-SNAPSHOT</version></dependency>
-        <dependency><groupId>org.exoplatform.core</groupId><artifactId>exo.core.component.security.core</artifactId><version>2.3.8-GA-SNAPSHOT</version></dependency>
-        <dependency><groupId>org.exoplatform.core</groupId><artifactId>exo.core.component.xml-processing</artifactId><version>2.3.8-GA-SNAPSHOT</version></dependency>
-        <dependency><groupId>org.exoplatform.core</groupId><artifactId>exo.core.component.script.groovy</artifactId><version>2.3.8-GA-SNAPSHOT</version></dependency>
+        <dependency><groupId>org.exoplatform.core</groupId><artifactId>exo.core.component.database</artifactId><version>2.3.8-GA</version></dependency>
+        <dependency><groupId>org.exoplatform.core</groupId><artifactId>exo.core.component.document</artifactId><version>2.3.8-GA</version></dependency>
+        <dependency><groupId>org.exoplatform.core</groupId><artifactId>exo.core.component.organization.api</artifactId><version>2.3.8-GA</version></dependency>
+        <dependency><groupId>org.exoplatform.core</groupId><artifactId>exo.core.component.organization.ldap</artifactId><version>2.3.8-GA</version></dependency>
+        <dependency><groupId>org.exoplatform.core</groupId><artifactId>exo.core.component.security.core</artifactId><version>2.3.8-GA</version></dependency>
+        <dependency><groupId>org.exoplatform.core</groupId><artifactId>exo.core.component.xml-processing</artifactId><version>2.3.8-GA</version></dependency>
+        <dependency><groupId>org.exoplatform.core</groupId><artifactId>exo.core.component.script.groovy</artifactId><version>2.3.8-GA</version></dependency>
    </dependencies>
    
    <build>
