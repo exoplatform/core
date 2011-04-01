@@ -87,7 +87,8 @@ public class LDAPUserPageList extends PageList
    /**
     * {@inheritDoc}
     */
-   protected void populateCurrentPage(int page) throws Exception
+   @Override
+  protected void populateCurrentPage(int page) throws Exception
    {
       List<User> users = new ArrayList<User>();
       PagedResultsControl prc = new PagedResultsControl(getPageSize(), Control.NONCRITICAL);
@@ -134,7 +135,7 @@ public class LDAPUserPageList extends PageList
                   ctx
                      .setRequestControls(new Control[]{new PagedResultsControl(getPageSize(), cookie, Control.CRITICAL)});
                }
-               while (cookie != null && counter < page);
+               while (cookie != null);
                this.currentListPage_ = users;
                return;
             }
@@ -166,7 +167,8 @@ public class LDAPUserPageList extends PageList
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
+   @Override
+  @SuppressWarnings("unchecked")
    public List getAll() throws Exception
    {
       LdapContext ctx = ldapService.getLdapContext();
