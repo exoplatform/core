@@ -134,7 +134,7 @@ public class LDAPUserPageList extends PageList
                   ctx
                      .setRequestControls(new Control[]{new PagedResultsControl(getPageSize(), cookie, Control.CRITICAL)});
                }
-               while (cookie != null);
+               while (cookie != null && counter < page);
                this.currentListPage_ = users;
                return;
             }
