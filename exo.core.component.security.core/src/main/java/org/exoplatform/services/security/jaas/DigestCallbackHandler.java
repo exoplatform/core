@@ -19,6 +19,7 @@
 package org.exoplatform.services.security.jaas;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -27,9 +28,8 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.TextInputCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
-public class BasicCallbackHandler implements CallbackHandler
+public class DigestCallbackHandler implements CallbackHandler
 {
-
    /**
     * Name. 
     */
@@ -48,12 +48,18 @@ public class BasicCallbackHandler implements CallbackHandler
    /**
     * Authentication method. 
     */
-   private final String authMethod = "BASIC";
+   private final String authMethod = "DIGEST";
 
-   public BasicCallbackHandler(String login, char[] password)
+   /**
+    * Here we pass all needed password context to be retrieved later on Callback handling. 
+    */
+   private final Map<String, String> passwordContext;
+  
+   public DigestCallbackHandler(String login, char[] password, Map<String, String> passwordContext)
    {
       this.login = login;
       this.password = password;
+      this.passwordContext = passwordContext;
    }
 
    /**
@@ -77,6 +83,30 @@ public class BasicCallbackHandler implements CallbackHandler
             {
                ((TextInputCallback)callbacks[i]).setText(authMethod);
             }
+            else if ("cnonce".equals(((TextInputCallback)callbacks[i]).getPrompt()))
+            {
+               ((TextInputCallback)callbacks[i]).setText(passwordContext.get("cnonce"));
+            }
+            else if ("md5a2".equals(((TextInputCallback)callbacks[i]).getPrompt()))
+            {
+               ((TextInputCallback)callbacks[i]).setText(passwordContext.get("md5a2"));
+            }
+            else if ("nc".equals(((TextInputCallback)callbacks[i]).getPrompt()))
+            {
+               ((TextInputCallback)callbacks[i]).setText(passwordContext.get("nc"));
+            }
+            else if ("nonce".equals(((TextInputCallback)callbacks[i]).getPrompt()))
+            {
+               ((TextInputCallback)callbacks[i]).setText(passwordContext.get("nonce"));
+            }
+            else if ("qop".equals(((TextInputCallback)callbacks[i]).getPrompt()))
+            {
+               ((TextInputCallback)callbacks[i]).setText(passwordContext.get("qop"));
+            }
+            else if ("realmName".equals(((TextInputCallback)callbacks[i]).getPrompt()))
+            {
+               ((TextInputCallback)callbacks[i]).setText(passwordContext.get("realmName"));
+            }
          }
          else
          {
@@ -85,3 +115,4 @@ public class BasicCallbackHandler implements CallbackHandler
       }
    }
 }
+

@@ -28,15 +28,29 @@ import org.exoplatform.services.database.StandardSQLDAO;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.DigestAuthenticator;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.GroupHandler;
+import org.exoplatform.services.organization.Membership;
+import org.exoplatform.services.organization.MembershipHandler;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.Query;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserEventListener;
+import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.security.Credential;
+import org.exoplatform.services.security.DigestAuthenticationHelper;
+import org.exoplatform.services.security.PasswordCredential;
+import org.exoplatform.services.security.UsernameCredential;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by The eXo Platform SAS Apr 7, 2007
  */
-public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
+public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler, DigestAuthenticator
 {
 
    protected static Log log = ExoLogger.getLogger("exo.core.component.organization.jdbc.UserDAOImpl");
@@ -73,11 +87,42 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
 
    public boolean authenticate(String username, String password) throws Exception
    {
+      return authenticate(new Credential[]{new UsernameCredential(username), new PasswordCredential(password)});
+   }
+
+   public boolean authenticate(Credential[] credentials) throws Exception
+   {
+      String username = null;
+      String password = null;
+      Map<String, String> passwordContext = null;
+      for (Credential cred : credentials)
+      {
+         if (cred instanceof UsernameCredential)
+         {
+            username = ((UsernameCredential)cred).getUsername();
+         }
+         if (cred instanceof PasswordCredential)
+         {
+            password = ((PasswordCredential)cred).getPassword();
+            passwordContext = ((PasswordCredential)cred).getPasswordContext();
+         }
+      }
+
       User user = findUserByName(username);
       if (user == null)
          return false;
 
-      boolean authenticated = user.getPassword().equals(password);
+      boolean authenticated;
+      if (passwordContext == null)
+      {
+         authenticated = user.getPassword().equals(password);
+      }
+      else
+      {
+         authenticated =
+            DigestAuthenticationHelper.calculatePassword(username, user.getPassword(), passwordContext).equals(password);
+      }
+
       if (log.isDebugEnabled())
          log.debug("+++++++++++AUTHENTICATE USERNAME " + username + " AND PASS " + password + " - " + authenticated);
       if (authenticated)

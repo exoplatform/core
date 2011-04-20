@@ -22,8 +22,10 @@ import org.exoplatform.container.component.ComponentRequestLifecycle;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.organization.DigestAuthenticator;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.security.Authenticator;
 import org.exoplatform.services.security.Credential;
 import org.exoplatform.services.security.Identity;
@@ -128,7 +130,16 @@ public class OrganizationAuthenticatorImpl implements Authenticator
          password = new String(encrypter.encrypt(password.getBytes()));
 
       begin(orgService);
-      boolean success = orgService.getUserHandler().authenticate(user, password);
+      boolean success;
+      Object userHandler = orgService.getUserHandler();
+      if (userHandler instanceof DigestAuthenticator)
+      {
+         success = ((DigestAuthenticator)userHandler).authenticate(credentials);
+      }
+      else
+      {
+         success = ((UserHandler)userHandler).authenticate(user, password);
+      }
       end(orgService);
 
       if (!success)

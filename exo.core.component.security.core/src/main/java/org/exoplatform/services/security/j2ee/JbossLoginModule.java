@@ -21,20 +21,33 @@ package org.exoplatform.services.security.j2ee;
 import org.exoplatform.container.monitor.jvm.J2EEServerInfo;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.security.Authenticator;
+import org.exoplatform.services.security.Credential;
+import org.exoplatform.services.security.Identity;
+import org.exoplatform.services.security.PasswordCredential;
+import org.exoplatform.services.security.UsernameCredential;
 import org.exoplatform.services.security.jaas.DefaultLoginModule;
 import org.exoplatform.services.security.jaas.JAASGroup;
 import org.exoplatform.services.security.jaas.RolePrincipal;
 import org.exoplatform.services.security.jaas.UserPrincipal;
+import org.jboss.security.auth.callback.MapCallback;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.security.acl.Group;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 
 /**
@@ -48,6 +61,11 @@ public class JbossLoginModule extends DefaultLoginModule
 {
    /** . */
    private static Log log = ExoLogger.getLogger("exo.core.component.security.core.JbossLoginModule.class");
+
+   /**
+    * To retrieve password context during Digest Authentication.
+    */
+   private MapCallback[] mapCallback = {new MapCallback()};
 
    /**
     * {@inheritDoc}
@@ -78,6 +96,190 @@ public class JbossLoginModule extends DefaultLoginModule
          return false;
       }
 
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @SuppressWarnings("unchecked")
+   @Override
+   public boolean login() throws LoginException
+   {
+      if (log.isDebugEnabled())
+      {
+         log.debug("In login of JbossLoginModule.");
+      }
+      try
+      {
+         if (sharedState.containsKey("exo.security.identity"))
+         {
+            if (log.isDebugEnabled())
+            {
+               log.debug("Use Identity from previous LoginModule");
+            }
+            identity = (Identity)sharedState.get("exo.security.identity");
+         }
+         else
+         {
+            if (!digestAuthenticationIsUsed())
+            {
+               return super.login();
+            }
+
+            if (log.isDebugEnabled())
+            {
+               log.debug("Try create identity");
+            }
+
+            Authenticator authenticator = (Authenticator)getContainer().getComponentInstanceOfType(Authenticator.class);
+
+            if (authenticator == null)
+            {
+               throw new LoginException("No Authenticator component found, check your configuration");
+            }
+
+            String userId = authenticator.validateUser(getCredentials());
+
+            identity = authenticator.createIdentity(userId);
+            sharedState.put("javax.security.auth.login.name", userId);
+            subject.getPrivateCredentials().add(getPassword());
+            subject.getPublicCredentials().add(getUsername());
+         }
+         return true;
+
+      }
+      catch (final Throwable e)
+      {
+         if (log.isDebugEnabled())
+         {
+            log.debug(e.getMessage(), e);
+         }
+
+         throw new LoginException(e.getMessage());
+      }
+   }
+
+   /**
+    * An utility method handles mapCallback and also checks if digest authentication is used.
+    * @return true if digest authentication is used, otherwise - false
+    * @throws IOException
+    */
+   private boolean digestAuthenticationIsUsed() throws IOException
+   {
+      try
+      {
+         // here we're trying to handle mapCallback
+         // if it is handled successfully than digest
+         // authentication is used
+         callbackHandler.handle(mapCallback);
+         return true;
+      }
+      catch (UnsupportedCallbackException uce)
+      {
+         // otherwise UnsupportedCallbackException is thrown
+         return false;
+      }
+   }
+
+   /**
+    * An utility method to retrieve credentials. All needed for password hashing information 
+    * is retrieved from MapCallback. NameCallback and PasswordCallback are used to correspondingly  
+    * retrieve username and password.
+    * @return Credential
+    * @throws IOException 
+    * @throws Exception
+    */
+   private Credential[] getCredentials() throws IOException
+   {
+      String username = null;
+      String password = null;
+      Map<String, String> passwordContext = new HashMap<String, String>();
+
+      passwordContext.put("qop", (String)mapCallback[0].getInfo("qop"));
+      passwordContext.put("nonce", (String)mapCallback[0].getInfo("nonce"));
+      passwordContext.put("cnonce", (String)mapCallback[0].getInfo("cnonce"));
+      passwordContext.put("a2hash", (String)mapCallback[0].getInfo("a2hash"));
+      passwordContext.put("nc", (String)mapCallback[0].getInfo("nc"));
+      passwordContext.put("realm", (String)mapCallback[0].getInfo("realm"));
+
+      try
+      {
+         Callback[] nameCallback = {new NameCallback("Username")};
+         callbackHandler.handle(nameCallback);
+         username = ((NameCallback)nameCallback[0]).getName();
+      }
+      catch (UnsupportedCallbackException e)
+      {
+         if (log.isErrorEnabled())
+         {
+            log.error("Error on retrieving username from callback handler! ", e);
+         }
+      }
+
+      try
+      {
+         Callback[] passwordCallback = {new PasswordCallback("Password", false)};
+         callbackHandler.handle(passwordCallback);
+         password = new String(((PasswordCallback)passwordCallback[0]).getPassword());
+         ((PasswordCallback)passwordCallback[0]).clearPassword();
+      }
+      catch (UnsupportedCallbackException e)
+      {
+         if (log.isErrorEnabled())
+         {
+            log.error("Error on retrieving password from callback handler! ", e);
+         }
+      }
+
+      if (username == null || password == null)
+      {
+         return null;
+      }
+
+      return new Credential[]{new UsernameCredential(username), new PasswordCredential(password, passwordContext)};
+   }
+
+   private UsernameCredential getUsername() throws IOException
+   {
+      String username = null;
+
+      try
+      {
+         Callback[] nameCallback = {new NameCallback("Username")};
+         callbackHandler.handle(nameCallback);
+         username = ((NameCallback)nameCallback[0]).getName();
+      }
+      catch (UnsupportedCallbackException e)
+      {
+         if (log.isErrorEnabled())
+         {
+            log.error("Error on retrieving username from callback handler! ", e);
+         }
+      }
+
+      return new UsernameCredential(username);
+   }
+
+   private String getPassword() throws IOException
+   {
+      String password = null;
+
+      try
+      {
+         Callback[] passwordCallback = {new PasswordCallback("Password", false)};
+         callbackHandler.handle(passwordCallback);
+         password = new String(((PasswordCallback)passwordCallback[0]).getPassword());
+         ((PasswordCallback)passwordCallback[0]).clearPassword();
+      }
+      catch (UnsupportedCallbackException e)
+      {
+         if (log.isErrorEnabled())
+         {
+            log.error("Error on retrieving password from callback handler! ", e);
+         }
+      }
+
+      return password;
    }
 
    /**

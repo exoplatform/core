@@ -131,6 +131,20 @@
             <artifactId>exo.core.component.security.core</artifactId>
             <version>${project.version}</version>
          </dependency>
+	 
+         <dependency>
+           <groupId>org.jboss.security</groupId>
+           <artifactId>jbosssx</artifactId>
+           <scope>provided</scope>
+           <version>2.0.4</version>
+         </dependency>
+         
+         <dependency>
+           <groupId>org.eclipse.jetty.aggregate</groupId>
+           <artifactId>jetty-plus</artifactId>
+           <version>7.1.5.v20100705</version>
+           <scope>provided</scope>
+         </dependency>
 
          <dependency>
             <groupId>javax.resource</groupId>

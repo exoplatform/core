@@ -23,9 +23,9 @@ package org.exoplatform.services.organization.impl.mock;
 
 import org.exoplatform.commons.utils.LazyPageList;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.commons.utils.ObjectPageList;
 import org.exoplatform.commons.utils.PageList;
 import org.exoplatform.services.organization.BaseOrganizationService;
+import org.exoplatform.services.organization.DigestAuthenticator;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
 import org.exoplatform.services.organization.GroupHandler;
@@ -43,11 +43,16 @@ import org.exoplatform.services.organization.UserProfileHandler;
 import org.exoplatform.services.organization.impl.MembershipImpl;
 import org.exoplatform.services.organization.impl.UserImpl;
 import org.exoplatform.services.organization.impl.UserProfileImpl;
+import org.exoplatform.services.security.Credential;
+import org.exoplatform.services.security.DigestAuthenticationHelper;
+import org.exoplatform.services.security.PasswordCredential;
+import org.exoplatform.services.security.UsernameCredential;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author benjaminmestrallet
@@ -149,7 +154,7 @@ public class DummyOrganizationService extends BaseOrganizationService
       }
    }
 
-   static public class UserHandlerImpl implements UserHandler
+   static public class UserHandlerImpl implements UserHandler, DigestAuthenticator
    {
 
       private static final int DEFAULT_LIST_SIZE = 6;
@@ -300,6 +305,27 @@ public class DummyOrganizationService extends BaseOrganizationService
 
       public boolean authenticate(String username, String password) throws Exception
       {
+         return authenticate(new Credential[]{new UsernameCredential(username), new PasswordCredential(password)});
+      }
+
+      public boolean authenticate(Credential[] credentials) throws Exception
+      {
+         String username = null;
+         String password = null;
+         Map<String, String> passwordContext = null;
+         for (Credential cred : credentials)
+         {
+            if (cred instanceof UsernameCredential)
+            {
+               username = ((UsernameCredential)cred).getUsername();
+            }
+            if (cred instanceof PasswordCredential)
+            {
+               password = ((PasswordCredential)cred).getPassword();
+               passwordContext = ((PasswordCredential)cred).getPasswordContext();
+            }
+         }
+
          Iterator<User> it = users.iterator();
 
          User usr = null;
@@ -317,14 +343,33 @@ public class DummyOrganizationService extends BaseOrganizationService
          if (usr != null)
          {
             if (usr.getUserName().equals("__anonim"))
+            {
                return true;
-
-            if (usr.getPassword().equals(password))
-               return true;
+            }
+            if (passwordContext == null)
+            {
+               if (usr.getPassword().equals(password))
+               {
+                  return true;
+               }
+            }
+            // passwordContext != null means that digest authentication is used
+            else
+            {
+               // so we need calculate MD5 cast
+               String dp = DigestAuthenticationHelper.calculatePassword(username, usr.getPassword(), passwordContext);
+               // to compare it to sent by client
+               if (dp.equals(password))
+               {
+                  return true;
+               }
+            }
          }
 
          return false;
       }
+
+
    }
 
    public static class GroupHandlerImpl implements GroupHandler
