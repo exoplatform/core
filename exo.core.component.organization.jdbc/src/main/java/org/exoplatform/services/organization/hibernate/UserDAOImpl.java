@@ -25,17 +25,14 @@ import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.database.ObjectQuery;
-import org.exoplatform.services.organization.DigestAuthenticator;
+import org.exoplatform.services.organization.ExtendedUserHandler;
 import org.exoplatform.services.organization.Query;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
 import org.exoplatform.services.organization.UserEventListenerHandler;
 import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.impl.UserImpl;
-import org.exoplatform.services.security.Credential;
-import org.exoplatform.services.security.DigestAuthenticationHelper;
-import org.exoplatform.services.security.PasswordCredential;
-import org.exoplatform.services.security.UsernameCredential;
+import org.exoplatform.services.security.PasswordEncrypter;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -45,13 +42,12 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by The eXo Platform SAS Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
  * Author : Tuan Nguyen tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:51:21 PM
  */
-public class UserDAOImpl implements UserHandler, UserEventListenerHandler, DigestAuthenticator
+public class UserDAOImpl implements UserHandler, UserEventListenerHandler, ExtendedUserHandler
 {
    public static final String queryFindUserByName =
       "from u in class org.exoplatform.services.organization.impl.UserImpl " + "where u.userName = ?";
@@ -179,40 +175,26 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Diges
 
    public boolean authenticate(String username, String password) throws Exception
    {
-      return authenticate(new Credential[]{new UsernameCredential(username), new PasswordCredential(password)});
+      return authenticate(username, password, null);
    }
 
-   public boolean authenticate(Credential[] credentials) throws Exception
+   public boolean authenticate(String username, String password, PasswordEncrypter pe) throws Exception
    {
-      String username = null;
-      String password = null;
-      Map<String, String> passwordContext= null;
-      for (Credential cred : credentials)
-      {
-         if (cred instanceof UsernameCredential)
-         {
-            username = ((UsernameCredential)cred).getUsername();
-         }
-         if (cred instanceof PasswordCredential)
-         {
-            password = ((PasswordCredential)cred).getPassword();
-            passwordContext = ((PasswordCredential)cred).getPasswordContext();
-         }
-      }
-
       User user = findUserByName(username);
       if (user == null)
+      {
          return false;
+      }
       
       boolean authenticated;
-      if (passwordContext == null)
+      if (pe == null)
       {
          authenticated = user.getPassword().equals(password);
       }
       else
       {
-         authenticated =
-            DigestAuthenticationHelper.calculatePassword(username, user.getPassword(), passwordContext).equals(password);
+         String encryptedPassword = new String(pe.encrypt(user.getPassword().getBytes()));
+         authenticated = encryptedPassword.equals(password);
       }
       if (authenticated)
       {

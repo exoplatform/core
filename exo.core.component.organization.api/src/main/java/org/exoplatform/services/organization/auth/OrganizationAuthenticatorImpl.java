@@ -22,12 +22,13 @@ import org.exoplatform.container.component.ComponentRequestLifecycle;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.DigestAuthenticator;
+import org.exoplatform.services.organization.ExtendedUserHandler;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.security.Authenticator;
 import org.exoplatform.services.security.Credential;
+import org.exoplatform.services.security.DigestPasswordEncrypter;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.services.security.PasswordCredential;
@@ -37,6 +38,7 @@ import org.exoplatform.services.security.UsernameCredential;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.security.auth.login.LoginException;
@@ -114,16 +116,22 @@ public class OrganizationAuthenticatorImpl implements Authenticator
     */
    public String validateUser(Credential[] credentials) throws LoginException, Exception
    {
-      String user = null;
+      String username = null;
       String password = null;
+      Map<String, String> passwordContext= null;
       for (Credential cred : credentials)
       {
          if (cred instanceof UsernameCredential)
-            user = ((UsernameCredential)cred).getUsername();
+         {
+            username = ((UsernameCredential)cred).getUsername();
+         }
          if (cred instanceof PasswordCredential)
+         {
             password = ((PasswordCredential)cred).getPassword();
+            passwordContext = ((PasswordCredential)cred).getPasswordContext();
+         }
       }
-      if (user == null || password == null)
+      if (username == null || password == null)
          throw new LoginException("Username or Password is not defined");
 
       if (this.encrypter != null)
@@ -132,20 +140,21 @@ public class OrganizationAuthenticatorImpl implements Authenticator
       begin(orgService);
       boolean success;
       Object userHandler = orgService.getUserHandler();
-      if (userHandler instanceof DigestAuthenticator)
+      if (passwordContext != null && userHandler instanceof ExtendedUserHandler)
       {
-         success = ((DigestAuthenticator)userHandler).authenticate(credentials);
+         PasswordEncrypter pe = new DigestPasswordEncrypter(username, passwordContext);
+         success = ((ExtendedUserHandler)userHandler).authenticate(username, password, pe);
       }
       else
       {
-         success = ((UserHandler)userHandler).authenticate(user, password);
+         success = ((UserHandler)userHandler).authenticate(username, password);
       }
       end(orgService);
 
       if (!success)
-         throw new LoginException("Login failed for " + user.replace("\n", " ").replace("\r", " "));
+         throw new LoginException("Login failed for " + username.replace("\n", " ").replace("\r", " "));
 
-      return user;
+      return username;
    }
 
    public void begin(OrganizationService orgService) throws Exception

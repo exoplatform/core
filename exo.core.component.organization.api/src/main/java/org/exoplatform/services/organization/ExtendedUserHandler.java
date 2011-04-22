@@ -19,7 +19,7 @@
 
 package org.exoplatform.services.organization;
 
-import org.exoplatform.services.security.Credential;
+import org.exoplatform.services.security.PasswordEncrypter;
 
 /**
  * Created by The eXo Platform SAS .
@@ -28,7 +28,7 @@ import org.exoplatform.services.security.Credential;
  * @version $Id: $
  */
 
-public interface DigestAuthenticator
+public interface ExtendedUserHandler
 {
    /**
     * Checks if user's credentials are valid.
@@ -39,5 +39,5 @@ public interface DigestAuthenticator
     * the database record, else return false.
     * @throws Exception throw an exception if cannot access the database
     */
-   public boolean authenticate(Credential[] credentials) throws Exception;
+   public boolean authenticate(String username, String password, PasswordEncrypter pe) throws Exception;
 }
