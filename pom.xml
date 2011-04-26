@@ -39,7 +39,7 @@
       <exo.product.specification>2.4</exo.product.specification>
       
       <org.exoplatform.framework.junit.version>1.2.1-GA</org.exoplatform.framework.junit.version>
-      <org.exoplatform.kernel.version>2.3.0-CR2-SNAPSHOT</org.exoplatform.kernel.version>
+      <org.exoplatform.kernel.version>2.3.0-CR2</org.exoplatform.kernel.version>
    </properties>
 
    <scm>
