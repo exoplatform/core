@@ -146,8 +146,7 @@ public class DBSchemaCreator
          }
          Throwable cause = e.getCause();
          log.error("Could not create db schema of DataSource: '" + dsName + "'. Reason: " + e.getMessage() + "; "
-            + errorTrace + (cause != null ? " (Cause: " + cause.getMessage() + ")" : "") + ". Last command: " + sql);
-         e.printStackTrace();
+            + errorTrace + (cause != null ? " (Cause: " + cause.getMessage() + ")" : "") + ". Last command: " + sql, e);
       }
       finally
       {
@@ -168,11 +167,11 @@ public class DBSchemaCreator
          }
          catch (NamingException e)
          {
-            e.printStackTrace();
+            log.error(e.getLocalizedMessage(), e);
          }
          catch (SQLException e)
          {
-            e.printStackTrace();
+            log.error(e.getLocalizedMessage(), e);
          }
       }
    }

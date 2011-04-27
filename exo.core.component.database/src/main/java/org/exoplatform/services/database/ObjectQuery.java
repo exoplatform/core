@@ -269,7 +269,7 @@ public class ObjectQuery
             else if (p.op_.equals("countselect"))
             {
                b.append("COUNT");
-               if (p.field_ != "" || p.field_.length() > 0)
+               if (!(p.field_.equals("")) || p.field_.length() > 0)
                {
                   b.append("(").append(p.field_).append(" o)");
                }

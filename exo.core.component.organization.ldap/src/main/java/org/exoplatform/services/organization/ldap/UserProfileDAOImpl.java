@@ -42,6 +42,7 @@ import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
+
 /**
  * Created by The eXo Platform SAS Author : Tuan Nguyen
  * tuan08@users.sourceforge.net Oct 14, 2005. @version andrew00x $
@@ -162,7 +163,7 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
       }
       catch (InvalidAttributeValueException invalid)
       {
-         invalid.printStackTrace();
+         LOG.error(invalid.getLocalizedMessage(), invalid);
       }
       finally
       {
@@ -201,7 +202,7 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
       catch (NameNotFoundException e)
       {
          if (LOG.isDebugEnabled())
-            e.printStackTrace();
+            LOG.debug(e.getLocalizedMessage(), e);
          return null;
       }
       finally
@@ -239,7 +240,7 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
       catch (NameNotFoundException e)
       {
          if (LOG.isDebugEnabled())
-            e.printStackTrace();
+            LOG.debug(e.getLocalizedMessage(), e);
          return null;
       }
       finally

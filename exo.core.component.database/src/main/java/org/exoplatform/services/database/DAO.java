@@ -19,6 +19,8 @@
 package org.exoplatform.services.database;
 
 import org.exoplatform.commons.utils.PageList;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -32,6 +34,11 @@ import java.util.List;
  */
 public abstract class DAO<T extends DBObject>
 {
+
+   /**
+    * Logger.
+    */
+   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.database.DAO");
 
    protected ExoDatasource eXoDS_;
 
@@ -250,7 +257,7 @@ public abstract class DAO<T extends DBObject>
       {
          String query = builder.mapDataToSql(template, mapper_.toParameters(bean));
          statement.addBatch(query);
-         System.out.println(" addBatch " + query);
+         LOG.info(" addBatch " + query);
       }
       statement.executeBatch();
       statement.close();

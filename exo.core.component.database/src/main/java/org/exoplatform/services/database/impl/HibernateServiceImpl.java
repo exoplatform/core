@@ -263,7 +263,7 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
          }
          catch (Exception ex)
          {
-            ex.printStackTrace();
+            log_.error(ex.getLocalizedMessage(), ex);
          }
       }
    }

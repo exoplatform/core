@@ -162,7 +162,7 @@ public class BaseDAO
       catch (NamingException e)
       {
          if (LOG.isDebugEnabled())
-            e.printStackTrace();
+            LOG.debug(e.getLocalizedMessage(), e);
       }
       return results;
    }
@@ -294,7 +294,7 @@ public class BaseDAO
       catch (NameNotFoundException e)
       {
          if (LOG.isDebugEnabled())
-            e.printStackTrace();
+            LOG.debug(e.getLocalizedMessage(), e);
          // Object with specified Distinguished Name not found. Null will be
          // returned. This result we regard as successful, just nothing found.
          return null;

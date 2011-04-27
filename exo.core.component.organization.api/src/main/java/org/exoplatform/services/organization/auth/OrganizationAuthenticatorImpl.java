@@ -161,7 +161,7 @@ public class OrganizationAuthenticatorImpl implements Authenticator
    {
       if (orgService instanceof ComponentRequestLifecycle)
       {
-      	 RequestLifeCycle.begin((ComponentRequestLifecycle)orgService);
+         RequestLifeCycle.begin((ComponentRequestLifecycle)orgService);
       }
    }
 
@@ -169,7 +169,7 @@ public class OrganizationAuthenticatorImpl implements Authenticator
    {
       if (orgService instanceof ComponentRequestLifecycle)
       {
-      	 RequestLifeCycle.end();
+         RequestLifeCycle.end();
       }
    }
 

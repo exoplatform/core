@@ -112,7 +112,7 @@ public class CreateDBSchemaPlugin extends BaseComponentPlugin
       }
       catch (IOException e)
       {
-         e.printStackTrace();
+         log.error(e.getLocalizedMessage(), e);
       }
       finally
       {

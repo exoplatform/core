@@ -195,7 +195,7 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
       catch (NameNotFoundException e)
       {
          if (LOG.isDebugEnabled())
-            e.printStackTrace();
+            LOG.debug(e.getLocalizedMessage(), e);
          return null;
       }
       finally
@@ -233,7 +233,7 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
       catch (NameNotFoundException e)
       {
          if (LOG.isDebugEnabled())
-            e.printStackTrace();
+            LOG.debug(e.getLocalizedMessage(), e);
          return null;
       }
       finally

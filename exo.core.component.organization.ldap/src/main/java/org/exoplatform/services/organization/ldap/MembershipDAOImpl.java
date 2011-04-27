@@ -121,7 +121,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
                catch (NameNotFoundException e)
                {
                   if (LOG.isDebugEnabled())
-                     e.printStackTrace();
+                     LOG.debug(e.getLocalizedMessage(), e);
                }
                // if not found
                if (attrs == null)
@@ -268,7 +268,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
       catch (NameNotFoundException e2)
       {
          if (LOG.isDebugEnabled())
-            e2.printStackTrace();
+            LOG.debug(e2.getLocalizedMessage(), e2);
          return null;
       }
       finally
@@ -324,7 +324,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
                   }
                   catch (Exception e1)
                   {
-                     e1.printStackTrace();
+                     LOG.error(e1.getLocalizedMessage(), e1);
                   }
                }
                return memberships;

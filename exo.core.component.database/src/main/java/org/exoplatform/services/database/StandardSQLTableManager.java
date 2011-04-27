@@ -20,6 +20,8 @@ package org.exoplatform.services.database;
 
 import org.exoplatform.services.database.annotation.Table;
 import org.exoplatform.services.database.annotation.TableField;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -31,6 +33,11 @@ import java.sql.Statement;
  */
 public class StandardSQLTableManager extends DBTableManager
 {
+   
+   /**
+    * Logger.
+    */
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.database.StandardSQLTableManager");
 
    private ExoDatasource exoDatasource;
 
@@ -95,7 +102,7 @@ public class StandardSQLTableManager extends DBTableManager
       Connection conn = exoDatasource.getConnection();
       conn.setAutoCommit(false);
       Statement statement = conn.createStatement();
-      System.out.println("QUERY: \n  " + builder + "\n");
+      LOG.info("QUERY: \n  " + builder + "\n");
       if (dropIfExist && hasTable(type))
          statement.execute("DROP TABLE IF EXISTS " + table.name());
       statement.execute(builder.toString());

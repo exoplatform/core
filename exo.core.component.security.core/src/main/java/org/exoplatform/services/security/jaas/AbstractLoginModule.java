@@ -115,7 +115,8 @@ public abstract class AbstractLoginModule implements LoginModule
          container = RootContainer.getInstance().getPortalContainer(portalContainerName);
          if (container == null)
          {
-            throw new Exception("The eXo container is null, because the current container is a RootContainer and there is no PortalContainer with the name '" + portalContainerName + "'.");
+            throw new Exception("The eXo container is null, because the current container is a RootContainer "
+                     + "and there is no PortalContainer with the name '" + portalContainerName + "'.");
          }
       }
       else if (container == null)
