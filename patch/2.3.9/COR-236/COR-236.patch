@@ -1,0 +1,34 @@
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/LDAPAttributeMapping.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/LDAPAttributeMapping.java	(revision 4240)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/LDAPAttributeMapping.java	(working copy)
+@@ -67,14 +67,12 @@
+ 
+    // TODO remove initialization in major release. It may be not initialized from
+    // for AD.
+-   String userDNKey = "CN";
++   String userDNKey = "cn";
+ 
+    //TODO remove initialization in major release. Should be initialized from
+    // configuration.
+-   String groupDNKey = "OU";
++   String groupDNKey = "ou";
+ 
+-   //
+-
+    String userUsernameAttr;
+ 
+    String userPassword;
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADUserDAOImpl.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADUserDAOImpl.java	(revision 4240)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADUserDAOImpl.java	(working copy)
+@@ -75,7 +75,7 @@
+    @Override
+    public void createUser(User user, boolean broadcast) throws Exception
+    {
+-      String userDN = "CN=" + user.getUserName() + "," + ldapAttrMapping.userURL;
++      String userDN = ldapAttrMapping.userDNKey + "=" + user.getUserName() + "," + ldapAttrMapping.userURL;
+       Attributes attrs = ldapAttrMapping.userToAttributes(user);
+       attrs.put("userAccountControl", Integer.toString(UF_NORMAL_ACCOUNT + UF_PASSWD_NOTREQD + UF_PASSWORD_EXPIRED
+          + UF_ACCOUNTDISABLE));
