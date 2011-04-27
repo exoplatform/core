@@ -67,13 +67,11 @@ public class LDAPAttributeMapping
 
    // TODO remove initialization in major release. It may be not initialized from
    // for AD.
-   String userDNKey = "CN";
+   String userDNKey = "cn";
 
    //TODO remove initialization in major release. Should be initialized from
    // configuration.
-   String groupDNKey = "OU";
-
-   //
+   String groupDNKey = "ou";
 
    String userUsernameAttr;
 
