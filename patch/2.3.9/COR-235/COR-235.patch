@@ -1,0 +1,35 @@
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/SimpleLdapUserListAccess.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/SimpleLdapUserListAccess.java	(revision 4240)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/SimpleLdapUserListAccess.java	(working copy)
+@@ -59,6 +59,7 @@
+    /**
+     * {@inheritDoc}
+     */
++   @Override
+    protected User[] load(LdapContext ctx, int index, int length) throws Exception
+    {
+       User[] users = new User[length];
+@@ -69,7 +70,14 @@
+          SortControl sctl = new SortControl(new String[]{ldapAttrMapping.userUsernameAttr}, Control.NONCRITICAL);
+          ctx.setRequestControls(new Control[]{sctl});
+ 
++         // returns only needed attributes for creation UserImpl in
++         // LDAPAttributeMapping.attributesToUser() method 
++         String[] returnedAtts =
++            {ldapAttrMapping.userUsernameAttr, ldapAttrMapping.userFirstNameAttr, ldapAttrMapping.userLastNameAttr,
++               ldapAttrMapping.userDisplayNameAttr, ldapAttrMapping.userMailAttr, ldapAttrMapping.userPassword};
++
+          SearchControls constraints = new SearchControls();
++         constraints.setReturningAttributes(returnedAtts);
+          constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
+ 
+          results = ctx.search(searchBase, filter, constraints);
+@@ -101,6 +109,7 @@
+    /**
+     * {@inheritDoc}
+     */
++   @Override
+    protected int getSize(LdapContext ctx) throws Exception
+    {
+       if (size < 0)
