@@ -53,7 +53,7 @@ public class FSScanner
    {
       doScan(root);
       int ratio = (size2 * 100) / size1;
-      System.out.println("ratio = " + ratio);
+      System.out.println("ratio = " + ratio); //NOSONAR
    }
 
    private void doScan(File f)
@@ -67,7 +67,7 @@ public class FSScanner
       }
       else if (f.isFile() && f.getName().endsWith(".css"))
       {
-         System.out.println("About to process " + f.getAbsolutePath());
+         System.out.println("About to process " + f.getAbsolutePath()); //NOSONAR
          try
          {
             FileReader reader = new FileReader(f);
@@ -95,11 +95,11 @@ public class FSScanner
          }
          catch (IOException e)
          {
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.err); //NOSONAR
          }
          catch (UnsupportedOperationException e)
          {
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.err); //NOSONAR
          }
       }
    }
