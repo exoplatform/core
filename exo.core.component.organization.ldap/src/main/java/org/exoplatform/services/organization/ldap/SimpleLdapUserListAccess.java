@@ -59,6 +59,7 @@ public class SimpleLdapUserListAccess extends LdapUserListAccess
    /**
     * {@inheritDoc}
     */
+   @Override
    protected User[] load(LdapContext ctx, int index, int length) throws Exception
    {
       User[] users = new User[length];
@@ -69,7 +70,14 @@ public class SimpleLdapUserListAccess extends LdapUserListAccess
          SortControl sctl = new SortControl(new String[]{ldapAttrMapping.userUsernameAttr}, Control.NONCRITICAL);
          ctx.setRequestControls(new Control[]{sctl});
 
+         // returns only needed attributes for creation UserImpl in
+         // LDAPAttributeMapping.attributesToUser() method 
+         String[] returnedAtts =
+            {ldapAttrMapping.userUsernameAttr, ldapAttrMapping.userFirstNameAttr, ldapAttrMapping.userLastNameAttr,
+               ldapAttrMapping.userDisplayNameAttr, ldapAttrMapping.userMailAttr, ldapAttrMapping.userPassword};
+
          SearchControls constraints = new SearchControls();
+         constraints.setReturningAttributes(returnedAtts);
          constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
          results = ctx.search(searchBase, filter, constraints);
@@ -101,6 +109,7 @@ public class SimpleLdapUserListAccess extends LdapUserListAccess
    /**
     * {@inheritDoc}
     */
+   @Override
    protected int getSize(LdapContext ctx) throws Exception
    {
       if (size < 0)
@@ -109,8 +118,12 @@ public class SimpleLdapUserListAccess extends LdapUserListAccess
 
          try
          {
+            String[] returnedAtts = {ldapAttrMapping.userUsernameAttr};
+
             SearchControls constraints = new SearchControls();
+            constraints.setReturningAttributes(returnedAtts);
             constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
             results = ctx.search(searchBase, filter, constraints);
             size = 0;
             while (results.hasMoreElements())
