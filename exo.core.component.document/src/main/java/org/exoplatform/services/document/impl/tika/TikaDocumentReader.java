@@ -352,7 +352,7 @@ public class TikaDocumentReader implements AdvancedDocumentReader
          }
          else
          {
-            throw new RuntimeException(cause);
+            throw new DocumentReadException("Can not get properties: " + cause.getMessage(), cause);
          }
       }
    }
