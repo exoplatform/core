@@ -346,10 +346,6 @@ public class TikaDocumentReader implements AdvancedDocumentReader
          {
             throw (IOException)cause;
          }
-         else if (cause instanceof RuntimeException)
-         {
-            throw (RuntimeException)cause;
-         }
          else
          {
             throw new DocumentReadException("Can not get properties: " + cause.getMessage(), cause);
