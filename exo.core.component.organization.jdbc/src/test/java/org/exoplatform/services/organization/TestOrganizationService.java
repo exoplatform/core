@@ -289,10 +289,16 @@ public class TestOrganizationService extends BasicTestCase
       try
       {
          membershipHandler_.linkMembership(userBenj, group2, mt, true);
+         fail("Exception should be thrown");
       }
       catch (InvalidNameException e)
       {
       }
+
+      mt = mtHandler_.createMembershipTypeInstance();
+      mt.setName("membershipType3");
+      mtHandler_.createMembershipType(mt, true);
+      membershipHandler_.linkMembership(userBenj, group2, mt, true);
 
       /*
        * find all memberships in group2 Expect result: 4 membership: 3 for
