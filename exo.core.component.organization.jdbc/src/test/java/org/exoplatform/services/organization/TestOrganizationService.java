@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.naming.InvalidNameException;
+
 /**
  * Created by The eXo Platform SAS Author : Hoa Pham hoapham@exoplatform.com,phamvuxuanhoa@yahoo.com
  * Oct 27, 2005
@@ -284,7 +286,13 @@ public class TestOrganizationService extends BasicTestCase
 
       mt = mtHandler_.createMembershipTypeInstance();
       mt.setName("membershipType3");
-      membershipHandler_.linkMembership(userBenj, group2, mt, true);
+      try
+      {
+         membershipHandler_.linkMembership(userBenj, group2, mt, true);
+      }
+      catch (InvalidNameException e)
+      {
+      }
 
       /*
        * find all memberships in group2 Expect result: 4 membership: 3 for

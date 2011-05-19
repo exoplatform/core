@@ -54,10 +54,9 @@ public interface MembershipHandler
     * @param m The MembershipType of the memebership
     * @param broadcast Broadcast the event if the value of the broadcast is
     *          'true'
-    * @throws Exception An exception is throwed if the method is fail to access
-    *           the database, a membership record with the same user , group and
-    *           membership type exisited or any listener fail to handle the
-    *           event.
+    * @throws Exception An exception is thrown if the method is fail to access
+    *           the database, membership type not existed, a membership record with the same user, 
+    *           group and membership type existed, or any listener fail to handle the event.
     */
    public void linkMembership(User user, Group group, MembershipType m, boolean broadcast) throws Exception;
 

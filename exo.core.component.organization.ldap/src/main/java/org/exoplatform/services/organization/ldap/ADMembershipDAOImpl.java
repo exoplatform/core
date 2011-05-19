@@ -21,6 +21,7 @@ package org.exoplatform.services.organization.ldap;
 import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.impl.MembershipImpl;
 
 import java.util.ArrayList;
@@ -50,10 +51,10 @@ public class ADMembershipDAOImpl extends MembershipDAOImpl
     * @param ad See {@link ADSearchBySID}
     * @throws Exception if any errors occurs
     */
-   public ADMembershipDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, ADSearchBySID ad)
-      throws Exception
+   public ADMembershipDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, ADSearchBySID ad,
+      OrganizationService service) throws Exception
    {
-      super(ldapAttrMapping, ldapService);
+      super(ldapAttrMapping, ldapService, service);
       adSearch = ad;
    }
 
@@ -184,7 +185,7 @@ public class ADMembershipDAOImpl extends MembershipDAOImpl
          results = ctx.search(userDN, filter, constraints);
          while (results.hasMore())
          {
-            SearchResult sr = (SearchResult)results.next();
+            SearchResult sr = results.next();
             Attributes attrs = sr.getAttributes();
             Attribute attr = attrs.get("tokenGroups");
             for (int x = 0; x < attr.size(); x++)

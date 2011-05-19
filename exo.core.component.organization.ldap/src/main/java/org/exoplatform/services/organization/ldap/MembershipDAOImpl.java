@@ -27,6 +27,7 @@ import org.exoplatform.services.organization.MembershipEventListener;
 import org.exoplatform.services.organization.MembershipEventListenerHandler;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.impl.MembershipImpl;
 
@@ -64,19 +65,28 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
     * See {@link MembershipEventListener}.
     */
    protected List<MembershipEventListener> listeners;
+   
+   /**
+    * Organization service;
+    */
+   protected final OrganizationService service;
 
    /**
     * @param ldapAttrMapping
     *          mapping LDAP attributes to eXo organization service items (users, groups, etc)
     * @param ldapService
     *          {@link LDAPService}
+    * @param service 
+    *          Organization service implementation covering the handler. 
     * @throws Exception
     *           if any errors occurs
     */
-   public MembershipDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
+   public MembershipDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, OrganizationService service)
+      throws Exception
    {
       super(ldapAttrMapping, ldapService);
       this.listeners = new ArrayList<MembershipEventListener>(3);
+      this.service = service;
    }
 
    /**
@@ -104,6 +114,12 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
       LdapContext ctx = ldapService.getLdapContext();
       try
       {
+         if (service.getMembershipTypeHandler().findMembershipType(m.getMembershipType()) == null)
+         {
+            throw new InvalidNameException("Can not create membership record " + m.getId()
+                     + " because membership type " + m.getMembershipType() + " is not exists.");
+         }
+
          for (int err = 0;; err++)
          {
             try
@@ -171,6 +187,11 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
     */
    public void linkMembership(User user, Group group, MembershipType mt, boolean broadcast) throws Exception
    {
+      if (user == null)
+      {
+         throw new InvalidNameException("Can not create membership record because user is null");
+      }
+
       if (group == null)
       {
          throw new InvalidNameException("Can not create membership record for " + user.getUserName()
@@ -182,7 +203,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
          throw new InvalidNameException("Can not create membership record for " + user.getUserName()
             + " because membership type is null");
       }
-
+      
       MembershipImpl membership = new MembershipImpl();
       membership.setMembershipType(mt.getName());
       membership.setUserName(user.getUserName());

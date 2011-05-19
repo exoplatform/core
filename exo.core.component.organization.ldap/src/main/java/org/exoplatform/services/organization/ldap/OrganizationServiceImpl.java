@@ -53,7 +53,7 @@ public class OrganizationServiceImpl extends BaseOrganizationService
          //      ADSearchBySID adSearch = new ADSearchBySID(ldapAttrMapping, ldapService);
          ADSearchBySID adSearch = new ADSearchBySID(ldapAttrMapping);
          groupDAO_ = new ADGroupDAOImpl(ldapAttrMapping, ldapService, adSearch);
-         membershipDAO_ = new ADMembershipDAOImpl(ldapAttrMapping, ldapService, adSearch);
+         membershipDAO_ = new ADMembershipDAOImpl(ldapAttrMapping, ldapService, adSearch, this);
       }
       else
       {
@@ -61,7 +61,7 @@ public class OrganizationServiceImpl extends BaseOrganizationService
          //      ldapAttrMapping.userDNKey = param.getValue();
          userDAO_ = new UserDAOImpl(ldapAttrMapping, ldapService);
          groupDAO_ = new GroupDAOImpl(ldapAttrMapping, ldapService);
-         membershipDAO_ = new MembershipDAOImpl(ldapAttrMapping, ldapService);
+         membershipDAO_ = new MembershipDAOImpl(ldapAttrMapping, ldapService, this);
       }
       // userProfileHandler_ = new UserProfileHandlerImpl(ldapAttrMapping, ldapService) ;
       userProfileDAO_ = new UserProfileDAOImpl(hservice, cservice);

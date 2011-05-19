@@ -27,6 +27,7 @@ import org.exoplatform.services.organization.MembershipEventListener;
 import org.exoplatform.services.organization.MembershipEventListenerHandler;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.impl.MembershipImpl;
 import org.hibernate.Session;
@@ -66,10 +67,16 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
 
    private List listeners_;
 
-   public MembershipDAOImpl(HibernateService service)
+   /**
+    * Organization service.
+    */
+   protected final OrganizationService orgService;
+
+   public MembershipDAOImpl(HibernateService service, OrganizationService orgService)
    {
-      service_ = service;
-      listeners_ = new ListenerStack(5);
+      this.service_ = service;
+      this.orgService = orgService;
+      this.listeners_ = new ListenerStack(5);
    }
 
    public void addMembershipEventListener(MembershipEventListener listener)
@@ -84,26 +91,28 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
 
    public void createMembership(Membership m, boolean broadcast) throws Exception
    {
+      if (orgService.getMembershipTypeHandler().findMembershipType(m.getMembershipType()) == null)
+      {
+         throw new InvalidNameException("Can not create membership record " + m.getId()
+                  + " because membership type " + m.getMembershipType() + " is not exists.");
+      }
+
       if (broadcast)
          preSave(m, true);
       Session session = service_.openSession();
-      session.save(IdentifierUtil.generateUUID(m), m);
+      session.save(m);
       if (broadcast)
          postSave(m, true);
       session.flush();
    }
 
-   // static void createMembershipEntries(Collection c, Session session) throws
-   // Exception {
-   // Iterator i = c.iterator() ;
-   // while(i.hasNext()) {
-   // Membership impl = (Membership) i.next() ;
-   // session.save(impl, impl.getId());
-   // }
-   // }
-
    public void linkMembership(User user, Group g, MembershipType mt, boolean broadcast) throws Exception
    {
+      if (user == null)
+      {
+         throw new InvalidNameException("Can not create membership record because user is null");
+      }
+
       if (g == null)
       {
          throw new InvalidNameException("Can not create membership record for " + user.getUserName()
@@ -117,25 +126,15 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       }
 
       MembershipImpl membership = new MembershipImpl();
-      // User user
-      // =(User)service_.findExactOne(session,UserHandlerImpl.queryFindUserByName,
-      // userName);
       membership.setUserName(user.getUserName());
       membership.setMembershipType(mt.getName());
       membership.setGroupId(g.getId());
-      if (membership.getId() != null)
-         throw new Exception(" Membership id isn't null!");
+      membership.setId(IdentifierUtil.generateUUID(membership));
+
       if (findMembershipByUserGroupAndType(user.getUserName(), g.getId(), mt.getName()) != null)
          return;
-      String id = IdentifierUtil.generateUUID(membership);
-      if (broadcast)
-         preSave(membership, true);
-      membership.setId(id);
-      Session session = service_.openSession();
-      session.save(membership);
-      if (broadcast)
-         postSave(membership, true);
-      session.flush();
+
+      createMembership(membership, broadcast);
    }
 
    public void saveMembership(Membership m, boolean broadcast) throws Exception

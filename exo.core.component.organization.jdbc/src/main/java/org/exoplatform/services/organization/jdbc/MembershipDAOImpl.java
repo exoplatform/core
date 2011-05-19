@@ -32,6 +32,7 @@ import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 
 import java.sql.Connection;
@@ -49,12 +50,16 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
 
    protected static Log log = ExoLogger.getLogger("exo.core.component.organization.jdbc.MembershipDAOImpl");
 
+   protected final OrganizationService service;
+
    protected ListenerService listenerService_;
 
-   public MembershipDAOImpl(ListenerService lService, ExoDatasource datasource, DBObjectMapper<MembershipImpl> mapper)
+   public MembershipDAOImpl(ListenerService lService, ExoDatasource datasource, DBObjectMapper<MembershipImpl> mapper,
+      OrganizationService service)
    {
       super(datasource, mapper, MembershipImpl.class);
-      listenerService_ = lService;
+      this.service = service;
+      this.listenerService_ = lService;
    }
 
    public Membership createMembershipInstance()
@@ -64,6 +69,12 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
 
    public void createMembership(Membership membership, boolean broadcast) throws Exception
    {
+      if (service.getMembershipTypeHandler().findMembershipType(membership.getMembershipType()) == null)
+      {
+         throw new InvalidNameException("Can not create membership record " + membership.getId()
+            + " because membership type " + membership.getMembershipType() + " not exists.");
+      }
+      
       MembershipImpl membershipImpl = (MembershipImpl)membership;
       if (broadcast)
          listenerService_.broadcast("organization.membership.preSave", this, membershipImpl);
@@ -75,6 +86,11 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
 
    public void linkMembership(User user, Group group, MembershipType mt, boolean broadcast) throws Exception
    {
+      if (user == null)
+      {
+         throw new InvalidNameException("Can not create membership record because group is null");
+      }
+
       if (group == null)
       {
          throw new InvalidNameException("Can not create membership record for " + user.getUserName()
@@ -239,5 +255,4 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
    {
       throw new RuntimeException("This method is not supported anymore, please use the new api");
    }
-
 }
