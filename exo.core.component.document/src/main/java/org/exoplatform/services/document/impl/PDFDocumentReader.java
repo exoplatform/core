@@ -28,6 +28,7 @@ import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.common.PDMetadata;
 import org.apache.pdfbox.util.PDFTextStripper;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReadException;
 import org.exoplatform.services.log.ExoLogger;
@@ -36,7 +37,6 @@ import org.exoplatform.services.log.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Calendar;
@@ -75,9 +75,9 @@ public class PDFDocumentReader extends BaseDocumentReader
 
       try
       {
-         return (String)AccessController.doPrivileged(new PrivilegedExceptionAction<Object>()
+         return SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<String>()
          {
-            public Object run() throws Exception
+            public String run() throws Exception
             {
                if (is == null)
                {
@@ -163,9 +163,9 @@ public class PDFDocumentReader extends BaseDocumentReader
    {
       try
       {
-         return (Properties)AccessController.doPrivileged(new PrivilegedExceptionAction<Object>()
+         return SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<Properties>()
          {
-            public Object run() throws Exception
+            public Properties run() throws Exception
             {
                if (is == null)
                {
