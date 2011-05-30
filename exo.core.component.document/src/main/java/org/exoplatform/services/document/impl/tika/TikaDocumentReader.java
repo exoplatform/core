@@ -26,6 +26,7 @@ import org.apache.tika.parser.ParsingReader;
 import org.apache.tika.sax.BodyContentHandler;
 import org.apache.tika.sax.WriteOutContentHandler;
 import org.exoplatform.commons.utils.QName;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.AdvancedDocumentReader;
 import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReadException;
@@ -36,7 +37,6 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Properties;
@@ -71,10 +71,10 @@ public class TikaDocumentReader implements AdvancedDocumentReader
    {
       try
       {
-         return (Reader)AccessController.doPrivileged(new PrivilegedExceptionAction<Object>()
+         return SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<Reader>()
          {
 
-            public Object run() throws Exception
+            public Reader run() throws Exception
             {
                Metadata metadata = new Metadata();
                metadata.set(Metadata.CONTENT_TYPE, mimeType);
@@ -107,10 +107,10 @@ public class TikaDocumentReader implements AdvancedDocumentReader
    {
       try
       {
-         return (Reader)AccessController.doPrivileged(new PrivilegedExceptionAction<Object>()
+         return SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<Reader>()
          {
 
-            public Object run() throws Exception
+            public Reader run() throws Exception
             {
                Metadata metadata = new Metadata();
                metadata.set(Metadata.CONTENT_TYPE, mimeType);
@@ -143,10 +143,10 @@ public class TikaDocumentReader implements AdvancedDocumentReader
    {
       try
       {
-         return (String)AccessController.doPrivileged(new PrivilegedExceptionAction<Object>()
+         return SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<String>()
          {
 
-            public Object run() throws Exception
+            public String run() throws Exception
             {
                try
                {
@@ -206,9 +206,9 @@ public class TikaDocumentReader implements AdvancedDocumentReader
    {
       try
       {
-         return (String)AccessController.doPrivileged(new PrivilegedExceptionAction<Object>()
+         return SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<String>()
          {
-            public Object run() throws Exception
+            public String run() throws Exception
             {
                try
                {
@@ -273,10 +273,10 @@ public class TikaDocumentReader implements AdvancedDocumentReader
    {
       try
       {
-         return (Properties)AccessController.doPrivileged(new PrivilegedExceptionAction<Object>()
+         return SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<Properties>()
          {
 
-            public Object run() throws Exception
+            public Properties run() throws Exception
             {
                try
                {
