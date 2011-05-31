@@ -1,0 +1,915 @@
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipDAOImpl.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipDAOImpl.java	(revision 4450)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipDAOImpl.java	(working copy)
+@@ -29,6 +29,7 @@
+ import org.exoplatform.services.organization.MembershipType;
+ import org.exoplatform.services.organization.User;
+ import org.exoplatform.services.organization.impl.MembershipImpl;
++import org.exoplatform.services.organization.ldap.CacheHandler.CacheType;
+ 
+ import java.util.ArrayList;
+ import java.util.Collection;
+@@ -70,12 +71,15 @@
+     *          mapping LDAP attributes to eXo organization service items (users, groups, etc)
+     * @param ldapService
+     *          {@link LDAPService}
++    * @param cacheHandler
++    *          The Cache Handler          
+     * @throws Exception
+     *           if any errors occurs
+     */
+-   public MembershipDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
++   public MembershipDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler)
++      throws Exception
+    {
+-      super(ldapAttrMapping, ldapService);
++      super(ldapAttrMapping, ldapService, cacheHandler);
+       this.listeners = new ArrayList<MembershipEventListener>(3);
+    }
+ 
+@@ -131,6 +135,8 @@
+                   ctx.createSubcontext(membershipDN, ldapAttrMapping.membershipToAttributes(m, userDN));
+                   if (broadcast)
+                      postSave(m, true);
++
++                  cacheHandler.put(cacheHandler.getMembershipKey(m), m, CacheType.MEMBERSHIP);
+                   return;
+                }
+                // if contains membership
+@@ -148,6 +154,8 @@
+                ctx.modifyAttributes(membershipDN, mods);
+                if (broadcast)
+                   postSave(m, true);
++
++               cacheHandler.put(cacheHandler.getMembershipKey(m), m, CacheType.MEMBERSHIP);
+                return;
+ 
+             }
+@@ -245,14 +253,19 @@
+                   ctx.modifyAttributes(membershipDN, mods);
+                   if (broadcast)
+                      postSave(m, true);
++
++                  cacheHandler.put(cacheHandler.getMembershipKey(m), m, CacheType.MEMBERSHIP);
+                }
+                else
+                {
+                   if (broadcast)
+                      preDelete(m);
+                   ctx.destroySubcontext(membershipDN);
++
+                   if (broadcast)
+                      postDelete(m);
++
++                  cacheHandler.remove(cacheHandler.getMembershipKey(m), CacheType.MEMBERSHIP);
+                }
+                return m;
+             }
+@@ -318,9 +331,13 @@
+                            new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(
+                               ldapAttrMapping.membershipTypeMemberValue, userDN));
+                         ctx.modifyAttributes(membershipDN, mods);
++                        cacheHandler.put(cacheHandler.getMembershipKey(membership), membership, CacheType.MEMBERSHIP);
+                      }
+                      else
++                     {
+                         ctx.destroySubcontext(membershipDN);
++                        cacheHandler.remove(cacheHandler.getMembershipKey(membership), CacheType.MEMBERSHIP);
++                     }
+                   }
+                   catch (Exception e1)
+                   {
+@@ -365,12 +382,19 @@
+     */
+    public Membership findMembershipByUserGroupAndType(String userName, String groupId, String type) throws Exception
+    {
++      MembershipImpl membership =
++         (MembershipImpl)cacheHandler.get(cacheHandler.getMembershipKey(userName, groupId, type), CacheType.MEMBERSHIP);
++      if (membership != null)
++      {
++         return membership;
++      }
++
+       LdapContext ctx = ldapService.getLdapContext();
+       try
+       {
+          for (int err = 0;; err++)
+          {
+-            Membership membership = null;
++            membership = null;
+             try
+             {
+                String userDN = getDNFromUsername(ctx, userName);
+@@ -395,6 +419,10 @@
+                   membership = createMembershipObject(userName, groupId, type);
+                }
+ 
++               if (membership != null)
++               {
++                  cacheHandler.put(cacheHandler.getMembershipKey(membership), membership, CacheType.MEMBERSHIP);
++               }
+                return membership;
+             }
+             catch (NamingException e)
+@@ -538,9 +566,9 @@
+                {
+                   SearchResult sr = results.next();
+                   String membershipDN = sr.getNameInNamespace();
+-                  Group group = getGroupFromMembershipDN(ctx, membershipDN);
++                  String groupId = getGroupIdFromGroupDN(getGroupDNFromMembershipDN(membershipDN));
+                   String type = explodeDN(membershipDN, true)[0];
+-                  Membership membership = createMembershipObject(userName, group.getId(), type);
++                  Membership membership = createMembershipObject(userName, groupId, type);
+                   memberships.add(membership);
+                }
+                if (LOG.isDebugEnabled())
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/GroupDAOImpl.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/GroupDAOImpl.java	(revision 4450)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/GroupDAOImpl.java	(working copy)
+@@ -26,11 +26,14 @@
+ import org.exoplatform.services.organization.GroupEventListenerHandler;
+ import org.exoplatform.services.organization.GroupHandler;
+ import org.exoplatform.services.organization.impl.GroupImpl;
++import org.exoplatform.services.organization.ldap.CacheHandler.CacheType;
+ 
+ import java.util.ArrayList;
+ import java.util.Collection;
+ import java.util.Collections;
++import java.util.HashSet;
+ import java.util.List;
++import java.util.Set;
+ 
+ import javax.naming.CompositeName;
+ import javax.naming.Name;
+@@ -69,11 +72,14 @@
+     * @param ldapAttrMapping mapping LDAP attributes to eXo organization service
+     *          items (users, groups, etc)
+     * @param ldapService {@link LDAPService}
++    * @param cacheHandler
++    *          The Cache Handler
+     * @throws Exception if any errors occurs
+     */
+-   public GroupDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
++   public GroupDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler)
++      throws Exception
+    {
+-      super(ldapAttrMapping, ldapService);
++      super(ldapAttrMapping, ldapService, cacheHandler);
+       this.listeners = new ArrayList<GroupEventListener>(3);
+    }
+ 
+@@ -136,6 +142,8 @@
+                ctx.createSubcontext(groupDN, ldapAttrMapping.groupToAttributes(child));
+                if (broadcast)
+                   postSave(group, true);
++               
++               cacheHandler.put(child.getId(), group, CacheType.GROUP);
+                return;
+             }
+             catch (NamingException e)
+@@ -192,6 +200,8 @@
+                ctx.modifyAttributes(groupDN, mods);
+                if (broadcast)
+                   postSave(group, true);
++
++               cacheHandler.put(group.getId(), group, CacheType.GROUP);
+                return;
+             }
+             catch (NamingException e)
+@@ -255,6 +265,7 @@
+                removeAllSubtree(ctx, groupDN);
+                if (broadcast)
+                   postDelete(group);
++
+                return group;
+ 
+             }
+@@ -348,6 +359,13 @@
+    {
+       if (groupId == null)
+          return null;
++
++      Group group = (Group)cacheHandler.get(groupId, CacheType.GROUP);
++      if (group != null)
++      {
++         return group;
++      }
++      
+       String parentId = null;
+       StringBuffer buffer = new StringBuffer();
+       String[] groupIdParts = groupId.split("/");
+@@ -366,9 +384,14 @@
+             try
+             {
+                Attributes attrs = ctx.getAttributes(groupDN);
+-               Group group = ldapAttrMapping.attributesToGroup(attrs);
++               group = ldapAttrMapping.attributesToGroup(attrs);
+                ((GroupImpl)group).setId(groupId);
+                ((GroupImpl)group).setParentId(parentId);
++
++               if (group != null)
++               {
++                  cacheHandler.put(groupId, group, CacheType.GROUP);
++               }
+                return group;
+             }
+             catch (NamingException e)
+@@ -402,6 +425,13 @@
+    {
+       if (groupId == null)
+          return null;
++
++      Group group = (Group)cacheHandler.get(groupId, CacheType.GROUP);
++      if (group != null)
++      {
++         return group;
++      }
++
+       String parentId = null;
+       StringBuffer buffer = new StringBuffer();
+       String[] groupIdParts = groupId.split("/");
+@@ -415,9 +445,14 @@
+       try
+       {
+          Attributes attrs = ctx.getAttributes(groupDN);
+-         Group group = ldapAttrMapping.attributesToGroup(attrs);
++         group = ldapAttrMapping.attributesToGroup(attrs);
+          ((GroupImpl)group).setId(groupId);
+          ((GroupImpl)group).setParentId(parentId);
++
++         if (group != null)
++         {
++            cacheHandler.put(groupId, group, CacheType.GROUP);
++         }
+          return group;
+       }
+       catch (NameNotFoundException e)
+@@ -473,7 +508,7 @@
+                   {
+                      Name entryName = parser.parse(name.get(0));
+                      String groupDN = entryName + "," + ldapAttrMapping.groupsURL;
+-                     Group group = this.getGroupByDN(ctx, groupDN);
++                     Group group = this.buildGroup(groupDN, sr.getAttributes());
+                      if (group != null)
+                         addGroup(groups, group);
+                   }
+@@ -555,7 +590,7 @@
+                   {
+                      Name entryName = parser.parse(name.get(0));
+                      String groupDN = entryName + "," + searchBase;
+-                     Group group = this.getGroupByDN(ctx, groupDN);
++                     Group group = this.buildGroup(groupDN, sr.getAttributes());
+                      if (group != null)
+                         addGroup(groups, group);
+                   }
+@@ -613,21 +648,24 @@
+                results = ctx.search(ldapAttrMapping.groupsURL, filter, constraints);
+ 
+                // add groups for memberships matching user
+-               // int total = 0;
++               Set<String> uniqueGroupsDN = new HashSet<String>();
+                while (results != null && results.hasMore())
+                {
+                   SearchResult sr = results.next();
+-                  // total++;
+                   NameParser parser = ctx.getNameParser("");
+                   CompositeName name = new CompositeName(sr.getName());
+                   if (name.size() < 1)
+                      break;
+                   Name entryName = parser.parse(name.get(0));
+                   String membershipDN = entryName + "," + ldapAttrMapping.groupsURL;
+-                  Group group = this.getGroupFromMembershipDN(ctx, membershipDN);
+-                  if (group != null)
+-                     addGroup(groups, group);
++                  uniqueGroupsDN.add(this.getGroupDNFromMembershipDN(membershipDN));
+                }
++               for(String groupDN : uniqueGroupsDN)
++               {
++                    Group group = this.getGroupByDN(ctx, groupDN);
++                    if (group != null)
++                        addGroup(groups, group);
++               }
+                if (LOG.isDebugEnabled())
+                {
+                   LOG.debug("Retrieved " + groups.size() + " groups from ldap for user " + userName);
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipTypeDAOImpl.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipTypeDAOImpl.java	(revision 4450)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipTypeDAOImpl.java	(working copy)
+@@ -24,6 +24,7 @@
+ import org.exoplatform.services.organization.MembershipType;
+ import org.exoplatform.services.organization.MembershipTypeHandler;
+ import org.exoplatform.services.organization.impl.MembershipTypeImpl;
++import org.exoplatform.services.organization.ldap.CacheHandler.CacheType;
+ 
+ import java.util.ArrayList;
+ import java.util.Collection;
+@@ -56,11 +57,14 @@
+     * @param ldapAttrMapping mapping LDAP attributes to eXo organization service
+     *          items (users, groups, etc)
+     * @param ldapService {@link LDAPService}
++    * @param cacheHandler
++    *          The Cache Handler
+     * @throws Exception if any errors occurs
+     */
+-   public MembershipTypeDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
++   public MembershipTypeDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler)
++      throws Exception
+    {
+-      super(ldapAttrMapping, ldapService);
++      super(ldapAttrMapping, ldapService, cacheHandler);
+    }
+ 
+    /**
+@@ -95,6 +99,8 @@
+                   mt.setCreatedDate(now);
+                   mt.setModifiedDate(now);
+                   ctx.createSubcontext(membershipTypeDN, ldapAttrMapping.membershipTypeToAttributes(mt));
++
++                  cacheHandler.put(mt.getName(), mt, CacheType.MEMBERSHIPTYPE);
+                }
+                return mt;
+             }
+@@ -146,6 +152,8 @@
+                         ldapAttrMapping.ldapDescriptionAttr, mt.getDescription()));
+                }
+                ctx.modifyAttributes(membershipTypeDN, mods);
++
++               cacheHandler.put(mt.getName(), mt, CacheType.MEMBERSHIPTYPE);
+                return mt;
+             }
+             catch (NamingException e)
+@@ -181,6 +189,8 @@
+                MembershipType m = ldapAttrMapping.attributesToMembershipType(attrs);
+                removeMembership(ctx, name);
+                ctx.destroySubcontext(membershipTypeDN);
++
++               cacheHandler.remove(name, CacheType.MEMBERSHIPTYPE);
+                return m;
+             }
+             catch (NamingException e)
+@@ -209,6 +219,12 @@
+     */
+    public MembershipType findMembershipType(String name) throws Exception
+    {
++      MembershipType mt = (MembershipType)cacheHandler.get(name, CacheType.MEMBERSHIPTYPE);
++      if (mt != null)
++      {
++         return mt;
++      }
++
+       String membershipTypeDN =
+          ldapAttrMapping.membershipTypeNameAttr + "=" + name + "," + ldapAttrMapping.membershipTypeURL;
+       LdapContext ctx = ldapService.getLdapContext();
+@@ -219,7 +235,12 @@
+             try
+             {
+                Attributes attrs = ctx.getAttributes(membershipTypeDN);
+-               return ldapAttrMapping.attributesToMembershipType(attrs);
++               mt = ldapAttrMapping.attributesToMembershipType(attrs);
++               if (mt != null)
++               {
++                  cacheHandler.put(name, mt, CacheType.MEMBERSHIPTYPE);
++               }
++               return mt;
+             }
+             catch (NamingException e)
+             {
+@@ -307,6 +328,8 @@
+          {
+             SearchResult sr = results.next();
+             ctx.destroySubcontext(sr.getNameInNamespace());
++
++            cacheHandler.remove(CacheHandler.MEMBERSHIPTYPE_PREFIX + name, CacheType.MEMBERSHIP);
+          }
+       }
+       finally
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserProfileDAOImpl.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserProfileDAOImpl.java	(revision 4450)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserProfileDAOImpl.java	(working copy)
+@@ -61,9 +61,10 @@
+     */
+    private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.ldap.UserProfileDAOImpl");
+ 
+-   public UserProfileDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
++   public UserProfileDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler)
++      throws Exception
+    {
+-      super(ldapAttrMapping, ldapService);
++      super(ldapAttrMapping, ldapService, cacheHandler);
+       this.listeners = new ArrayList<UserProfileEventListener>(3);
+    }
+ 
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADMembershipDAOImpl.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADMembershipDAOImpl.java	(revision 4450)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADMembershipDAOImpl.java	(working copy)
+@@ -22,6 +22,7 @@
+ import org.exoplatform.services.organization.Group;
+ import org.exoplatform.services.organization.Membership;
+ import org.exoplatform.services.organization.impl.MembershipImpl;
++import org.exoplatform.services.organization.ldap.CacheHandler.CacheType;
+ 
+ import java.util.ArrayList;
+ import java.util.Collection;
+@@ -48,12 +49,14 @@
+     *          items
+     * @param ldapService {@link LDAPService}
+     * @param ad See {@link ADSearchBySID}
++    * @param cacheHandler
++    *          The Cache Handler 
+     * @throws Exception if any errors occurs
+     */
+-   public ADMembershipDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, ADSearchBySID ad)
+-      throws Exception
++   public ADMembershipDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, ADSearchBySID ad,
++      CacheHandler cacheHandler) throws Exception
+    {
+-      super(ldapAttrMapping, ldapService);
++      super(ldapAttrMapping, ldapService, cacheHandler);
+       adSearch = ad;
+    }
+ 
+@@ -64,6 +67,13 @@
+    @Override
+    public Membership findMembershipByUserGroupAndType(String userName, String groupId, String type) throws Exception
+    {
++      MembershipImpl membership =
++         (MembershipImpl)cacheHandler.get(cacheHandler.getMembershipKey(userName, groupId, type), CacheType.MEMBERSHIP);
++      if (membership != null)
++      {
++         return membership;
++      }
++
+       LdapContext ctx = ldapService.getLdapContext(true);
+       String groupDN = getGroupDNFromGroupId(groupId);
+       try
+@@ -74,7 +84,11 @@
+             {
+                Collection memberships = findMemberships(ctx, userName, groupDN, type);
+                if (memberships.size() > 0)
+-                  return (MembershipImpl)memberships.iterator().next();
++               {
++                  membership = (MembershipImpl)memberships.iterator().next();
++                  cacheHandler.put(cacheHandler.getMembershipKey(membership), membership, CacheType.MEMBERSHIP);
++                  return membership;
++               }
+                return null;
+             }
+             catch (NamingException e)
+@@ -184,7 +198,7 @@
+          results = ctx.search(userDN, filter, constraints);
+          while (results.hasMore())
+          {
+-            SearchResult sr = (SearchResult)results.next();
++            SearchResult sr = results.next();
+             Attributes attrs = sr.getAttributes();
+             Attribute attr = attrs.get("tokenGroups");
+             for (int x = 0; x < attr.size(); x++)
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADGroupDAOImpl.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADGroupDAOImpl.java	(revision 4450)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADGroupDAOImpl.java	(working copy)
+@@ -48,12 +48,14 @@
+     *          items
+     * @param ldapService {@link LDAPService}
+     * @param ad See {@link ADSearchBySID}
++    * @param cacheHandler
++    *          The Cache Handler
+     * @throws Exception if any errors occurs
+     */
+-   public ADGroupDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, ADSearchBySID ad)
+-      throws Exception
++   public ADGroupDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, ADSearchBySID ad,
++      CacheHandler cacheHandler) throws Exception
+    {
+-      super(ldapAttrMapping, ldapService);
++      super(ldapAttrMapping, ldapService, cacheHandler);
+       adSearch = ad;
+    }
+ 
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/OrganizationServiceImpl.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/OrganizationServiceImpl.java	(revision 4450)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/OrganizationServiceImpl.java	(working copy)
+@@ -47,25 +47,27 @@
+       LDAPAttributeMapping ldapAttrMapping =
+          (LDAPAttributeMapping)params.getObjectParam("ldap.attribute.mapping").getObject();
+ 
++      CacheHandler cacheHandler = new CacheHandler(cservice);
++
+       if (ldapService.getServerType() == LDAPService.ACTIVE_DIRECTORY_SERVER)
+       {
+-         userDAO_ = new ADUserDAOImpl(ldapAttrMapping, ldapService);
++         userDAO_ = new ADUserDAOImpl(ldapAttrMapping, ldapService, cacheHandler);
+          //      ADSearchBySID adSearch = new ADSearchBySID(ldapAttrMapping, ldapService);
+          ADSearchBySID adSearch = new ADSearchBySID(ldapAttrMapping);
+-         groupDAO_ = new ADGroupDAOImpl(ldapAttrMapping, ldapService, adSearch);
+-         membershipDAO_ = new ADMembershipDAOImpl(ldapAttrMapping, ldapService, adSearch);
++         groupDAO_ = new ADGroupDAOImpl(ldapAttrMapping, ldapService, adSearch, cacheHandler);
++         membershipDAO_ = new ADMembershipDAOImpl(ldapAttrMapping, ldapService, adSearch, cacheHandler);
+       }
+       else
+       {
+          //      ValueParam param = params.getValueParam("ldap.userDN.key");
+          //      ldapAttrMapping.userDNKey = param.getValue();
+-         userDAO_ = new UserDAOImpl(ldapAttrMapping, ldapService);
+-         groupDAO_ = new GroupDAOImpl(ldapAttrMapping, ldapService);
+-         membershipDAO_ = new MembershipDAOImpl(ldapAttrMapping, ldapService);
++         userDAO_ = new UserDAOImpl(ldapAttrMapping, ldapService, cacheHandler);
++         groupDAO_ = new GroupDAOImpl(ldapAttrMapping, ldapService, cacheHandler);
++         membershipDAO_ = new MembershipDAOImpl(ldapAttrMapping, ldapService, cacheHandler);
+       }
+       // userProfileHandler_ = new UserProfileHandlerImpl(ldapAttrMapping, ldapService) ;
+       userProfileDAO_ = new UserProfileDAOImpl(hservice, cservice);
+-      membershipTypeDAO_ = new MembershipTypeDAOImpl(ldapAttrMapping, ldapService);
++      membershipTypeDAO_ = new MembershipTypeDAOImpl(ldapAttrMapping, ldapService, cacheHandler);
+ 
+       ValueParam param = params.getValueParam("ldap.userDN.key");
+       if (param != null)
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserDAOImpl.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserDAOImpl.java	(revision 4450)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserDAOImpl.java	(working copy)
+@@ -21,8 +21,13 @@
+ import org.exoplatform.commons.utils.LazyPageList;
+ import org.exoplatform.commons.utils.ListAccess;
+ import org.exoplatform.services.ldap.LDAPService;
+-import org.exoplatform.services.organization.*;
++import org.exoplatform.services.organization.Query;
++import org.exoplatform.services.organization.User;
++import org.exoplatform.services.organization.UserEventListener;
++import org.exoplatform.services.organization.UserEventListenerHandler;
++import org.exoplatform.services.organization.UserHandler;
+ import org.exoplatform.services.organization.impl.UserImpl;
++import org.exoplatform.services.organization.ldap.CacheHandler.CacheType;
+ 
+ import java.util.ArrayList;
+ import java.util.Collections;
+@@ -53,11 +58,14 @@
+     * @param ldapAttrMapping mapping LDAP attributes to eXo organization service
+     *          items (users, groups, etc)
+     * @param ldapService {@link LDAPService}
++    * @param cacheHandler 
++    *          The Cache Handler
+     * @throws Exception if any errors occurs
+     */
+-   public UserDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
++   public UserDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler)
++      throws Exception
+    {
+-      super(ldapAttrMapping, ldapService);
++      super(ldapAttrMapping, ldapService, cacheHandler);
+    }
+ 
+    /**
+@@ -104,6 +112,8 @@
+                ctx.createSubcontext(userDN, attrs);
+                if (broadcast)
+                   postSave(user, true);
++
++               cacheHandler.put(user.getUserName(), user, CacheType.USER);
+                break;
+             }
+             catch (NamingException e)
+@@ -145,6 +155,8 @@
+                ctx.modifyAttributes(userDN, mods);
+                if (broadcast)
+                   postSave(user, false);
++
++               cacheHandler.put(user.getUserName(), user, CacheType.USER);
+                break;
+             }
+             catch (NamingException e)
+@@ -174,7 +186,7 @@
+     * @param userDN Distinguished Name
+     * @throws Exception if any errors occurs
+     */
+-   void saveUserPassword(User user, String userDN) throws Exception
++   protected void saveUserPassword(User user, String userDN) throws Exception
+    {
+       ModificationItem[] mods =
+          new ModificationItem[]{new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
+@@ -227,6 +239,9 @@
+                ctx.destroySubcontext(userDN);
+                if (broadcast)
+                   postDelete(user);
++
++               cacheHandler.remove(userName, CacheType.USER);
++               cacheHandler.remove(CacheHandler.USER_PREFIX + userName, CacheType.MEMBERSHIP);
+                return user;
+             }
+             catch (NamingException e)
+@@ -249,6 +264,12 @@
+     */
+    public User findUserByName(String userName) throws Exception
+    {
++      User user = (User)cacheHandler.get(userName, CacheType.USER);
++      if (user != null)
++      {
++         return user;
++      }
++
+       LdapContext ctx = ldapService.getLdapContext();
+       try
+       {
+@@ -256,7 +277,12 @@
+          {
+             try
+             {
+-               return getUserFromUsername(ctx, userName);
++               user = getUserFromUsername(ctx, userName);
++               if (user != null)
++               {
++                  cacheHandler.put(user.getUserName(), user, CacheType.USER);
++               }
++               return user;
+             }
+             catch (NamingException e)
+             {
+@@ -283,51 +309,6 @@
+    */
+    public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
+    {
+-      //    ArrayList<User> users = new ArrayList<User>();
+-      //    TreeMap<String, User> map = new TreeMap<String, User>();
+-      //
+-      //    LdapContext ctx = ldapService.getLdapContext();
+-      //    try {
+-      //      NamingEnumeration<SearchResult> results = null;
+-      //      for (int err = 0;; err++) {
+-      //        map.clear();
+-      //        try {
+-      //          String searchBase = this.getGroupDNFromGroupId(groupId);
+-      //          String filter = ldapAttrMapping.membershipObjectClassFilter;
+-      //          SearchControls constraints = new SearchControls();
+-      //          constraints.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+-      //          results = ctx.search(searchBase, filter, constraints);
+-      //          while (results.hasMoreElements()) {
+-      //            SearchResult sr = results.next();
+-      //            Attributes attrs = sr.getAttributes();
+-      //            List<Object> members = this.getAttributes(attrs,
+-      //                                                      ldapAttrMapping.membershipTypeMemberValue);
+-      //            for (int x = 0; x < members.size(); x++) {
+-      //              User user = findUserByDN(ctx, (String) members.get(x));
+-      //              if (user != null)
+-      //                map.put(user.getUserName(), user);
+-      //            }
+-      //          }
+-      //          break;
+-      //        } catch (NamingException e) {
+-      //          if (isConnectionError(e) && err < getMaxConnectionError())
+-      //            ctx = ldapService.getLdapContext(true);
+-      //          else 
+-      //            throw e;
+-      //        } finally {
+-      //          if (results != null)
+-      //            results.close();
+-      //        }
+-      //      }
+-      //    } finally {
+-      //      ldapService.release(ctx);
+-      //    }
+-      //
+-      //    for (Iterator<String> i = map.keySet().iterator(); i.hasNext();)
+-      //      users.add(map.get(i.next()));
+-      //    
+-      //    return new ObjectPageList(users, 10);
+-
+       String searchBase = this.getGroupDNFromGroupId(groupId);
+       String filter = ldapAttrMapping.membershipObjectClassFilter;
+       return new ByGroupLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter);
+@@ -346,8 +327,6 @@
+       String searchBase = ldapAttrMapping.userURL;
+       String filter = ldapAttrMapping.userObjectClassFilter;
+ 
+-      //    return new LDAPUserPageList(ldapAttrMapping, ldapService, searchBase, filter, pageSize);
+-
+       return new SimpleLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter);
+    }
+ 
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADUserDAOImpl.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADUserDAOImpl.java	(revision 4450)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADUserDAOImpl.java	(working copy)
+@@ -20,6 +20,7 @@
+ 
+ import org.exoplatform.services.ldap.LDAPService;
+ import org.exoplatform.services.organization.User;
++import org.exoplatform.services.organization.ldap.CacheHandler.CacheType;
+ 
+ import javax.naming.Context;
+ import javax.naming.NamingException;
+@@ -61,11 +62,14 @@
+    /**
+     * @param ldapAttrMapping {@link LDAPAttributeMapping}
+     * @param ldapService {@link LDAPService}
++    * @param cservice 
++    *          The Cache Handler
+     * @throws Exception if any errors occurs
+     */
+-   public ADUserDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
++   public ADUserDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler)
++      throws Exception
+    {
+-      super(ldapAttrMapping, ldapService);
++      super(ldapAttrMapping, ldapService, cacheHandler);
+       LDAPUserPageList.SEARCH_CONTROL = Control.CRITICAL;
+    }
+ 
+@@ -93,6 +97,8 @@
+                ctx.createSubcontext(userDN, attrs);
+                if (broadcast)
+                   postSave(user, true);
++
++               cacheHandler.put(user.getUserName(), user, CacheType.USER);
+                break;
+             }
+             catch (NamingException e)
+@@ -118,7 +124,7 @@
+     * {@inheritDoc}
+     */
+    @Override
+-   void saveUserPassword(User user, String userDN) throws Exception
++   protected void saveUserPassword(User user, String userDN) throws Exception
+    {
+       Object v = ldapService.getLdapContext().getEnvironment().get(Context.SECURITY_PROTOCOL);
+       if (v == null)
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/BaseDAO.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/BaseDAO.java	(revision 4450)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/BaseDAO.java	(working copy)
+@@ -24,6 +24,7 @@
+ import org.exoplatform.services.organization.Group;
+ import org.exoplatform.services.organization.User;
+ import org.exoplatform.services.organization.impl.GroupImpl;
++import org.exoplatform.services.organization.ldap.CacheHandler.CacheType;
+ 
+ import java.util.ArrayList;
+ import java.util.Enumeration;
+@@ -82,14 +83,21 @@
+    private static int maxConnectionError = -1;
+ 
+    /**
++    * The Cache Handler.
++    */
++   protected final CacheHandler cacheHandler;
++
++   /**
+     * @param ldapAttrMapping {@link LDAPAttributeMapping}
+     * @param ldapService {@link LDAPService}
+     * @throws Exception if any error occurs
+     */
+-   public BaseDAO(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
++   public BaseDAO(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler)
++      throws Exception
+    {
+       this.ldapAttrMapping = ldapAttrMapping;
+       this.ldapService = ldapService;
++      this.cacheHandler = cacheHandler;
+       initializeNameParser();
+    }
+ 
+@@ -141,6 +149,26 @@
+    }
+ 
+    /**
++    * Construct object name from {@link Group} id.
++    *
++    * @param groupDN group DN
++    * @return object name
++    */
++   protected String getGroupIdFromGroupDN(String groupDN) throws NamingException
++   {
++      // extract group's id, group's name and parent's group from DN
++      StringBuffer buffer = new StringBuffer();
++      String[] baseParts = explodeDN(ldapAttrMapping.groupsURL, true);
++      String[] membershipParts = explodeDN(groupDN, true);
++      for (int x = (membershipParts.length - baseParts.length - 1); x > -1; x--)
++      {
++         buffer.append("/" + membershipParts[x]);
++      }
++
++      return buffer.toString();
++   }
++
++   /**
+     * Get collection of {@link Attribute} with specified name from
+     * {@link Attributes}.
+     * 
+@@ -204,6 +232,20 @@
+     */
+    protected Group getGroupFromMembershipDN(LdapContext ctx, String membershipDN) throws NamingException
+    {
++      String groupDN = getGroupDNFromMembershipDN(membershipDN);
++      Group group = getGroupByDN(ctx, groupDN);
++      return group;
++   }
++
++   /**
++    * Retrieve Group DN from membership DN.
++    *
++    * @param membershipDN membership Distinguished Name
++    * @return GroupDN
++    * @throws NamingException if any naming errors occurs
++    */
++   protected String getGroupDNFromMembershipDN(String membershipDN) throws NamingException
++   {
+       String[] membershipParts = explodeDN(membershipDN, false);
+       StringBuffer buffer = new StringBuffer();
+       for (int x = 1; x < membershipParts.length; x++)
+@@ -217,8 +259,7 @@
+             buffer.append(membershipParts[x] + ",");
+          }
+       }
+-      Group group = getGroupByDN(ctx, buffer.toString());
+-      return group;
++      return buffer.toString();
+    }
+ 
+    /**
+@@ -270,6 +311,26 @@
+     */
+    protected Group getGroupByDN(LdapContext ctx, String groupDN) throws NamingException
+    {
++      try
++      {
++         Attributes attrs = ctx.getAttributes(groupDN);
++         return buildGroup(groupDN, attrs);
++      }
++      catch (NameNotFoundException e)
++      {
++         if (LOG.isDebugEnabled())
++            e.printStackTrace();
++         // Object with specified Distinguished Name not found. Null will be
++         // returned. This result we regard as successful, just nothing found.
++         return null;
++      }
++   }
++
++   protected Group buildGroup(String groupDN, Attributes attrs) throws NamingException
++   {
++      GroupImpl group = new GroupImpl();
++
++      // extract group's id, group's name and parent's group from DN
+       StringBuffer idBuffer = new StringBuffer();
+       String parentId = null;
+       String[] baseParts = explodeDN(ldapAttrMapping.groupsURL, true);
+@@ -280,25 +341,17 @@
+          if (x == 1)
+             parentId = idBuffer.toString();
+       }
+-      try
++
++      group.setGroupName(membershipParts[0]);
++      group.setId(idBuffer.toString());
++      if (attrs != null)
+       {
+-         Attributes attrs = ctx.getAttributes(groupDN);
+-         GroupImpl group = new GroupImpl();
+-         group.setGroupName(membershipParts[0]);
+-         group.setId(idBuffer.toString());
+          group.setDescription(ldapAttrMapping.getAttributeValueAsString(attrs, ldapAttrMapping.ldapDescriptionAttr));
+          group.setLabel(ldapAttrMapping.getAttributeValueAsString(attrs, ldapAttrMapping.groupLabelAttr));
+-         group.setParentId(parentId);
+-         return group;
+       }
+-      catch (NameNotFoundException e)
+-      {
+-         if (LOG.isDebugEnabled())
+-            e.printStackTrace();
+-         // Object with specified Distinguished Name not found. Null will be
+-         // returned. This result we regard as successful, just nothing found.
+-         return null;
+-      }
++      group.setParentId(parentId);
++
++      return group;
+    }
+ 
+    /**
+@@ -381,9 +434,7 @@
+          answer = findUser(ctx, username, true);
+          while (answer.hasMoreElements())
+          {
+-            String userDN = answer.next().getNameInNamespace();
+-            Attributes attrs = ctx.getAttributes(userDN);
+-            return ldapAttrMapping.attributesToUser(attrs);
++            return ldapAttrMapping.attributesToUser(answer.next().getAttributes());
+          }
+          return null;
+       }
+@@ -525,6 +576,10 @@
+             removeAllSubtree(ctx, sr.getNameInNamespace());
+          }
+          ctx.destroySubcontext(dn);
++
++         String groupId = buildGroup(dn, null).getId();
++         cacheHandler.remove(groupId, CacheType.GROUP);
++         cacheHandler.remove(CacheHandler.GROUP_PREFIX + groupId, CacheType.MEMBERSHIP);
+       }
+       finally
+       {
