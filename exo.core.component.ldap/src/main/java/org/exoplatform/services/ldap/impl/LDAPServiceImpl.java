@@ -86,6 +86,17 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
       // TODO move it in configuration ?
       env.put("com.sun.jndi.ldap.connect.timeout", "60000");
 
+      if (config.getMinConnection() > 0)
+      {
+         env.put("com.sun.jndi.ldap.connect.pool.initsize", Integer.toString(config.getMinConnection()));
+         env.put("com.sun.jndi.ldap.connect.pool.prefsize", Integer.toString(config.getMinConnection()));
+      }
+
+      if (config.getMaxConnection() > 0)
+      {
+         env.put("com.sun.jndi.ldap.connect.pool.maxsize", Integer.toString(config.getMaxConnection()));
+      }
+
       env.put("com.sun.jndi.ldap.connect.pool", "true");
       env.put("java.naming.ldap.version", config.getVerion());
       env.put("java.naming.ldap.attributes.binary", "tokenGroups");
