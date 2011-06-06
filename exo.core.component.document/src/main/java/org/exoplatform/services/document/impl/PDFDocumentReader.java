@@ -37,6 +37,7 @@ import org.exoplatform.services.log.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Calendar;
@@ -204,7 +205,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         try
                         {
                            if (dc.getTitle() != null)
-                              props.put(DCMetaData.TITLE, dc.getTitle());
+                              props.put(DCMetaData.TITLE, fixEncoding(dc.getTitle()));
                         }
                         catch (Exception e)
                         {
@@ -213,7 +214,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         try
                         {
                            if (dc.getDescription() != null)
-                              props.put(DCMetaData.DESCRIPTION, dc.getDescription());
+                              props.put(DCMetaData.DESCRIPTION, fixEncoding(dc.getDescription()));
                         }
                         catch (Exception e)
                         {
@@ -226,7 +227,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                            {
                               for (String creator : dc.getCreators())
                               {
-                                 props.put(DCMetaData.CREATOR, creator);
+                                 props.put(DCMetaData.CREATOR, fixEncoding(creator));
                               }
                            }
                         }
@@ -257,7 +258,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         try
                         {
                            if (pdf.getKeywords() != null)
-                              props.put(DCMetaData.SUBJECT, pdf.getKeywords());
+                              props.put(DCMetaData.SUBJECT, fixEncoding(pdf.getKeywords()));
                         }
                         catch (Exception e)
                         {
@@ -267,7 +268,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         try
                         {
                            if (pdf.getProducer() != null)
-                              props.put(DCMetaData.PUBLISHER, pdf.getProducer());
+                              props.put(DCMetaData.PUBLISHER, fixEncoding(pdf.getProducer()));
                         }
                         catch (Exception e)
                         {
@@ -296,18 +297,12 @@ public class PDFDocumentReader extends BaseDocumentReader
                         {
                            log.warn("getModificationDate failed: " + e);
                         }
-                        // try
-                        // {
-                        // if (basic.getCreatorTool() != null)
-                        // props.put(DCMetaData.PUBLISHER, basic.getCreatorTool());
-                        // }
-                        // catch (Exception e)
-                        // {
-                        // log.warn("getCreatorTool failed: " + e);
-                        // }
+
+                        // DCMetaData.PUBLISHER - basic.getCreatorTool()
                      }
                   }
-                  else
+
+                  if (props.isEmpty())
                   {
                      // The pdf doesn't contain any metadata, try to use the document
                      // information instead
@@ -434,4 +429,87 @@ public class PDFDocumentReader extends BaseDocumentReader
       }
    }
 
+   private String fixEncoding(String str)
+   {
+      try
+      {
+         String encoding = null;
+         int orderMaskOffset = 0;
+
+         if (str.startsWith("\\000\\000\\376\\377"))
+         {
+            encoding = "UTF-32BE";
+            orderMaskOffset = 16;
+         }
+         else if (str.startsWith("\\377\\376\\000\\000"))
+         {
+            encoding = "UTF-32LE";
+            orderMaskOffset = 16;
+         }
+         else if (str.startsWith("\\376\\377"))
+         {
+            encoding = "UTF-16BE";
+            orderMaskOffset = 8;
+         }
+         else if (str.startsWith("\\377\\376"))
+         {
+            encoding = "UTF-16LE";
+            orderMaskOffset = 8;
+         }
+
+         if (encoding == null)
+         {
+            // return default
+            return str;
+         }
+         else
+         {
+            int i = orderMaskOffset, len = str.length();
+            char c;
+            StringBuilder sb = new StringBuilder(len);
+            while (i < len)
+            {
+               c = str.charAt(i++);
+               if (c == '\\')
+               {
+                  if (i + 3 <= len)
+                  {
+                     //extract octal-code
+                     try
+                     {
+                        c = (char)Integer.parseInt(str.substring(i, i + 3), 8);
+                        i += 3;
+                     }
+                     catch (NumberFormatException e)
+                     {
+                        if (log.isDebugEnabled())
+                        {
+                           log.debug(
+                              "PDF metadata exctraction warning: can not decode octal code - "
+                                 + str.substring(i - 1, i + 3) + ".", e);
+                        }
+                     }
+                  }
+                  else
+                  {
+                     if (log.isDebugEnabled())
+                     {
+                        log.debug("PDF metadata exctraction warning: octal code is not complete - "
+                           + str.substring(i - 1, len));
+                     }
+                  }
+               }
+               sb.append(c);
+            }
+
+            byte[] bytes = sb.toString().getBytes();
+            return new String(bytes, encoding);
+         }
+      }
+      catch (UnsupportedEncodingException e)
+      {
+         log.warn("PDF metadata exctraction warning: can not convert metadata string " + str, e);
+         return "";
+      }
+   }
 }

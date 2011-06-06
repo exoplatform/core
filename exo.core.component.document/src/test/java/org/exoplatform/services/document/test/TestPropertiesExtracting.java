@@ -107,6 +107,24 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
       }
    }
 
+   public void testPDFDocumentReaderServiceXMPUsecase1() throws Exception
+   {
+      InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/Trait_union.06.Mai_2009.pdf");
+      try
+      {
+         DocumentReader rdr = service.getDocumentReader("application/pdf");
+         Properties testprops = rdr.getProperties(is);
+         Properties etalon = new Properties();
+         etalon.put(DCMetaData.TITLE, "journal interne mai 2009.qxp");
+         etalon.put(DCMetaData.CREATOR, "presse");
+         evalProps(etalon, testprops, false);
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
    public void testWordDocumentReaderService() throws Exception
    {
       InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/test.doc");
