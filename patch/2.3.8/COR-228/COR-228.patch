@@ -26244,7 +26244,7 @@ Added: svn:mime-type
 
 Index: exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/PDFDocumentReader.java
 ===================================================================
---- exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/PDFDocumentReader.java	(revision 4476)
+--- exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/PDFDocumentReader.java	(revision 4481)
 +++ exo.core.component.document/src/main/java/org/exoplatform/services/document/impl/PDFDocumentReader.java	(working copy)
 @@ -18,37 +18,31 @@
   */
@@ -26293,7 +26293,7 @@ Index: exo.core.component.document/src/main/java/org/exoplatform/services/docume
  /**
   * Created by The eXo Platform SAS A parser of Adobe PDF files.
   * 
-@@ -168,204 +162,264 @@
+@@ -168,204 +162,269 @@
      */
     public Properties getProperties(InputStream is) throws IOException, DocumentReadException
     {
@@ -26306,28 +26306,25 @@ Index: exo.core.component.document/src/main/java/org/exoplatform/services/docume
 -      byte[] metadata = reader.getMetadata();
 -
 -      if (metadata != null)
--      {
++      PDDocument pdDocument = PDDocument.load(is);
++      Properties props = new Properties();
++      try
+       {
 -         // there is XMP metadata try exctract it
 -         props = getPropertiesFromMetadata(metadata);
 -      }
 -
 -      if (props == null)
-+      PDDocument pdDocument = PDDocument.load(is);
-+      Properties props = new Properties();
-+      try
-       {
+-      {
 -         // it's old pdf document version
 -         props = getPropertiesFromInfo(reader.getInfo());
 -      }
 -      reader.close();
 -      if (is != null)
 -         try
--         {
--            is.close();
--         }
--         catch (IOException e)
 +         if (pdDocument.isEncrypted())
           {
+-            is.close();
 +            try
 +            {
 +               pdDocument.decrypt("");
@@ -26341,8 +26338,16 @@ Index: exo.core.component.document/src/main/java/org/exoplatform/services/docume
 +               throw new DocumentReadException(e.getMessage(), e);
 +            }
           }
+-         catch (IOException e)
++
++         PDDocumentCatalog catalog = pdDocument.getDocumentCatalog();
++         PDMetadata meta = catalog.getMetadata();
++         if (meta != null)
+          {
+-         }
 -      return props;
 -   }
++            XMPMetadata metadata = meta.exportXMPMetadata();
  
 -   /**
 -    * Extract properties from XMP xml.
@@ -26354,45 +26359,6 @@ Index: exo.core.component.document/src/main/java/org/exoplatform/services/docume
 -    */
 -   protected Properties getPropertiesFromMetadata(byte[] metadata) throws IOException, DocumentReadException
 -   {
--
--      Properties props = null;
--
--      // parse xml
--
--      Document doc;
--      try
--      {
--         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
--         DocumentBuilder docBuilder = dbf.newDocumentBuilder();
--         doc = docBuilder.parse(new ByteArrayInputStream(metadata));
--      }
--      catch (SAXException e)
--      {
--         throw new DocumentReadException(e.getMessage(), e);
--      }
--      catch (ParserConfigurationException e)
--      {
--         throw new DocumentReadException(e.getMessage(), e);
--      }
--
--      // Check is there PDF/A-1 XMP
--      String version = "";
--      NodeList list = doc.getElementsByTagName("pdfaid:conformance");
--      if (list != null && list.item(0) != null)
--      {
--         version += list.item(0).getTextContent() + "-";
--      }
-+         PDDocumentCatalog catalog = pdDocument.getDocumentCatalog();
-+         PDMetadata meta = catalog.getMetadata();
-+         if (meta != null)
-+         {
-+            XMPMetadata metadata = meta.exportXMPMetadata();
- 
--      list = doc.getElementsByTagName("pdfaid:part");
--      if (list != null && list.item(0) != null)
--      {
--         version += list.item(0).getTextContent();
--      }
 +            XMPSchemaDublinCore dc = metadata.getDublinCoreSchema();
 +            if (dc != null)
 +            {
@@ -26415,11 +26381,7 @@ Index: exo.core.component.document/src/main/java/org/exoplatform/services/docume
 +                  log.warn("getSubject failed: " + e);
 +               }
  
--      // PDF/A-1a or PDF/A-1b
--      if (version.equalsIgnoreCase("A-1"))
--      {
--         props = getPropsFromPDFAMetadata(doc);
--      }
+-      Properties props = null;
 +               try
 +               {
 +                  if (dc.getCreators() != null)
@@ -26436,25 +26398,28 @@ Index: exo.core.component.document/src/main/java/org/exoplatform/services/docume
 +                  log.warn("getCreator failed: " + e);
 +               }
  
--      return props;
--   }
+-      // parse xml
 +               try
 +               {
 +                  if (dc.getDates() != null)
 +                  {
 +                     List<Calendar> list = dc.getDates();
  
--   /**
--    * Extracts properties from PDF Info hash set.
--    * 
--    * @param Pdf Info hash set
--    * @return Extracted properties
--    * @throws Exception if extracting fails
--    */
--   @SuppressWarnings("unchecked")
--   protected Properties getPropertiesFromInfo(HashMap info) throws IOException
--   {
--      Properties props = new Properties();
+-      Document doc;
+-      try
+-      {
+-         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+-         DocumentBuilder docBuilder = dbf.newDocumentBuilder();
+-         doc = docBuilder.parse(new ByteArrayInputStream(metadata));
+-      }
+-      catch (SAXException e)
+-      {
+-         throw new DocumentReadException(e.getMessage(), e);
+-      }
+-      catch (ParserConfigurationException e)
+-      {
+-         throw new DocumentReadException(e.getMessage(), e);
+-      }
 +                     for (Calendar date : list)
 +                     {
 +                        props.put(DCMetaData.DATE, date);
@@ -26467,10 +26432,12 @@ Index: exo.core.component.document/src/main/java/org/exoplatform/services/docume
 +               }
 +            }
  
--      String title = (String)info.get("Title");
--      if (title != null)
+-      // Check is there PDF/A-1 XMP
+-      String version = "";
+-      NodeList list = doc.getElementsByTagName("pdfaid:conformance");
+-      if (list != null && list.item(0) != null)
 -      {
--         props.put(DCMetaData.TITLE, title);
+-         version += list.item(0).getTextContent() + "-";
 -      }
 +            XMPSchemaBasic basic = metadata.getBasicSchema();
 +            if (basic != null)
@@ -26496,10 +26463,10 @@ Index: exo.core.component.document/src/main/java/org/exoplatform/services/docume
 +            }
 +         }
  
--      String author = (String)info.get("Author");
--      if (author != null)
+-      list = doc.getElementsByTagName("pdfaid:part");
+-      if (list != null && list.item(0) != null)
 -      {
--         props.put(DCMetaData.CREATOR, author);
+-         version += list.item(0).getTextContent();
 -      }
 +         if (props.isEmpty())
 +         {
@@ -26507,10 +26474,10 @@ Index: exo.core.component.document/src/main/java/org/exoplatform/services/docume
 +            // usefull data, try to use the document information instead
 +            PDDocumentInformation docInfo = pdDocument.getDocumentInformation();
  
--      String subject = (String)info.get("Subject");
--      if (subject != null)
+-      // PDF/A-1a or PDF/A-1b
+-      if (version.equalsIgnoreCase("A-1"))
 -      {
--         props.put(DCMetaData.SUBJECT, subject);
+-         props = getPropsFromPDFAMetadata(doc);
 -      }
 +            if (docInfo != null)
 +            {
@@ -26535,10 +26502,25 @@ Index: exo.core.component.document/src/main/java/org/exoplatform/services/docume
 +               try
 +               {
  
--      String creationDate = (String)info.get("CreationDate");
--      if (creationDate != null)
+-      return props;
+-   }
+-
+-   /**
+-    * Extracts properties from PDF Info hash set.
+-    * 
+-    * @param Pdf Info hash set
+-    * @return Extracted properties
+-    * @throws Exception if extracting fails
+-    */
+-   @SuppressWarnings("unchecked")
+-   protected Properties getPropertiesFromInfo(HashMap info) throws IOException
+-   {
+-      Properties props = new Properties();
+-
+-      String title = (String)info.get("Title");
+-      if (title != null)
 -      {
--         props.put(DCMetaData.DATE, PdfDate.decode(creationDate));
+-         props.put(DCMetaData.TITLE, title);
 +                  if (docInfo.getKeywords() != null)
 +                     props.put(DCMetaData.SUBJECT, docInfo.getKeywords());
 +               }
@@ -26577,22 +26559,40 @@ Index: exo.core.component.document/src/main/java/org/exoplatform/services/docume
 +         }
        }
 -
--      String modDate = (String)info.get("ModDate");
--      if (modDate != null)
+-      String author = (String)info.get("Author");
+-      if (author != null)
 +      finally
        {
--         props.put(DCMetaData.DATE, PdfDate.decode(modDate));
+-         props.put(DCMetaData.CREATOR, author);
 +         if (pdDocument != null)
 +         {
 +            pdDocument.close();
 +         }
        }
  
+-      String subject = (String)info.get("Subject");
+-      if (subject != null)
+-      {
+-         props.put(DCMetaData.SUBJECT, subject);
+-      }
+-
+-      String creationDate = (String)info.get("CreationDate");
+-      if (creationDate != null)
+-      {
+-         props.put(DCMetaData.DATE, PdfDate.decode(creationDate));
+-      }
+-
+-      String modDate = (String)info.get("ModDate");
+-      if (modDate != null)
+-      {
+-         props.put(DCMetaData.DATE, PdfDate.decode(modDate));
+-      }
+-
        return props;
     }
  
 -   private Properties getPropsFromPDFAMetadata(Document doc) throws IOException, DocumentReadException
-+   private String fixEncoding(String str)
++   private String fixEncoding(String str) throws DocumentReadException
     {
 -      Properties props = new Properties();
 -      // get properties
@@ -26601,7 +26601,11 @@ Index: exo.core.component.document/src/main/java/org/exoplatform/services/docume
 +      try
        {
 -         for (int i = 0; i < list.getLength(); i++)
--         {
++         String encoding = null;
++         int orderMaskOffset = 0;
++
++         if (str.startsWith("\\000\\000\\376\\377"))
+          {
 -
 -            Node n = list.item(i);
 -            // dc:title - TITLE
@@ -26610,9 +26614,7 @@ Index: exo.core.component.document/src/main/java/org/exoplatform/services/docume
 -               String title = n.getLastChild().getTextContent();
 -               props.put(DCMetaData.TITLE, title);
 -            }
-+         String encoding = null;
-+         int orderMaskOffset = 0;
- 
+-
 -            // dc:creator - CREATOR
 -            if (n.getParentNode().getParentNode().getNodeName().equals("dc:creator"))
 -            {
@@ -26627,8 +26629,6 @@ Index: exo.core.component.document/src/main/java/org/exoplatform/services/docume
 -               props.put(DCMetaData.SUBJECT, description);
 -               // props.put(DCMetaData.DESCRIPTION, description);
 -            }
-+         if (str.startsWith("\\000\\000\\376\\377"))
-+         {
 +            encoding = "UTF-32BE";
 +            orderMaskOffset = 16;
           }
@@ -26650,7 +26650,7 @@ Index: exo.core.component.document/src/main/java/org/exoplatform/services/docume
 -            }
 +            encoding = "UTF-32LE";
 +            orderMaskOffset = 16;
-+         }
+          }
 +         else if (str.startsWith("\\376\\377"))
 +         {
 +            encoding = "UTF-16BE";
@@ -26660,7 +26660,7 @@ Index: exo.core.component.document/src/main/java/org/exoplatform/services/docume
 +         {
 +            encoding = "UTF-16LE";
 +            orderMaskOffset = 8;
-          }
++         }
  
 -         // xmp:ModifyDate - DATE
 -         list = doc.getElementsByTagName("xmp:ModifyDate");
@@ -26695,15 +26695,21 @@ Index: exo.core.component.document/src/main/java/org/exoplatform/services/docume
 +                     }
 +                     catch (NumberFormatException e)
 +                     {
-+                        log.warn(
-+                           "PDF metadata exctraction warning: can not decode octal code - "
-+                              + str.substring(i - 1, i + 3) + ".", e);
++                        if (log.isDebugEnabled())
++                        {
++                           log.debug(
++                              "PDF metadata exctraction warning: can not decode octal code - "
++                                 + str.substring(i - 1, i + 3) + ".", e);
++                        }
 +                     }
 +                  }
 +                  else
 +                  {
-+                     log.warn("PDF metadata exctraction warning: octal code is not complete - "
-+                        + str.substring(i - 1, len));
++                     if (log.isDebugEnabled())
++                     {
++                        log.debug("PDF metadata exctraction warning: octal code is not complete - "
++                           + str.substring(i - 1, len));
++                     }
 +                  }
 +               }
 +               sb.append(c);
@@ -26716,9 +26722,7 @@ Index: exo.core.component.document/src/main/java/org/exoplatform/services/docume
 -      catch (ParseException e)
 +      catch (UnsupportedEncodingException e)
        {
--         throw new DocumentReadException(e.getMessage(), e);
-+         log.warn("PDF metadata exctraction warning: can not convert metadata string " + str, e);
-+         return "";
+          throw new DocumentReadException(e.getMessage(), e);
        }
 -      return props;
     }
