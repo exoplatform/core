@@ -18,36 +18,27 @@
  */
 package org.exoplatform.services.document.impl;
 
-import com.lowagie.text.pdf.PdfDate;
-import com.lowagie.text.pdf.PdfReader;
-
+import org.apache.jempbox.xmp.XMPMetadata;
+import org.apache.jempbox.xmp.XMPSchemaBasic;
+import org.apache.jempbox.xmp.XMPSchemaDublinCore;
+import org.apache.pdfbox.exceptions.InvalidPasswordException;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
+import org.apache.pdfbox.pdmodel.common.PDMetadata;
 import org.apache.pdfbox.util.PDFTextStripper;
-import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReadException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
-import java.text.ParseException;
+import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Created by The eXo Platform SAS A parser of Adobe PDF files.
@@ -79,79 +70,51 @@ public class PDFDocumentReader extends BaseDocumentReader
     */
    public String getContentAsText(final InputStream is) throws IOException, DocumentReadException
    {
-
+      if (is == null)
+      {
+         throw new NullPointerException("InputStream is null.");
+      }
+      PDDocument pdDocument = null;
+      StringWriter sw = new StringWriter();
       try
       {
-         return (String)AccessController.doPrivileged(new PrivilegedExceptionAction<Object>()
+         if (is.available() == 0)
+            return "";
+
+         try
          {
-            public Object run() throws Exception
-            {
-               if (is == null)
-               {
-                  throw new NullPointerException("InputStream is null.");
-               }
-               PDDocument pdDocument = null;
-               StringWriter sw = new StringWriter();
-               try
-               {
-                  if (is.available() == 0)
-                     return "";
+            pdDocument = PDDocument.load(is);
+         }
+         catch (IOException e)
+         {
+            throw new DocumentReadException("Can not load PDF document.", e);
+         }
 
-                  try
-                  {
-                     pdDocument = PDDocument.load(is);
-                  }
-                  catch (IOException e)
-                  {
-                     throw new DocumentReadException("Can not load PDF document.", e);
-                  }
-
-                  PDFTextStripper stripper = new PDFTextStripper();
-                  stripper.setStartPage(1);
-                  stripper.setEndPage(Integer.MAX_VALUE);
-                  stripper.writeText(pdDocument, sw);
-               }
-               finally
-               {
-                  if (pdDocument != null)
-                     try
-                     {
-                        pdDocument.close();
-                     }
-                     catch (IOException e)
-                     {
-                     }
-                  if (is != null)
-                     try
-                     {
-                        is.close();
-                     }
-                     catch (IOException e)
-                     {
-                     }
-               }
-               return sw.toString();
-            }
-         });
-
+         PDFTextStripper stripper = new PDFTextStripper();
+         stripper.setStartPage(1);
+         stripper.setEndPage(Integer.MAX_VALUE);
+         stripper.writeText(pdDocument, sw);
       }
-      catch (PrivilegedActionException pae)
+      finally
       {
-         Throwable cause = pae.getCause();
-         if (cause instanceof IOException)
-         {
-            throw (IOException)cause;
-         }
-         else if (cause instanceof RuntimeException)
-         {
-            throw (RuntimeException)cause;
-         }
-         else
-         {
-            throw new RuntimeException(cause);
-         }
+         if (pdDocument != null)
+            try
+            {
+               pdDocument.close();
+            }
+            catch (IOException e)
+            {
+            }
+         if (is != null)
+            try
+            {
+               is.close();
+            }
+            catch (IOException e)
+            {
+            }
       }
-
+      return sw.toString();
    }
 
    public String getContentAsText(InputStream is, String encoding) throws IOException, DocumentReadException
@@ -168,204 +131,269 @@ public class PDFDocumentReader extends BaseDocumentReader
     */
    public Properties getProperties(InputStream is) throws IOException, DocumentReadException
    {
-
-      Properties props = null;
-
-      PdfReader reader = new PdfReader(is, "".getBytes());
-
-      // Read the file metadata
-      byte[] metadata = reader.getMetadata();
-
-      if (metadata != null)
-      {
-         // there is XMP metadata try exctract it
-         props = getPropertiesFromMetadata(metadata);
-      }
-
-      if (props == null)
-      {
-         // it's old pdf document version
-         props = getPropertiesFromInfo(reader.getInfo());
-      }
-      reader.close();
-      if (is != null)
-         try
-         {
-            is.close();
-         }
-         catch (IOException e)
-         {
-         }
-      return props;
-   }
-
-   /**
-    * Extract properties from XMP xml.
-    * 
-    * @param metadata XML as byte array
-    * @return extracted properties
-    * @throws DocumentReadException
-    * @throws Exception if extracting fails
-    */
-   protected Properties getPropertiesFromMetadata(byte[] metadata) throws IOException, DocumentReadException
-   {
-
-      Properties props = null;
-
-      // parse xml
-
-      Document doc;
+      PDDocument pdDocument = PDDocument.load(is);
+      Properties props = new Properties();
       try
       {
-         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-         DocumentBuilder docBuilder = dbf.newDocumentBuilder();
-         doc = docBuilder.parse(new ByteArrayInputStream(metadata));
-      }
-      catch (SAXException e)
-      {
-         throw new DocumentReadException(e.getMessage(), e);
-      }
-      catch (ParserConfigurationException e)
-      {
-         throw new DocumentReadException(e.getMessage(), e);
-      }
-
-      // Check is there PDF/A-1 XMP
-      String version = "";
-      NodeList list = doc.getElementsByTagName("pdfaid:conformance");
-      if (list != null && list.item(0) != null)
-      {
-         version += list.item(0).getTextContent() + "-";
-      }
-
-      list = doc.getElementsByTagName("pdfaid:part");
-      if (list != null && list.item(0) != null)
-      {
-         version += list.item(0).getTextContent();
-      }
-
-      // PDF/A-1a or PDF/A-1b
-      if (version.equalsIgnoreCase("A-1"))
-      {
-         props = getPropsFromPDFAMetadata(doc);
-      }
-
-      return props;
-   }
-
-   /**
-    * Extracts properties from PDF Info hash set.
-    * 
-    * @param Pdf Info hash set
-    * @return Extracted properties
-    * @throws Exception if extracting fails
-    */
-   @SuppressWarnings("unchecked")
-   protected Properties getPropertiesFromInfo(HashMap info) throws IOException
-   {
-      Properties props = new Properties();
-
-      String title = (String)info.get("Title");
-      if (title != null)
-      {
-         props.put(DCMetaData.TITLE, title);
-      }
-
-      String author = (String)info.get("Author");
-      if (author != null)
-      {
-         props.put(DCMetaData.CREATOR, author);
-      }
-
-      String subject = (String)info.get("Subject");
-      if (subject != null)
-      {
-         props.put(DCMetaData.SUBJECT, subject);
-      }
-
-      String creationDate = (String)info.get("CreationDate");
-      if (creationDate != null)
-      {
-         props.put(DCMetaData.DATE, PdfDate.decode(creationDate));
-      }
-
-      String modDate = (String)info.get("ModDate");
-      if (modDate != null)
-      {
-         props.put(DCMetaData.DATE, PdfDate.decode(modDate));
-      }
-
-      return props;
-   }
-
-   private Properties getPropsFromPDFAMetadata(Document doc) throws IOException, DocumentReadException
-   {
-      Properties props = new Properties();
-      // get properties
-      NodeList list = doc.getElementsByTagName("rdf:li");
-      if (list != null && list.getLength() > 0)
-      {
-         for (int i = 0; i < list.getLength(); i++)
+         if (pdDocument.isEncrypted())
          {
-
-            Node n = list.item(i);
-            // dc:title - TITLE
-            if (n.getParentNode().getParentNode().getNodeName().equals("dc:title"))
+            try
             {
-               String title = n.getLastChild().getTextContent();
-               props.put(DCMetaData.TITLE, title);
+               pdDocument.decrypt("");
+            }
+            catch (InvalidPasswordException e)
+            {
+               throw new DocumentReadException("The pdf document is encrypted.", e);
+            }
+            catch (org.apache.pdfbox.exceptions.CryptographyException e)
+            {
+               throw new DocumentReadException(e.getMessage(), e);
+            }
+         }
+
+         PDDocumentCatalog catalog = pdDocument.getDocumentCatalog();
+         PDMetadata meta = catalog.getMetadata();
+         if (meta != null)
+         {
+            XMPMetadata metadata = meta.exportXMPMetadata();
+
+            XMPSchemaDublinCore dc = metadata.getDublinCoreSchema();
+            if (dc != null)
+            {
+               try
+               {
+                  if (dc.getTitle() != null)
+                     props.put(DCMetaData.TITLE, fixEncoding(dc.getTitle()));
+               }
+               catch (Exception e)
+               {
+                  log.warn("getTitle failed: " + e);
+               }
+               try
+               {
+                  if (dc.getDescription() != null)
+                     props.put(DCMetaData.SUBJECT, fixEncoding(dc.getDescription()));
+               }
+               catch (Exception e)
+               {
+                  log.warn("getSubject failed: " + e);
+               }
+
+               try
+               {
+                  if (dc.getCreators() != null)
+                  {
+                     List<String> list = dc.getCreators();
+                     for (String creator : list)
+                     {
+                        props.put(DCMetaData.CREATOR, fixEncoding(creator));
+                     }
+                  }
+               }
+               catch (Exception e)
+               {
+                  log.warn("getCreator failed: " + e);
+               }
+
+               try
+               {
+                  if (dc.getDates() != null)
+                  {
+                     List<Calendar> list = dc.getDates();
+
+                     for (Calendar date : list)
+                     {
+                        props.put(DCMetaData.DATE, date);
+                     }
+                  }
+               }
+               catch (Exception e)
+               {
+                  log.warn("getDate failed: " + e);
+               }
             }
 
-            // dc:creator - CREATOR
-            if (n.getParentNode().getParentNode().getNodeName().equals("dc:creator"))
+            XMPSchemaBasic basic = metadata.getBasicSchema();
+            if (basic != null)
             {
-               String author = n.getLastChild().getTextContent();
-               props.put(DCMetaData.CREATOR, author);
+               try
+               {
+                  if (basic.getCreateDate() != null)
+                     props.put(DCMetaData.DATE, basic.getCreateDate());
+               }
+               catch (Exception e)
+               {
+                  log.warn("getCreationDate failed: " + e);
+               }
+               try
+               {
+                  if (basic.getModifyDate() != null)
+                     props.put(DCMetaData.DATE, basic.getModifyDate());
+               }
+               catch (Exception e)
+               {
+                  log.warn("getModificationDate failed: " + e);
+               }
             }
+         }
 
-            // DC:description - SUBJECT
-            if (n.getParentNode().getParentNode().getNodeName().equals("dc:description"))
+         if (props.isEmpty())
+         {
+            // The pdf doesn't contain any XMP metadata or XMP metadata do not contains any
+            // usefull data, try to use the document information instead
+            PDDocumentInformation docInfo = pdDocument.getDocumentInformation();
+
+            if (docInfo != null)
             {
-               String description = n.getLastChild().getTextContent();
-               props.put(DCMetaData.SUBJECT, description);
-               // props.put(DCMetaData.DESCRIPTION, description);
+               try
+               {
+                  if (docInfo.getCreationDate() != null)
+                     props.put(DCMetaData.DATE, docInfo.getCreationDate());
+               }
+               catch (Exception e)
+               {
+                  log.warn("getCreationDate failed: " + e);
+               }
+               try
+               {
+                  if (docInfo.getCreator() != null)
+                     props.put(DCMetaData.CREATOR, docInfo.getCreator());
+               }
+               catch (Exception e)
+               {
+                  log.warn("getCreator failed: " + e);
+               }
+               try
+               {
+
+                  if (docInfo.getKeywords() != null)
+                     props.put(DCMetaData.SUBJECT, docInfo.getKeywords());
+               }
+               catch (Exception e)
+               {
+                  log.warn("getKeywords failed: " + e);
+               }
+               try
+               {
+                  if (docInfo.getModificationDate() != null)
+                     props.put(DCMetaData.DATE, docInfo.getModificationDate());
+               }
+               catch (Exception e)
+               {
+                  log.warn("getModificationDate failed: " + e);
+               }
+               try
+               {
+                  if (docInfo.getSubject() != null)
+                     props.put(DCMetaData.DESCRIPTION, docInfo.getSubject());
+               }
+               catch (Exception e)
+               {
+                  log.warn("getSubject failed: " + e);
+               }
+               try
+               {
+                  if (docInfo.getTitle() != null)
+                     props.put(DCMetaData.TITLE, docInfo.getTitle());
+               }
+               catch (Exception e)
+               {
+                  log.warn("getTitle failed: " + e);
+               }
             }
          }
       }
+      finally
+      {
+         if (pdDocument != null)
+         {
+            pdDocument.close();
+         }
+      }
 
+      return props;
+   }
+
+   private String fixEncoding(String str) throws DocumentReadException
+   {
       try
       {
-         // xmp:CreateDate - DATE
-         list = doc.getElementsByTagName("xmp:CreateDate");
-         if (list != null && list.item(0) != null)
+         String encoding = null;
+         int orderMaskOffset = 0;
+
+         if (str.startsWith("\\000\\000\\376\\377"))
          {
-            Node creationDateNode = list.item(0).getLastChild();
-            if (creationDateNode != null)
-            {
-               String creationDate = creationDateNode.getTextContent();
-               Calendar c = ISO8601.parseEx(creationDate);
-               props.put(DCMetaData.DATE, c);
-            }
+            encoding = "UTF-32BE";
+            orderMaskOffset = 16;
+         }
+         else if (str.startsWith("\\377\\376\\000\\000"))
+         {
+            encoding = "UTF-32LE";
+            orderMaskOffset = 16;
+         }
+         else if (str.startsWith("\\376\\377"))
+         {
+            encoding = "UTF-16BE";
+            orderMaskOffset = 8;
+         }
+         else if (str.startsWith("\\377\\376"))
+         {
+            encoding = "UTF-16LE";
+            orderMaskOffset = 8;
          }
 
-         // xmp:ModifyDate - DATE
-         list = doc.getElementsByTagName("xmp:ModifyDate");
-         if (list != null && list.item(0) != null)
+         if (encoding == null)
          {
-            Node modifyDateNode = list.item(0).getLastChild();
-            if (modifyDateNode != null)
+            // return default
+            return str;
+         }
+         else
+         {
+            int i = orderMaskOffset, len = str.length();
+            char c;
+            StringBuilder sb = new StringBuilder(len);
+            while (i < len)
             {
-               String modifyDate = modifyDateNode.getTextContent();
-               Calendar c = ISO8601.parseEx(modifyDate);
-               props.put(DCMetaData.DATE, c);
+               c = str.charAt(i++);
+               if (c == '\\')
+               {
+                  if (i + 3 <= len)
+                  {
+                     //extract octal-code
+                     try
+                     {
+                        c = (char)Integer.parseInt(str.substring(i, i + 3), 8);
+                        i += 3;
+                     }
+                     catch (NumberFormatException e)
+                     {
+                        if (log.isDebugEnabled())
+                        {
+                           log.debug(
+                              "PDF metadata exctraction warning: can not decode octal code - "
+                                 + str.substring(i - 1, i + 3) + ".", e);
+                        }
+                     }
+                  }
+                  else
+                  {
+                     if (log.isDebugEnabled())
+                     {
+                        log.debug("PDF metadata exctraction warning: octal code is not complete - "
+                           + str.substring(i - 1, len));
+                     }
+                  }
+               }
+               sb.append(c);
             }
+
+            byte[] bytes = sb.toString().getBytes();
+            return new String(bytes, encoding);
          }
       }
-      catch (ParseException e)
+      catch (UnsupportedEncodingException e)
       {
          throw new DocumentReadException(e.getMessage(), e);
       }
-      return props;
    }
-
 }
