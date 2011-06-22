@@ -146,7 +146,7 @@ public class JbossLoginModule extends DefaultLoginModule
                }
                else
                {
-                  log.warn("No principal found when performing JBoss security manager cache eviction for user "
+                  log.debug("No principal found when performing JBoss security manager cache eviction for user "
                      + userName);
                }
             }
