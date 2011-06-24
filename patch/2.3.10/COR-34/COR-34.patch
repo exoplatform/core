@@ -1,8 +1,247 @@
+Index: exo.core.component.ldap/src/main/java/org/exoplatform/services/ldap/impl/LDAPServiceImpl.java
+===================================================================
+--- exo.core.component.ldap/src/main/java/org/exoplatform/services/ldap/impl/LDAPServiceImpl.java	(revision 4560)
++++ exo.core.component.ldap/src/main/java/org/exoplatform/services/ldap/impl/LDAPServiceImpl.java	(working copy)
+@@ -207,6 +207,7 @@
+                }
+                catch (CommunicationException e1)
+                {
++                  release(ctx);
+                   // create new LDAP context
+                   ctx = getLdapContext(true);
+                   // try repeat operation where communication error occurs
+@@ -214,6 +215,7 @@
+                }
+                catch (ServiceUnavailableException e2)
+                {
++                  release(ctx);
+                   // do the same as for CommunicationException
+                   ctx = getLdapContext(true);
+                   //
+@@ -274,6 +276,7 @@
+                }
+                catch (CommunicationException e1)
+                {
++                  release(ctx);
+                   // create new LDAP context
+                   ctx = getLdapContext(true);
+                   // try repeat operation where communication error occurs
+@@ -281,6 +284,7 @@
+                }
+                catch (ServiceUnavailableException e2)
+                {
++                  release(ctx);
+                   // do the same as for CommunicationException
+                   ctx = getLdapContext(true);
+                   //
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipDAOImpl.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipDAOImpl.java	(revision 4560)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipDAOImpl.java	(working copy)
+@@ -29,6 +29,7 @@
+ import org.exoplatform.services.organization.MembershipType;
+ import org.exoplatform.services.organization.User;
+ import org.exoplatform.services.organization.impl.MembershipImpl;
++import org.exoplatform.services.organization.ldap.CacheHandler.CacheType;
+ 
+ import java.util.ArrayList;
+ import java.util.Collection;
+@@ -70,12 +71,15 @@
+     *          mapping LDAP attributes to eXo organization service items (users, groups, etc)
+     * @param ldapService
+     *          {@link LDAPService}
++    * @param cacheHandler
++    *          The Cache Handler          
+     * @throws Exception
+     *           if any errors occurs
+     */
+-   public MembershipDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
++   public MembershipDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler)
++      throws Exception
+    {
+-      super(ldapAttrMapping, ldapService);
++      super(ldapAttrMapping, ldapService, cacheHandler);
+       this.listeners = new ArrayList<MembershipEventListener>(3);
+    }
+ 
+@@ -131,6 +135,8 @@
+                   ctx.createSubcontext(membershipDN, ldapAttrMapping.membershipToAttributes(m, userDN));
+                   if (broadcast)
+                      postSave(m, true);
++
++                  cacheHandler.put(cacheHandler.getMembershipKey(m), m, CacheType.MEMBERSHIP);
+                   return;
+                }
+                // if contains membership
+@@ -148,15 +154,14 @@
+                ctx.modifyAttributes(membershipDN, mods);
+                if (broadcast)
+                   postSave(m, true);
++
++               cacheHandler.put(cacheHandler.getMembershipKey(m), m, CacheType.MEMBERSHIP);
+                return;
+ 
+             }
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -245,23 +250,25 @@
+                   ctx.modifyAttributes(membershipDN, mods);
+                   if (broadcast)
+                      postSave(m, true);
++
++                  cacheHandler.put(cacheHandler.getMembershipKey(m), m, CacheType.MEMBERSHIP);
+                }
+                else
+                {
+                   if (broadcast)
+                      preDelete(m);
+                   ctx.destroySubcontext(membershipDN);
++
+                   if (broadcast)
+                      postDelete(m);
++
++                  cacheHandler.remove(cacheHandler.getMembershipKey(m), CacheType.MEMBERSHIP);
+                }
+                return m;
+             }
+             catch (NamingException e1)
+             {
+-               if (isConnectionError(e1) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e1;
++               ctx = reloadCtx(ctx, err, e1);
+             }
+          }
+       }
+@@ -318,9 +325,13 @@
+                            new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(
+                               ldapAttrMapping.membershipTypeMemberValue, userDN));
+                         ctx.modifyAttributes(membershipDN, mods);
++                        cacheHandler.put(cacheHandler.getMembershipKey(membership), membership, CacheType.MEMBERSHIP);
+                      }
+                      else
++                     {
+                         ctx.destroySubcontext(membershipDN);
++                        cacheHandler.remove(cacheHandler.getMembershipKey(membership), CacheType.MEMBERSHIP);
++                     }
+                   }
+                   catch (Exception e1)
+                   {
+@@ -331,10 +342,7 @@
+             }
+             catch (NamingException e2)
+             {
+-               if (isConnectionError(e2) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e2;
++               ctx = reloadCtx(ctx, err, e2);
+             }
+             finally
+             {
+@@ -365,12 +373,19 @@
+     */
+    public Membership findMembershipByUserGroupAndType(String userName, String groupId, String type) throws Exception
+    {
++      MembershipImpl membership =
++         (MembershipImpl)cacheHandler.get(cacheHandler.getMembershipKey(userName, groupId, type), CacheType.MEMBERSHIP);
++      if (membership != null)
++      {
++         return membership;
++      }
++
+       LdapContext ctx = ldapService.getLdapContext();
+       try
+       {
+          for (int err = 0;; err++)
+          {
+-            Membership membership = null;
++            membership = null;
+             try
+             {
+                String userDN = getDNFromUsername(ctx, userName);
+@@ -395,14 +410,15 @@
+                   membership = createMembershipObject(userName, groupId, type);
+                }
+ 
++               if (membership != null)
++               {
++                  cacheHandler.put(cacheHandler.getMembershipKey(membership), membership, CacheType.MEMBERSHIP);
++               }
+                return membership;
+             }
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -457,10 +473,7 @@
+             }
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+             finally
+             {
+@@ -538,9 +551,9 @@
+                {
+                   SearchResult sr = results.next();
+                   String membershipDN = sr.getNameInNamespace();
+-                  Group group = getGroupFromMembershipDN(ctx, membershipDN);
++                  String groupId = getGroupIdFromGroupDN(getGroupDNFromMembershipDN(membershipDN));
+                   String type = explodeDN(membershipDN, true)[0];
+-                  Membership membership = createMembershipObject(userName, group.getId(), type);
++                  Membership membership = createMembershipObject(userName, groupId, type);
+                   memberships.add(membership);
+                }
+                if (LOG.isDebugEnabled())
+@@ -551,10 +564,7 @@
+             }
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+             finally
+             {
+@@ -619,10 +629,7 @@
+             }
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+             finally
+             {
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/CacheHandler.java
 ===================================================================
 --- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/CacheHandler.java	(revision 0)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/CacheHandler.java	(revision 0)
-@@ -0,0 +1,182 @@
+@@ -0,0 +1,176 @@
 +/*
 + * Copyright (C) 2011 eXo Platform SAS.
 + *
@@ -45,11 +284,6 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
 +   public static final String USER_PREFIX = "u=";
 +
 +   /**
-+    * The cache service.
-+    */
-+   private final CacheService cservice;
-+
-+   /**
 +    * Cache for Users.
 +    */
 +   private final ExoCache<Serializable, User> userCache;
@@ -77,7 +311,6 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
 +    */
 +   public CacheHandler(CacheService cservice)
 +   {
-+      this.cservice = cservice;
 +      this.userCache = cservice.getCacheInstance(this.getClass().getName() + "userCache");
 +      this.membershipTypeCache = cservice.getCacheInstance(this.getClass().getName() + "membershipTypeCache");
 +      this.groupCache = cservice.getCacheInstance(this.getClass().getName() + "groupCache");
@@ -185,135 +418,9 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
 +      USER, GROUP, MEMBERSHIP, MEMBERSHIPTYPE
 +   }
 +}
-Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipDAOImpl.java
-===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipDAOImpl.java	(revision 4450)
-+++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipDAOImpl.java	(working copy)
-@@ -29,6 +29,7 @@
- import org.exoplatform.services.organization.MembershipType;
- import org.exoplatform.services.organization.User;
- import org.exoplatform.services.organization.impl.MembershipImpl;
-+import org.exoplatform.services.organization.ldap.CacheHandler.CacheType;
- 
- import java.util.ArrayList;
- import java.util.Collection;
-@@ -70,12 +71,15 @@
-     *          mapping LDAP attributes to eXo organization service items (users, groups, etc)
-     * @param ldapService
-     *          {@link LDAPService}
-+    * @param cacheHandler
-+    *          The Cache Handler          
-     * @throws Exception
-     *           if any errors occurs
-     */
--   public MembershipDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
-+   public MembershipDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler)
-+      throws Exception
-    {
--      super(ldapAttrMapping, ldapService);
-+      super(ldapAttrMapping, ldapService, cacheHandler);
-       this.listeners = new ArrayList<MembershipEventListener>(3);
-    }
- 
-@@ -131,6 +135,8 @@
-                   ctx.createSubcontext(membershipDN, ldapAttrMapping.membershipToAttributes(m, userDN));
-                   if (broadcast)
-                      postSave(m, true);
-+
-+                  cacheHandler.put(cacheHandler.getMembershipKey(m), m, CacheType.MEMBERSHIP);
-                   return;
-                }
-                // if contains membership
-@@ -148,6 +154,8 @@
-                ctx.modifyAttributes(membershipDN, mods);
-                if (broadcast)
-                   postSave(m, true);
-+
-+               cacheHandler.put(cacheHandler.getMembershipKey(m), m, CacheType.MEMBERSHIP);
-                return;
- 
-             }
-@@ -245,14 +253,19 @@
-                   ctx.modifyAttributes(membershipDN, mods);
-                   if (broadcast)
-                      postSave(m, true);
-+
-+                  cacheHandler.put(cacheHandler.getMembershipKey(m), m, CacheType.MEMBERSHIP);
-                }
-                else
-                {
-                   if (broadcast)
-                      preDelete(m);
-                   ctx.destroySubcontext(membershipDN);
-+
-                   if (broadcast)
-                      postDelete(m);
-+
-+                  cacheHandler.remove(cacheHandler.getMembershipKey(m), CacheType.MEMBERSHIP);
-                }
-                return m;
-             }
-@@ -318,9 +331,13 @@
-                            new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(
-                               ldapAttrMapping.membershipTypeMemberValue, userDN));
-                         ctx.modifyAttributes(membershipDN, mods);
-+                        cacheHandler.put(cacheHandler.getMembershipKey(membership), membership, CacheType.MEMBERSHIP);
-                      }
-                      else
-+                     {
-                         ctx.destroySubcontext(membershipDN);
-+                        cacheHandler.remove(cacheHandler.getMembershipKey(membership), CacheType.MEMBERSHIP);
-+                     }
-                   }
-                   catch (Exception e1)
-                   {
-@@ -365,12 +382,19 @@
-     */
-    public Membership findMembershipByUserGroupAndType(String userName, String groupId, String type) throws Exception
-    {
-+      MembershipImpl membership =
-+         (MembershipImpl)cacheHandler.get(cacheHandler.getMembershipKey(userName, groupId, type), CacheType.MEMBERSHIP);
-+      if (membership != null)
-+      {
-+         return membership;
-+      }
-+
-       LdapContext ctx = ldapService.getLdapContext();
-       try
-       {
-          for (int err = 0;; err++)
-          {
--            Membership membership = null;
-+            membership = null;
-             try
-             {
-                String userDN = getDNFromUsername(ctx, userName);
-@@ -395,6 +419,10 @@
-                   membership = createMembershipObject(userName, groupId, type);
-                }
- 
-+               if (membership != null)
-+               {
-+                  cacheHandler.put(cacheHandler.getMembershipKey(membership), membership, CacheType.MEMBERSHIP);
-+               }
-                return membership;
-             }
-             catch (NamingException e)
-@@ -538,9 +566,9 @@
-                {
-                   SearchResult sr = results.next();
-                   String membershipDN = sr.getNameInNamespace();
--                  Group group = getGroupFromMembershipDN(ctx, membershipDN);
-+                  String groupId = getGroupIdFromGroupDN(getGroupDNFromMembershipDN(membershipDN));
-                   String type = explodeDN(membershipDN, true)[0];
--                  Membership membership = createMembershipObject(userName, group.getId(), type);
-+                  Membership membership = createMembershipObject(userName, groupId, type);
-                   memberships.add(membership);
-                }
-                if (LOG.isDebugEnabled())
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/GroupDAOImpl.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/GroupDAOImpl.java	(revision 4450)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/GroupDAOImpl.java	(revision 4560)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/GroupDAOImpl.java	(working copy)
 @@ -26,11 +26,14 @@
  import org.exoplatform.services.organization.GroupEventListenerHandler;
@@ -347,7 +454,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
        this.listeners = new ArrayList<GroupEventListener>(3);
     }
  
-@@ -136,6 +142,8 @@
+@@ -136,14 +142,13 @@
                 ctx.createSubcontext(groupDN, ldapAttrMapping.groupToAttributes(child));
                 if (broadcast)
                    postSave(group, true);
@@ -356,7 +463,16 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
                 return;
              }
              catch (NamingException e)
-@@ -192,6 +200,8 @@
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+             finally
+             {
+@@ -192,14 +197,13 @@
                 ctx.modifyAttributes(groupDN, mods);
                 if (broadcast)
                    postSave(group, true);
@@ -365,7 +481,16 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
                 return;
              }
              catch (NamingException e)
-@@ -255,6 +265,7 @@
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -255,15 +259,13 @@
                 removeAllSubtree(ctx, groupDN);
                 if (broadcast)
                    postDelete(group);
@@ -373,7 +498,29 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
                 return group;
  
              }
-@@ -348,6 +359,13 @@
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+             finally
+             {
+@@ -323,10 +325,7 @@
+             }
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+             finally
+             {
+@@ -348,6 +347,13 @@
     {
        if (groupId == null)
           return null;
@@ -387,7 +534,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
        String parentId = null;
        StringBuffer buffer = new StringBuffer();
        String[] groupIdParts = groupId.split("/");
-@@ -366,9 +384,14 @@
+@@ -366,17 +372,19 @@
              try
              {
                 Attributes attrs = ctx.getAttributes(groupDN);
@@ -403,7 +550,16 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
                 return group;
              }
              catch (NamingException e)
-@@ -402,6 +425,13 @@
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -402,6 +410,13 @@
     {
        if (groupId == null)
           return null;
@@ -417,7 +573,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
        String parentId = null;
        StringBuffer buffer = new StringBuffer();
        String[] groupIdParts = groupId.split("/");
-@@ -415,9 +445,14 @@
+@@ -415,9 +430,14 @@
        try
        {
           Attributes attrs = ctx.getAttributes(groupDN);
@@ -433,7 +589,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
           return group;
        }
        catch (NameNotFoundException e)
-@@ -473,7 +508,7 @@
+@@ -473,7 +493,7 @@
                    {
                       Name entryName = parser.parse(name.get(0));
                       String groupDN = entryName + "," + ldapAttrMapping.groupsURL;
@@ -442,7 +598,19 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
                       if (group != null)
                          addGroup(groups, group);
                    }
-@@ -555,7 +590,7 @@
+@@ -482,10 +502,7 @@
+             }
+             catch (NamingException e2)
+             {
+-               if (isConnectionError(e2) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e2;
++               ctx = reloadCtx(ctx, err, e2);
+             }
+             finally
+             {
+@@ -555,7 +572,7 @@
                    {
                       Name entryName = parser.parse(name.get(0));
                       String groupDN = entryName + "," + searchBase;
@@ -451,7 +619,19 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
                       if (group != null)
                          addGroup(groups, group);
                    }
-@@ -613,21 +648,24 @@
+@@ -564,10 +581,7 @@
+             }
+             catch (NamingException e2)
+             {
+-               if (isConnectionError(e2) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e2;
++               ctx = reloadCtx(ctx, err, e2);
+             }
+             finally
+             {
+@@ -613,21 +627,24 @@
                 results = ctx.search(ldapAttrMapping.groupsURL, filter, constraints);
  
                 // add groups for memberships matching user
@@ -481,9 +661,21 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
                 if (LOG.isDebugEnabled())
                 {
                    LOG.debug("Retrieved " + groups.size() + " groups from ldap for user " + userName);
+@@ -636,10 +653,7 @@
+             }
+             catch (NamingException e2)
+             {
+-               if (isConnectionError(e2) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e2;
++               ctx = reloadCtx(ctx, err, e2);
+             }
+             finally
+             {
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipTypeDAOImpl.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipTypeDAOImpl.java	(revision 4450)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipTypeDAOImpl.java	(revision 4560)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipTypeDAOImpl.java	(working copy)
 @@ -24,6 +24,7 @@
  import org.exoplatform.services.organization.MembershipType;
@@ -510,7 +702,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
     }
  
     /**
-@@ -95,6 +99,8 @@
+@@ -95,15 +99,14 @@
                    mt.setCreatedDate(now);
                    mt.setModifiedDate(now);
                    ctx.createSubcontext(membershipTypeDN, ldapAttrMapping.membershipTypeToAttributes(mt));
@@ -519,7 +711,17 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
                 }
                 return mt;
              }
-@@ -146,6 +152,8 @@
+             catch (NamingException e1)
+             {
+-               if (isConnectionError(e1) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e1;
++               ctx = reloadCtx(ctx, err, e1);
+             }
+          }
+       }
+@@ -146,14 +149,13 @@
                          ldapAttrMapping.ldapDescriptionAttr, mt.getDescription()));
                 }
                 ctx.modifyAttributes(membershipTypeDN, mods);
@@ -528,7 +730,16 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
                 return mt;
              }
              catch (NamingException e)
-@@ -181,6 +189,8 @@
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -181,14 +183,13 @@
                 MembershipType m = ldapAttrMapping.attributesToMembershipType(attrs);
                 removeMembership(ctx, name);
                 ctx.destroySubcontext(membershipTypeDN);
@@ -537,7 +748,16 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
                 return m;
              }
              catch (NamingException e)
-@@ -209,6 +219,12 @@
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -209,6 +210,12 @@
      */
     public MembershipType findMembershipType(String name) throws Exception
     {
@@ -550,7 +770,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
        String membershipTypeDN =
           ldapAttrMapping.membershipTypeNameAttr + "=" + name + "," + ldapAttrMapping.membershipTypeURL;
        LdapContext ctx = ldapService.getLdapContext();
-@@ -219,7 +235,12 @@
+@@ -219,14 +226,16 @@
              try
              {
                 Attributes attrs = ctx.getAttributes(membershipTypeDN);
@@ -564,7 +784,27 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
              }
              catch (NamingException e)
              {
-@@ -307,6 +328,8 @@
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -274,10 +283,7 @@
+             }
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+             finally
+             {
+@@ -307,6 +313,8 @@
           {
              SearchResult sr = results.next();
              ctx.destroySubcontext(sr.getNameInNamespace());
@@ -575,7 +815,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
        finally
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserProfileDAOImpl.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserProfileDAOImpl.java	(revision 4450)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserProfileDAOImpl.java	(revision 4560)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserProfileDAOImpl.java	(working copy)
 @@ -61,9 +61,10 @@
      */
@@ -590,9 +830,57 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
        this.listeners = new ArrayList<UserProfileEventListener>(3);
     }
  
+@@ -107,10 +108,7 @@
+             }
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -153,10 +151,7 @@
+             }
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -191,10 +186,7 @@
+             }
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -229,10 +221,7 @@
+             }
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADMembershipDAOImpl.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADMembershipDAOImpl.java	(revision 4450)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADMembershipDAOImpl.java	(revision 4560)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADMembershipDAOImpl.java	(working copy)
 @@ -22,6 +22,7 @@
  import org.exoplatform.services.organization.Group;
@@ -634,7 +922,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
        LdapContext ctx = ldapService.getLdapContext(true);
        String groupDN = getGroupDNFromGroupId(groupId);
        try
-@@ -74,7 +84,11 @@
+@@ -74,15 +84,16 @@
              {
                 Collection memberships = findMemberships(ctx, userName, groupDN, type);
                 if (memberships.size() > 0)
@@ -647,7 +935,40 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
                 return null;
              }
              catch (NamingException e)
-@@ -184,7 +198,7 @@
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -110,10 +121,7 @@
+             }
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -142,10 +150,7 @@
+             }
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -184,7 +189,7 @@
           results = ctx.search(userDN, filter, constraints);
           while (results.hasMore())
           {
@@ -658,7 +979,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
              for (int x = 0; x < attr.size(); x++)
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/OrganizationServiceImpl.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/OrganizationServiceImpl.java	(revision 4450)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/OrganizationServiceImpl.java	(revision 4560)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/OrganizationServiceImpl.java	(working copy)
 @@ -47,25 +47,27 @@
        LDAPAttributeMapping ldapAttrMapping =
@@ -697,7 +1018,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
        if (param != null)
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADGroupDAOImpl.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADGroupDAOImpl.java	(revision 4450)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADGroupDAOImpl.java	(revision 4560)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADGroupDAOImpl.java	(working copy)
 @@ -48,12 +48,14 @@
      *          items
@@ -717,9 +1038,47 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
        adSearch = ad;
     }
  
+@@ -126,10 +128,7 @@
+             }
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+             finally
+             {
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/LDAPUserPageList.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/LDAPUserPageList.java	(revision 4560)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/LDAPUserPageList.java	(working copy)
+@@ -141,7 +141,10 @@
+             catch (NamingException e)
+             {
+                if (BaseDAO.isConnectionError(e) && err < BaseDAO.getMaxConnectionError())
++               {
++                  ldapService.release(ctx);
+                   ctx = ldapService.getLdapContext(true);
++               }
+                else
+                   throw e;
+             }
+@@ -197,7 +200,10 @@
+             catch (NamingException e)
+             {
+                if (BaseDAO.isConnectionError(e) && err < 1)
++               {
++                  ldapService.release(ctx);
+                   ctx = ldapService.getLdapContext(true);
++               }
+                else
+                   throw e;
+             }
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserDAOImpl.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserDAOImpl.java	(revision 4450)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserDAOImpl.java	(revision 4560)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserDAOImpl.java	(working copy)
 @@ -21,8 +21,13 @@
  import org.exoplatform.commons.utils.LazyPageList;
@@ -753,7 +1112,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
     }
  
     /**
-@@ -104,6 +112,8 @@
+@@ -104,14 +112,13 @@
                 ctx.createSubcontext(userDN, attrs);
                 if (broadcast)
                    postSave(user, true);
@@ -762,7 +1121,16 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
                 break;
              }
              catch (NamingException e)
-@@ -145,6 +155,8 @@
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -145,14 +152,13 @@
                 ctx.modifyAttributes(userDN, mods);
                 if (broadcast)
                    postSave(user, false);
@@ -771,7 +1139,16 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
                 break;
              }
              catch (NamingException e)
-@@ -174,7 +186,7 @@
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -174,7 +180,7 @@
      * @param userDN Distinguished Name
      * @throws Exception if any errors occurs
      */
@@ -780,7 +1157,19 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
     {
        ModificationItem[] mods =
           new ModificationItem[]{new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
-@@ -227,6 +239,9 @@
+@@ -191,10 +197,7 @@
+             }
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -227,14 +230,14 @@
                 ctx.destroySubcontext(userDN);
                 if (broadcast)
                    postDelete(user);
@@ -790,7 +1179,16 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
                 return user;
              }
              catch (NamingException e)
-@@ -249,6 +264,12 @@
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -249,6 +252,12 @@
      */
     public User findUserByName(String userName) throws Exception
     {
@@ -803,7 +1201,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
        LdapContext ctx = ldapService.getLdapContext();
        try
        {
-@@ -256,7 +277,12 @@
+@@ -256,14 +265,16 @@
           {
              try
              {
@@ -817,7 +1215,15 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
              }
              catch (NamingException e)
              {
-@@ -283,51 +309,6 @@
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -283,51 +294,6 @@
     */
     public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
     {
@@ -869,7 +1275,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
        String searchBase = this.getGroupDNFromGroupId(groupId);
        String filter = ldapAttrMapping.membershipObjectClassFilter;
        return new ByGroupLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter);
-@@ -346,8 +327,6 @@
+@@ -346,8 +312,6 @@
        String searchBase = ldapAttrMapping.userURL;
        String filter = ldapAttrMapping.userObjectClassFilter;
  
@@ -880,7 +1286,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
  
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADUserDAOImpl.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADUserDAOImpl.java	(revision 4450)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADUserDAOImpl.java	(revision 4560)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADUserDAOImpl.java	(working copy)
 @@ -20,6 +20,7 @@
  
@@ -907,7 +1313,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
        LDAPUserPageList.SEARCH_CONTROL = Control.CRITICAL;
     }
  
-@@ -93,6 +97,8 @@
+@@ -93,14 +97,13 @@
                 ctx.createSubcontext(userDN, attrs);
                 if (broadcast)
                    postSave(user, true);
@@ -916,7 +1322,16 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
                 break;
              }
              catch (NamingException e)
-@@ -118,7 +124,7 @@
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -118,7 +121,7 @@
      * {@inheritDoc}
      */
     @Override
@@ -925,9 +1340,47 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
     {
        Object v = ldapService.getLdapContext().getEnvironment().get(Context.SECURITY_PROTOCOL);
        if (v == null)
+@@ -147,10 +150,7 @@
+             }
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/LdapUserListAccess.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/LdapUserListAccess.java	(revision 4560)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/LdapUserListAccess.java	(working copy)
+@@ -84,7 +84,10 @@
+             catch (NamingException e)
+             {
+                if (BaseDAO.isConnectionError(e) && err < BaseDAO.getMaxConnectionError())
++               {
++                  ldapService.release(ctx);
+                   ctx = ldapService.getLdapContext(true);
++               }
+                else
+                   throw e;
+             }
+@@ -113,7 +116,10 @@
+             catch (NamingException e)
+             {
+                if (BaseDAO.isConnectionError(e) && err < BaseDAO.getMaxConnectionError())
++               {
++                  ldapService.release(ctx);
+                   ctx = ldapService.getLdapContext(true);
++               }
+                else
+                   throw e;
+             }
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/BaseDAO.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/BaseDAO.java	(revision 4450)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/BaseDAO.java	(revision 4560)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/BaseDAO.java	(working copy)
 @@ -24,6 +24,7 @@
  import org.exoplatform.services.organization.Group;
@@ -1018,7 +1471,52 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
     }
  
     /**
-@@ -270,6 +311,26 @@
+@@ -245,12 +286,7 @@
+             }
+             catch (NamingException e)
+             {
+-               // check is allowed to try one more time
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  // not connection exception or error occurs more than MAX_CONNECTION_ERROR
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -261,6 +297,30 @@
+    }
+ 
+    /**
++    * Re-load the ctx if the context allows it
++    * @param ctx the previous context
++    * @param err the total of errors that have already occurred
++    * @param e the last exception that occurs
++    * @return the new context if the context reload is allowed throws an exception otherwise
++    * @throws NamingException if context could not be reloaded
++    */
++   protected LdapContext reloadCtx(LdapContext ctx, int err, NamingException e) throws NamingException
++   {
++      // check is allowed to try one more time
++      if (isConnectionError(e) && err < getMaxConnectionError())
++      {
++         // release the previous context
++         ldapService.release(ctx);
++         // reload the context
++         ctx = ldapService.getLdapContext(true);
++      }
++      else
++         // not connection exception or error occurs more than MAX_CONNECTION_ERROR
++         throw e;
++      return ctx;
++   }
++
++   /**
+     * Get Group what reflected to object with specified Distinguished Name.
+     * 
+     * @param ctx {@link LdapContext}
+@@ -270,6 +330,26 @@
      */
     protected Group getGroupByDN(LdapContext ctx, String groupDN) throws NamingException
     {
@@ -1045,7 +1543,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
        StringBuffer idBuffer = new StringBuffer();
        String parentId = null;
        String[] baseParts = explodeDN(ldapAttrMapping.groupsURL, true);
-@@ -280,25 +341,17 @@
+@@ -280,25 +360,17 @@
           if (x == 1)
              parentId = idBuffer.toString();
        }
@@ -1078,7 +1576,19 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
     }
  
     /**
-@@ -381,9 +434,7 @@
+@@ -352,10 +424,7 @@
+             }
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -381,9 +450,7 @@
           answer = findUser(ctx, username, true);
           while (answer.hasMoreElements())
           {
@@ -1089,7 +1599,19 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
           }
           return null;
        }
-@@ -525,6 +576,10 @@
+@@ -465,10 +532,7 @@
+             }
+             catch (NamingException e)
+             {
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
+@@ -525,6 +589,10 @@
              removeAllSubtree(ctx, sr.getNameInNamespace());
           }
           ctx.destroySubcontext(dn);
@@ -1100,3 +1622,19 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
        }
        finally
        {
+@@ -649,14 +717,7 @@
+             }
+             catch (NamingException e)
+             {
+-               // check is allowed to try one more time
+-               if (isConnectionError(e) && err < getMaxConnectionError())
+-                  // update LdapContext
+-                  ctx = ldapService.getLdapContext(true);
+-               else
+-                  // not connection exception or error occurs more than
+-                  // MAX_CONNECTION_ERROR times
+-                  throw e;
++               ctx = reloadCtx(ctx, err, e);
+             }
+          }
+       }
