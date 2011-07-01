@@ -70,7 +70,8 @@ public class TestDBCreator extends TestCase
 
       Map<String, String> refAddr = dbInfo.getProperties();
 
-      initContext.bind("testjdbcjcr", "javax.sql.DataSource", "org.apache.commons.dbcp.BasicDataSourceFactory", null,
+      initContext.getInitialContextBinder().bind("testjdbcjcr", "javax.sql.DataSource",
+         "org.apache.commons.dbcp.BasicDataSourceFactory", null,
          refAddr);
 
       DataSource ds = (DataSource)initContext.getInitialContext().lookup("testjdbcjcr");
@@ -107,7 +108,8 @@ public class TestDBCreator extends TestCase
 
       Map<String, String> refAddr = dbInfo.getProperties();
 
-      initContext.bind("testjdbcjcr2", "javax.sql.DataSource", "org.apache.commons.dbcp.BasicDataSourceFactory", null,
+      initContext.getInitialContextBinder().bind("testjdbcjcr2", "javax.sql.DataSource",
+         "org.apache.commons.dbcp.BasicDataSourceFactory", null,
          refAddr);
 
       DataSource ds = (DataSource)initContext.getInitialContext().lookup("testjdbcjcr2");
@@ -165,7 +167,7 @@ public class TestDBCreator extends TestCase
 
             Map<String, String> refAddr = dbInfo.getProperties();
 
-            initContext.bind("testjdbcjcr_" + threadNumber, "javax.sql.DataSource",
+            initContext.getInitialContextBinder().bind("testjdbcjcr_" + threadNumber, "javax.sql.DataSource",
                "org.apache.commons.dbcp.BasicDataSourceFactory", null, refAddr);
          }
          catch (Exception e)
