@@ -46,21 +46,23 @@ import java.util.Map.Entry;
 public class DBCreator
 {
 
-   private final static String DB_CONNECTION = "db-connection";
+   private final static String CONNECTION_PROPERTIES = "db-connection";
 
-   private final static String DB_DRIVER = "driverClassName";
+   private final static String DRIVER_NAME = "driverClassName";
 
-   private final static String DB_URL = "url";
+   private final static String SERVER_URL = "url";
+
+   private final static String USERNAME = "username";
+
+   private final static String PASSWORD = "password";
+
+   private final static String DB_CREATION_PROPERTIES = "db-creation";
+
+   private final static String DB_SCRIPT_PATH = "scriptPath";
 
    private final static String DB_USERNAME = "username";
 
    private final static String DB_PASSWORD = "password";
-
-   private final static String DB_ORCL_INTERNAL_LOGON = "internal_logon";
-
-   private final static String DB_CREATION = "db-creation";
-
-   private final static String DB_SCRIPT_PATH = "scriptPath";
 
    /**
     * Database template.
@@ -110,34 +112,52 @@ public class DBCreator
     * @configurationManager 
     *          configuration manager instance          
     */
-   public DBCreator(InitParams params, ConfigurationManager configurationManager) throws ConfigurationException
+   public DBCreator(String serverUrl, Map<String, String> connectionProperties, String scriptPath, String dbUserName,
+      String dbPassword, ConfigurationManager cm) throws ConfigurationException
+   {
+      this.serverUrl = serverUrl;
+      this.connectionProperties = connectionProperties;
+      this.dbUserName = dbUserName;
+      this.dbPassword = dbPassword;
+      this.dbScript = findScriptResource(scriptPath, cm);
+   }
+
+   /**
+    * DBCreator constructor.
+    * 
+    * @param params
+    *          Initializations parameters
+    * @configurationManager 
+    *          configuration manager instance          
+    */
+   public DBCreator(InitParams params, ConfigurationManager cm) throws ConfigurationException
    {
       if (params == null)
       {
          throw new ConfigurationException("Initializations parameters expected");
       }
 
-      PropertiesParam prop = params.getPropertiesParam(DB_CONNECTION);
+      PropertiesParam prop = params.getPropertiesParam(CONNECTION_PROPERTIES);
 
       if (prop != null)
       {
-         if (prop.getProperty(DB_DRIVER) == null)
+         if (prop.getProperty(DRIVER_NAME) == null)
          {
             throw new ConfigurationException("driverClassName expected in db-connection properties section");
          }
 
-         serverUrl = prop.getProperty(DB_URL);
+         serverUrl = prop.getProperty(SERVER_URL);
          if (serverUrl == null)
          {
             throw new ConfigurationException("url expected in db-connection properties section");
          }
 
-         if (prop.getProperty(DB_USERNAME) == null)
+         if (prop.getProperty(USERNAME) == null)
          {
             throw new ConfigurationException("username expected in db-connection properties section");
          }
 
-         if (prop.getProperty(DB_PASSWORD) == null)
+         if (prop.getProperty(PASSWORD) == null)
          {
             throw new ConfigurationException("password expected in db-connection properties section");
          }
@@ -148,7 +168,7 @@ public class DBCreator
          while (pit.hasNext())
          {
             Property p = pit.next();
-            if (!p.getName().equalsIgnoreCase(DB_URL))
+            if (!p.getName().equalsIgnoreCase(SERVER_URL))
             {
                connectionProperties.put(p.getName(), p.getValue());
             }
@@ -159,29 +179,13 @@ public class DBCreator
          throw new ConfigurationException("db-connection properties expected in initializations parameters");
       }
 
-      prop = params.getPropertiesParam(DB_CREATION);
+      prop = params.getPropertiesParam(DB_CREATION_PROPERTIES);
       if (prop != null)
       {
          String scriptPath = prop.getProperty(DB_SCRIPT_PATH);
          if (scriptPath != null)
          {
-            String dbScript;
-            try
-            {
-               dbScript = readScriptResource(configurationManager.getInputStream(scriptPath));
-            }
-            catch (Exception e)
-            {
-               try
-               {
-                  dbScript = readScriptResource(PrivilegedFileHelper.fileInputStream(scriptPath));
-               }
-               catch (IOException ioe)
-               {
-                  throw new ConfigurationException("Can't read script resource " + scriptPath, e);
-               }
-            }
-            this.dbScript = dbScript;
+            this.dbScript = findScriptResource(scriptPath, cm);
          }
          else
          {
@@ -217,42 +221,12 @@ public class DBCreator
     * @throws DBCreatorException
     *          if any error occurs 
     */
-   public DBConnectionInfo createDatabase(String dbName) throws DBCreatorException
+   public DBConnectionInfo createDatabase(final String dbName) throws DBCreatorException
    {
-      Connection conn = null;
+      Connection conn = openConnection();
       try
       {
-         Class.forName(connectionProperties.get(DB_DRIVER));
-
-         conn = SecurityHelper.doPrivilegedSQLExceptionAction(new PrivilegedExceptionAction<Connection>()
-         {
-            public Connection run() throws Exception
-            {
-               return DriverManager.getConnection(serverUrl, connectionProperties.get(DB_USERNAME),
-                  connectionProperties.get(DB_PASSWORD));
-            }
-         });
-      }
-      catch (SQLException e)
-      {
-         throw new DBCreatorException("Can't establish the JDBC connection to database " + serverUrl, e);
-      }
-      catch (ClassNotFoundException e)
-      {
-         throw new DBCreatorException("Can't load the JDBC driver " + connectionProperties.get(DB_DRIVER), e);
-      }
-
-      String dbProductName;
-      try
-      {
-         final Connection connection = conn;
-         dbProductName = SecurityHelper.doPrivilegedSQLExceptionAction(new PrivilegedExceptionAction<String>()
-         {
-            public String run() throws Exception
-            {
-               return connection.getMetaData().getDatabaseProductName();
-            }
-         });
+         String dbProductName = getDBProductName(conn);
 
          if (dbProductName.startsWith("Microsoft SQL Server") || dbProductName.startsWith("Adaptive Server Anywhere")
             || dbProductName.equals("Sybase SQL Server") || dbProductName.equals("Adaptive Server Enterprise"))
@@ -263,6 +237,8 @@ public class DBCreator
          {
             executeBatchMode(conn, dbName);
          }
+
+         return constructDBConnectionInfo(dbName, dbProductName);
       }
       catch (SQLException e)
       {
@@ -286,8 +262,6 @@ public class DBCreator
             throw new DBCreatorException("Can't close connection", e);
          }
       }
-
-      return constructDBConnectionInfo(dbName, dbProductName);
    }
 
    /**
@@ -296,48 +270,14 @@ public class DBCreator
     * @param dbName
     *          new database name
     * @throws DBCreatorException
-    *          if any error occurs 
+    *          if any error occurs or database is not available
     */
    public DBConnectionInfo getDBConnectionInfo(String dbName) throws DBCreatorException
    {
-      Connection conn = null;
+      Connection conn = openConnection();
       try
       {
-         Class.forName(connectionProperties.get(DB_DRIVER));
-
-         conn = SecurityHelper.doPrivilegedSQLExceptionAction(new PrivilegedExceptionAction<Connection>()
-         {
-            public Connection run() throws Exception
-            {
-               return DriverManager.getConnection(serverUrl, connectionProperties.get(DB_USERNAME),
-                  connectionProperties.get(DB_PASSWORD));
-            }
-         });
-      }
-      catch (SQLException e)
-      {
-         throw new DBCreatorException("Can't establish the JDBC connection to database " + serverUrl, e);
-      }
-      catch (ClassNotFoundException e)
-      {
-         throw new DBCreatorException("Can't load the JDBC driver " + connectionProperties.get(DB_DRIVER), e);
-      }
-
-      String dbProductName;
-      try
-      {
-         final Connection connection = conn;
-         dbProductName = SecurityHelper.doPrivilegedSQLExceptionAction(new PrivilegedExceptionAction<String>()
-         {
-            public String run() throws Exception
-            {
-               return connection.getMetaData().getDatabaseProductName();
-            }
-         });
-      }
-      catch (SQLException e)
-      {
-         throw new DBCreatorException("Can't resolve database product name ", e);
+         return constructDBConnectionInfo(dbName, getDBProductName(conn));
       }
       finally
       {
@@ -350,8 +290,6 @@ public class DBCreator
             throw new DBCreatorException("Can't close connection", e);
          }
       }
-
-      return constructDBConnectionInfo(dbName, dbProductName);
    }
 
    /**
@@ -389,6 +327,10 @@ public class DBCreator
     *          database name
     * @param dbProductName
     *          database product name
+    * @param serverUrl
+    *          url to DB server
+    * @param connectionProperties
+    *          connection properties         
     * @return DBConnectionInfo
     */
    private DBConnectionInfo constructDBConnectionInfo(String dbName, String dbProductName)
@@ -410,14 +352,15 @@ public class DBCreator
       // clone connection properties
       Map<String, String> connProperties = new HashMap<String, String>();
 
-      for (Entry<String, String> entry : this.connectionProperties.entrySet())
+      for (Entry<String, String> entry : connectionProperties.entrySet())
       {
          connProperties.put(entry.getKey(), entry.getValue());
       }
 
-      connProperties.put(DB_URL, dbUrl);
+      // add url to database
+      connProperties.put(SERVER_URL, dbUrl);
 
-      return new DBConnectionInfo(connProperties);
+      return new DBConnectionInfo(dbName, connProperties);
    }
 
    /**
@@ -452,7 +395,7 @@ public class DBCreator
    /**
     * Read SQL script from {@link InputStream}.
     */
-   protected String readScriptResource(InputStream is) throws IOException
+   private String readResource(InputStream is) throws IOException
    {
       InputStreamReader isr = new InputStreamReader(is);
       try
@@ -474,6 +417,37 @@ public class DBCreator
    }
 
    /**
+    * Find script resource.
+    * 
+    * @param scriptPath
+    *          path to the script
+    * @param cm
+    *          the configuration manager will help to find script in jars          
+    * @return
+    *       script content
+    * @throws ConfigurationException 
+    *          if script not found
+    */
+   private String findScriptResource(String scriptPath, ConfigurationManager cm) throws ConfigurationException
+   {
+      try
+      {
+         return readResource(cm.getInputStream(scriptPath));
+      }
+      catch (Exception e)
+      {
+         try
+         {
+            return readResource(PrivilegedFileHelper.fileInputStream(scriptPath));
+         }
+         catch (IOException ioe)
+         {
+            throw new ConfigurationException("Can't read script resource " + scriptPath, e);
+         }
+      }
+   }
+
+   /**
     * Clean whitespace.
     */
    private String cleanWhitespaces(String string)
@@ -491,5 +465,69 @@ public class DBCreator
          return new String(cc);
       }
       return string;
+   }
+
+   /**
+    * Open connection to the DB.
+    * 
+    * @param connectionProperties
+    *          connection properties
+    * @return connection
+    * @throws DBCreatorException
+    *          if can't establish connection to DB
+    */
+   private Connection openConnection() throws DBCreatorException
+   {
+      Connection conn = null;
+      try
+      {
+         Class.forName(connectionProperties.get(DRIVER_NAME));
+
+         conn = SecurityHelper.doPrivilegedSQLExceptionAction(new PrivilegedExceptionAction<Connection>()
+         {
+            public Connection run() throws Exception
+            {
+               return DriverManager.getConnection(serverUrl, connectionProperties.get(USERNAME),
+                  connectionProperties.get(PASSWORD));
+            }
+         });
+
+         return conn;
+      }
+      catch (SQLException e)
+      {
+         throw new DBCreatorException("Can't establish the JDBC connection to database " + serverUrl, e);
+      }
+      catch (ClassNotFoundException e)
+      {
+         throw new DBCreatorException("Can't load the JDBC driver " + connectionProperties.get(DRIVER_NAME), e);
+      }
+   }
+
+   /**
+    * Get database product name.
+    * 
+    * @param conn
+    *          connection to database
+    * @return product name
+    * @throws DBCreatorException
+    *          if can't resolve database product name
+    */
+   private String getDBProductName(final Connection conn) throws DBCreatorException
+   {
+      try
+      {
+         return SecurityHelper.doPrivilegedSQLExceptionAction(new PrivilegedExceptionAction<String>()
+         {
+            public String run() throws Exception
+            {
+               return conn.getMetaData().getDatabaseProductName();
+            }
+         });
+      }
+      catch (SQLException e)
+      {
+         throw new DBCreatorException("Can't resolve database product name ", e);
+      }
    }
 }

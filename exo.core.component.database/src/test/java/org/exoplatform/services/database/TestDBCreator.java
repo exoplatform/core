@@ -21,11 +21,13 @@ package org.exoplatform.services.database;
 import junit.framework.TestCase;
 
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.services.database.creator.DBConnectionInfo;
 import org.exoplatform.services.database.creator.DBCreator;
 import org.exoplatform.services.naming.InitialContextInitializer;
 
 import java.sql.Connection;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -41,11 +43,12 @@ public class TestDBCreator extends TestCase
 
    private InitialContextInitializer initContext;
 
+   private PortalContainer container;
+
    @Override
    public void setUp() throws Exception
    {
-      PortalContainer container = PortalContainer.getInstance();
-
+      container = PortalContainer.getInstance();
       dbCreator = (DBCreator)container.getComponentInstanceOfType(DBCreator.class);
       initContext = (InitialContextInitializer)container.getComponentInstanceOfType(InitialContextInitializer.class);
    }
@@ -61,9 +64,9 @@ public class TestDBCreator extends TestCase
       Map<String, String> connProps1 = dbInfo1.getProperties();
 
       assertEquals(connProps.get("driverClassName"), connProps1.get("driverClassName"));
-      assertEquals(connProps.get("password"), connProps1.get("password"));
-      assertEquals(connProps.get("url"), connProps1.get("url"));
       assertEquals(connProps.get("username"), connProps1.get("username"));
+      assertEquals(connProps.get("url"), connProps1.get("url"));
+      assertEquals(connProps.get("password"), connProps1.get("password"));
 
       Map<String, String> refAddr = dbInfo.getProperties();
 
@@ -71,6 +74,43 @@ public class TestDBCreator extends TestCase
          refAddr);
 
       DataSource ds = (DataSource)initContext.getInitialContext().lookup("testjdbcjcr");
+      assertNotNull(ds);
+
+      Connection conn = ds.getConnection();
+      assertNotNull(conn);
+   }
+
+   public void testDBCreateWithSpecificProperties() throws Exception
+   {
+      assertNotNull(dbCreator);
+      
+      String serverUrl = "jdbc:hsqldb:file:target/temp/data/dbcreator_test";
+      Map<String, String> connectionProperties = new HashMap<String, String>();
+      connectionProperties.put("driverClassName", "org.hsqldb.jdbcDriver");
+      connectionProperties.put("username", "sa");
+      connectionProperties.put("password", "");
+
+      ConfigurationManager cm = (ConfigurationManager)container.getComponentInstanceOfType(ConfigurationManager.class);
+      DBCreator dbCreator =
+         new DBCreator(serverUrl, connectionProperties, "classpath:/dbcreator/test.sql", "sa", "", cm);
+
+      DBConnectionInfo dbInfo = dbCreator.createDatabase("testdb");
+      DBConnectionInfo dbInfo1 = dbCreator.getDBConnectionInfo("testdb");
+
+      Map<String, String> connProps = dbInfo.getProperties();
+      Map<String, String> connProps1 = dbInfo1.getProperties();
+
+      assertEquals(connProps.get("driverClassName"), connProps1.get("driverClassName"));
+      assertEquals(connProps.get("username"), connProps1.get("username"));
+      assertEquals(connProps.get("url"), connProps1.get("url"));
+      assertEquals(connProps.get("password"), connProps1.get("password"));
+
+      Map<String, String> refAddr = dbInfo.getProperties();
+
+      initContext.bind("testjdbcjcr2", "javax.sql.DataSource", "org.apache.commons.dbcp.BasicDataSourceFactory", null,
+         refAddr);
+
+      DataSource ds = (DataSource)initContext.getInitialContext().lookup("testjdbcjcr2");
       assertNotNull(ds);
 
       Connection conn = ds.getConnection();

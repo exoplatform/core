@@ -30,18 +30,26 @@ public class DBConnectionInfo
 {
    private final Map<String, String> connectionProperties;
 
+   private final String dbName;
+
    /**
     * DBConnectionInfo constructor.
     * @param connectionProperties
     *          connection properties      
     */
-   public DBConnectionInfo(Map<String, String> connectionProperties)
+   public DBConnectionInfo(String dbName, Map<String, String> connectionProperties)
    {
+      this.dbName = dbName;
       this.connectionProperties = connectionProperties;
    }
 
    public Map<String, String> getProperties()
    {
       return connectionProperties;
+   }
+
+   public String getDBName()
+   {
+      return dbName;
    }
 }
