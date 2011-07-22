@@ -21,7 +21,6 @@ function getModule(params) {
     addDependency(new Project("org.hibernate", "hibernate-commons-annotations", "jar", "3.1.0.GA")).
     addDependency(new Project("org.hibernate", "ejb3-persistence", "jar", "1.0.2.GA")).
     addDependency(new Project("org.javassist", "javassist", "jar", "3.14.0-GA")).
-    addDependency(new Project("commons-collections", "commons-collections", "jar", "3.2.1")).
     addDependency(new Project("c3p0", "c3p0", "jar", "0.9.1.2")).
     addDependency(new Project("antlr", "antlr", "jar", "2.7.6rc1")).
     addDependency(new Project("javax.transaction", "jta", "jar", "1.1")).
