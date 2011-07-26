@@ -25,6 +25,7 @@ import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.Property;
+import org.exoplatform.services.database.utils.ExceptionManagementHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -242,14 +243,7 @@ public class DBCreator
       }
       catch (SQLException e)
       {
-         String errorTrace = "";
-         while (e != null)
-         {
-            errorTrace += e.getMessage() + "; ";
-            e = e.getNextException();
-         }
-
-         throw new DBCreatorException("Can't execute SQL script " + errorTrace);
+         throw new DBCreatorException("Can't execute SQL script : " + ExceptionManagementHelper.getFullSQLExceptionMessage(e));
       }
       finally
       {
