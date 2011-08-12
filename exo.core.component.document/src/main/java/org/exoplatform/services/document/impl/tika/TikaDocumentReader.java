@@ -141,6 +141,10 @@ public class TikaDocumentReader implements AdvancedDocumentReader
 
    public String getContentAsText(final InputStream is) throws IOException, DocumentReadException
    {
+      if (is.available() == 0)
+      {
+         return "";
+      }
       try
       {
          return SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<String>()
@@ -204,6 +208,10 @@ public class TikaDocumentReader implements AdvancedDocumentReader
    public String getContentAsText(final InputStream is, final String encoding) throws IOException,
       DocumentReadException
    {
+      if (is.available() == 0)
+      {
+         return "";
+      }
       try
       {
          return SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<String>()
@@ -271,6 +279,10 @@ public class TikaDocumentReader implements AdvancedDocumentReader
 
    public Properties getProperties(final InputStream is) throws IOException, DocumentReadException
    {
+      if (is.available() == 0)
+      {
+         return new Properties();
+      }
       try
       {
          return SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<Properties>()
