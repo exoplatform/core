@@ -84,7 +84,10 @@ public abstract class LdapUserListAccess implements ListAccess<User>
             catch (NamingException e)
             {
                if (BaseDAO.isConnectionError(e) && err < BaseDAO.getMaxConnectionError())
+               {
+                  ldapService.release(ctx);
                   ctx = ldapService.getLdapContext(true);
+               }
                else
                   throw e;
             }
@@ -113,7 +116,10 @@ public abstract class LdapUserListAccess implements ListAccess<User>
             catch (NamingException e)
             {
                if (BaseDAO.isConnectionError(e) && err < BaseDAO.getMaxConnectionError())
+               {
+                  ldapService.release(ctx);
                   ctx = ldapService.getLdapContext(true);
+               }
                else
                   throw e;
             }

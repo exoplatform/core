@@ -23,6 +23,7 @@ import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.impl.MembershipImpl;
+import org.exoplatform.services.organization.ldap.CacheHandler.CacheType;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,12 +50,14 @@ public class ADMembershipDAOImpl extends MembershipDAOImpl
     *          items
     * @param ldapService {@link LDAPService}
     * @param ad See {@link ADSearchBySID}
+    * @param cacheHandler
+    *          The Cache Handler 
     * @throws Exception if any errors occurs
     */
    public ADMembershipDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, ADSearchBySID ad,
-      OrganizationService service) throws Exception
+      OrganizationService service, CacheHandler cacheHandler) throws Exception
    {
-      super(ldapAttrMapping, ldapService, service);
+      super(ldapAttrMapping, ldapService, service, cacheHandler);
       adSearch = ad;
    }
 
@@ -65,6 +68,13 @@ public class ADMembershipDAOImpl extends MembershipDAOImpl
    @Override
    public Membership findMembershipByUserGroupAndType(String userName, String groupId, String type) throws Exception
    {
+      MembershipImpl membership =
+         (MembershipImpl)cacheHandler.get(cacheHandler.getMembershipKey(userName, groupId, type), CacheType.MEMBERSHIP);
+      if (membership != null)
+      {
+         return membership;
+      }
+
       LdapContext ctx = ldapService.getLdapContext(true);
       String groupDN = getGroupDNFromGroupId(groupId);
       try
@@ -75,15 +85,16 @@ public class ADMembershipDAOImpl extends MembershipDAOImpl
             {
                Collection memberships = findMemberships(ctx, userName, groupDN, type);
                if (memberships.size() > 0)
-                  return (MembershipImpl)memberships.iterator().next();
+               {
+                  membership = (MembershipImpl)memberships.iterator().next();
+                  cacheHandler.put(cacheHandler.getMembershipKey(membership), membership, CacheType.MEMBERSHIP);
+                  return membership;
+               }
                return null;
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -111,10 +122,7 @@ public class ADMembershipDAOImpl extends MembershipDAOImpl
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -143,10 +151,7 @@ public class ADMembershipDAOImpl extends MembershipDAOImpl
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }

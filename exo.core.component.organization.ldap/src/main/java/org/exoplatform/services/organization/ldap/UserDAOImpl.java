@@ -21,8 +21,13 @@ package org.exoplatform.services.organization.ldap;
 import org.exoplatform.commons.utils.LazyPageList;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.ldap.LDAPService;
-import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.Query;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserEventListener;
+import org.exoplatform.services.organization.UserEventListenerHandler;
+import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.impl.UserImpl;
+import org.exoplatform.services.organization.ldap.CacheHandler.CacheType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,11 +58,14 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
     * @param ldapAttrMapping mapping LDAP attributes to eXo organization service
     *          items (users, groups, etc)
     * @param ldapService {@link LDAPService}
+    * @param cacheHandler 
+    *          The Cache Handler
     * @throws Exception if any errors occurs
     */
-   public UserDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
+   public UserDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler)
+      throws Exception
    {
-      super(ldapAttrMapping, ldapService);
+      super(ldapAttrMapping, ldapService, cacheHandler);
    }
 
    /**
@@ -104,14 +112,13 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
                ctx.createSubcontext(userDN, attrs);
                if (broadcast)
                   postSave(user, true);
+
+               cacheHandler.put(user.getUserName(), user, CacheType.USER);
                break;
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -145,14 +152,13 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
                ctx.modifyAttributes(userDN, mods);
                if (broadcast)
                   postSave(user, false);
+
+               cacheHandler.put(user.getUserName(), user, CacheType.USER);
                break;
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -174,7 +180,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
     * @param userDN Distinguished Name
     * @throws Exception if any errors occurs
     */
-   void saveUserPassword(User user, String userDN) throws Exception
+   protected void saveUserPassword(User user, String userDN) throws Exception
    {
       ModificationItem[] mods =
          new ModificationItem[]{new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
@@ -191,10 +197,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -227,14 +230,14 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
                ctx.destroySubcontext(userDN);
                if (broadcast)
                   postDelete(user);
+
+               cacheHandler.remove(userName, CacheType.USER);
+               cacheHandler.remove(CacheHandler.USER_PREFIX + userName, CacheType.MEMBERSHIP);
                return user;
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -249,6 +252,12 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
     */
    public User findUserByName(String userName) throws Exception
    {
+      User user = (User)cacheHandler.get(userName, CacheType.USER);
+      if (user != null)
+      {
+         return user;
+      }
+
       LdapContext ctx = ldapService.getLdapContext();
       try
       {
@@ -256,14 +265,16 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
          {
             try
             {
-               return getUserFromUsername(ctx, userName);
+               user = getUserFromUsername(ctx, userName);
+               if (user != null)
+               {
+                  cacheHandler.put(user.getUserName(), user, CacheType.USER);
+               }
+               return user;
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -283,51 +294,6 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
    */
    public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
    {
-      //    ArrayList<User> users = new ArrayList<User>();
-      //    TreeMap<String, User> map = new TreeMap<String, User>();
-      //
-      //    LdapContext ctx = ldapService.getLdapContext();
-      //    try {
-      //      NamingEnumeration<SearchResult> results = null;
-      //      for (int err = 0;; err++) {
-      //        map.clear();
-      //        try {
-      //          String searchBase = this.getGroupDNFromGroupId(groupId);
-      //          String filter = ldapAttrMapping.membershipObjectClassFilter;
-      //          SearchControls constraints = new SearchControls();
-      //          constraints.setSearchScope(SearchControls.ONELEVEL_SCOPE);
-      //          results = ctx.search(searchBase, filter, constraints);
-      //          while (results.hasMoreElements()) {
-      //            SearchResult sr = results.next();
-      //            Attributes attrs = sr.getAttributes();
-      //            List<Object> members = this.getAttributes(attrs,
-      //                                                      ldapAttrMapping.membershipTypeMemberValue);
-      //            for (int x = 0; x < members.size(); x++) {
-      //              User user = findUserByDN(ctx, (String) members.get(x));
-      //              if (user != null)
-      //                map.put(user.getUserName(), user);
-      //            }
-      //          }
-      //          break;
-      //        } catch (NamingException e) {
-      //          if (isConnectionError(e) && err < getMaxConnectionError())
-      //            ctx = ldapService.getLdapContext(true);
-      //          else 
-      //            throw e;
-      //        } finally {
-      //          if (results != null)
-      //            results.close();
-      //        }
-      //      }
-      //    } finally {
-      //      ldapService.release(ctx);
-      //    }
-      //
-      //    for (Iterator<String> i = map.keySet().iterator(); i.hasNext();)
-      //      users.add(map.get(i.next()));
-      //    
-      //    return new ObjectPageList(users, 10);
-
       String searchBase = this.getGroupDNFromGroupId(groupId);
       String filter = ldapAttrMapping.membershipObjectClassFilter;
       return new ByGroupLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter);
@@ -345,8 +311,6 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
    {
       String searchBase = ldapAttrMapping.userURL;
       String filter = ldapAttrMapping.userObjectClassFilter;
-
-      //    return new LDAPUserPageList(ldapAttrMapping, ldapService, searchBase, filter, pageSize);
 
       return new SimpleLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter);
    }

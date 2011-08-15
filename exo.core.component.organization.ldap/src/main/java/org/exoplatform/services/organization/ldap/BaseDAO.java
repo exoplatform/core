@@ -24,6 +24,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.impl.GroupImpl;
+import org.exoplatform.services.organization.ldap.CacheHandler.CacheType;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -82,14 +83,21 @@ public class BaseDAO
    private static int maxConnectionError = -1;
 
    /**
+    *     * The Cache Handler.
+    */
+   protected final CacheHandler cacheHandler;
+
+   /**
     * @param ldapAttrMapping {@link LDAPAttributeMapping}
     * @param ldapService {@link LDAPService}
     * @throws Exception if any error occurs
     */
-   public BaseDAO(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
+   public BaseDAO(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler)
+      throws Exception
    {
       this.ldapAttrMapping = ldapAttrMapping;
       this.ldapService = ldapService;
+      this.cacheHandler = cacheHandler;
       initializeNameParser();
    }
 
@@ -137,6 +145,26 @@ public class BaseDAO
          buffer.append(ldapAttrMapping.groupDNKey + "=" + groupParts[x] + ", ");
       }
       buffer.append(ldapAttrMapping.groupsURL);
+      return buffer.toString();
+   }
+
+   /**
+    * Construct object name from {@link Group} id.
+    *
+    * @param groupDN group DN
+    * @return object name
+    */
+   protected String getGroupIdFromGroupDN(String groupDN) throws NamingException
+   {
+      // extract group's id, group's name and parent's group from DN
+      StringBuffer buffer = new StringBuffer();
+      String[] baseParts = explodeDN(ldapAttrMapping.groupsURL, true);
+      String[] membershipParts = explodeDN(groupDN, true);
+      for (int x = (membershipParts.length - baseParts.length - 1); x > -1; x--)
+      {
+         buffer.append("/" + membershipParts[x]);
+      }
+
       return buffer.toString();
    }
 
@@ -204,6 +232,20 @@ public class BaseDAO
     */
    protected Group getGroupFromMembershipDN(LdapContext ctx, String membershipDN) throws NamingException
    {
+      String groupDN = getGroupDNFromMembershipDN(membershipDN);
+      Group group = getGroupByDN(ctx, groupDN);
+      return group;
+   }
+
+   /**
+    * Retrieve Group DN from membership DN.
+    *
+    * @param membershipDN membership Distinguished Name
+    * @return GroupDN
+    * @throws NamingException if any naming errors occurs
+    */
+   protected String getGroupDNFromMembershipDN(String membershipDN) throws NamingException
+   {
       String[] membershipParts = explodeDN(membershipDN, false);
       StringBuffer buffer = new StringBuffer();
       for (int x = 1; x < membershipParts.length; x++)
@@ -217,8 +259,7 @@ public class BaseDAO
             buffer.append(membershipParts[x] + ",");
          }
       }
-      Group group = getGroupByDN(ctx, buffer.toString());
-      return group;
+      return buffer.toString();
    }
 
    /**
@@ -245,12 +286,7 @@ public class BaseDAO
             }
             catch (NamingException e)
             {
-               // check is allowed to try one more time
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  // not connection exception or error occurs more than MAX_CONNECTION_ERROR
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -258,6 +294,30 @@ public class BaseDAO
       {
          ldapService.release(ctx);
       }
+   }
+
+   /**
+    * Re-load the ctx if the context allows it
+    * @param ctx the previous context
+    * @param err the total of errors that have already occurred
+    * @param e the last exception that occurs
+    * @return the new context if the context reload is allowed throws an exception otherwise
+    * @throws NamingException if context could not be reloaded
+    */
+   protected LdapContext reloadCtx(LdapContext ctx, int err, NamingException e) throws NamingException
+   {
+      // check is allowed to try one more time
+      if (isConnectionError(e) && err < getMaxConnectionError())
+      {
+         // release the previous context
+         ldapService.release(ctx);
+         // reload the context
+         ctx = ldapService.getLdapContext(true);
+      }
+      else
+         // not connection exception or error occurs more than MAX_CONNECTION_ERROR
+         throw e;
+      return ctx;
    }
 
    /**
@@ -270,6 +330,26 @@ public class BaseDAO
     */
    protected Group getGroupByDN(LdapContext ctx, String groupDN) throws NamingException
    {
+      try
+      {
+         Attributes attrs = ctx.getAttributes(groupDN);
+         return buildGroup(groupDN, attrs);
+      }
+      catch (NameNotFoundException e)
+      {
+         if (LOG.isDebugEnabled())
+            e.printStackTrace();
+         // Object with specified Distinguished Name not found. Null will be
+         // returned. This result we regard as successful, just nothing found.
+         return null;
+      }
+   }
+
+   protected Group buildGroup(String groupDN, Attributes attrs) throws NamingException
+   {
+      GroupImpl group = new GroupImpl();
+
+      // extract group's id, group's name and parent's group from DN
       StringBuffer idBuffer = new StringBuffer();
       String parentId = null;
       String[] baseParts = explodeDN(ldapAttrMapping.groupsURL, true);
@@ -280,25 +360,16 @@ public class BaseDAO
          if (x == 1)
             parentId = idBuffer.toString();
       }
-      try
+      group.setGroupName(membershipParts[0]);
+      group.setId(idBuffer.toString());
+      if (attrs != null)
       {
-         Attributes attrs = ctx.getAttributes(groupDN);
-         GroupImpl group = new GroupImpl();
-         group.setGroupName(membershipParts[0]);
-         group.setId(idBuffer.toString());
          group.setDescription(ldapAttrMapping.getAttributeValueAsString(attrs, ldapAttrMapping.ldapDescriptionAttr));
          group.setLabel(ldapAttrMapping.getAttributeValueAsString(attrs, ldapAttrMapping.groupLabelAttr));
-         group.setParentId(parentId);
-         return group;
       }
-      catch (NameNotFoundException e)
-      {
-         if (LOG.isDebugEnabled())
-            LOG.debug(e.getLocalizedMessage(), e);
-         // Object with specified Distinguished Name not found. Null will be
-         // returned. This result we regard as successful, just nothing found.
-         return null;
-      }
+      group.setParentId(parentId);
+
+      return group;
    }
 
    /**
@@ -352,10 +423,7 @@ public class BaseDAO
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -381,9 +449,7 @@ public class BaseDAO
          answer = findUser(ctx, username, true);
          while (answer.hasMoreElements())
          {
-            String userDN = answer.next().getNameInNamespace();
-            Attributes attrs = ctx.getAttributes(userDN);
-            return ldapAttrMapping.attributesToUser(attrs);
+            return ldapAttrMapping.attributesToUser(answer.next().getAttributes());
          }
          return null;
       }
@@ -465,10 +531,7 @@ public class BaseDAO
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -525,6 +588,9 @@ public class BaseDAO
             removeAllSubtree(ctx, sr.getNameInNamespace());
          }
          ctx.destroySubcontext(dn);
+         String groupId = buildGroup(dn, null).getId();
+         cacheHandler.remove(groupId, CacheType.GROUP);
+         cacheHandler.remove(CacheHandler.GROUP_PREFIX + groupId, CacheType.MEMBERSHIP);
       }
       finally
       {
@@ -649,14 +715,7 @@ public class BaseDAO
             }
             catch (NamingException e)
             {
-               // check is allowed to try one more time
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  // update LdapContext
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  // not connection exception or error occurs more than
-                  // MAX_CONNECTION_ERROR times
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }

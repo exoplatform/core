@@ -142,7 +142,10 @@ public class LDAPUserPageList extends PageList
             catch (NamingException e)
             {
                if (BaseDAO.isConnectionError(e) && err < BaseDAO.getMaxConnectionError())
+               {
+                  ldapService.release(ctx);
                   ctx = ldapService.getLdapContext(true);
+               }
                else
                   throw e;
             }
@@ -199,7 +202,10 @@ public class LDAPUserPageList extends PageList
             catch (NamingException e)
             {
                if (BaseDAO.isConnectionError(e) && err < 1)
+               {
+                  ldapService.release(ctx);
                   ctx = ldapService.getLdapContext(true);
+               }
                else
                   throw e;
             }
