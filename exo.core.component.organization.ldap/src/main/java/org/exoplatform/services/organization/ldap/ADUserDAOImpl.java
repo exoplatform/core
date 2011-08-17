@@ -20,6 +20,7 @@ package org.exoplatform.services.organization.ldap;
 
 import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.ldap.CacheHandler.CacheType;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -61,11 +62,14 @@ public class ADUserDAOImpl extends UserDAOImpl
    /**
     * @param ldapAttrMapping {@link LDAPAttributeMapping}
     * @param ldapService {@link LDAPService}
+    * @param cservice 
+    *          The Cache Handler
     * @throws Exception if any errors occurs
     */
-   public ADUserDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
+   public ADUserDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler)
+      throws Exception
    {
-      super(ldapAttrMapping, ldapService);
+      super(ldapAttrMapping, ldapService, cacheHandler);
       LDAPUserPageList.SEARCH_CONTROL = Control.CRITICAL;
    }
 
@@ -93,14 +97,13 @@ public class ADUserDAOImpl extends UserDAOImpl
                ctx.createSubcontext(userDN, attrs);
                if (broadcast)
                   postSave(user, true);
+
+               cacheHandler.put(user.getUserName(), user, CacheType.USER);
                break;
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -118,7 +121,7 @@ public class ADUserDAOImpl extends UserDAOImpl
     * {@inheritDoc}
     */
    @Override
-   void saveUserPassword(User user, String userDN) throws Exception
+   protected void saveUserPassword(User user, String userDN) throws Exception
    {
       Object v = ldapService.getLdapContext().getEnvironment().get(Context.SECURITY_PROTOCOL);
       if (v == null)
@@ -147,10 +150,7 @@ public class ADUserDAOImpl extends UserDAOImpl
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }

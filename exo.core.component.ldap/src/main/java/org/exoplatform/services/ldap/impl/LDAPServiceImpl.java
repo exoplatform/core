@@ -218,6 +218,7 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
                }
                catch (CommunicationException e1)
                {
+                  release(ctx);
                   // create new LDAP context
                   ctx = getLdapContext(true);
                   // try repeat operation where communication error occurs
@@ -225,6 +226,7 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
                }
                catch (ServiceUnavailableException e2)
                {
+                  release(ctx);
                   // do the same as for CommunicationException
                   ctx = getLdapContext(true);
                   //
@@ -285,6 +287,7 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
                }
                catch (CommunicationException e1)
                {
+                  release(ctx);
                   // create new LDAP context
                   ctx = getLdapContext(true);
                   // try repeat operation where communication error occurs
@@ -292,6 +295,7 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
                }
                catch (ServiceUnavailableException e2)
                {
+                  release(ctx);
                   // do the same as for CommunicationException
                   ctx = getLdapContext(true);
                   //

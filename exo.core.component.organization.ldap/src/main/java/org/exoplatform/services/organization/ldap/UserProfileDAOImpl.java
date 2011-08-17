@@ -61,9 +61,10 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
     */
    private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.ldap.UserProfileDAOImpl");
 
-   public UserProfileDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
+   public UserProfileDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler)
+      throws Exception
    {
-      super(ldapAttrMapping, ldapService);
+      super(ldapAttrMapping, ldapService, cacheHandler);
       this.listeners = new ArrayList<UserProfileEventListener>(3);
    }
 
@@ -107,10 +108,7 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -153,10 +151,7 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -191,10 +186,7 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -229,10 +221,7 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
