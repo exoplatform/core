@@ -1,8 +1,8 @@
 Index: exo.core.component.ldap/src/main/java/org/exoplatform/services/ldap/impl/LDAPServiceImpl.java
 ===================================================================
---- exo.core.component.ldap/src/main/java/org/exoplatform/services/ldap/impl/LDAPServiceImpl.java	(revision 4560)
+--- exo.core.component.ldap/src/main/java/org/exoplatform/services/ldap/impl/LDAPServiceImpl.java	(revision 4762)
 +++ exo.core.component.ldap/src/main/java/org/exoplatform/services/ldap/impl/LDAPServiceImpl.java	(working copy)
-@@ -207,6 +207,7 @@
+@@ -218,6 +218,7 @@
                 }
                 catch (CommunicationException e1)
                 {
@@ -10,7 +10,7 @@ Index: exo.core.component.ldap/src/main/java/org/exoplatform/services/ldap/impl/
                    // create new LDAP context
                    ctx = getLdapContext(true);
                    // try repeat operation where communication error occurs
-@@ -214,6 +215,7 @@
+@@ -225,6 +226,7 @@
                 }
                 catch (ServiceUnavailableException e2)
                 {
@@ -18,7 +18,7 @@ Index: exo.core.component.ldap/src/main/java/org/exoplatform/services/ldap/impl/
                    // do the same as for CommunicationException
                    ctx = getLdapContext(true);
                    //
-@@ -274,6 +276,7 @@
+@@ -285,6 +287,7 @@
                 }
                 catch (CommunicationException e1)
                 {
@@ -26,7 +26,7 @@ Index: exo.core.component.ldap/src/main/java/org/exoplatform/services/ldap/impl/
                    // create new LDAP context
                    ctx = getLdapContext(true);
                    // try repeat operation where communication error occurs
-@@ -281,6 +284,7 @@
+@@ -292,6 +295,7 @@
                 }
                 catch (ServiceUnavailableException e2)
                 {
@@ -36,7 +36,7 @@ Index: exo.core.component.ldap/src/main/java/org/exoplatform/services/ldap/impl/
                    //
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipDAOImpl.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipDAOImpl.java	(revision 4560)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipDAOImpl.java	(revision 4762)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipDAOImpl.java	(working copy)
 @@ -29,6 +29,7 @@
  import org.exoplatform.services.organization.MembershipType;
@@ -240,7 +240,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/CacheHandler.java
 ===================================================================
 --- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/CacheHandler.java	(revision 0)
-+++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/CacheHandler.java	(revision 0)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/CacheHandler.java	(revision 4766)
 @@ -0,0 +1,176 @@
 +/*
 + * Copyright (C) 2011 eXo Platform SAS.
@@ -420,7 +420,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
 +}
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/GroupDAOImpl.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/GroupDAOImpl.java	(revision 4560)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/GroupDAOImpl.java	(revision 4762)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/GroupDAOImpl.java	(working copy)
 @@ -26,11 +26,14 @@
  import org.exoplatform.services.organization.GroupEventListenerHandler;
@@ -675,7 +675,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
              {
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipTypeDAOImpl.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipTypeDAOImpl.java	(revision 4560)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipTypeDAOImpl.java	(revision 4762)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipTypeDAOImpl.java	(working copy)
 @@ -24,6 +24,7 @@
  import org.exoplatform.services.organization.MembershipType;
@@ -815,7 +815,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
        finally
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserProfileDAOImpl.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserProfileDAOImpl.java	(revision 4560)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserProfileDAOImpl.java	(revision 4762)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserProfileDAOImpl.java	(working copy)
 @@ -61,9 +61,10 @@
      */
@@ -880,7 +880,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
        }
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADMembershipDAOImpl.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADMembershipDAOImpl.java	(revision 4560)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADMembershipDAOImpl.java	(revision 4762)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADMembershipDAOImpl.java	(working copy)
 @@ -22,6 +22,7 @@
  import org.exoplatform.services.organization.Group;
@@ -979,7 +979,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
              for (int x = 0; x < attr.size(); x++)
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/OrganizationServiceImpl.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/OrganizationServiceImpl.java	(revision 4560)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/OrganizationServiceImpl.java	(revision 4762)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/OrganizationServiceImpl.java	(working copy)
 @@ -47,25 +47,27 @@
        LDAPAttributeMapping ldapAttrMapping =
@@ -1018,7 +1018,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
        if (param != null)
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADGroupDAOImpl.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADGroupDAOImpl.java	(revision 4560)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADGroupDAOImpl.java	(revision 4762)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADGroupDAOImpl.java	(working copy)
 @@ -48,12 +48,14 @@
      *          items
@@ -1052,7 +1052,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
              {
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/LDAPUserPageList.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/LDAPUserPageList.java	(revision 4560)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/LDAPUserPageList.java	(revision 4762)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/LDAPUserPageList.java	(working copy)
 @@ -141,7 +141,10 @@
              catch (NamingException e)
@@ -1078,7 +1078,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
              }
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserDAOImpl.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserDAOImpl.java	(revision 4560)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserDAOImpl.java	(revision 4762)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/UserDAOImpl.java	(working copy)
 @@ -21,8 +21,13 @@
  import org.exoplatform.commons.utils.LazyPageList;
@@ -1286,7 +1286,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
  
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADUserDAOImpl.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADUserDAOImpl.java	(revision 4560)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADUserDAOImpl.java	(revision 4762)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADUserDAOImpl.java	(working copy)
 @@ -20,6 +20,7 @@
  
@@ -1354,7 +1354,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
        }
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/LdapUserListAccess.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/LdapUserListAccess.java	(revision 4560)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/LdapUserListAccess.java	(revision 4762)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/LdapUserListAccess.java	(working copy)
 @@ -84,7 +84,10 @@
              catch (NamingException e)
@@ -1380,7 +1380,7 @@ Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/servic
              }
 Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/BaseDAO.java
 ===================================================================
---- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/BaseDAO.java	(revision 4560)
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/BaseDAO.java	(revision 4762)
 +++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/BaseDAO.java	(working copy)
 @@ -24,6 +24,7 @@
  import org.exoplatform.services.organization.Group;
