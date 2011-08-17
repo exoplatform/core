@@ -24,6 +24,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.impl.GroupImpl;
+import org.exoplatform.services.organization.ldap.CacheHandler.CacheType;
 
 import java.util.ArrayList;
 import java.util.Enumeration;

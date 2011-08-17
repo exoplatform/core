@@ -169,7 +169,7 @@ public class CacheHandler
       return key.toString();
    }
 
-   static enum CacheType
+   public static enum CacheType
    {
       USER, GROUP, MEMBERSHIP, MEMBERSHIPTYPE
    }
