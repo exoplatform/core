@@ -24,7 +24,6 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.impl.GroupImpl;
-import org.exoplatform.services.organization.ldap.CacheHandler.CacheType;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -338,7 +337,9 @@ public class BaseDAO
       catch (NameNotFoundException e)
       {
          if (LOG.isDebugEnabled())
-            e.printStackTrace();
+         {
+            LOG.debug(e.getMessage(), e);
+         }
          // Object with specified Distinguished Name not found. Null will be
          // returned. This result we regard as successful, just nothing found.
          return null;
