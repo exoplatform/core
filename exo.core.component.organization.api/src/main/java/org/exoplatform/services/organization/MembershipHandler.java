@@ -46,8 +46,9 @@ public interface MembershipHandler
    public void createMembership(Membership m, boolean broadcast) throws Exception;
 
    /**
-    * Use this method to create a membership record, a relation of the user ,
-    * group and membership type
+    * Use this method to create a membership record, a relation of the user,
+    * group and membership type. Doesn't throw an Exception if membership record with the 
+    * same user, group and membership type exists.
     * 
     * @param user The user of the membership
     * @param group The group of the membership
@@ -55,8 +56,7 @@ public interface MembershipHandler
     * @param broadcast Broadcast the event if the value of the broadcast is
     *          'true'
     * @throws Exception An exception is thrown if the method is fail to access
-    *           the database, membership type not existed, a membership record with the same user, 
-    *           group and membership type existed, or any listener fail to handle the event.
+    *           the database, membership type not existed or any listener fail to handle the event.
     */
    public void linkMembership(User user, Group group, MembershipType m, boolean broadcast) throws Exception;
 

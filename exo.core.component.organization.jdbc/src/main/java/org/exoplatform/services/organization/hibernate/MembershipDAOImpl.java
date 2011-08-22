@@ -79,16 +79,25 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       this.listeners_ = new ListenerStack(5);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void addMembershipEventListener(MembershipEventListener listener)
    {
       listeners_.add(listener);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    final public Membership createMembershipInstance()
    {
       return new MembershipImpl();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void createMembership(Membership m, boolean broadcast) throws Exception
    {
       if (orgService.getMembershipTypeHandler().findMembershipType(m.getMembershipType()) == null)
@@ -97,15 +106,31 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
                   + " because membership type " + m.getMembershipType() + " is not exists.");
       }
 
+      // check if we already have membership record
+      if (findMembershipByUserGroupAndType(m.getUserName(), m.getGroupId(), m.getMembershipType()) != null)
+      {
+         return;
+      }
+
       if (broadcast)
+      {
          preSave(m, true);
+      }
+
       Session session = service_.openSession();
       session.save(m);
+
       if (broadcast)
+      {
          postSave(m, true);
+      }
+
       session.flush();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void linkMembership(User user, Group g, MembershipType mt, boolean broadcast) throws Exception
    {
       if (user == null)
@@ -130,13 +155,12 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       membership.setMembershipType(mt.getName());
       membership.setGroupId(g.getId());
       membership.setId(IdentifierUtil.generateUUID(membership));
-
-      if (findMembershipByUserGroupAndType(user.getUserName(), g.getId(), mt.getName()) != null)
-         return;
-
       createMembership(membership, broadcast);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void saveMembership(Membership m, boolean broadcast) throws Exception
    {
       if (broadcast)
@@ -148,6 +172,9 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       session.flush();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Membership removeMembership(String id, boolean broadcast) throws Exception
    {
       Session session = service_.openSession();
@@ -166,6 +193,9 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       return m;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection removeMembershipByUser(String username, boolean broadcast) throws Exception
    {
       Collection collection = findMembershipsByUser(username);
@@ -187,6 +217,9 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       return collection;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Membership findMembershipByUserGroupAndType(String userName, String groupId, String type) throws Exception
    {
       Session session = service_.openSession();
@@ -210,6 +243,9 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       }
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection findMembershipsByUserAndGroup(String userName, String groupId) throws Exception
    {
       Session session = service_.openSession();
@@ -220,6 +256,9 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       return memberships;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection findMembershipsByUser(String userName) throws Exception
    {
       Session session = service_.openSession();
@@ -246,6 +285,9 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       return session.createQuery(queryFindMembershipsByUser).setString(0, userName).list();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection findMembershipsByGroup(Group group) throws Exception
    {
       Session session = service_.openSession();
@@ -253,6 +295,9 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       return memberships;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection findMembershipsByGroupId(String groupId) throws Exception
    {
       Session session = service_.openSession();
@@ -262,6 +307,9 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       return memberships;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Membership findMembership(String id) throws Exception
    {
       Session session = service_.openSession();
