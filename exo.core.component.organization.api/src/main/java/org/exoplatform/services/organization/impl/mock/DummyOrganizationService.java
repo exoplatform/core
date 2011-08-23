@@ -109,6 +109,11 @@ public class DummyOrganizationService extends BaseOrganizationService
          return null;
       }
 
+      public ListAccess<Membership> findAllMembershipsByGroup(Group group) throws Exception
+      {
+         return null;
+      }
+
       public Collection findMembershipsByUser(String userName) throws Exception
       {
          Collection memberships = new ArrayList();

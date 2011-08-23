@@ -18,6 +18,8 @@
  */
 package org.exoplatform.services.organization;
 
+import org.exoplatform.commons.utils.ListAccess;
+
 import java.util.Collection;
 
 /**
@@ -143,6 +145,17 @@ public interface MembershipHandler
     * @throws Exception
     */
    public Collection findMembershipsByGroup(Group group) throws Exception;
+
+   /**
+    * Use this method to find all the membership in a group. Note that an user
+    * can have more than one membership in a group. For example , user admin can
+    * have meberhsip 'member' and 'admin' in the group '/users'
+    * 
+    * @param group
+    * @return the list of the memberships
+    * @throws Exception
+    */
+   public ListAccess<Membership> findAllMembershipsByGroup(Group group) throws Exception;
 
    /**
     * Use this method to register a membership event listener.

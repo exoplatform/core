@@ -19,6 +19,7 @@
 package org.exoplatform.services.organization.hibernate;
 
 import org.exoplatform.commons.utils.IdentifierUtil;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.ListenerStack;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.organization.Group;
@@ -30,6 +31,7 @@ import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.impl.MembershipImpl;
+import org.exoplatform.services.organization.impl.mock.SimpleMembershipListAccess;
 import org.hibernate.Session;
 
 import java.util.Collection;
@@ -293,6 +295,14 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       Session session = service_.openSession();
       List memberships = session.createQuery(queryFindMembershipsByGroup).setString(0, group.getId()).list();
       return memberships;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public ListAccess<Membership> findAllMembershipsByGroup(Group group) throws Exception
+   {
+      return new SimpleMembershipListAccess(findMembershipsByGroup(group));
    }
 
    /**
