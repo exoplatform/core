@@ -26,7 +26,7 @@ import java.util.Collection;
  * Created by The eXo Platform SAS Author : Tuan Nguyen
  * tuan08@users.sourceforge.net Oct 13, 2005 This class is acted as a sub
  * component of the organization service. It is used to manage the membership -
- * the ralation of user , group, and membership type - and broadcast the
+ * the relation of user , group, and membership type - and broadcast the
  * membership event to all the registered listener in the organization service.
  * The membership event can be: new linked membership and delete the membership
  * type event. Each event should have 2 phases: pre event and post event. The
@@ -54,7 +54,7 @@ public interface MembershipHandler
     * 
     * @param user The user of the membership
     * @param group The group of the membership
-    * @param m The MembershipType of the memebership
+    * @param m The MembershipType of the membership
     * @param broadcast Broadcast the event if the value of the broadcast is
     *          'true'
     * @throws Exception An exception is thrown if the method is fail to access
@@ -143,6 +143,8 @@ public interface MembershipHandler
     * @return A collection of the memberships. The collection cannot be none and
     *         empty if no membership is found.
     * @throws Exception
+    * @deprecated This method should no be called, use {@link MembershipHandler#findAllMembershipsByGroup(String)}
+    *             instead
     */
    public Collection findMembershipsByGroup(Group group) throws Exception;
 
