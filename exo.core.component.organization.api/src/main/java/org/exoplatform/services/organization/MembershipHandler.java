@@ -143,7 +143,7 @@ public interface MembershipHandler
     * @return A collection of the memberships. The collection cannot be none and
     *         empty if no membership is found.
     * @throws Exception
-    * @deprecated This method should no be called, use {@link MembershipHandler#findAllMembershipsByGroup(String)}
+    * @deprecated This method should no be called, use {@link MembershipHandler#findAllMembershipsByGroup(Group)}
     *             instead
     */
    public Collection findMembershipsByGroup(Group group) throws Exception;
