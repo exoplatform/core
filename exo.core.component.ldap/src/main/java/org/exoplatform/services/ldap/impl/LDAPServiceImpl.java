@@ -89,13 +89,16 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
 
       if (config.getMinConnection() > 0)
       {
-         env.put("com.sun.jndi.ldap.connect.pool.initsize", Integer.toString(config.getMinConnection()));
-         env.put("com.sun.jndi.ldap.connect.pool.prefsize", Integer.toString(config.getMinConnection()));
+         PrivilegedSystemHelper.setProperty("com.sun.jndi.ldap.connect.pool.initsize",
+            Integer.toString(config.getMinConnection()));
+         PrivilegedSystemHelper.setProperty("com.sun.jndi.ldap.connect.pool.prefsize",
+            Integer.toString(config.getMinConnection()));
       }
 
       if (config.getMaxConnection() > 0)
       {
-         env.put("com.sun.jndi.ldap.connect.pool.maxsize", Integer.toString(config.getMaxConnection()));
+         PrivilegedSystemHelper.setProperty("com.sun.jndi.ldap.connect.pool.maxsize",
+            Integer.toString(config.getMaxConnection()));
       }
 
       env.put("com.sun.jndi.ldap.connect.pool", "true");
