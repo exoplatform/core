@@ -115,4 +115,11 @@ public interface MembershipTypeHandler
     *           Ususally an exception is throwed when the method cannot access the database.
     */
    public Collection findMembershipTypes() throws Exception;
+
+   /**
+    * Use this method to register a membership type event listener.
+    * 
+    * @param listener the listener instance.
+    */
+   public void addMembershipTypeEventListener(MembershipTypeEventListener listener);
 }

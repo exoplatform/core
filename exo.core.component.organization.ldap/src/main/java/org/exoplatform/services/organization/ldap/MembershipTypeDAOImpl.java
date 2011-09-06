@@ -22,13 +22,17 @@ import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.MembershipTypeEventListener;
+import org.exoplatform.services.organization.MembershipTypeEventListenerHandler;
 import org.exoplatform.services.organization.MembershipTypeHandler;
 import org.exoplatform.services.organization.impl.MembershipTypeImpl;
 import org.exoplatform.services.organization.ldap.CacheHandler.CacheType;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
@@ -45,13 +49,18 @@ import javax.naming.ldap.LdapContext;
  * Created by The eXo Platform SAS Author : Tuan Nguyen
  * tuan08@users.sourceforge.net Oct 14, 2005. @version andrew00x $
  */
-public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHandler
+public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHandler, MembershipTypeEventListenerHandler
 {
 
    /**
     * Logger.
     */
    private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.ldap.MembershipTypeDAOImpl");
+
+   /**
+    * The list of listeners to broadcast the events.
+    */
+   protected final List<MembershipTypeEventListener> listeners = new ArrayList<MembershipTypeEventListener>();
 
    /**
     * @param ldapAttrMapping mapping LDAP attributes to eXo organization service
@@ -98,7 +107,18 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
                   Date now = new Date();
                   mt.setCreatedDate(now);
                   mt.setModifiedDate(now);
+
+                  if (broadcast)
+                  {
+                     preSave(mt, true);
+                  }
+
                   ctx.createSubcontext(membershipTypeDN, ldapAttrMapping.membershipTypeToAttributes(mt));
+
+                  if (broadcast)
+                  {
+                     postSave(mt, true);
+                  }
 
                   cacheHandler.put(mt.getName(), mt, CacheType.MEMBERSHIPTYPE);
                }
@@ -148,7 +168,18 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
                      new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(
                         ldapAttrMapping.ldapDescriptionAttr, mt.getDescription()));
                }
+
+               if (broadcast)
+               {
+                  preSave(mt, false);
+               }
+
                ctx.modifyAttributes(membershipTypeDN, mods);
+
+               if (broadcast)
+               {
+                  postSave(mt, false);
+               }
 
                cacheHandler.put(mt.getName(), mt, CacheType.MEMBERSHIPTYPE);
                return mt;
@@ -182,7 +213,18 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
                Attributes attrs = ctx.getAttributes(membershipTypeDN);
                MembershipType m = ldapAttrMapping.attributesToMembershipType(attrs);
                removeMembership(ctx, name);
+
+               if (broadcast)
+               {
+                  preDelete(m);
+               }
+
                ctx.destroySubcontext(membershipTypeDN);
+
+               if (broadcast)
+               {
+                  postDelete(m);
+               }
 
                cacheHandler.remove(name, CacheType.MEMBERSHIPTYPE);
                return m;
@@ -324,4 +366,63 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
       }
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   public void addMembershipTypeEventListener(MembershipTypeEventListener listener)
+   {
+      listeners.add(listener);
+   }
+
+   /**
+    * PreSave event.
+    */
+   private void preSave(MembershipType type, boolean isNew) throws Exception
+   {
+      for (MembershipTypeEventListener listener : listeners)
+      {
+         listener.preSave(type, isNew);
+      }
+   }
+
+   /**
+    * PostSave event.
+    */
+   private void postSave(MembershipType type, boolean isNew) throws Exception
+   {
+      for (MembershipTypeEventListener listener : listeners)
+      {
+         listener.postSave(type, isNew);
+      }
+   }
+
+   /**
+    * PreDelete event.
+    */
+   private void preDelete(MembershipType type) throws Exception
+   {
+      for (MembershipTypeEventListener listener : listeners)
+      {
+         listener.preDelete(type);
+      }
+   }
+
+   /**
+    * PostDelete event.
+    */
+   private void postDelete(MembershipType type) throws Exception
+   {
+      for (MembershipTypeEventListener listener : listeners)
+      {
+         listener.postDelete(type);
+      }
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public List<MembershipTypeEventListener> getMembershipTypeListeners()
+   {
+      return Collections.unmodifiableList(listeners);
+   }
 }

@@ -25,6 +25,7 @@ import org.exoplatform.services.database.ExoDatasource;
 import org.exoplatform.services.database.StandardSQLDAO;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.MembershipTypeEventListener;
 import org.exoplatform.services.organization.MembershipTypeHandler;
 
 import java.util.Calendar;
@@ -106,4 +107,11 @@ public class MembershipTypeDAOImpl extends StandardSQLDAO<MembershipTypeImpl> im
       return mt;
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   public void addMembershipTypeEventListener(MembershipTypeEventListener listener)
+   {
+      throw new RuntimeException("This method is not supported anymore, please use the new api");
+   }
 }

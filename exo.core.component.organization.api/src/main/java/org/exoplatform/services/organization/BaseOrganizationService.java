@@ -100,6 +100,10 @@ abstract public class BaseOrganizationService implements OrganizationService, St
       {
          groupDAO_.addGroupEventListener((GroupEventListener)listener);
       }
+      else if (listener instanceof MembershipTypeEventListener)
+      {
+         membershipTypeDAO_.addMembershipTypeEventListener((MembershipTypeEventListener)listener);
+      }
       else if (listener instanceof MembershipEventListener)
       {
          membershipDAO_.addMembershipEventListener((MembershipEventListener)listener);

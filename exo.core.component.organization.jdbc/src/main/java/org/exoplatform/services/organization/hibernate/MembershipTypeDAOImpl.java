@@ -20,11 +20,15 @@ package org.exoplatform.services.organization.hibernate;
 
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.MembershipTypeEventListener;
+import org.exoplatform.services.organization.MembershipTypeEventListenerHandler;
 import org.exoplatform.services.organization.MembershipTypeHandler;
 import org.exoplatform.services.organization.impl.MembershipTypeImpl;
 import org.hibernate.Session;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -33,7 +37,7 @@ import java.util.List;
  * benjmestrallet@users.sourceforge.net Author : Tuan Nguyen
  * tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:51:21 PM
  */
-public class MembershipTypeDAOImpl implements MembershipTypeHandler
+public class MembershipTypeDAOImpl implements MembershipTypeHandler, MembershipTypeEventListenerHandler
 {
    private static final String queryFindMembershipType =
       "from m in class org.exoplatform.services.organization.impl.MembershipTypeImpl " + "where m.name = ? ";
@@ -41,6 +45,11 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler
    private static final String queryFindAllMembershipType =
       "from m in class org.exoplatform.services.organization.impl.MembershipTypeImpl";
 
+   /**
+    * The list of listeners to broadcast the events.
+    */
+   protected final List<MembershipTypeEventListener> listeners = new ArrayList<MembershipTypeEventListener>();
+   
    private HibernateService service_;
 
    public MembershipTypeDAOImpl(HibernateService service)
@@ -59,8 +68,20 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler
       Date now = new Date();
       mt.setCreatedDate(now);
       mt.setModifiedDate(now);
+
+      if (broadcast)
+      {
+         preSave(mt, true);
+      }
+
       session.save(mt);
       session.flush();
+
+      if (broadcast)
+      {
+         postSave(mt, true);
+      }
+
       return mt;
    }
 
@@ -69,8 +90,20 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler
       Session session = service_.openSession();
       Date now = new Date();
       mt.setModifiedDate(now);
+      
+      if (broadcast)
+      {
+         preSave(mt, false);
+      }
+
       session.update(mt);
       session.flush();
+      
+      if (broadcast)
+      {
+         postSave(mt, false);
+      }
+      
       return mt;
    }
 
@@ -85,6 +118,7 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler
    {
       Session session = service_.openSession();
       MembershipTypeImpl m = (MembershipTypeImpl)session.get(MembershipTypeImpl.class, name);
+
       try
       {
          List entries =
@@ -98,11 +132,22 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler
       {
       }
 
+      if (broadcast)
+      {
+         preDelete(m);
+      }
+
       if (m != null)
       {
          session.delete(m);
          session.flush();
       }
+
+      if (broadcast)
+      {
+         postDelete(m);
+      }
+
       return m;
    }
 
@@ -110,5 +155,65 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler
    {
       Session session = service_.openSession();
       return session.createQuery(queryFindAllMembershipType).list();
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public void addMembershipTypeEventListener(MembershipTypeEventListener listener)
+   {
+      listeners.add(listener);
+   }
+
+   /**
+    * PreSave event.
+    */
+   private void preSave(MembershipType type, boolean isNew) throws Exception
+   {
+      for (MembershipTypeEventListener listener : listeners)
+      {
+         listener.preSave(type, isNew);
+      }
+   }
+
+   /**
+    * PostSave event.
+    */
+   private void postSave(MembershipType type, boolean isNew) throws Exception
+   {
+      for (MembershipTypeEventListener listener : listeners)
+      {
+         listener.postSave(type, isNew);
+      }
+   }
+
+   /**
+    * PreDelete event.
+    */
+   private void preDelete(MembershipType type) throws Exception
+   {
+      for (MembershipTypeEventListener listener : listeners)
+      {
+         listener.preDelete(type);
+      }
+   }
+
+   /**
+    * PostDelete event.
+    */
+   private void postDelete(MembershipType type) throws Exception
+   {
+      for (MembershipTypeEventListener listener : listeners)
+      {
+         listener.postDelete(type);
+      }
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public List<MembershipTypeEventListener> getMembershipTypeListeners()
+   {
+      return Collections.unmodifiableList(listeners);
    }
 }
