@@ -114,4 +114,12 @@ public class MembershipTypeDAOImpl extends StandardSQLDAO<MembershipTypeImpl> im
    {
       throw new RuntimeException("This method is not supported anymore, please use the new api");
    }
+
+   /**
+    * {@inheritDoc}
+    */
+   public void removeMembershipTypeEventListener(MembershipTypeEventListener listener)
+   {
+      throw new RuntimeException("This method is not supported anymore, please use the new api");
+   }
 }

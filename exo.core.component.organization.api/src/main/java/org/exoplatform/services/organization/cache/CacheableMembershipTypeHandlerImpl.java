@@ -148,4 +148,12 @@ public class CacheableMembershipTypeHandlerImpl implements MembershipTypeHandler
    {
       membershipTypeHandler.addMembershipTypeEventListener(listener);
    }
+
+   /**
+    * {@inheritDoc}
+    */
+   public void removeMembershipTypeEventListener(MembershipTypeEventListener listener)
+   {
+      membershipTypeHandler.removeMembershipTypeEventListener(listener);
+   }
 }

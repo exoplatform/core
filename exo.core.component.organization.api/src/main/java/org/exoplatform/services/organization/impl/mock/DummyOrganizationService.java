@@ -85,6 +85,10 @@ public class DummyOrganizationService extends BaseOrganizationService
       {
       }
 
+      public void removeMembershipEventListener(MembershipEventListener listener)
+      {
+      }
+
       public void createMembership(Membership m, boolean broadcast) throws Exception
       {
       }
@@ -304,6 +308,10 @@ public class DummyOrganizationService extends BaseOrganizationService
       {
       }
 
+      public void removeUserEventListener(UserEventListener listener)
+      {
+      }
+
       public boolean authenticate(String username, String password, PasswordEncrypter pe) throws Exception
       {
          Iterator<User> it = users.iterator();
@@ -418,6 +426,10 @@ public class DummyOrganizationService extends BaseOrganizationService
       {
       }
 
+      public void removeGroupEventListener(GroupEventListener listener)
+      {
+      }
+
       public Collection getAllGroups()
       {
          List<Group> groups = new ArrayList<Group>();
@@ -528,6 +540,10 @@ public class DummyOrganizationService extends BaseOrganizationService
    {
 
       public void addUserProfileEventListener(UserProfileEventListener listener)
+      {
+      }
+
+      public void removeUserProfileEventListener(UserProfileEventListener listener)
       {
       }
 

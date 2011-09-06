@@ -105,6 +105,14 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
    /**
     * {@inheritDoc}
     */
+   public void removeMembershipEventListener(MembershipEventListener listener)
+   {
+      listeners.remove(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
    public final Membership createMembershipInstance()
    {
       return new MembershipImpl();

@@ -227,4 +227,9 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
    public void addUserEventListener(UserEventListener listener)
    {
    }
+
+   @SuppressWarnings("unused")
+   public void removeUserEventListener(UserEventListener listener)
+   {
+   }
 }

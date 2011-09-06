@@ -375,6 +375,14 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
    }
 
    /**
+    * {@inheritDoc}
+    */
+   public void removeMembershipTypeEventListener(MembershipTypeEventListener listener)
+   {
+      listeners.remove(listener);
+   }
+
+   /**
     * PreSave event.
     */
    private void preSave(MembershipType type, boolean isNew) throws Exception

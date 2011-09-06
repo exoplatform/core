@@ -129,7 +129,10 @@ public class UserProfileDAOImpl extends StandardSQLDAO<UserProfileData> implemen
 
    public void addUserProfileEventListener(UserProfileEventListener listener)
    {
-      // TODO Auto-generated method stub
-
    }
+
+   public void removeUserProfileEventListener(UserProfileEventListener listener)
+   {
+   }
+
 }

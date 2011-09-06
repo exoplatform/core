@@ -231,6 +231,11 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
    {
    }
 
+   @SuppressWarnings("unused")
+   public void removeGroupEventListener(GroupEventListener listener)
+   {
+   }
+
    private MembershipHandler getMembershipHandler()
    {
       PortalContainer manager = PortalContainer.getInstance();

@@ -259,6 +259,14 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
    /**
     * {@inheritDoc}
     */
+   public void removeUserProfileEventListener(UserProfileEventListener listener)
+   {
+      listeners.remove(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
    public List<UserProfileEventListener> getUserProfileListeners()
    {
       return Collections.unmodifiableList(listeners);

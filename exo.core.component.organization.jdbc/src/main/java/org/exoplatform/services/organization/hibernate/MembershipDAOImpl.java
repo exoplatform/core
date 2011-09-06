@@ -92,6 +92,14 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
    /**
     * {@inheritDoc}
     */
+   public void removeMembershipEventListener(MembershipEventListener listener)
+   {
+      listeners_.remove(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
    final public Membership createMembershipInstance()
    {
       return new MembershipImpl();

@@ -202,4 +202,11 @@ public interface UserHandler
     * @param listener
     */
    public void addUserEventListener(UserEventListener listener);
+
+   /**
+    * This method is used to unregister an user event listener
+    * 
+    * @param listener
+    */
+   public void removeUserEventListener(UserEventListener listener);
 }

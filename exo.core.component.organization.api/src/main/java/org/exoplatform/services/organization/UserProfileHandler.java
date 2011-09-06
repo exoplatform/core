@@ -101,4 +101,12 @@ public interface UserProfileHandler
     * @see UserProfileEventListener
     */
    public void addUserProfileEventListener(UserProfileEventListener listener);
+
+   /**
+    * This method is used to unregister listener.
+    * 
+    * @param listener The listener instance
+    * @see UserProfileEventListener
+    */
+   public void removeUserProfileEventListener(UserProfileEventListener listener);
 }

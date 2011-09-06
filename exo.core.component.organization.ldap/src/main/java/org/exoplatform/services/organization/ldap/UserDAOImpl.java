@@ -79,6 +79,14 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
    /**
     * {@inheritDoc}
     */
+   public void removeUserEventListener(UserEventListener listener)
+   {
+      listeners.remove(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
    public User createUserInstance()
    {
       return new UserImpl();

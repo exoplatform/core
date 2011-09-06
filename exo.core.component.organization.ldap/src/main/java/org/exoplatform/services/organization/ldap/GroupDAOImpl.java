@@ -94,6 +94,14 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
    /**
     * {@inheritDoc}
     */
+   public void removeGroupEventListener(GroupEventListener listener)
+   {
+      listeners.remove(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
    public final Group createGroupInstance()
    {
       return new GroupImpl();

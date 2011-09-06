@@ -173,4 +173,11 @@ public interface GroupHandler
     * @param listener the group event listener instance.
     */
    public void addGroupEventListener(GroupEventListener listener);
+
+   /**
+    * Use this method to unregister a group event listener
+    * 
+    * @param listener the group event listener instance.
+    */
+   public void removeGroupEventListener(GroupEventListener listener);
 }

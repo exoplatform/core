@@ -69,9 +69,20 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
       return listeners_;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void addUserEventListener(UserEventListener listener)
    {
       listeners_.add(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public void removeUserEventListener(UserEventListener listener)
+   {
+      listeners_.remove(listener);
    }
 
    public User createUserInstance()

@@ -73,6 +73,14 @@ public class CacheableUserHandlerImpl implements UserHandler
    /**
     * {@inheritDoc}
     */
+   public void removeUserEventListener(UserEventListener listener)
+   {
+      userHandler.removeUserEventListener(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
    public boolean authenticate(String username, String password) throws Exception
    {
       boolean authenticated = userHandler.authenticate(username, password);

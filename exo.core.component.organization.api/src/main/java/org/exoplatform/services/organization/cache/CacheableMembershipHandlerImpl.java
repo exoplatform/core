@@ -68,6 +68,14 @@ public class CacheableMembershipHandlerImpl implements MembershipHandler
    /**
     * {@inheritDoc}
     */
+   public void removeMembershipEventListener(MembershipEventListener listener)
+   {
+      membershipHandler.removeMembershipEventListener(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
    public void createMembership(Membership m, boolean broadcast) throws Exception
    {
       membershipHandler.createMembership(m, broadcast);

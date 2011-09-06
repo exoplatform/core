@@ -59,9 +59,20 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
       listeners_ = new ArrayList<UserProfileEventListener>(3);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void addUserProfileEventListener(UserProfileEventListener listener)
    {
       listeners_.add(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public void removeUserProfileEventListener(UserProfileEventListener listener)
+   {
+      listeners_.remove(listener);
    }
 
    final public UserProfile createUserProfileInstance()

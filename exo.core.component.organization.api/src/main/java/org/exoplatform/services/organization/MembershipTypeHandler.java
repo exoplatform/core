@@ -122,4 +122,11 @@ public interface MembershipTypeHandler
     * @param listener the listener instance.
     */
    public void addMembershipTypeEventListener(MembershipTypeEventListener listener);
+
+   /**
+    * Use this method to unregister a membership type event listener.
+    * 
+    * @param listener the listener instance.
+    */
+   public void removeMembershipTypeEventListener(MembershipTypeEventListener listener);
 }

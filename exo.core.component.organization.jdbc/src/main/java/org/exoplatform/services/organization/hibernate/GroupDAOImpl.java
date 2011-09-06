@@ -75,9 +75,20 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
       listeners_ = new ArrayList<GroupEventListener>();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void addGroupEventListener(GroupEventListener listener)
    {
       listeners_.add(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public void removeGroupEventListener(GroupEventListener listener)
+   {
+      listeners_.remove(listener);
    }
 
    final public Group createGroupInstance()
