@@ -43,9 +43,9 @@
    </properties>
 
    <scm>
-      <connection>scm:svn:https://anonsvn.jboss.org/repos/exo-jcr/core/tags/2.4.0-GA</connection>
-      <developerConnection>scm:svn:https://svn.jboss.org/repos/exo-jcr/core/tags/2.4.0-GA</developerConnection>
-      <url>http://fisheye.jboss.org/browse/exo-jcr/core/tags/2.4.0-GA</url>
+      <connection>scm:svn:https://anonsvn.jboss.org/repos/exo-jcr/core/branches/2.4.0-GA-CP02-SNAPSHOT</connection>
+      <developerConnection>scm:svn:https://svn.jboss.org/repos/exo-jcr/core/branches/2.4.0-GA-CP02-SNAPSHOT</developerConnection>
+      <url>http://fisheye.jboss.org/browse/exo-jcr/core/branches/2.4.0-GA-CP02-SNAPSHOT</url>
    </scm>
 
    <modules>
