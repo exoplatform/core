@@ -32,8 +32,8 @@ function getModule(params) {
     addDependency(new Project("org.apache.pdfbox", "pdfbox", "jar", "1.4.0")).
     addDependency(new Project("org.apache.pdfbox", "fontbox", "jar", "1.4.0")).
     addDependency(new Project("org.apache.pdfbox", "jempbox", "jar", "1.4.0")).    
-    addDependency(new Project("org.bouncycastle", "bcmail-jdk15", "jar", "1.45")).
-    addDependency(new Project("org.bouncycastle", "bcprov-jdk15", "jar", "1.45")).
+    addDependency(new Project("bouncycastle", "bcmail-jdk15", "jar", "1.45")).
+    addDependency(new Project("bouncycastle", "bcprov-jdk15", "jar", "1.45")).
     addDependency(new Project("org.apache.commons", "commons-compress", "jar", "1.0")).
     addDependency(new Project("org.apache.geronimo.specs", "geronimo-stax-api_1.0_spec", "jar", "1.0.1")).
     addDependency(new Project("org.ccil.cowan.tagsoup", "tagsoup", "jar", "1.2")).
