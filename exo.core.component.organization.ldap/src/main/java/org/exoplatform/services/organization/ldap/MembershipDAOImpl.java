@@ -432,14 +432,22 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
                      + ldapAttrMapping.membershipTypeMemberValue + "=" + userDN + "))";
 
                NamingEnumeration<SearchResult> results = findMembershipsInGroup(ctx, groupId, filter);
-               if (results.hasMoreElements())
+               try
                {
-                  // SearchResult sr = results.next();
-                  // if (haveUser(sr.getAttributes(), userDN)) {
-                  // membership = createMembershipObject(userName, groupId, type);
-                  // }
-                  membership = createMembershipObject(userName, groupId, type);
+                  if (results.hasMoreElements())
+                  {
+                     // SearchResult sr = results.next();
+                     // if (haveUser(sr.getAttributes(), userDN)) {
+                     // membership = createMembershipObject(userName, groupId, type);
+                     // }
+                     membership = createMembershipObject(userName, groupId, type);
+                  }
                }
+               finally
+               {
+                  results.close();
+               }
+
 
                if (membership != null)
                {

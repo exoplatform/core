@@ -84,8 +84,8 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
       env.put(Context.SECURITY_AUTHENTICATION, config.getAuthenticationType());
       env.put(Context.SECURITY_PRINCIPAL, config.getRootDN());
       env.put(Context.SECURITY_CREDENTIALS, config.getPassword());
-      // TODO move it in configuration ?
-      env.put("com.sun.jndi.ldap.connect.timeout", "60000");
+
+      PrivilegedSystemHelper.setProperty("com.sun.jndi.ldap.connect.timeout", "60000");
 
       if (config.getMinConnection() > 0)
       {
@@ -252,13 +252,19 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
       SearchControls constraints = new SearchControls();
       constraints.setSearchScope(SearchControls.ONELEVEL_SCOPE);
       NamingEnumeration<SearchResult> results = ctx.search(name, "(objectclass=*)", constraints);
-      while (results.hasMore())
+      try
       {
-         SearchResult sr = results.next();
-         unbind(ctx, sr.getNameInNamespace());
+         while (results.hasMore())
+         {
+            SearchResult sr = results.next();
+            unbind(ctx, sr.getNameInNamespace());
+         }
+         // close search results enumeration
       }
-      // close search results enumeration
-      results.close();
+      finally
+      {
+         results.close();
+      }
       ctx.unbind(name);
    }
 
