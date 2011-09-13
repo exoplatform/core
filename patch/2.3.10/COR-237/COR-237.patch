@@ -1,11 +1,16 @@
 Index: exo.core.component.ldap/src/main/java/org/exoplatform/services/ldap/impl/LDAPServiceImpl.java
 ===================================================================
---- exo.core.component.ldap/src/main/java/org/exoplatform/services/ldap/impl/LDAPServiceImpl.java	(revision 4816)
+--- exo.core.component.ldap/src/main/java/org/exoplatform/services/ldap/impl/LDAPServiceImpl.java	(revision 4888)
 +++ exo.core.component.ldap/src/main/java/org/exoplatform/services/ldap/impl/LDAPServiceImpl.java	(working copy)
-@@ -86,6 +86,17 @@
-       // TODO move it in configuration ?
-       env.put("com.sun.jndi.ldap.connect.timeout", "60000");
+@@ -83,9 +83,20 @@
+       env.put(Context.SECURITY_AUTHENTICATION, config.getAuthenticationType());
+       env.put(Context.SECURITY_PRINCIPAL, config.getRootDN());
+       env.put(Context.SECURITY_CREDENTIALS, config.getPassword());
+-      // TODO move it in configuration ?
+-      env.put("com.sun.jndi.ldap.connect.timeout", "60000");
  
++      System.setProperty("com.sun.jndi.ldap.connect.timeout", "60000");
++
 +      if (config.getMinConnection() > 0)
 +      {
 +         System.setProperty("com.sun.jndi.ldap.connect.pool.initsize", Integer.toString(config.getMinConnection()));
@@ -20,3 +25,258 @@ Index: exo.core.component.ldap/src/main/java/org/exoplatform/services/ldap/impl/
        env.put("com.sun.jndi.ldap.connect.pool", "true");
        env.put("java.naming.ldap.version", config.getVerion());
        env.put("java.naming.ldap.attributes.binary", "tokenGroups");
+@@ -239,13 +250,19 @@
+       SearchControls constraints = new SearchControls();
+       constraints.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+       NamingEnumeration<SearchResult> results = ctx.search(name, "(objectclass=*)", constraints);
+-      while (results.hasMore())
++      try
+       {
+-         SearchResult sr = results.next();
+-         unbind(ctx, sr.getNameInNamespace());
++         while (results.hasMore())
++         {
++            SearchResult sr = results.next();
++            unbind(ctx, sr.getNameInNamespace());
++         }
++         // close search results enumeration
+       }
+-      // close search results enumeration
+-      results.close();
++      finally
++      {
++         results.close();
++      }
+       ctx.unbind(name);
+    }
+ 
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipDAOImpl.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipDAOImpl.java	(revision 4888)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/MembershipDAOImpl.java	(working copy)
+@@ -401,15 +401,23 @@
+                      + ldapAttrMapping.membershipTypeMemberValue + "=" + userDN + "))";
+ 
+                NamingEnumeration<SearchResult> results = findMembershipsInGroup(ctx, groupId, filter);
+-               if (results.hasMoreElements())
++               try
+                {
+-                  // SearchResult sr = results.next();
+-                  // if (haveUser(sr.getAttributes(), userDN)) {
+-                  // membership = createMembershipObject(userName, groupId, type);
+-                  // }
+-                  membership = createMembershipObject(userName, groupId, type);
++                  if (results.hasMoreElements())
++                  {
++                     // SearchResult sr = results.next();
++                     // if (haveUser(sr.getAttributes(), userDN)) {
++                     // membership = createMembershipObject(userName, groupId, type);
++                     // }
++                     membership = createMembershipObject(userName, groupId, type);
++                  }
+                }
++               finally
++               {
++                  results.close();
++               }
+ 
++
+                if (membership != null)
+                {
+                   cacheHandler.put(cacheHandler.getMembershipKey(membership), membership, CacheType.MEMBERSHIP);
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/OrganizationLdapInitializer.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/OrganizationLdapInitializer.java	(revision 4888)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/OrganizationLdapInitializer.java	(working copy)
+@@ -27,7 +27,10 @@
+ import java.util.regex.Matcher;
+ import java.util.regex.Pattern;
+ 
++import javax.naming.NamingEnumeration;
+ import javax.naming.directory.BasicAttributes;
++import javax.naming.directory.SearchControls;
++import javax.naming.directory.SearchResult;
+ import javax.naming.ldap.LdapContext;
+ 
+ /**
+@@ -67,36 +70,57 @@
+       Matcher matcher = pattern.matcher(dn);
+       dn = matcher.replaceAll("=");
+       LdapContext context = baseHandler.ldapService.getLdapContext();
+-      String[] explodeDN = baseHandler.explodeDN(dn, false);
+-      if (explodeDN.length < 1)
+-         return;
+-      dn = explodeDN[explodeDN.length - 1];
+-      int i = explodeDN.length - 2;
+-      for (; i > -1; i--)
++      try
+       {
+-         if (!explodeDN[i].toLowerCase().startsWith("dc="))
+-            break;
+-         dn = explodeDN[i] + "," + dn;
++         String[] explodeDN = baseHandler.explodeDN(dn, false);
++         if (explodeDN.length < 1)
++            return;
++         dn = explodeDN[explodeDN.length - 1];
++         int i = explodeDN.length - 2;
++         for (; i > -1; i--)
++         {
++            if (!explodeDN[i].toLowerCase().startsWith("dc="))
++               break;
++            dn = explodeDN[i] + "," + dn;
++         }
++         createDN(dn, context);
++         for (; i > -1; i--)
++         {
++            dn = explodeDN[i] + "," + dn;
++            createDN(dn, context);
++         }
+       }
+-      createDN(dn, context);
+-      for (; i > -1; i--)
++      finally
+       {
+-         dn = explodeDN[i] + "," + dn;
+-         createDN(dn, context);
++         baseHandler.ldapService.release(context);
+       }
+    }
+ 
+    private void createDN(String dn, LdapContext context) throws Exception
+    {
++      NamingEnumeration<SearchResult> results = null;
+       try
+       {
+-         Object obj = context.lookupLink(dn);
+-         if (obj != null)
++         SearchControls control = new SearchControls();
++         control.setSearchScope(SearchControls.OBJECT_SCOPE);
++         results = context.search(dn, "(objectClass=*)", control);
++
++         if (results.hasMoreElements())
++         {
+             return;
++         }
+       }
+       catch (Exception exp)
+       {
+       }
++      finally
++      {
++         if (results != null)
++         {
++            results.close();
++         }
++      }
++
+       String nameValue = dn.substring(dn.indexOf("=") + 1, dn.indexOf(","));
+       BasicAttributes attrs = new BasicAttributes();
+       if (dn.toLowerCase().startsWith("ou="))
+@@ -139,33 +163,40 @@
+ 
+       LdapContext context = baseHandler.ldapService.getLdapContext();
+ 
+-      String[] edn = baseHandler.explodeDN(dn, false);
+-      String[] ebasedn = baseHandler.explodeDN(basedn, false);
++      try
++      {
++         String[] edn = baseHandler.explodeDN(dn, false);
++         String[] ebasedn = baseHandler.explodeDN(basedn, false);
+ 
+-      if (edn.length < 1)
+-         throw new IllegalArgumentException("Zerro DN length, [" + dn + "]");
+-      if (ebasedn.length < 1)
+-         throw new IllegalArgumentException("Zerro Base DN length, [" + basedn + "]");
+-      if (edn.length < ebasedn.length)
+-         throw new IllegalArgumentException("DN length smaller Base DN [" + dn + " >= " + basedn + "]");
++         if (edn.length < 1)
++            throw new IllegalArgumentException("Zerro DN length, [" + dn + "]");
++         if (ebasedn.length < 1)
++            throw new IllegalArgumentException("Zerro Base DN length, [" + basedn + "]");
++         if (edn.length < ebasedn.length)
++            throw new IllegalArgumentException("DN length smaller Base DN [" + dn + " >= " + basedn + "]");
+ 
+-      String rdn = basedn;
+-      for (int i = 1; i <= edn.length; i++)
+-      {
+-         // for (int i=edn.length - 1; i>=0; i--) {
+-         String n = edn[edn.length - i];
+-         if (i <= ebasedn.length)
++         String rdn = basedn;
++         for (int i = 1; i <= edn.length; i++)
+          {
+-            String bn = ebasedn[ebasedn.length - i];
+-            if (!n.equals(bn))
+-               throw new IllegalArgumentException("DN does not starts with Base DN [" + dn + " != " + basedn + "]");
++            // for (int i=edn.length - 1; i>=0; i--) {
++            String n = edn[edn.length - i];
++            if (i <= ebasedn.length)
++            {
++               String bn = ebasedn[ebasedn.length - i];
++               if (!n.equals(bn))
++                  throw new IllegalArgumentException("DN does not starts with Base DN [" + dn + " != " + basedn + "]");
++            }
++            else
++            {
++               // create RDN elem
++               rdn = n + "," + rdn;
++               createDN(rdn, context);
++            }
+          }
+-         else
+-         {
+-            // create RDN elem
+-            rdn = n + "," + rdn;
+-            createDN(rdn, context);
+-         }
+       }
++      finally
++      {
++         baseHandler.ldapService.release(context);
++      }
+    }
+ }
+Index: exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADUserDAOImpl.java
+===================================================================
+--- exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADUserDAOImpl.java	(revision 4888)
++++ exo.core.component.organization.ldap/src/main/java/org/exoplatform/services/organization/ldap/ADUserDAOImpl.java	(working copy)
+@@ -123,24 +123,24 @@
+    @Override
+    protected void saveUserPassword(User user, String userDN) throws Exception
+    {
+-      Object v = ldapService.getLdapContext().getEnvironment().get(Context.SECURITY_PROTOCOL);
+-      if (v == null)
+-         return;
+-      String security = String.valueOf(v);
+-      if (!security.equalsIgnoreCase("ssl"))
+-         return;
+-      String newQuotedPassword = "\"" + user.getPassword() + "\"";
+-      byte[] newUnicodePassword = newQuotedPassword.getBytes("UTF-16LE");
+-      ModificationItem[] mods = new ModificationItem[2];
+-      mods[0] =
+-         new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ldapAttrMapping.userPassword,
+-            newUnicodePassword));
+-      mods[1] =
+-         new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("userAccountControl", Integer
+-            .toString(UF_NORMAL_ACCOUNT + UF_PASSWORD_EXPIRED)));
+       LdapContext ctx = ldapService.getLdapContext();
+       try
+       {
++         Object v = ctx.getEnvironment().get(Context.SECURITY_PROTOCOL);
++         if (v == null)
++            return;
++         String security = String.valueOf(v);
++         if (!security.equalsIgnoreCase("ssl"))
++            return;
++         String newQuotedPassword = "\"" + user.getPassword() + "\"";
++         byte[] newUnicodePassword = newQuotedPassword.getBytes("UTF-16LE");
++         ModificationItem[] mods = new ModificationItem[2];
++         mods[0] =
++            new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ldapAttrMapping.userPassword,
++               newUnicodePassword));
++         mods[1] =
++            new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("userAccountControl",
++               Integer.toString(UF_NORMAL_ACCOUNT + UF_PASSWORD_EXPIRED)));
+          for (int err = 0;; err++)
+          {
+             try
