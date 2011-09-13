@@ -7,10 +7,9 @@ Index: exo.core.component.ldap/src/main/java/org/exoplatform/services/ldap/impl/
        env.put(Context.SECURITY_PRINCIPAL, config.getRootDN());
        env.put(Context.SECURITY_CREDENTIALS, config.getPassword());
 -      // TODO move it in configuration ?
--      env.put("com.sun.jndi.ldap.connect.timeout", "60000");
- 
-+      System.setProperty("com.sun.jndi.ldap.connect.timeout", "60000");
 +
+       env.put("com.sun.jndi.ldap.connect.timeout", "60000");
+ 
 +      if (config.getMinConnection() > 0)
 +      {
 +         System.setProperty("com.sun.jndi.ldap.connect.pool.initsize", Integer.toString(config.getMinConnection()));
