@@ -32,7 +32,6 @@ import org.exoplatform.services.log.Log;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -85,8 +84,12 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
       env.put(Context.SECURITY_PRINCIPAL, config.getRootDN());
       env.put(Context.SECURITY_CREDENTIALS, config.getPassword());
 
-      PrivilegedSystemHelper.setProperty("com.sun.jndi.ldap.connect.timeout", "60000");
-
+      if (config.getTimeout() > 0)
+      {
+         PrivilegedSystemHelper.setProperty("com.sun.jndi.ldap.connect.pool.timeout",
+            Integer.toString(config.getTimeout()));
+      }
+      
       if (config.getMinConnection() > 0)
       {
          PrivilegedSystemHelper.setProperty("com.sun.jndi.ldap.connect.pool.initsize",
@@ -205,46 +208,6 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
     */
    public void addDeleteObject(ComponentPlugin plugin) throws NamingException
    {
-      if (false && plugin instanceof DeleteObjectCommand)
-      {
-         DeleteObjectCommand command = (DeleteObjectCommand)plugin;
-         List<String> objectsToDelete = command.getObjectsToDelete();
-         if (objectsToDelete == null || objectsToDelete.size() == 0)
-            return;
-         LdapContext ctx = getLdapContext();
-         for (String name : objectsToDelete)
-         {
-            try
-            {
-               try
-               {
-                  unbind(ctx, name);
-               }
-               catch (CommunicationException e1)
-               {
-                  // create new LDAP context
-                  ctx = getLdapContext(true);
-                  // try repeat operation where communication error occurs
-                  unbind(ctx, name);
-               }
-               catch (ServiceUnavailableException e2)
-               {
-                  // do the same as for CommunicationException
-                  ctx = getLdapContext(true);
-                  //
-                  unbind(ctx, name);
-               }
-            }
-            catch (Exception e3)
-            {
-               // Catch all exceptions here.
-               // Just inform about exception if it is not connection problem.
-               LOG.error("Remove object (" + name + ") failed. ", e3);
-            }
-         }
-         // close context
-         release(ctx);
-      }
    }
 
    private void unbind(LdapContext ctx, String name) throws NamingException

@@ -40,6 +40,8 @@ public class LDAPConnectionConfig
 
    private int maxConnection;
 
+   private int timeout;
+
    private String referralMode = "follow";
 
    public String getRootDN()
@@ -72,6 +74,11 @@ public class LDAPConnectionConfig
       this.version = v;
    }
 
+   public void setTimeout(int timeout)
+   {
+      this.timeout = timeout;
+   }
+
    public String getAuthenticationType()
    {
       return authenticationType;
@@ -95,6 +102,11 @@ public class LDAPConnectionConfig
    public int getMaxConnection()
    {
       return this.maxConnection;
+   }
+
+   public int getTimeout()
+   {
+      return timeout;
    }
 
    public void setMaxConnection(int n)
