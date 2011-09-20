@@ -18,7 +18,10 @@
  */
 package org.exoplatform.services.organization;
 
+import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.component.ComponentPlugin;
+import org.exoplatform.container.component.ComponentRequestLifecycle;
+import org.exoplatform.container.component.RequestLifeCycle;
 import org.picocontainer.Startable;
 
 import java.util.ArrayList;
@@ -28,7 +31,7 @@ import java.util.List;
  * Created by The eXo Platform SAS Author : Tuan Nguyen
  * tuan08@users.sourceforge.net Oct 13, 2005
  */
-abstract public class BaseOrganizationService implements OrganizationService, Startable
+abstract public class BaseOrganizationService implements OrganizationService, Startable, ComponentRequestLifecycle
 {
    protected UserHandler userDAO_;
 
@@ -69,20 +72,29 @@ abstract public class BaseOrganizationService implements OrganizationService, St
 
    public void start()
    {
-      for (OrganizationServiceInitializer listener : listeners_)
+      try
       {
-         try
+         RequestLifeCycle.begin(this);
+
+         for (OrganizationServiceInitializer listener : listeners_)
          {
-            listener.init(this);
+            try
+            {
+               listener.init(this);
+            }
+            catch (Exception ex)
+            {
+               String msg =
+                  "Failed start Organization Service " + getClass().getName()
+                     + ", probably because of configuration error. Error occurs when initialize "
+                     + listener.getClass().getName();
+               throw new RuntimeException(msg, ex);
+            }
          }
-         catch (Exception ex)
-         {
-            String msg =
-               "Failed start Organization Service " + getClass().getName()
-                  + ", probably because of configuration error. Error occurs when initialize "
-                  + listener.getClass().getName();
-            throw new RuntimeException(msg, ex);
-         }
+      }
+      finally
+      {
+         RequestLifeCycle.end();
       }
    }
 
@@ -120,5 +132,19 @@ abstract public class BaseOrganizationService implements OrganizationService, St
       {
          throw new RuntimeException(listener.getClass().getName() + " is an unknown listener type");
       }
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public void startRequest(ExoContainer container)
+   {
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public void endRequest(ExoContainer container)
+   {
    }
 }
