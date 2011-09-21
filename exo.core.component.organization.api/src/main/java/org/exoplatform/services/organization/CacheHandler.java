@@ -16,16 +16,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.exoplatform.services.organization.ldap;
+package org.exoplatform.services.organization;
 
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
-import org.exoplatform.services.organization.Group;
-import org.exoplatform.services.organization.Membership;
-import org.exoplatform.services.organization.MembershipType;
-import org.exoplatform.services.organization.User;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author <a href="abazko@exoplatform.com">Anatoliy Bazko</a>
@@ -42,23 +40,28 @@ public class CacheHandler
    /**
     * Cache for Users.
     */
-   private final ExoCache<Serializable, User> userCache;
+   protected final ExoCache<Serializable, User> userCache;
+
+   /**
+    * Cache for Users profiles.
+    */
+   protected final ExoCache<Serializable, UserProfile> userProfileCache;
 
    /**
     * Cache for MembershipTypes.
     */
-   private final ExoCache<Serializable, MembershipType> membershipTypeCache;
+   protected final ExoCache<Serializable, MembershipType> membershipTypeCache;
 
    /**
     * Cache for Memberships.
     */
-   private final ExoCache<Serializable, Membership> membershipCache;
+   protected final ExoCache<Serializable, Membership> membershipCache;
 
    /**
     * Cache for Groups.
     */
-   private final ExoCache<Serializable, Group> groupCache;
-
+   protected final ExoCache<Serializable, Group> groupCache;
+   
    /**
     * Constructor CacheHandler. 
     * 
@@ -68,6 +71,7 @@ public class CacheHandler
    public CacheHandler(CacheService cservice)
    {
       this.userCache = cservice.getCacheInstance(this.getClass().getName() + "userCache");
+      this.userProfileCache = cservice.getCacheInstance(this.getClass().getName() + "userProfileCache");
       this.membershipTypeCache = cservice.getCacheInstance(this.getClass().getName() + "membershipTypeCache");
       this.groupCache = cservice.getCacheInstance(this.getClass().getName() + "groupCache");
       this.membershipCache = cservice.getCacheInstance(this.getClass().getName() + "membershipCache");
@@ -91,28 +95,49 @@ public class CacheHandler
       {
          membershipTypeCache.put(key, (MembershipType)value);
       }
+      else if (cacheType == CacheType.USER_PROFILE)
+      {
+         userProfileCache.put(key, (UserProfile)value);
+      }
    }
 
    public Object get(Serializable key, CacheType cacheType)
    {
+      Object obj = null;
       if (cacheType == CacheType.USER)
       {
-         return userCache.get(key);
+         obj = userCache.get(key);
       }
       else if (cacheType == CacheType.GROUP)
       {
-         return groupCache.get(key);
+         obj = groupCache.get(key);
       }
       else if (cacheType == CacheType.MEMBERSHIP)
       {
-         return membershipCache.get(key);
+         obj = membershipCache.get(key);
       }
       else if (cacheType == CacheType.MEMBERSHIPTYPE)
       {
-         return membershipTypeCache.get(key);
+         obj = membershipTypeCache.get(key);
+      }
+      else if (cacheType == CacheType.USER_PROFILE)
+      {
+         obj = userProfileCache.get(key);
       }
 
-      return null;
+      if (obj != null && obj instanceof Cloneable)
+      {
+         try
+         {
+            // need to return the clone of the object since object is mutable
+            return obj.getClass().getMethod("clone").invoke(obj);
+         }
+         catch (Exception e)
+         {
+            return obj;
+         }
+      }
+      return obj;
    }
 
    public void remove(Serializable key, CacheType cacheType)
@@ -129,11 +154,10 @@ public class CacheHandler
       {
          try
          {
-            String tKey = ((String)key).toUpperCase();
             for (Membership m : membershipCache.getCachedObjects())
             {
                String mkey = getMembershipKey(m);
-               if (mkey.toUpperCase().indexOf(tKey) >= 0)
+               if (mkey.indexOf((String)key) >= 0)
                {
                   membershipCache.remove(mkey);
                }
@@ -146,6 +170,51 @@ public class CacheHandler
       else if (cacheType == CacheType.MEMBERSHIPTYPE)
       {
          membershipTypeCache.remove(key);
+      }
+      else if (cacheType == CacheType.USER_PROFILE)
+      {
+         userProfileCache.remove(key);
+      }
+   }
+
+   public void move(Serializable oldKey, Serializable newKey, CacheType cacheType)
+   {
+      if (cacheType == CacheType.USER)
+      {
+         userCache.put(newKey, userCache.remove(oldKey));
+      }
+      else if (cacheType == CacheType.GROUP)
+      {
+         groupCache.put(newKey, groupCache.remove(oldKey));
+      }
+      else if (cacheType == CacheType.MEMBERSHIP)
+      {
+         try
+         {
+            Map<Serializable, Membership> wait4Adding = new HashMap<Serializable, Membership>();
+
+            for (Membership m : membershipCache.getCachedObjects())
+            {
+               String mkey = getMembershipKey(m);
+               if (mkey.indexOf((String)oldKey) >= 0)
+               {
+                  wait4Adding.put(mkey.replace((String)oldKey, (String)newKey), membershipCache.remove(mkey));
+               }
+            }
+
+            membershipCache.putMap(wait4Adding);
+         }
+         catch (Exception e)
+         {
+         }
+      }
+      else if (cacheType == CacheType.MEMBERSHIPTYPE)
+      {
+         membershipTypeCache.put(newKey, membershipTypeCache.remove(oldKey));
+      }
+      else if (cacheType == CacheType.USER_PROFILE)
+      {
+         userProfileCache.put(newKey, userProfileCache.remove(oldKey));
       }
    }
 
@@ -169,8 +238,8 @@ public class CacheHandler
       return key.toString();
    }
 
-   static enum CacheType
+   public static enum CacheType
    {
-      USER, GROUP, MEMBERSHIP, MEMBERSHIPTYPE
+      USER, GROUP, MEMBERSHIP, MEMBERSHIPTYPE, USER_PROFILE
    }
 }

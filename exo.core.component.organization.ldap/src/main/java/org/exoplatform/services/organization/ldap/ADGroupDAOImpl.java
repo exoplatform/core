@@ -19,6 +19,7 @@
 package org.exoplatform.services.organization.ldap;
 
 import org.exoplatform.services.ldap.LDAPService;
+import org.exoplatform.services.organization.CacheHandler;
 import org.exoplatform.services.organization.Group;
 
 import java.util.ArrayList;

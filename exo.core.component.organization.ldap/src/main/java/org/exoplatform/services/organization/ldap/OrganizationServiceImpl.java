@@ -24,6 +24,7 @@ import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.organization.BaseOrganizationService;
+import org.exoplatform.services.organization.CacheHandler;
 import org.exoplatform.services.organization.hibernate.UserProfileDAOImpl;
 
 /**

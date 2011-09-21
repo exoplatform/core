@@ -19,8 +19,9 @@
 package org.exoplatform.services.organization.ldap;
 
 import org.exoplatform.services.ldap.LDAPService;
+import org.exoplatform.services.organization.CacheHandler;
 import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.ldap.CacheHandler.CacheType;
+import org.exoplatform.services.organization.CacheHandler.CacheType;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
