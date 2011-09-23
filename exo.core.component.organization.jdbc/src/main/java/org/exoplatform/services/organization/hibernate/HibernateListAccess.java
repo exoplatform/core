@@ -39,6 +39,7 @@ package org.exoplatform.services.organization.hibernate;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.SecurityHelper;
+import org.exoplatform.services.database.HibernateService;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -141,7 +142,7 @@ public class HibernateListAccess<E> implements ListAccess<E>
       {
          return ((Number)l.get(0)).intValue();
       }
-      
+
       throw new HibernateException("The query execution " + countQuery + " failed");
    }
 
