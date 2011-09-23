@@ -39,7 +39,7 @@ package org.exoplatform.services.organization.hibernate;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.SecurityHelper;
-import org.exoplatform.services.database.HibernateService;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
@@ -137,9 +137,12 @@ public class HibernateListAccess<E> implements ListAccess<E>
       bindFields(query);
 
       List l = query.list();
-      Number count = (Number)l.get(0);
-
-      return count.intValue();
+      if (!l.isEmpty())
+      {
+         return ((Number)l.get(0)).intValue();
+      }
+      
+      throw new HibernateException("The query execution " + countQuery + " failed");
    }
 
    /**
