@@ -181,7 +181,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
       String findQuery = "from o in class " + UserImpl.class.getName();
       String countQuery = "select count(o) from " + UserImpl.class.getName() + " o";
 
-      return new SimpleHibernateUserListAccess(service_, findQuery, countQuery);
+      return new HibernateListAccess<User>(service_, findQuery, countQuery);
    }
 
    public boolean authenticate(String username, String password) throws Exception
@@ -240,8 +240,8 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
       oq.addGT("lastLoginTime", q.getFromLoginDate());
       oq.addLT("lastLoginTime", q.getToLoginDate());
 
-      return new SimpleHibernateUserListAccess(service_, oq.getHibernateQueryWithBinding(), oq
-         .getHibernateCountQueryWithBinding(), oq.getBindingFields());
+      return new HibernateListAccess<User>(service_, oq.getHibernateQueryWithBinding(),
+         oq.getHibernateCountQueryWithBinding(), oq.getBindingFields());
    }
 
    public LazyPageList<User> findUsersByGroup(String groupId) throws Exception
@@ -260,7 +260,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
             + "     m in class org.exoplatform.services.organization.impl.MembershipImpl "
             + "where m.userName = u.userName " + "  and m.groupId =  '" + groupId + "'";
 
-      return new SimpleHibernateUserListAccess(service_, queryFindUsersInGroup, countUsersInGroup);
+      return new HibernateListAccess<User>(service_, queryFindUsersInGroup, countUsersInGroup);
    }
 
    public Collection findUsersByGroupAndRole(String groupName, String role) throws Exception

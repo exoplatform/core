@@ -23,6 +23,7 @@ import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.CacheHandler;
+import org.exoplatform.services.organization.CacheHandler.CacheType;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
@@ -31,9 +32,7 @@ import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.CacheHandler.CacheType;
 import org.exoplatform.services.organization.impl.MembershipImpl;
-import org.exoplatform.services.organization.impl.mock.SimpleMembershipListAccess;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -692,7 +691,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
     */
    public ListAccess<Membership> findAllMembershipsByGroup(Group group) throws Exception
    {
-      return new SimpleMembershipListAccess(findMembershipsByGroup(group));
+      return new MembershipsByGroupLdapListAccess(ldapService, this, ldapAttrMapping, group.getId());
    }
 
    //
@@ -708,7 +707,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
     *          membership type
     * @return newly created instance of {@link Membership}
     */
-   private MembershipImpl createMembershipObject(String userName, String groupId, String type)
+   protected MembershipImpl createMembershipObject(String userName, String groupId, String type)
    {
       MembershipImpl membership = new MembershipImpl();
       membership.setGroupId(groupId);

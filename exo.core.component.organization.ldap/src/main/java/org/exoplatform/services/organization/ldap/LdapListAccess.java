@@ -20,7 +20,6 @@ package org.exoplatform.services.organization.ldap;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.ldap.LDAPService;
-import org.exoplatform.services.organization.User;
 
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
@@ -29,23 +28,8 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public abstract class LdapUserListAccess implements ListAccess<User>
+public abstract class LdapListAccess<E> implements ListAccess<E>
 {
-
-   /**
-    * Base search DN.
-    */
-   protected String searchBase;
-
-   /**
-    * Search filter.
-    */
-   protected String filter;
-
-   /**
-    * LDAP attribute to organization service essences.
-    */
-   protected LDAPAttributeMapping ldapAttrMapping;
 
    /**
     * LDAP service.
@@ -58,13 +42,9 @@ public abstract class LdapUserListAccess implements ListAccess<User>
     * @param searchBase base search DN
     * @param filter search filter
     */
-   public LdapUserListAccess(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, String searchBase,
-      String filter)
+   public LdapListAccess(LDAPService ldapService)
    {
       this.ldapService = ldapService;
-      this.ldapAttrMapping = ldapAttrMapping;
-      this.searchBase = searchBase;
-      this.filter = filter;
    }
 
    /**
@@ -102,7 +82,7 @@ public abstract class LdapUserListAccess implements ListAccess<User>
    /**
     * {@inheritDoc}
     */
-   public User[] load(int index, int length) throws Exception, IllegalArgumentException
+   public E[] load(int index, int length) throws Exception, IllegalArgumentException
    {
       LdapContext ctx = ldapService.getLdapContext();
       try
@@ -138,7 +118,7 @@ public abstract class LdapUserListAccess implements ListAccess<User>
     * @return result array of users 
     * @throws Exception if any error occurs
     */
-   protected abstract User[] load(LdapContext ctx, int index, int length) throws Exception;
+   protected abstract E[] load(LdapContext ctx, int index, int length) throws Exception;
 
    /**
     * @param ctx LDAP context

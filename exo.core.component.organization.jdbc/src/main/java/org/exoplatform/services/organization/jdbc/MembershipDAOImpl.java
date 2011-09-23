@@ -35,7 +35,6 @@ import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.impl.mock.SimpleMembershipListAccess;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -186,7 +185,15 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
     */
    public ListAccess<Membership> findAllMembershipsByGroup(Group group) throws Exception
    {
-      return new SimpleMembershipListAccess(findMembershipsByGroup(group));
+      if (group == null)
+      {
+         return null;
+      }
+
+      DBObjectQuery<MembershipImpl> query = new DBObjectQuery<MembershipImpl>(MembershipImpl.class);
+      query.addLIKE("GROUP_ID", group.getId());
+
+      return new JDBCListAccess<Membership>(this, query.toQuery(), query.toCountQuery());
    }
 
    /**

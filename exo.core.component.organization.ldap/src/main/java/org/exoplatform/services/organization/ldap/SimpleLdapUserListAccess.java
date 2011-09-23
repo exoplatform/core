@@ -34,8 +34,23 @@ import javax.naming.ldap.SortControl;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class SimpleLdapUserListAccess extends LdapUserListAccess
+public class SimpleLdapUserListAccess extends LdapListAccess<User>
 {
+
+   /**
+    * Base search DN.
+    */
+   protected final String searchBase;
+
+   /**
+    * Search filter.
+    */
+   protected final String filter;
+
+   /**
+    * LDAP attribute to organization service essences.
+    */
+   protected final LDAPAttributeMapping ldapAttrMapping;
 
    private int size = -1;
 
@@ -53,7 +68,10 @@ public class SimpleLdapUserListAccess extends LdapUserListAccess
    public SimpleLdapUserListAccess(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, String searchBase,
       String filter)
    {
-      super(ldapAttrMapping, ldapService, searchBase, filter);
+      super(ldapService);
+      this.ldapAttrMapping = ldapAttrMapping;
+      this.searchBase = searchBase;
+      this.filter = filter;
    }
 
    /**

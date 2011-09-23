@@ -31,7 +31,6 @@ import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.impl.MembershipImpl;
-import org.exoplatform.services.organization.impl.mock.SimpleMembershipListAccess;
 import org.hibernate.Session;
 
 import java.util.Collection;
@@ -310,7 +309,15 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
     */
    public ListAccess<Membership> findAllMembershipsByGroup(Group group) throws Exception
    {
-      return new SimpleMembershipListAccess(findMembershipsByGroup(group));
+      String findQuery =
+         "select m from m in class org.exoplatform.services.organization.impl.MembershipImpl where m.groupId = '"
+            + group.getId() + "'";
+
+      String countQuery =
+         "select count(m) from m in class org.exoplatform.services.organization.impl.MembershipImpl where m.groupId = '"
+            + group.getId() + "'";
+
+      return new HibernateListAccess<Membership>(service_, findQuery, countQuery);
    }
 
    /**

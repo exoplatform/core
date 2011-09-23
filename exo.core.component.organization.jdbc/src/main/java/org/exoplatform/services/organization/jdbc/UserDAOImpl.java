@@ -155,7 +155,7 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
       dbQuery.addGT("LAST_LOGIN_TIME", orgQuery.getFromLoginDate());
       dbQuery.addLT("LAST_LOGIN_TIME", orgQuery.getToLoginDate());
 
-      return new SimpleJDBCUserListAccess(this, dbQuery.toQuery(), dbQuery.toCountQuery());
+      return new JDBCListAccess<User>(this, dbQuery.toQuery(), dbQuery.toCountQuery());
    }
 
    public LazyPageList<User> findUsersByGroup(String groupId) throws Exception
@@ -186,7 +186,7 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
          */
       }
 
-      return new SimpleJDBCUserListAccess(this, dbQuery.toQueryUseOR(), dbQuery.toCountQueryUseOR());
+      return new JDBCListAccess<User>(this, dbQuery.toQueryUseOR(), dbQuery.toCountQueryUseOR());
    }
 
    public LazyPageList<User> getUserPageList(int pageSize) throws Exception
@@ -197,7 +197,7 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
    public ListAccess<User> findAllUsers() throws Exception
    {
       DBObjectQuery dbQuery = new DBObjectQuery<UserImpl>(UserImpl.class);
-      return new SimpleJDBCUserListAccess(this, dbQuery.toQuery(), dbQuery.toCountQuery());
+      return new JDBCListAccess<User>(this, dbQuery.toQuery(), dbQuery.toCountQuery());
    }
 
    public User removeUser(String userName, boolean broadcast) throws Exception

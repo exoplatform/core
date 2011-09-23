@@ -307,6 +307,8 @@ public class TestOrganizationService extends BasicTestCase
        */
       assertEquals("Expect number of membership in group 2 is: ", 4, membershipHandler_.findMembershipsByGroup(group2)
          .size());
+      assertEquals("Expect number of membership in group 2 is: ", 4,
+         membershipHandler_.findAllMembershipsByGroup(group2).getSize());
 
       /*
        * find all memberships in "Group2" relate with Benj Expect result: 3
@@ -370,6 +372,7 @@ public class TestOrganizationService extends BasicTestCase
       groupHandler_.removeGroup(group1, true);
       assertNull("This group was removed ", groupHandler_.findGroupById(group1.getId()));
       assertTrue(membershipHandler_.findMembershipsByGroup(group1).isEmpty());
+      assertTrue(membershipHandler_.findAllMembershipsByGroup(group1).getSize() == 0);
 
       /*
        * Remove a MembershipType Expect result: All membership have this type will
