@@ -106,11 +106,12 @@ public class JDBCListAccess<E> implements ListAccess<E>
     */
    public E[] load(int index, int length) throws Exception, IllegalArgumentException
    {
-      Connection connection = null;
+      Statement statement = null;
+      ResultSet resultSet = null;
+
+      Connection connection = dao.getExoDatasource().getConnection();
       try
       {
-         connection = dao.getExoDatasource().getConnection();
-
          if (index < 0)
          {
             throw new IllegalArgumentException("Illegal index: index must be a positive number");
@@ -123,13 +124,12 @@ public class JDBCListAccess<E> implements ListAccess<E>
 
          List<E> entities = new ArrayList<E>(length);
 
-         Statement statement =
-            connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-         ResultSet resultSet = statement.executeQuery(findQuery);
+         statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+         resultSet = statement.executeQuery(findQuery);
 
          for (int p = 0, counter = 0; counter < length; p++)
          {
-            if (resultSet.isAfterLast())
+            if (!resultSet.next())
                throw new IllegalArgumentException(
                   "Illegal index or length: sum of the index and the length cannot be greater than the list size");
 
@@ -145,13 +145,20 @@ public class JDBCListAccess<E> implements ListAccess<E>
             }
          }
 
-         resultSet.close();
-         statement.close();
-
          return (E[])entities.toArray();
       }
       finally
       {
+         if (resultSet != null)
+         {
+            resultSet.close();
+         }
+
+         if (statement != null)
+         {
+            statement.close();
+         }
+
          dao.getExoDatasource().closeConnection(connection);
       }
    }
