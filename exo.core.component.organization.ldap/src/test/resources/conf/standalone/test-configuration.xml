@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright (C) 2009 eXo Platform SAS.
+
+    This is free software; you can redistribute it and/or modify it
+    under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation; either version 2.1 of
+    the License, or (at your option) any later version.
+
+    This software is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this software; if not, write to the Free
+    Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+    02110-1301 USA, or see the FSF site: http://www.fsf.org.
+
+-->
+<configuration>
+
+   <component>
+      <key>org.exoplatform.services.cache.CacheService</key>
+      <jmx-name>cache:type=CacheService</jmx-name>
+      <type>org.exoplatform.services.cache.impl.CacheServiceImpl</type>
+      <init-params>
+         <object-param>
+            <name>cache.config.default</name>
+            <description>The default cache configuration</description>
+            <object type="org.exoplatform.services.cache.ExoCacheConfig">
+               <field name="name">
+                  <string>default</string>
+               </field>
+               <field name="maxSize">
+                  <int>300</int>
+               </field>
+               <field name="liveTime">
+                  <long>300</long>
+               </field>
+               <field name="distributed">
+                  <boolean>false</boolean>
+               </field>
+               <field name="implementation">
+                  <string>org.exoplatform.services.cache.concurrent.ConcurrentFIFOExoCache</string>
+               </field>
+            </object>
+         </object-param>
+      </init-params>
+   </component>
+
+   <component>
+      <key>org.exoplatform.services.database.HibernateService</key>
+      <jmx-name>exo-service:type=HibernateService</jmx-name>
+      <type>org.exoplatform.services.database.impl.HibernateServiceImpl</type>
+      <init-params>
+         <properties-param>
+            <name>hibernate.properties</name>
+            <description>Default Hibernate Service</description>
+            <property name="hibernate.show_sql" value="false" />
+            <property name="hibernate.cglib.use_reflection_optimizer" value="true" />
+            <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:db/default" />
+            <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
+            <property name="hibernate.connection.autocommit" value="true" />
+            <property name="hibernate.connection.username" value="sa" />
+            <property name="hibernate.connection.password" value="" />
+            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
+            <property name="hibernate.c3p0.min_size" value="5" />
+            <property name="hibernate.c3p0.max_size" value="20" />
+            <property name="hibernate.c3p0.timeout" value="1800" />
+            <property name="hibernate.c3p0.max_statements" value="50" />
+         </properties-param>
+      </init-params>
+   </component>
+   
+    <component>
+      <key>org.exoplatform.services.ldap.LDAPService</key>
+      <type>org.exoplatform.services.organization.DummyLDAPServiceImpl</type>
+         <init-params>
+        <object-param>
+          <name>ldap.config</name>
+          <description>Default ldap config</description>
+          <object type="org.exoplatform.services.ldap.impl.LDAPConnectionConfig">
+            <field name="providerURL"><string>ldap://127.0.0.1:389,10.0.0.1:389</string></field>
+            <field name="rootdn"><string>CN=Manager,DC=exoplatform,DC=org</string></field>
+            <field name="password"><string>secret</string></field>
+            <!-- field  name="authenticationType"><string>simple</string></field-->           
+            <field name="version"><string>3</string></field>
+            <field  name="referralMode"><string>follow</string></field>            
+            <!-- field  name="serverName"><string>active.directory</string></field-->
+          </object>
+        </object-param>
+      </init-params>
+    </component>
+   
+   <component>
+      <key>org.exoplatform.services.organization.OrganizationService</key>
+      <type>org.exoplatform.services.organization.ldap.OrganizationServiceImpl</type>
+      <component-plugins>
+         <component-plugin>
+            <name>init.service.listener</name>
+            <set-method>addListenerPlugin</set-method>
+            <type>org.exoplatform.services.organization.ldap.OrganizationLdapInitializer</type>
+            <description>this listener populate organization ldap service create default dn</description>
+         </component-plugin>
+      </component-plugins>
+      <init-params>
+         <value-param>
+            <name>ldap.userDN.key</name>
+            <description>The key used to compose user DN</description>
+            <value>cn</value>
+         </value-param>
+         <value-param>
+            <name>ldap.groupDN.key</name>
+            <description>The key used to compose group DN</description>
+            <value>ou</value>
+         </value-param>
+         <object-param>
+            <name>ldap.attribute.mapping</name>
+            <description>ldap attribute mapping</description>
+            <object type="org.exoplatform.services.organization.ldap.LDAPAttributeMapping">
+               <field name="userLDAPClasses">
+                  <string>top,person,organizationalPerson,inetOrgPerson</string>
+               </field>
+               <field name="profileLDAPClasses">
+                  <string>top,organizationalPerson</string>
+               </field>
+               <field name="groupLDAPClasses">
+                  <string>top,organizationalUnit</string>
+               </field>
+               <field name="membershipTypeLDAPClasses">
+                  <string>top,organizationalRole</string>
+               </field>
+               <field name="membershipLDAPClasses">
+                  <string>top,groupOfNames</string>
+               </field>
+
+                <field name="baseURL">
+                  <string>DC=exoplatform,DC=org</string>
+               </field>
+               
+               <field name="groupsURL">
+                  <string>OU=groups,OU=portal,DC=exoplatform,DC=org</string>
+               </field>
+               <field name="membershipTypeURL">
+                  <string>OU=memberships,OU=portal,DC=exoplatform,DC=org</string>
+               </field>
+               <field name="userURL">
+                  <string>OU=users,OU=portal,DC=exoplatform,DC=org</string>
+               </field>
+               <field name="profileURL">
+                  <string>OU=profiles,OU=portal,DC=exoplatform,DC=org</string>
+               </field>
+
+               <field name="userUsernameAttr">
+                  <string>uid</string>
+               </field>
+               <field name="userPassword">
+                  <string>userPassword</string>
+               </field>
+               <field name="userFirstNameAttr">
+                  <string>givenName</string>
+               </field>
+               <field name="userLastNameAttr">
+                  <string>sn</string>
+               </field>
+               <field name="userDisplayNameAttr">
+                  <string>displayName</string>
+               </field>
+               <field name="userMailAttr">
+                  <string>mail</string>
+               </field>
+               <field name="userObjectClassFilter">
+                  <string>objectClass=person</string>
+               </field>
+
+               <field name="membershipTypeMemberValue">
+                  <string>member</string>
+               </field>
+               <field name="membershipTypeRoleNameAttr">
+                  <string>cn</string>
+               </field>
+               <field name="membershipTypeNameAttr">
+                  <string>cn</string>
+               </field>
+               <field name="membershipTypeObjectClassFilter">
+                  <string>objectClass=organizationalRole</string>
+               </field>
+               <field name="membershiptypeObjectClass">
+                  <string>organizationalRole</string>
+               </field>
+
+               <field name="groupNameAttr">
+                  <string>ou</string>
+               </field>
+               <field name="groupLabelAttr">
+                  <string>l</string>
+               </field>
+               <field name="groupObjectClass">
+                  <string>organizationalUnit</string>
+               </field>
+               <field name="groupObjectClassFilter">
+                  <string>objectClass=organizationalUnit</string>
+               </field>
+
+               <field name="membershipObjectClass">
+                  <string>groupOfNames</string>
+               </field>
+               <field name="membershipObjectClassFilter">
+                  <string>objectClass=groupOfNames</string>
+               </field>
+
+               <field name="ldapCreatedTimeStampAttr">
+                  <string>createdTimeStamp</string>
+               </field>
+               <field name="ldapModifiedTimeStampAttr">
+                  <string>modifiedTimeStamp</string>
+               </field>
+               <field name="ldapDescriptionAttr">
+                  <string>description</string>
+               </field>
+            </object>
+         </object-param>
+      </init-params>
+   </component>
+   
+   <external-component-plugins>
+      <target-component>org.exoplatform.services.database.HibernateService</target-component>
+      <component-plugin>
+         <name>add.hibernate.mapping</name>
+         <set-method>addPlugin</set-method>
+         <type>org.exoplatform.services.database.impl.AddHibernateMappingPlugin</type>
+         <init-params>
+            <values-param>
+               <name>hibernate.mapping</name>
+               <value>org/exoplatform/services/organization/impl/UserProfileData.hbm.xml</value>
+            </values-param>
+         </init-params>
+      </component-plugin>
+   </external-component-plugins>
+   
+
+</configuration>

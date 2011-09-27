@@ -222,11 +222,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
             + " because membership type is null");
       }
       
-      MembershipImpl membership = new MembershipImpl();
-      membership.setMembershipType(mt.getName());
-      membership.setUserName(user.getUserName());
-      membership.setGroupId(group.getId());
-      createMembership(membership, broadcast);
+      createMembership(createMembershipObject(user.getUserName(), group.getId(), mt.getName()), broadcast);
    }
 
    /**

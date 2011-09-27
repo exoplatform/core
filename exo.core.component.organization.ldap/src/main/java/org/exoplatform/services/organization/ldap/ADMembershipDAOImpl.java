@@ -20,10 +20,10 @@ package org.exoplatform.services.organization.ldap;
 
 import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.organization.CacheHandler;
+import org.exoplatform.services.organization.CacheHandler.CacheType;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.CacheHandler.CacheType;
 import org.exoplatform.services.organization.impl.MembershipImpl;
 
 import java.util.ArrayList;
@@ -228,11 +228,6 @@ public class ADMembershipDAOImpl extends MembershipDAOImpl
       Group group = getGroupFromMembershipDN(ctx, dn);
       if (type == null)
          type = explodeDN(dn, true)[0];
-      MembershipImpl membership = new MembershipImpl();
-      membership.setId(user + "," + type + "," + group.getId());
-      membership.setUserName(user);
-      membership.setMembershipType(type);
-      membership.setGroupId(group.getId());
-      return membership;
+      return createMembershipObject(user, group.getId(), type);
    }
 }

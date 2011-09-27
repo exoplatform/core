@@ -178,6 +178,26 @@
             <scope>test</scope>
          </dependency>
    
+         <dependency>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-server-unit</artifactId>
+            <version>1.0.2</version>
+            <scope>test</scope>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.14.0-GA</version>
+            <scope>test</scope>
+         </dependency>
+         
+         <dependency>
+            <artifactId>hsqldb</artifactId>
+            <groupId>org.hsqldb</groupId>
+            <version>2.0.0</version>
+            <scope>test</scope>
+         </dependency>
       
          <dependency>
             <groupId>commons-lang</groupId>
