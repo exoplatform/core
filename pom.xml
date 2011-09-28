@@ -56,6 +56,7 @@
       <module>exo.core.component.organization.api</module>
       <module>exo.core.component.organization.jdbc</module>
       <module>exo.core.component.organization.ldap</module>
+      <module>exo.core.component.organization.tests</module>
       <module>exo.core.component.xml-processing</module>
       <module>exo.core.component.script.groovy</module>
       <module>exo.core.component.web.css</module>
@@ -124,6 +125,14 @@
             <groupId>org.exoplatform.core</groupId>
             <artifactId>exo.core.component.organization.jdbc</artifactId>
             <version>${project.version}</version>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.exoplatform.core</groupId>
+            <artifactId>exo.core.component.organization.tests</artifactId>
+            <version>${project.version}</version>
+            <classifier>sources</classifier>
+            <scope>test</scope>
          </dependency>
          
          <dependency>
