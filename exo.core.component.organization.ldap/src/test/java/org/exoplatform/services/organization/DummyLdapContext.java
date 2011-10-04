@@ -447,6 +447,12 @@ public class DummyLdapContext extends InitialDirContext implements LdapContext
       return null;
    }
 
+   /**
+    * Utility method cut off the "dc=exoplatform, dc=org" string
+    * to avoid it to be used twice
+    * @param name
+    * @return
+    */
    private String removeExoplatformOrg(String name)
    {
       int i = name.toLowerCase().indexOf("dc=exoplatform,dc=org");
@@ -457,6 +463,12 @@ public class DummyLdapContext extends InitialDirContext implements LdapContext
       return name;
    }
 
+   /**
+    * Utility method cut off the "ou=groups,ou=portal" string
+    * to avoid it to be used twice
+    * @param name
+    * @return
+    */
    private String removeGroupProtal(String name)
    {
       name = removeExoplatformOrg(name);

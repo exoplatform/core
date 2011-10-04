@@ -93,7 +93,14 @@ public class AbstractOrganizationServiceTest extends TestCase
    {
       super.setUp();
 
-      String containerConf = getClass().getResource("/conf/standalone/test-configuration.xml").toString();
+      
+      String configPath = System.getProperty("orgservice.test.configuration.file");
+      if (configPath == null)
+      {
+         configPath = "/conf/standalone/test-configuration.xml"; 
+      }
+      
+      String containerConf = getClass().getResource(configPath).toString();
 
       StandaloneContainer.addConfigurationURL(containerConf);
       container = StandaloneContainer.getInstance();

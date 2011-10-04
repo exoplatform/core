@@ -19,17 +19,31 @@
 
 package org.exoplatform.services.organization;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.configuration.MutableServerStartupConfiguration;
+import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
+import org.apache.directory.server.jndi.ServerContextFactory;
+import org.apache.mina.util.AvailablePortFinder;
 import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 /**
@@ -41,10 +55,56 @@ public class DummyLDAPServiceImpl implements LDAPService
 
    private Map<String, String> env = new HashMap<String, String>();
 
-   private int serverType = DEFAULT_SERVER;
+   protected MutableServerStartupConfiguration configuration = new MutableServerStartupConfiguration();
 
-   public DummyLDAPServiceImpl()
+   protected int port = -1;
+
+   protected boolean doDelete = true;
+
+   protected LdapContext sysRoot;
+
+   protected LdapContext rootDSE;
+
+   public DummyLDAPServiceImpl() throws Exception
    {
+      // configuration and launch of embedded ldap server
+      MutablePartitionConfiguration pcfg = new MutablePartitionConfiguration();
+
+      pcfg.setName("eXoTestPartition");
+      pcfg.setSuffix("dc=exoplatform,dc=org");
+
+      Set<String> indexedAttrs = new HashSet<String>();
+      indexedAttrs.add("objectClass");
+      indexedAttrs.add("o");
+      pcfg.setIndexedAttributes(indexedAttrs);
+
+      Attributes attrs = new BasicAttributes(true);
+      Attribute attr = new BasicAttribute("objectClass");
+      attr.add("top");
+      attr.add("organization");
+      attrs.put(attr);
+      attr = new BasicAttribute("o");
+      attr.add("eXoTestPartition");
+      attrs.put(attr);
+      pcfg.setContextEntry(attrs);
+
+      Set<MutablePartitionConfiguration> pcfgs = new HashSet<MutablePartitionConfiguration>();
+      pcfgs.add(pcfg);
+      configuration.setContextPartitionConfigurations(pcfgs);
+      File workingDirectory = new File("target/working-server");
+      workingDirectory.mkdirs();
+      configuration.setWorkingDirectory(workingDirectory);
+
+      doDelete(configuration.getWorkingDirectory());
+
+      port = AvailablePortFinder.getNextAvailable(1024);
+      configuration.setLdapPort(port);
+      configuration.setShutdownHookEnabled(false);
+
+      setContexts("uid=admin,ou=system", "secret");
+      // server launched and configured
+
+      // configuration of client side
       env.put(Context.PROVIDER_URL, "dc=exoplatform,dc=org");
       env.put(Context.SECURITY_PRINCIPAL, "uid=admin,ou=system");
       env.put(Context.SECURITY_CREDENTIALS, "secret");
@@ -144,6 +204,41 @@ public class DummyLDAPServiceImpl implements LDAPService
       {
          LOG.warn("Exception occurred when tried to close context", e);
       }
+   }
+
+   protected void doDelete(File wkdir) throws IOException
+   {
+      if (doDelete)
+      {
+         if (wkdir.exists())
+         {
+            FileUtils.deleteDirectory(wkdir);
+         }
+         if (wkdir.exists())
+         {
+            throw new IOException("Failed to delete: " + wkdir);
+         }
+      }
+   }
+
+   protected void setContexts(String user, String passwd) throws NamingException
+   {
+      Hashtable env = new Hashtable(configuration.toJndiEnvironment());
+      env.put(Context.SECURITY_PRINCIPAL, user);
+      env.put(Context.SECURITY_CREDENTIALS, passwd);
+      env.put(Context.SECURITY_AUTHENTICATION, "simple");
+      env.put(Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName());
+      setContexts(env);
+   }
+
+   protected void setContexts(Hashtable env) throws NamingException
+   {
+      Hashtable envFinal = new Hashtable(env);
+      envFinal.put(Context.PROVIDER_URL, "ou=system");
+      sysRoot = new InitialLdapContext(envFinal, null);
+
+      envFinal.put(Context.PROVIDER_URL, "");
+      rootDSE = new InitialLdapContext(envFinal, null);
    }
 
 }

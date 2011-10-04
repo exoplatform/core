@@ -25,5 +25,9 @@ grant codeBase "@MAIN_CLASSES@../../../exo.core.component.organization.jdbc/-"{
    permission java.security.AllPermission;
 };
 
+grant codeBase "@MAIN_CLASSES@../../../exo.core.component.organization.ldap/-"{
+   permission java.security.AllPermission;
+};
+
 
 

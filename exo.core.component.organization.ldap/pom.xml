@@ -68,6 +68,12 @@
          <artifactId>exo.core.component.organization.jdbc</artifactId>
       </dependency>   
       <dependency>
+         <groupId>org.exoplatform.core</groupId>
+         <artifactId>exo.core.component.organization.tests</artifactId>
+         <classifier>sources</classifier>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
          <groupId>org.apache.directory.server</groupId>
          <artifactId>apacheds-server-unit</artifactId>
       </dependency>
@@ -85,12 +91,95 @@
      <plugins>   
         <plugin>
            <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-dependency-plugin</artifactId>
+           <executions>
+              <execution>
+                 <id>unpack</id>
+                 <phase>generate-test-sources</phase>
+                 <goals>
+                    <goal>unpack</goal>
+                 </goals>
+                 <configuration>
+                    <artifactItems>
+                       <artifactItem>
+                          <groupId>org.exoplatform.core</groupId>
+                          <artifactId>exo.core.component.organization.tests</artifactId>
+                          <classifier>sources</classifier>
+                          <type>jar</type>
+                          <overWrite>false</overWrite>
+                       </artifactItem>
+                    </artifactItems>
+                    <outputDirectory>${project.build.directory}/org-service-tck-tests</outputDirectory>
+                 </configuration>
+              </execution>
+           </executions>
+        </plugin>         
+        <plugin>
+           <groupId>org.codehaus.mojo</groupId>
+             <artifactId>build-helper-maven-plugin</artifactId>
+             <version>1.3</version>
+             <executions>
+               <execution>
+                 <id>add-test-resource</id>
+                 <phase>generate-test-sources</phase>
+                 <goals>
+                   <goal>add-test-resource</goal>
+                 </goals>
+                 <configuration>
+                   <resources>
+                     <resource>
+                         <directory>${project.build.directory}/org-service-tck-tests</directory>
+                        <excludes>
+                        </excludes>
+                      </resource>
+                   </resources>
+                </configuration>
+             </execution> 
+             <execution>
+             <id>add-test-source</id>
+                <phase>generate-test-sources</phase>
+                <goals>
+                   <goal>add-test-source</goal>
+                </goals>
+                <configuration>
+                   <sources>
+                     <source>${project.build.directory}/org-service-tck-tests</source>
+                   </sources>
+                </configuration>
+              </execution>
+           </executions>
+        </plugin>
+        <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
            <artifactId>maven-surefire-plugin</artifactId>
            <configuration>
               <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy</argLine>
-              <excludes>
-                 <exclude>**/TestOrganizationService.java</exclude>
-              </excludes>
+              <systemProperties>
+                  <!--
+                     This property defines TCK tests configuration file location
+                  -->
+                  <property>
+                     <name>orgservice.test.configuration.file</name>
+                     <value>/conf/standalone/test-configuration.xml</value>
+                  </property>
+               </systemProperties>
+               <includes>
+                  <include>org/exoplatform/services/tck/organization/Test*.java</include>
+               </includes>                 
+               <excludes>
+                  <!-- 
+                     Temporary excluded, to investigate cause of failures and errors. 
+                  -->
+                  <exclude>org/exoplatform/services/tck/organization/Test*.java</exclude>
+                  <!--
+                     Excluded as this class has no tests to be run
+                  -->
+                  <exclude>**/AbstractOrganizationServiceTest.java</exclude>
+                  <!--
+                     Not a unit test.
+                  -->
+                  <exclude>**/TestOrganizationService.java</exclude>
+               </excludes>  
            </configuration>
         </plugin>
          <plugin>
