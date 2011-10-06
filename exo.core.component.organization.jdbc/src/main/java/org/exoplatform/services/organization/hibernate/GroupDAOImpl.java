@@ -122,9 +122,10 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
          Object[] args = {child.getGroupName()};
          throw new UniqueObjectException("OrganizationService.unique-group-exception", args);
       }
+      childImpl.setId(groupId);
+
       if (broadcast)
          preSave(child, true);
-      childImpl.setId(groupId);
 
       session = service_.openSession();
       session.save(childImpl);
