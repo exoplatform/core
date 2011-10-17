@@ -53,10 +53,10 @@
       <module>exo.core.component.database</module>
       <module>exo.core.component.document</module>
       <module>exo.core.component.ldap</module>
+      <module>exo.core.component.organization.tests</module>
       <module>exo.core.component.organization.api</module>
       <module>exo.core.component.organization.jdbc</module>
       <module>exo.core.component.organization.ldap</module>
-      <module>exo.core.component.organization.tests</module>
       <module>exo.core.component.xml-processing</module>
       <module>exo.core.component.script.groovy</module>
       <module>exo.core.component.web.css</module>
