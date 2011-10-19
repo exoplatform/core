@@ -86,13 +86,22 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
     */
    public void testRemoveGroup() throws Exception
    {
+      createUser(userName);
       createGroup("/organization", groupName1, "label", "desc");
       createGroup("/organization/" + groupName1, groupName1, "label", "desc");
+      
+      createMembership(newUserName, groupName2, membershipType);
+      assertEquals("We expect to find single membership for user " + newUserName, 1,
+         mHandler.findMembershipsByUser(newUserName).size());
 
       Group group = gHandler.removeGroup(gHandler.findGroupById("/organization/group1"), true);
       assertNull(gHandler.findGroupById("/organization/group1"));
       assertNull(gHandler.findGroupById("/organization/group1/group2"));
 
+      gHandler.removeGroup(gHandler.findGroupById("/" + groupName2), true);
+      assertEquals("We expect to find no membership for user " + newUserName, 0,
+         mHandler.findMembershipsByUser(newUserName).size());
+      
       // try to remove not exited group. Exception should be thrown
       try
       {

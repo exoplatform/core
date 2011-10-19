@@ -26,6 +26,7 @@ import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.database.ObjectQuery;
 import org.exoplatform.services.organization.ExtendedUserHandler;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.Query;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
@@ -58,10 +59,13 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
 
    private List<UserEventListener> listeners_ = new ArrayList<UserEventListener>(3);
 
-   public UserDAOImpl(HibernateService service, CacheService cservice) throws Exception
+   private OrganizationService orgService;
+
+   public UserDAOImpl(HibernateService service, CacheService cservice, OrganizationService orgService) throws Exception
    {
       service_ = service;
       cache_ = cservice.getCacheInstance(UserImpl.class.getName());
+      this.orgService = orgService;
    }
 
    final public List getUserEventListeners()
@@ -139,6 +143,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
    {
       Session session = service_.openSession();
       User foundUser = findUserByName(userName, session);
+
       if (foundUser == null)
          return null;
 
@@ -146,6 +151,8 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
          preDelete(foundUser);
       session = service_.openSession();
       session.delete(foundUser);
+      ((UserProfileDAOImpl)orgService.getUserProfileHandler()).removeUserProfileEntry(userName, session);
+      MembershipDAOImpl.removeMembershipEntriesOfUser(userName, session);
       if (broadcast)
          postDelete(foundUser);
       session.flush();
@@ -226,7 +233,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
       ObjectQuery oq = new ObjectQuery(UserImpl.class);
       if (q.getUserName() != null)
       {
-         oq.addLIKE("UPPER(userName)", q.getUserName().toUpperCase());
+         oq.addLIKE("UPPER(userName)", addAsterisk(q.getUserName().toUpperCase()));
       }
       if (q.getFirstName() != null)
       {
@@ -299,6 +306,22 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
    {
       for (UserEventListener listener : listeners_)
          listener.postDelete(user);
+   }
+
+   private String addAsterisk(String s)
+   {
+      StringBuffer sb = new StringBuffer(s);
+      if (!s.startsWith("*"))
+      {
+         sb.insert(0, "*");
+      }
+      if (!s.endsWith("*"))
+      {
+         sb.append("*");
+      }
+
+      return sb.toString();
+
    }
 
    /**

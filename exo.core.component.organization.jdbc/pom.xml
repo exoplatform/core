@@ -163,35 +163,6 @@
          </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-               <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy</argLine>
-               <systemProperties>
-                  <!--
-                     This property defines TCK tests configuration file location
-                  -->
-                  <property>
-                     <name>orgservice.test.configuration.file</name>
-                     <value>${orgservice.test.configuration.file}</value>
-                  </property>
-               </systemProperties>
-               <includes>
-                  <include>org/exoplatform/services/tck/organization/Test*.java</include>
-               </includes>                 
-               <excludes>
-                  <!--
-                     Temporary excluded, to investigate cause of failures and errors.
-                  -->
-                  <exclude>org/exoplatform/services/tck/organization/Test*.java</exclude>
-                  <!--
-                     Excluded as this class has no tests to be run
-                  -->
-                  <exclude>**/AbstractOrganizationServiceTest.java</exclude>
-               </excludes>  
-            </configuration>
-         </plugin>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>
                <execution>
@@ -236,6 +207,42 @@
          <properties>
             <orgservice.test.configuration.file>/conf/standalone/test-configuration-hibernate.xml</orgservice.test.configuration.file>
          </properties>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-surefire-plugin</artifactId>
+                  <configuration>
+                     <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy</argLine>
+                     <systemProperties>
+                        <!--
+                           This property defines TCK tests configuration file location
+                        -->
+                        <property>
+                           <name>orgservice.test.configuration.file</name>
+                           <value>${orgservice.test.configuration.file}</value>
+                        </property>
+                     </systemProperties>
+                     <includes>
+                        <include>org/exoplatform/services/tck/organization/Test*.java</include>
+                     </includes>                 
+                     <excludes>
+                        <!--
+                           Excluded as there some hibernate cache issues on pre-, postoperations
+                           (e.g. preDelete, postDelete, etc.)
+                        -->
+
+                        <exclude>org/exoplatform/services/tck/organization/TestMembershipTypeEventListener.java</exclude>
+
+                        <!--
+                           Excluded as this class has no tests to be run
+                        -->
+                        <exclude>**/AbstractOrganizationServiceTest.java</exclude>
+                     </excludes>  
+                  </configuration>
+               </plugin>
+            </plugins>
+         </build>
       </profile>
       <profile>
          <id>jdbc</id>
@@ -245,6 +252,40 @@
          <properties>
             <orgservice.test.configuration.file>/conf/standalone/test-configuration-jdbc.xml</orgservice.test.configuration.file>
          </properties>
+         <build>
+           <plugins>
+           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+               <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy</argLine>
+               <systemProperties>
+                  <!--
+                     This property defines TCK tests configuration file location
+                  -->
+                  <property>
+                     <name>orgservice.test.configuration.file</name>
+                     <value>${orgservice.test.configuration.file}</value>
+                  </property>
+               </systemProperties>
+               <includes>
+                  <include>org/exoplatform/services/tck/organization/Test*.java</include>
+               </includes>                 
+               <excludes>
+                  <!--
+                     Temporary excluded, to investigate cause of failures and errors.
+                  -->
+
+                  <exclude>org/exoplatform/services/tck/organization/Test*.java</exclude>
+                  <!--
+                     Excluded as this class has no tests to be run
+                  -->
+                  <exclude>**/AbstractOrganizationServiceTest.java</exclude>
+               </excludes>  
+            </configuration>
+         </plugin>
+         </plugins>
+         </build>
       </profile>
    </profiles>
 </project>

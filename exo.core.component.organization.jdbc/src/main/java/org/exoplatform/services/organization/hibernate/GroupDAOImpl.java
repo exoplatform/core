@@ -33,6 +33,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.naming.InvalidNameException;
+
 /**
  * Created by The eXo Platform SAS Author : Mestrallet Benjamin
  * benjmestrallet@users.sourceforge.net Author : Tuan Nguyen
@@ -150,6 +152,13 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
       if (broadcast)
          preDelete(group);
       Session session = service_.openSession();
+
+      if (session.get(group.getClass(), group.getId()) == null)
+      {
+         throw new InvalidNameException("Can not remove group " + group.getGroupName()
+            + "record, because group does not exist.");
+      }
+
       session.delete(group);
       List entries = session.createQuery(queryFindGroupByParent).setString(0, group.getId()).list();
       for (int i = 0; i < entries.size(); i++)

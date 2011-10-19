@@ -32,6 +32,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import javax.naming.InvalidNameException;
+
 /**
  * Created by The eXo Platform SAS Author : Mestrallet Benjamin
  * benjmestrallet@users.sourceforge.net Author : Tuan Nguyen
@@ -117,38 +119,29 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler, MembershipT
    public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception
    {
       Session session = service_.openSession();
-      MembershipTypeImpl m = (MembershipTypeImpl)session.get(MembershipTypeImpl.class, name);
+      MembershipTypeImpl mt = (MembershipTypeImpl)session.get(MembershipTypeImpl.class, name);
 
-      try
+      if (mt == null)
       {
-         List entries =
-            session.createQuery(
-               "from m in class " + " org.exoplatform.services.organization.impl.MembershipImpl "
-                  + "where m.membershipType = '" + name + "'").list();
-         for (int i = 0; i < entries.size(); i++)
-            session.delete(entries.get(i));
-      }
-      catch (Exception exp)
-      {
+         throw new InvalidNameException("Can not remove membership type" + name
+            + "record, because membership type does not exist.");
       }
 
       if (broadcast)
       {
-         preDelete(m);
+         preDelete(mt);
       }
 
-      if (m != null)
-      {
-         session.delete(m);
-         session.flush();
-      }
+      session.delete(mt);
+      MembershipDAOImpl.removeMembershipEntriesOfMembershipType(mt, session);
+      session.flush();
 
       if (broadcast)
       {
-         postDelete(m);
+         postDelete(mt);
       }
 
-      return m;
+      return mt;
    }
 
    public Collection findMembershipTypes() throws Exception

@@ -33,7 +33,7 @@ public class OrganizationServiceImpl extends BaseOrganizationService implements 
 
    public OrganizationServiceImpl(HibernateService hservice, CacheService cservice) throws Exception
    {
-      userDAO_ = new UserDAOImpl(hservice, cservice);
+      userDAO_ = new UserDAOImpl(hservice, cservice, this);
       userProfileDAO_ = new UserProfileDAOImpl(hservice, cservice);
       groupDAO_ = new GroupDAOImpl(hservice);
       membershipTypeDAO_ = new MembershipTypeDAOImpl(hservice);

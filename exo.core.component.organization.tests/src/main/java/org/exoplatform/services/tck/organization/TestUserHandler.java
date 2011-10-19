@@ -129,6 +129,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
 
       query = new Query();
       query.setFromLoginDate(calc.getTime());
+      query.setUserName("tolik");
       assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
 
       calc = Calendar.getInstance();
@@ -150,6 +151,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
 
       query = new Query();
       query.setToLoginDate(calc.getTime());
+      query.setUserName("tolik");
       assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
    }
 
@@ -208,6 +210,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
 
       query = new Query();
       query.setFromLoginDate(calc.getTime());
+      query.setUserName("tolik");
       assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
 
       calc = Calendar.getInstance();
@@ -229,6 +232,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
 
       query = new Query();
       query.setToLoginDate(calc.getTime());
+      query.setUserName("tolik");
       assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
    }
 
@@ -253,8 +257,16 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
     */
    public void testRemoveUser() throws Exception
    {
-      createUser(userName);
+      createMembership(userName, groupName2, membershipType);
+
+      assertEquals("We expect to find single membership for user " + userName, 1,
+         mHandler.findMembershipsByUser(userName).size());
+
       assertNotNull(uHandler.removeUser(userName, true));
+
+      assertNull(upHandler.findUserProfileByName(userName));
+      assertEquals("We expect to find no membership for user " + userName, 0, mHandler.findMembershipsByUser(userName)
+         .size());
 
       // try to find user after remove. We are supposed to get "null" instead of exception
       try
@@ -283,14 +295,6 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
       uHandler.saveUser(u, true);
       assertEquals(newEmail, uHandler.findUserByName(userName).getEmail());
 
-      // change name
-      u = uHandler.findUserByName(userName);
-      u.setUserName(newUserName);
-      uHandler.saveUser(u, true);
-
-      // we should to find user with new name but not with old one
-      assertNotNull(uHandler.findUserByName(newUserName));
-      assertNull(uHandler.findUserByName(userName));
    }
 
    /**

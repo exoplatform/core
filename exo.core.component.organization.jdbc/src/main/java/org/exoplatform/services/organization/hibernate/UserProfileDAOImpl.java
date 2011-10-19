@@ -46,6 +46,9 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
    private static final String queryFindUserProfileByName =
       "from u in class org.exoplatform.services.organization.impl.UserProfileData " + "where u.userName = ?";
 
+   private static final String queryFindUserProfiles =
+      "from u in class org.exoplatform.services.organization.impl.UserProfileData";
+
    private HibernateService service_;
 
    private ExoCache cache_;
@@ -176,16 +179,20 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
       return null;
    }
 
-   static void removeUserProfileEntry(String userName, Session session) throws Exception
+   void removeUserProfileEntry(String userName, Session session) throws Exception
    {
       Object user = session.createQuery(queryFindUserProfileByName).setString(0, userName).uniqueResult();
       if (user != null)
+      {
          session.delete(user);
+         cache_.remove(userName);
+      }
    }
 
    public Collection findUserProfiles() throws Exception
    {
-      return null;
+      Session session = service_.openSession();
+      return service_.findAll(session, queryFindUserProfiles);
    }
 
    private void preSave(UserProfile profile, boolean isNew) throws Exception

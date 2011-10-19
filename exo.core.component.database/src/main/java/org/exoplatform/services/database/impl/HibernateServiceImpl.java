@@ -380,6 +380,19 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
       }
    }
 
+   public Collection findAll(Session session, String query) throws Exception
+   {
+      List l = session.createQuery(query).list();
+      if (l.size() == 0)
+      {
+         return null;
+      }
+      else
+      {
+         return l;
+      }
+   }
+
    public Object findOne(Class clazz, Serializable id) throws Exception
    {
       Session session = openSession();

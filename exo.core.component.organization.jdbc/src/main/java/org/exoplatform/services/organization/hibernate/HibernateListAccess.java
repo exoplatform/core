@@ -44,8 +44,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
+import java.lang.reflect.Array;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -163,8 +163,6 @@ public class HibernateListAccess<E> implements ListAccess<E>
          throw new IllegalArgumentException("Illegal length: length must be a positive number");
       }
 
-      List<E> entities = new ArrayList<E>(length);
-
       Query query = SecurityHelper.doPrivilegedAction(new PrivilegedAction<Query>()
       {
          public Query run()
@@ -174,7 +172,11 @@ public class HibernateListAccess<E> implements ListAccess<E>
       });
       bindFields(query);
 
-      Iterator<Object> results = query.iterate();
+      // here we're creating an array of elements of class E
+      // this looks complicated because we use generic class
+      E[] entities = (E[])Array.newInstance(query.getReturnTypes()[0].getReturnedClass(), length);
+      Iterator<E> results = query.iterate();
+
       for (int p = 0, counter = 0; counter < length; p++)
       {
          if (!results.hasNext())
@@ -183,16 +185,15 @@ public class HibernateListAccess<E> implements ListAccess<E>
                "Illegal index or length: sum of the index and the length cannot be greater than the list size");
          }
 
-         Object result = results.next();
+         E result = results.next();
 
          if (p >= index)
          {
-            entities.add((E)result);
-            counter++;
+            entities[counter++] = result;
          }
       }
 
-      return (E[])entities.toArray();
+      return entities;
    }
 
    /**

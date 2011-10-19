@@ -51,6 +51,9 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       "from m in class org.exoplatform.services.organization.impl.MembershipImpl " + "where m.userName = ? "
          + "  and m.groupId = ? " + "  and m.membershipType = ? ";
 
+   private static final String queryFindMembershipByType =
+      "from m in class org.exoplatform.services.organization.impl.MembershipImpl " + "where m.membershipType = ? ";
+
    private static final String queryFindMembershipsByUserAndGroup =
       "from m in class org.exoplatform.services.organization.impl.MembershipImpl " + "where m.userName = ? "
          + "  and m.groupId = ? ";
@@ -111,8 +114,20 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
    {
       if (orgService.getMembershipTypeHandler().findMembershipType(m.getMembershipType()) == null)
       {
-         throw new InvalidNameException("Can not create membership record " + m.getId()
-                  + " because membership type " + m.getMembershipType() + " is not exists.");
+         throw new InvalidNameException("Can not create membership record " + m.getId() + ", because membership"
+            + "type " + m.getMembershipType() + " does not exist.");
+      }
+      
+      if (orgService.getGroupHandler().findGroupById(m.getGroupId()) == null)
+      {
+         throw new InvalidNameException("Can not create membership record " + m.getId() + ", because group "
+            + m.getGroupId() + " does not exist.");
+      }
+
+      if (orgService.getUserHandler().findUserByName(m.getUserName()) == null)
+      {
+         throw new InvalidNameException("Can not create membership record " + m.getId() + ", because user "
+            + m.getGroupId() + " does not exist.");
       }
 
       // check if we already have membership record
@@ -287,6 +302,15 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       List entries = session.createQuery(queryFindMembershipsByGroup).setString(0, group.getId()).list();
       for (int i = 0; i < entries.size(); i++)
          session.delete(entries.get(i));
+   }
+
+   static void removeMembershipEntriesOfMembershipType(MembershipType mt, Session session) throws Exception
+   {
+      List<?> entries = session.createQuery(queryFindMembershipByType).setString(0, mt.getName()).list();
+      for (int i = 0; i < entries.size(); i++)
+      {
+         session.delete(entries.get(i));
+      }
    }
 
    Collection findMembershipsByUser(String userName, Session session) throws Exception
