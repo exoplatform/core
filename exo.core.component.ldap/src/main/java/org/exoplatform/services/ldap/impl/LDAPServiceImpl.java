@@ -179,7 +179,9 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
       try
       {
          ctx = new InitialLdapContext(props, null);
-         return true;
+
+         // anonymous user could be bind to AD but aren't able to pick up information
+         return (ctx.lookup(userDN) != null);
       }
       catch (NamingException e)
       {
