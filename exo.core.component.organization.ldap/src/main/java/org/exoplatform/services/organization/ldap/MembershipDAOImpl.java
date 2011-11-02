@@ -328,6 +328,12 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
             try
             {
                String userDN = getDNFromUsername(ctx, username);
+               // if userDN equals null than there is no such user
+               // so we return empty collection
+               if (userDN == null)
+               {
+                  return memberships;
+               }
                String filter = ldapAttrMapping.membershipTypeMemberValue + "=" + escapeDN(userDN);
                SearchControls constraints = new SearchControls();
                constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -545,7 +551,43 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
       SearchControls constraints = new SearchControls();
       constraints.setSearchScope(SearchControls.ONELEVEL_SCOPE);
       String groupDN = getGroupDNFromGroupId(groupId);
-      return ctx.search(groupDN, filter, constraints);
+      try
+      {
+         return ctx.search(groupDN, filter, constraints);
+      }
+      catch (NamingException ne)
+      {
+         // we assume that NamingException means that
+         // groupDN represent not existing sequence of elements
+         // so the result should be an empty NamingEnumeration
+         return new NamingEnumeration<SearchResult>()
+         {
+
+            public boolean hasMoreElements()
+            {
+               return false;
+            }
+
+            public SearchResult nextElement()
+            {
+               return null;
+            }
+
+            public SearchResult next() throws NamingException
+            {
+               return null;
+            }
+
+            public boolean hasMore() throws NamingException
+            {
+               return false;
+            }
+
+            public void close() throws NamingException
+            {
+            }
+         };
+      }
    }
 
    /**
@@ -675,6 +717,10 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
                   results.close();
             }
          }
+      }
+      catch (NamingException e)
+      {
+         return new ArrayList<Membership>();
       }
       finally
       {

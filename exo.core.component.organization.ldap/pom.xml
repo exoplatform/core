@@ -162,17 +162,22 @@
                      <name>orgservice.test.configuration.file</name>
                      <value>/conf/standalone/test-configuration.xml</value>
                   </property>
+                  <!--
+                     This property allow to define if we should skip testing
+                     login and logaout time processing 
+                  -->  
+                  <property>
+                     <name>orgservice.test.configuration.skipDateTests</name>
+                     <value>true</value>
+                  </property>
                </systemProperties>
+               
                <includes>
                   <include>org/exoplatform/services/tck/organization/Test*.java</include>
                </includes>                 
                <excludes>
-                  <!-- 
-                     Temporary excluded, to investigate cause of failures and errors. 
-                  -->
-                  <exclude>org/exoplatform/services/tck/organization/Test*.java</exclude>
-                  <!--
-                     Excluded as this class has no tests to be run
+                   <!--
+                     Excluded, as this class has no tests to be run
                   -->
                   <exclude>**/AbstractOrganizationServiceTest.java</exclude>
                   <!--

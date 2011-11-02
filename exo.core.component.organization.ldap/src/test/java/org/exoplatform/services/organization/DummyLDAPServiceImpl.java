@@ -161,7 +161,7 @@ public class DummyLDAPServiceImpl implements LDAPService
       InitialContext ctx = null;
       try
       {
-         ctx = new DummyLdapContext(new InitialContext(new Hashtable<String, String>(env)));
+         ctx = new DummyLdapContext(new InitialContext(props));
          return true;
       }
       catch (NamingException e)

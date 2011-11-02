@@ -22,11 +22,11 @@ import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.CacheHandler;
+import org.exoplatform.services.organization.CacheHandler.CacheType;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
 import org.exoplatform.services.organization.GroupEventListenerHandler;
 import org.exoplatform.services.organization.GroupHandler;
-import org.exoplatform.services.organization.CacheHandler.CacheType;
 import org.exoplatform.services.organization.impl.GroupImpl;
 
 import java.util.ArrayList;
@@ -121,6 +121,10 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
     */
    public void addChild(Group parent, Group child, boolean broadcast) throws Exception
    {
+      if (parent != null && findGroupById(parent.getId()) == null)
+      {
+         throw new Exception("Trying to add group " + child + ", but it's parent " + parent + ", does not exists.");
+      }
       setId(parent, child);
       String searchBase = createSubDN(parent);
       String groupDN = ldapAttrMapping.groupDNKey + "=" + child.getGroupName() + "," + searchBase;
@@ -141,18 +145,27 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
                if (results.hasMore())
                {
                   if (LOG.isDebugEnabled())
+                  {
                      LOG.debug("Group " + child + ", parent  " + parent + " already exists. ");
-                  return;
+                  }
+                  throw new Exception("Group " + child + ", parent  " + parent + " already exists. ");
                }
 
                GroupImpl group = (GroupImpl)child;
                if (broadcast)
+               {
                   preSave(group, true);
+               }
+
                ctx.createSubcontext(groupDN, ldapAttrMapping.groupToAttributes(child));
-               if (broadcast)
-                  postSave(group, true);
-               
                cacheHandler.put(child.getId(), group, CacheType.GROUP);
+
+               if (broadcast)
+               {
+                  postSave(group, true);
+               }
+               
+
                return;
             }
             catch (NamingException e)
@@ -244,8 +257,11 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
                if (!results.hasMoreElements())
                {
                   if (LOG.isDebugEnabled())
-                     LOG.debug("Nothing for removing, group " + group);
-                  return group;
+                  {
+                     LOG.debug("Nothing to remove, group " + group + " is not found.");
+                  }
+
+                  throw new NameNotFoundException("Nothing to remove, group " + group + " is not found.");
                }
 
                SearchResult sr = results.next();
@@ -305,8 +321,13 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
             groups.clear();
             try
             {
+               String userDN = getDNFromUsername(ctx, userName);
+               if (userDN == null)
+               {
+                  return groups;
+               }
                String filter =
-                  "(&(" + ldapAttrMapping.membershipTypeMemberValue + "=" + getDNFromUsername(ctx, userName) + ")("
+                  "(&(" + ldapAttrMapping.membershipTypeMemberValue + "=" + userDN + ")("
                      + ldapAttrMapping.membershipTypeRoleNameAttr + "=" + membershipType + "))";
                SearchControls constraints = new SearchControls();
                constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);

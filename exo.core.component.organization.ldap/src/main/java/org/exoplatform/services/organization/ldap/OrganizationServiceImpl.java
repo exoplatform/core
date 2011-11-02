@@ -62,7 +62,7 @@ public class OrganizationServiceImpl extends BaseOrganizationService
       {
          //      ValueParam param = params.getValueParam("ldap.userDN.key");
          //      ldapAttrMapping.userDNKey = param.getValue();
-         userDAO_ = new UserDAOImpl(ldapAttrMapping, ldapService, cacheHandler);
+         userDAO_ = new UserDAOImpl(ldapAttrMapping, ldapService, cacheHandler, this);
          groupDAO_ = new GroupDAOImpl(ldapAttrMapping, ldapService, cacheHandler);
          membershipDAO_ = new MembershipDAOImpl(ldapAttrMapping, ldapService, this, cacheHandler);
       }

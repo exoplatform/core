@@ -22,11 +22,11 @@ import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.CacheHandler;
+import org.exoplatform.services.organization.CacheHandler.CacheType;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.MembershipTypeEventListener;
 import org.exoplatform.services.organization.MembershipTypeEventListenerHandler;
 import org.exoplatform.services.organization.MembershipTypeHandler;
-import org.exoplatform.services.organization.CacheHandler.CacheType;
 import org.exoplatform.services.organization.impl.MembershipTypeImpl;
 
 import java.util.ArrayList;
@@ -176,13 +176,12 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
                }
 
                ctx.modifyAttributes(membershipTypeDN, mods);
+               cacheHandler.put(mt.getName(), mt, CacheType.MEMBERSHIPTYPE);
 
                if (broadcast)
                {
                   postSave(mt, false);
                }
-
-               cacheHandler.put(mt.getName(), mt, CacheType.MEMBERSHIPTYPE);
                return mt;
             }
             catch (NamingException e)
@@ -221,13 +220,13 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
                }
 
                ctx.destroySubcontext(membershipTypeDN);
+               cacheHandler.remove(name, CacheType.MEMBERSHIPTYPE);
 
                if (broadcast)
                {
                   postDelete(m);
                }
 
-               cacheHandler.remove(name, CacheType.MEMBERSHIPTYPE);
                return m;
             }
             catch (NamingException e)
@@ -239,8 +238,10 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
       catch (NameNotFoundException e)
       {
          if (LOG.isDebugEnabled())
+         {
             LOG.debug(e.getLocalizedMessage(), e);
-         return null;
+         }
+         throw new Exception(e);
       }
       finally
       {

@@ -24,6 +24,7 @@ import org.exoplatform.services.organization.MembershipEventListenerHandler;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.User;
 
+
 import java.util.List;
 
 /**
@@ -44,14 +45,15 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       Membership m = mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1, membershipType);
       assertNotNull(mHandler.findMembership(m.getId()));
 
-      // try to find not existed membership. We are supposed to get null instead of Exception
+      // try to find not existed membership. We are supposed to get Exception
       try
       {
          assertNull(mHandler.findMembership("not-existed-id"));
+         fail("Exception should be thrown");
       }
       catch (Exception e)
       {
-         fail("Exception should not be thrown");
+         
       }
    }
 
@@ -104,8 +106,12 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       Group g = gHandler.findGroupById("/platform/users");
       assertEquals(mHandler.findMembershipsByGroup(g).size(), 4);
 
+      // try to find for non-existing group
       g = gHandler.createGroupInstance();
       g.setGroupName(groupName1);
+      gHandler.addChild(null, g, false);
+      assertEquals(g.getId(), gHandler.findGroupById("/" + groupName1).getId());
+      g = gHandler.removeGroup(g, false);
       assertEquals(mHandler.findMembershipsByGroup(g).size(), 0);
 
    }
@@ -148,8 +154,12 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       {
       }
 
+      // try to find for non-existing group
       g = gHandler.createGroupInstance();
       g.setGroupName(groupName1);
+      gHandler.addChild(null, g, false);
+      assertEquals(g.getId(), gHandler.findGroupById("/" + groupName1).getId());
+      g = gHandler.removeGroup(g, false);
       assertEquals(mHandler.findMembershipsByGroup(g).size(), 0);
 
    }

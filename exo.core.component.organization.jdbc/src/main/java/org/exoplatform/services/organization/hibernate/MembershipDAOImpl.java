@@ -365,7 +365,7 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       List memberships = session.createQuery(queryFindMembership).setString(0, id).list();
       if (memberships.size() == 0)
       {
-         return null;
+         throw new Exception("No membership with id: " + id + "found.");
       }
       else if (memberships.size() == 1)
       {
@@ -373,7 +373,7 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       }
       else
       {
-         throw new Exception("Expect 0 or 1 membership but found" + memberships.size());
+         throw new Exception("Found more than 1 membership: " + memberships.size());
       }
       // Membership membership =
       // (Membership) session.createQuery(queryFindMembership).setString(0,

@@ -69,7 +69,9 @@ public abstract class LdapListAccess<E> implements ListAccess<E>
                   ctx = ldapService.getLdapContext(true);
                }
                else
-                  throw e;
+               {
+                  return 0;
+               }
             }
          }
       }

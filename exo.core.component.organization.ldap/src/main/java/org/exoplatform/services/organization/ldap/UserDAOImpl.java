@@ -22,12 +22,13 @@ import org.exoplatform.commons.utils.LazyPageList;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.organization.CacheHandler;
+import org.exoplatform.services.organization.CacheHandler.CacheType;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.Query;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
 import org.exoplatform.services.organization.UserEventListenerHandler;
 import org.exoplatform.services.organization.UserHandler;
-import org.exoplatform.services.organization.CacheHandler.CacheType;
 import org.exoplatform.services.organization.impl.UserImpl;
 
 import java.util.ArrayList;
@@ -56,6 +57,11 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
    private List<UserEventListener> listeners = new ArrayList<UserEventListener>(5);
 
    /**
+    * Organization service instance
+    */
+   private OrganizationService os;
+   
+   /**
     * @param ldapAttrMapping mapping LDAP attributes to eXo organization service
     *          items (users, groups, etc)
     * @param ldapService {@link LDAPService}
@@ -67,6 +73,22 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
       throws Exception
    {
       super(ldapAttrMapping, ldapService, cacheHandler);
+   }
+   
+   
+   /**
+    * @param ldapAttrMapping mapping LDAP attributes to eXo organization service
+    *          items (users, groups, etc)
+    * @param ldapService {@link LDAPService}
+    * @param cacheHandler 
+    *          The Cache Handler
+    * @throws Exception if any errors occurs
+    */
+   public UserDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler, OrganizationService os)
+      throws Exception
+   {
+      this(ldapAttrMapping, ldapService, cacheHandler);
+      this.os = os;
    }
 
    /**
@@ -230,25 +252,36 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
             {
                User user = getUserFromUsername(ctx, userName);
                if (user == null)
+               {
                   return null;
-
+               }
                String userDN = getDNFromUsername(ctx, userName);
 
                if (broadcast)
+               {
                   preDelete(user);
-               ctx.destroySubcontext(userDN);
-               if (broadcast)
-                  postDelete(user);
+               }
 
+               ctx.destroySubcontext(userDN);
+               if (os != null)
+               {
+                  os.getUserProfileHandler().removeUserProfile(userName, broadcast);
+               }
                cacheHandler.remove(userName, CacheType.USER);
                cacheHandler.remove(CacheHandler.USER_PREFIX + userName, CacheType.MEMBERSHIP);
+
+               if (broadcast)
+               {
+                  postDelete(user);
+               }
                return user;
-            }
+            }  
             catch (NamingException e)
             {
                ctx = reloadCtx(ctx, err, e);
             }
          }
+
       }
       finally
       {
@@ -338,7 +371,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
       ArrayList<String> list = new ArrayList<String>();
       if (q.getUserName() != null && q.getUserName().length() > 0)
       {
-         list.add("(" + ldapAttrMapping.userUsernameAttr + "=" + q.getUserName() + ")");
+         list.add("(" + ldapAttrMapping.userUsernameAttr + "=" + addAsterisks(q.getUserName()) + ")");
       }
       if (q.getFirstName() != null && q.getFirstName().length() > 0)
       {
@@ -357,31 +390,43 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
       {
          StringBuilder buffer = new StringBuilder();
          buffer.append("(&");
-         if (list.size() > 1)
+         for (int x = 0; x < list.size(); x++)
          {
-            for (int x = 0; x < list.size(); x++)
-            {
-               if (x == (list.size() - 1))
-                  buffer.append(list.get(x));
-               else
-                  buffer.append(list.get(x) + " || ");
-            }
+            buffer.append(list.get(x));
          }
-         else
-            buffer.append(list.get(0));
-
-         buffer.append("(" + ldapAttrMapping.userObjectClassFilter + ") )");
+         buffer.append("(" + ldapAttrMapping.userObjectClassFilter + "))");
          filter = buffer.toString();
       }
       else
-         filter = ldapAttrMapping.userObjectClassFilter;
+      {
+         filter = "(" + ldapAttrMapping.userObjectClassFilter + ")";
+      }
       String searchBase = ldapAttrMapping.userURL;
 
       //    return new LDAPUserPageList(ldapAttrMapping, ldapService, searchBase, filter, 20);
-
       return new SimpleLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter);
    }
 
+   /**
+    * Simple utility method to add asterisks symbol ('*')
+    * to the very beginning and the end of the string.
+    * @param string to be surrounded with asterisks
+    * @return
+    */
+   private String addAsterisks(String s)
+   {
+      StringBuffer sb = new StringBuffer(s);
+      if (!s.startsWith("*"))
+      {
+         sb.insert(0, "*");
+      }
+      if (!s.endsWith("*"))
+      {
+         sb.append("*");
+      }
+
+      return sb.toString();
+   }
    /**
     * {@inheritDoc}
     */

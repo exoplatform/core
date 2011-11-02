@@ -25,7 +25,7 @@ import java.util.Date;
 /**
  * @hibernate.class table="EXO_USER"
  */
-public class UserImpl implements User
+public class UserImpl implements User, Cloneable
 {
 
    private String id = null;
@@ -186,4 +186,22 @@ public class UserImpl implements User
       this.organizationId = organizationId;
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   public Object clone()
+   {
+      UserImpl ui = new UserImpl(userName);
+
+      ui.setId(id);
+      ui.setCreatedDate(createdDate);
+      ui.setEmail(email);
+      ui.setFirstName(firstName);
+      ui.setLastLoginTime(lastLoginTime);
+      ui.setLastName(lastName);
+      ui.setOrganizationId(organizationId);
+      ui.setPassword(password);
+
+      return ui;
+   }
 }
