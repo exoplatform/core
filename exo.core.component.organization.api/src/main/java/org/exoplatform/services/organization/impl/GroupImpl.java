@@ -30,7 +30,7 @@ import org.exoplatform.services.organization.Group;
 /**
  * @hibernate.class table="EXO_GROUP"
  */
-public class GroupImpl implements Group, Cloneable
+public class GroupImpl implements Group
 {
 
    private String id;
@@ -143,20 +143,5 @@ public class GroupImpl implements Group, Cloneable
    public String toString()
    {
       return "Group[" + id + "|" + groupName + "]";
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   public Object clone()
-   {
-      GroupImpl gi = new GroupImpl(groupName);
-
-      gi.setDescription(desc);
-      gi.setId(id);
-      gi.setLabel(label);
-      gi.setParentId(parentId);
-
-      return gi;
    }
 }

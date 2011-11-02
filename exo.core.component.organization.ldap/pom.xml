@@ -177,13 +177,16 @@
                </includes>                 
                <excludes>
                    <!--
+                      Excluded as there some hibernate cache issues on pre-, postoperations
+                      (e.g. preDelete, postDelete, etc.)
+                   -->
+ 
+                   <exclude>org/exoplatform/services/tck/organization/TestMembershipTypeEventListener.java</exclude>
+
+                   <!--
                      Excluded, as this class has no tests to be run
                   -->
                   <exclude>**/AbstractOrganizationServiceTest.java</exclude>
-                  <!--
-                     Not a unit test.
-                  -->
-                  <exclude>**/TestOrganizationService.java</exclude>
                </excludes>  
            </configuration>
         </plugin>

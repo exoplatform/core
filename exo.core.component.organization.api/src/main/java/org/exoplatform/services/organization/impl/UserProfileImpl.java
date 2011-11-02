@@ -27,7 +27,7 @@ import java.util.Map;
  * Created by The eXo Platform SAS Author : Mestrallet Benjamin
  * benjmestrallet@users.sourceforge.net Date: Aug 21, 2003 Time: 3:22:54 PM
  */
-public class UserProfileImpl implements UserProfile, Cloneable
+public class UserProfileImpl implements UserProfile
 {
    private String userName;
 
@@ -84,13 +84,5 @@ public class UserProfileImpl implements UserProfile, Cloneable
    public Map getAttributeMap()
    {
       return attributes;
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   public Object clone()
-   {
-      return new UserProfileImpl(userName, attributes);
    }
 }
