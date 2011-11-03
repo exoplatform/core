@@ -138,7 +138,6 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
       if (broadcast)
          preSave(child, true);
 
-      session = service_.openSession();
       session.save(childImpl);
       session.flush();
 

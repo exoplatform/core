@@ -152,7 +152,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
 
       if (broadcast)
          preDelete(foundUser);
-      session = service_.openSession();
+
       session.delete(foundUser);
       ((UserProfileDAOImpl)orgService.getUserProfileHandler()).removeUserProfileEntry(userName, session);
       MembershipDAOImpl.removeMembershipEntriesOfUser(userName, session);

@@ -210,7 +210,7 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       {
          if (broadcast)
             preDelete(m);
-         session = service_.openSession();
+
          session.delete(m);
          session.flush();
 
@@ -234,6 +234,7 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
          {
             if (broadcast)
                preDelete(m);
+
             Session session = service_.openSession();
             session.delete(m);
             session.flush();

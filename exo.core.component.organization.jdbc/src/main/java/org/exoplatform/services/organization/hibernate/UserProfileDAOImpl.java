@@ -109,7 +109,6 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
          if (broadcast)
             preSave(profile, true);
 
-         session = service_.openSession();
          session.save(profile.getUserName(), upd);
          session.flush();
          cache_.put(profile.getUserName(), profile);
@@ -123,7 +122,6 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
          if (broadcast)
             preSave(profile, false);
 
-         session = service_.openSession();
          session.update(upd);
          session.flush();
          cache_.put(profile.getUserName(), profile);
@@ -146,7 +144,6 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
          if (broadcast)
             preDelete(profile);
 
-         session = service_.openSession();
          session.delete(upd);
          session.flush();
          cache_.remove(userName);
