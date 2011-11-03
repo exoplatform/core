@@ -78,25 +78,25 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
       listeners_.remove(listener);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    final public UserProfile createUserProfileInstance()
    {
       return new UserProfileImpl();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public UserProfile createUserProfileInstance(String userName)
    {
       return new UserProfileImpl(userName);
    }
 
-   void createUserProfileEntry(UserProfile up, Session session) throws Exception
-   {
-      UserProfileData upd = new UserProfileData();
-      upd.setUserProfile(up);
-      session.save(upd);
-      session.flush();
-      cache_.remove(up.getUserName());
-   }
-
+   /**
+    * {@inheritDoc}
+    */
    public void saveUserProfile(UserProfile profile, boolean broadcast) throws Exception
    {
       Session session = service_.openSession();
@@ -108,26 +108,34 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
          upd.setUserProfile(profile);
          if (broadcast)
             preSave(profile, true);
+
          session = service_.openSession();
          session.save(profile.getUserName(), upd);
+         session.flush();
+         cache_.put(profile.getUserName(), profile);
+
          if (broadcast)
             postSave(profile, true);
-         session.flush();
       }
       else
       {
          upd.setUserProfile(profile);
          if (broadcast)
             preSave(profile, false);
+
          session = service_.openSession();
          session.update(upd);
+         session.flush();
+         cache_.put(profile.getUserName(), profile);
+
          if (broadcast)
             postSave(profile, false);
-         session.flush();
       }
-      cache_.put(profile.getUserName(), profile);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public UserProfile removeUserProfile(String userName, boolean broadcast) throws Exception
    {
       Session session = service_.openSession();
@@ -137,12 +145,15 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
          UserProfile profile = upd.getUserProfile();
          if (broadcast)
             preDelete(profile);
+
          session = service_.openSession();
          session.delete(upd);
-         if (broadcast)
-            postDelete(profile);
          session.flush();
          cache_.remove(userName);
+
+         if (broadcast)
+            postDelete(profile);
+
          return profile;
       }
       catch (Exception exp)
@@ -151,6 +162,9 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
       }
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public UserProfile findUserProfileByName(String userName) throws Exception
    {
       UserProfile up = (UserProfile)cache_.get(userName);
@@ -169,6 +183,9 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
       return up;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public UserProfile findUserProfileByName(String userName, Session session) throws Exception
    {
       UserProfileData upd = (UserProfileData)service_.findOne(session, queryFindUserProfileByName, userName);
@@ -189,6 +206,9 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
       }
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection findUserProfiles() throws Exception
    {
       Session session = service_.openSession();

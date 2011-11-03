@@ -143,13 +143,12 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
 
       Session session = service_.openSession();
       session.save(m);
+      session.flush();
 
       if (broadcast)
       {
          postSave(m, true);
       }
-
-      session.flush();
    }
 
    /**
@@ -189,11 +188,14 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
    {
       if (broadcast)
          preSave(m, false);
+
       Session session = service_.openSession();
       session.update(m);
+      session.flush();
+
       if (broadcast)
          postSave(m, false);
-      session.flush();
+
    }
 
    /**
@@ -210,9 +212,10 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
             preDelete(m);
          session = service_.openSession();
          session.delete(m);
+         session.flush();
+
          if (broadcast)
             postDelete(m);
-         session.flush();
       }
       return m;
    }
@@ -233,9 +236,11 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
                preDelete(m);
             Session session = service_.openSession();
             session.delete(m);
+            session.flush();
+
             if (broadcast)
                postDelete(m);
-            session.flush();
+
          }
       }
       return collection;

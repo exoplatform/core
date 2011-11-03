@@ -20,7 +20,6 @@ package org.exoplatform.services.organization.hibernate;
 
 import org.exoplatform.commons.utils.LazyPageList;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.database.HibernateService;
@@ -35,9 +34,7 @@ import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.impl.UserImpl;
 import org.exoplatform.services.security.PasswordEncrypter;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -89,56 +86,62 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
       listeners_.remove(listener);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public User createUserInstance()
    {
       return new UserImpl();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public User createUserInstance(String username)
    {
       return new UserImpl(username);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void createUser(User user, boolean broadcast) throws Exception
    {
       if (broadcast)
          preSave(user, true);
 
       final Session session = service_.openSession();
-      Transaction transaction = SecurityHelper.doPrivilegedAction(new PrivilegedAction<Transaction>()
-      {
-         public Transaction run()
-         {
-            return session.beginTransaction();
-         }
-      });
 
       UserImpl userImpl = (UserImpl)user;
       userImpl.setId(user.getUserName());
       session.save(user);
+      session.flush();
+
       if (broadcast)
          postSave(user, true);
-      transaction.commit();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void saveUser(User user, boolean broadcast) throws Exception
    {
       if (broadcast)
          preSave(user, false);
+
       Session session = service_.openSession();
+
       session.merge(user);
-      // session.update(user);
-      if (broadcast)
-         postSave(user, false);
       session.flush();
       cache_.put(user.getUserName(), user);
+
+      if (broadcast)
+         postSave(user, false);
    }
 
-   void createUserEntry(User user, Session session) throws Exception
-   {
-      session.save(user);
-   }
-
+   /**
+    * {@inheritDoc}
+    */
    public User removeUser(String userName, boolean broadcast) throws Exception
    {
       Session session = service_.openSession();
@@ -153,13 +156,19 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
       session.delete(foundUser);
       ((UserProfileDAOImpl)orgService.getUserProfileHandler()).removeUserProfileEntry(userName, session);
       MembershipDAOImpl.removeMembershipEntriesOfUser(userName, session);
-      if (broadcast)
-         postDelete(foundUser);
+
       session.flush();
       cache_.remove(userName);
+
+      if (broadcast)
+         postDelete(foundUser);
+
       return foundUser;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public User findUserByName(String userName) throws Exception
    {
       User user = (User)cache_.get(userName);
@@ -178,11 +187,17 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
       return user;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public LazyPageList<User> getUserPageList(int pageSize) throws Exception
    {
       return new LazyPageList<User>(findAllUsers(), 20);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public ListAccess<User> findAllUsers() throws Exception
    {
       String findQuery = "from o in class " + UserImpl.class.getName();
@@ -191,11 +206,17 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
       return new HibernateListAccess<User>(service_, findQuery, countQuery);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public boolean authenticate(String username, String password) throws Exception
    {
       return authenticate(username, password, null);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public boolean authenticate(String username, String password, PasswordEncrypter pe) throws Exception
    {
       User user = findUserByName(username);
@@ -223,11 +244,17 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
       return authenticated;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public LazyPageList<User> findUsers(Query q) throws Exception
    {
       return new LazyPageList<User>(findUsersByQuery(q), 20);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public ListAccess<User> findUsersByQuery(Query q) throws Exception
    {
       ObjectQuery oq = new ObjectQuery(UserImpl.class);
@@ -251,11 +278,17 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
          oq.getHibernateCountQueryWithBinding(), oq.getBindingFields());
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public LazyPageList<User> findUsersByGroup(String groupId) throws Exception
    {
       return new LazyPageList<User>(findUsersByGroupId(groupId), 20);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
    {
       String queryFindUsersInGroup =
@@ -270,6 +303,9 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
       return new HibernateListAccess<User>(service_, queryFindUsersInGroup, countUsersInGroup);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection findUsersByGroupAndRole(String groupName, String role) throws Exception
    {
       String queryFindUsersByGroupAndRole =

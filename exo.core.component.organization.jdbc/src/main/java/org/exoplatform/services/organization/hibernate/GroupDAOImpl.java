@@ -93,16 +93,25 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
       listeners_.remove(listener);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    final public Group createGroupInstance()
    {
       return new GroupImpl();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void createGroup(Group group, boolean broadcast) throws Exception
    {
       addChild(null, group, broadcast);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void addChild(Group parent, Group child, boolean broadcast) throws Exception
    {
       Session session = service_.openSession();
@@ -131,22 +140,31 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
 
       session = service_.openSession();
       session.save(childImpl);
+      session.flush();
+
       if (broadcast)
          postSave(child, true);
-      session.flush();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void saveGroup(Group group, boolean broadcast) throws Exception
    {
       if (broadcast)
          preSave(group, false);
+
       Session session = service_.openSession();
       session.update(group);
+      session.flush();
+
       if (broadcast)
          postSave(group, false);
-      session.flush();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Group removeGroup(Group group, boolean broadcast) throws Exception
    {
       if (broadcast)
@@ -164,19 +182,17 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
       for (int i = 0; i < entries.size(); i++)
          removeGroup((Group)entries.get(i), broadcast);
       MembershipDAOImpl.removeMembershipEntriesOfGroup(group, session);
+      session.flush();
+
       if (broadcast)
          postDelete(group);
-      session.flush();
+
       return group;
    }
 
-   static void removeGroupEntry(String groupName, Session session) throws Exception
-   {
-      List entries = session.createQuery(queryFindGroupByName).setString(0, groupName).list();
-      for (int i = 0; i < entries.size(); i++)
-         session.delete(entries.get(i));
-   }
-
+   /**
+    * {@inheritDoc}
+    */
    public Collection findGroupByMembership(String userName, String membershipType) throws Exception
    {
       Session session = service_.openSession();
@@ -185,6 +201,9 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
       return groups;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Group findGroupByName(String groupName) throws Exception
    {
       Session session = service_.openSession();
@@ -192,6 +211,9 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
       return group;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Group findGroupById(String groupId) throws Exception
    {
       Session session = service_.openSession();
@@ -199,6 +221,9 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
       return group;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection findGroups(Group parent) throws Exception
    {
       Session session = service_.openSession();
@@ -212,6 +237,9 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
 
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection findGroupsOfUser(String user) throws Exception
    {
       Session session = service_.openSession();
@@ -219,6 +247,9 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
       return session.createQuery(queryFindGroupsOfUser).setString(0, user).list();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection getAllGroups() throws Exception
    {
       Session session = service_.openSession();
