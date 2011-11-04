@@ -126,11 +126,8 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
     */
    public void testAddChild() throws Exception
    {
-      Group parent = gHandler.createGroupInstance();
-      parent.setGroupName(groupName1);
-
-      Group child = gHandler.createGroupInstance();
-      child.setGroupName(groupName2);
+      Group parent = createGroupInstance(null, groupName1, "lable", "desc");
+      Group child = createGroupInstance(null, groupName2, "lable", "desc");
 
       // try to add child to not existed parent group
       try

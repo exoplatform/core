@@ -22,12 +22,11 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.database.DAO;
 import org.exoplatform.services.database.DBObject;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by The eXo Platform SAS.
@@ -122,7 +121,7 @@ public class JDBCListAccess<E> implements ListAccess<E>
             throw new IllegalArgumentException("Illegal length: length must be a positive number");
          }
 
-         List<E> entities = new ArrayList<E>(length);
+         E[] entities = null;
 
          statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
          resultSet = statement.executeQuery(findQuery);
@@ -133,19 +132,20 @@ public class JDBCListAccess<E> implements ListAccess<E>
                throw new IllegalArgumentException(
                   "Illegal index or length: sum of the index and the length cannot be greater than the list size");
 
-            resultSet.next();
-
             DBObject bean = dao.createInstance();
             dao.getDBObjectMapper().mapResultSet(resultSet, bean);
 
             if (p >= index)
             {
-               entities.add((E)bean);
-               counter++;
+               if (entities == null)
+               {
+                  entities = (E[])Array.newInstance(bean.getClass(), length);
+               }
+               entities[counter++] = (E)bean;
             }
          }
 
-         return (E[])entities.toArray();
+         return entities == null ? (E[])new Object[0] : entities;
       }
       finally
       {

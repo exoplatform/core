@@ -54,14 +54,11 @@
     </init-params>
   </component>
   
-   <component>
+   <!--component>
       <key>org.exoplatform.services.database.impl.ExoCacheProvider</key>
       <type>org.exoplatform.services.database.impl.ExoCacheProvider</type>
-   </component>
-   <component>
-      <key>org.exoplatform.services.database.jdbc.DBSchemaCreator</key>
-      <type>org.exoplatform.services.database.jdbc.DBSchemaCreator</type>
-   </component>
+   </component-->
+
    <component>
       <key>org.exoplatform.services.organization.OrganizationService</key>
       <type>org.exoplatform.services.organization.jdbc.OrganizationServiceImpl</type>
@@ -104,22 +101,17 @@
          <type>org.exoplatform.services.organization.jdbc.listeners.RemoveUserProfileListener</type>
       </component-plugin>
       <component-plugin>
-         <name>organization.user.postCreate</name>
-         <set-method>addListener</set-method>
-         <type>org.exoplatform.services.organization.jdbc.listeners.CreateUserListener</type>
-      </component-plugin>
-      <component-plugin>
          <name>organization.user.preDelete</name>
          <set-method>addListener</set-method>
          <type>org.exoplatform.services.organization.jdbc.listeners.RemoveMembershipListener</type>
       </component-plugin>
       <component-plugin>
-         <name>organization.membershipType.preDelete</name>
+         <name>organization.group.preDelete</name>
          <set-method>addListener</set-method>
          <type>org.exoplatform.services.organization.jdbc.listeners.RemoveMembershipListener</type>
       </component-plugin>
       <component-plugin>
-         <name>organization.group.preDelete</name>
+         <name>organization.membershipType.preDelete</name>
          <set-method>addListener</set-method>
          <type>org.exoplatform.services.organization.jdbc.listeners.RemoveMembershipListener</type>
       </component-plugin>

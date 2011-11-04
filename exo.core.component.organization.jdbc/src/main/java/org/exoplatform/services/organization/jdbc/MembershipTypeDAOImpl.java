@@ -32,6 +32,8 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 
+import javax.naming.InvalidNameException;
+
 /**
  * Created by The eXo Platform SAS Author : Nhu Dinh Thuan
  * nhudinhthuan@exoplatform.com Apr 7, 2007
@@ -90,12 +92,22 @@ public class MembershipTypeDAOImpl extends StandardSQLDAO<MembershipTypeImpl> im
       query.addLIKE("MT_NAME", name);
       MembershipTypeImpl mt = loadUnique(query.toQuery());
       if (mt == null)
-         return null;
+      {
+         throw new InvalidNameException("Can not remove membership type" + name
+            + "record, because membership type does not exist.");
+      }
+
       if (broadcast)
+      {
          listenerService_.broadcast(MembershipTypeHandler.PRE_DELETE_MEMBERSHIP_TYPE_EVENT, this, mt);
+      }
       super.remove(mt);
+
       if (broadcast)
+      {
          listenerService_.broadcast(MembershipTypeHandler.POST_DELETE_MEMBERSHIP_TYPE_EVENT, this, mt);
+      }
+
       return mt;
    }
 

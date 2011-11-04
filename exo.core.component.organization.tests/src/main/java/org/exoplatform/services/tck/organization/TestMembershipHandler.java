@@ -24,7 +24,6 @@ import org.exoplatform.services.organization.MembershipEventListenerHandler;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.User;
 
-
 import java.util.List;
 
 /**
@@ -237,8 +236,7 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       assertNotNull(m);
 
       // try to link membership with not existed entries. We are supposed to get Exception
-      Group group = gHandler.createGroupInstance();
-      group.setGroupName("not-existed-group");
+      Group group = createGroupInstance(null, "not-existed-group", "lable", "desc");
       try
       {
          mHandler.linkMembership(uHandler.findUserByName(userName), group,
@@ -455,9 +453,9 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       // try to remove not existed groups. We are supposed to get Exception
       try
       {
-         Group g = gHandler.createGroupInstance();
-         g.setGroupName("not-existed-group");
-         gHandler.removeGroup(g, true);
+         Group group = createGroupInstance(null, "not-existed-group", "lable", "desc");
+
+         gHandler.removeGroup(group, true);
 
          fail("Exception should be thrown");
       }

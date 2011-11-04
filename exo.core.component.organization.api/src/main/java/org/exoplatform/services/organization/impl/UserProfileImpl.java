@@ -35,6 +35,7 @@ public class UserProfileImpl implements UserProfile
 
    public UserProfileImpl()
    {
+      attributes = new HashMap<String, String>();
    }
 
    public UserProfileImpl(String userName)

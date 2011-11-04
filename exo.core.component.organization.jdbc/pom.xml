@@ -267,20 +267,25 @@
                      <name>orgservice.test.configuration.file</name>
                      <value>${orgservice.test.configuration.file}</value>
                   </property>
+
+                  <property>
+                     <name>orgservice.test.configuration.skipDateTests</name>
+                     <value>true</value>
+                  </property>
                </systemProperties>
                <includes>
                   <include>org/exoplatform/services/tck/organization/Test*.java</include>
                </includes>                 
-               <excludes>
-                  <!--
-                     Temporary excluded, to investigate cause of failures and errors.
-                  -->
-
-                  <exclude>org/exoplatform/services/tck/organization/Test*.java</exclude>
+               <excludes>  
                   <!--
                      Excluded as this class has no tests to be run
                   -->
                   <exclude>**/AbstractOrganizationServiceTest.java</exclude>
+
+                  <!--
+                     Some limitation of JDBC implementation of organization service
+                  -->
+                  <exclude>org/exoplatform/services/tck/organization/TestMembershipTypeEventListener.java</exclude>
                </excludes>  
             </configuration>
          </plugin>

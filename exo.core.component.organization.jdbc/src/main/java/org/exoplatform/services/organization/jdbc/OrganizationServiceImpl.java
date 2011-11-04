@@ -41,21 +41,16 @@ public class OrganizationServiceImpl extends BaseOrganizationService
    public OrganizationServiceImpl(ListenerService listenerService, DatabaseService dbService) throws Exception
    {
       ExoDatasource datasource = dbService.getDatasource();
-      userDAO_ = new UserDAOImpl(listenerService, datasource, new UserMapper());
-      groupDAO_ = new GroupDAOImpl(listenerService, datasource, new GroupMapper());
+      userDAO_ = new UserDAOImpl(this, listenerService, datasource, new UserMapper());
+      groupDAO_ = new GroupDAOImpl(this, listenerService, datasource, new GroupMapper());
       membershipTypeDAO_ = new MembershipTypeDAOImpl(listenerService, datasource, new MembershipTypeMapper());
 
       membershipDAO_ = new MembershipDAOImpl(listenerService, datasource, new MembershipMapper(), this);
       userProfileDAO_ = new UserProfileDAOImpl(listenerService, datasource, new UserProfileMapper());
 
       DBTableManager dbManager = datasource.getDBTableManager();
-      // try{
       if (!dbManager.hasTable(UserImpl.class))
          dbManager.createTable(UserImpl.class, false);
-      // int k = 3/0;
-      // } catch(Exception e) {
-      // e.printStackTrace();
-      // }
 
       if (!dbManager.hasTable(GroupImpl.class))
          dbManager.createTable(GroupImpl.class, false);

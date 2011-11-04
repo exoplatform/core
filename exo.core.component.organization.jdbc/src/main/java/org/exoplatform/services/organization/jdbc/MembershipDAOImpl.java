@@ -79,6 +79,18 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
             + " because membership type " + membership.getMembershipType() + " not exists.");
       }
       
+      if (service.getGroupHandler().findGroupById(membership.getGroupId()) == null)
+      {
+         throw new InvalidNameException("Can not create membership record " + membership.getId() + ", because group "
+            + membership.getGroupId() + " does not exist.");
+      }
+
+      if (service.getUserHandler().findUserByName(membership.getUserName()) == null)
+      {
+         throw new InvalidNameException("Can not create membership record " + membership.getId() + ", because user "
+            + membership.getGroupId() + " does not exist.");
+      }
+
       // check if we already have membership record
       if (findMembershipByUserGroupAndType(membership.getUserName(), membership.getGroupId(),
          membership.getMembershipType()) != null)
@@ -144,7 +156,14 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
          return null;
       DBObjectQuery<MembershipImpl> query = new DBObjectQuery<MembershipImpl>(MembershipImpl.class);
       query.addLIKE("MEMBERSHIP_ID", id);
-      return loadUnique(query.toQuery());
+      Membership membership = loadUnique(query.toQuery());
+
+      if (membership == null)
+      {
+         throw new InvalidNameException("Can't find membership with id " + id);
+      }
+
+      return membership;
    }
 
    /**

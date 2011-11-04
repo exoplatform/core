@@ -20,7 +20,6 @@ package org.exoplatform.services.organization.jdbc;
 
 import org.exoplatform.commons.utils.LazyPageList;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.database.DBObjectMapper;
 import org.exoplatform.services.database.DBObjectQuery;
 import org.exoplatform.services.database.ExoDatasource;
@@ -38,6 +37,7 @@ import org.exoplatform.services.organization.Query;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
 import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.impl.mock.LazyListImpl;
 import org.exoplatform.services.security.PasswordEncrypter;
 
 import java.util.Calendar;
@@ -53,10 +53,15 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
 
    protected ListenerService listenerService_;
 
-   public UserDAOImpl(ListenerService lService, ExoDatasource datasource, DBObjectMapper<UserImpl> mapper)
+   protected final OrganizationService orgService;
+
+   public UserDAOImpl(OrganizationService orgSerivce, ListenerService lService, ExoDatasource datasource,
+      DBObjectMapper<UserImpl> mapper)
    {
       super(datasource, mapper, UserImpl.class);
-      listenerService_ = lService;
+
+      this.orgService = orgSerivce;
+      this.listenerService_ = lService;
    }
 
    public User createUserInstance()
@@ -141,7 +146,7 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
       DBObjectQuery dbQuery = new DBObjectQuery<UserImpl>(UserImpl.class);
       if (orgQuery.getUserName() != null)
       {
-         dbQuery.addLIKE("UPPER(USER_NAME)", orgQuery.getUserName().toUpperCase());
+         dbQuery.addLIKE("UPPER(USER_NAME)", addAsterisk(orgQuery.getUserName().toUpperCase()));
       }
       if (orgQuery.getFirstName() != null)
       {
@@ -167,11 +172,15 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
    {
       if (log.isDebugEnabled())
          log.debug("+++++++++++FIND USER BY GROUP_ID " + groupId);
-      PortalContainer manager = PortalContainer.getInstance();
-      OrganizationService service = (OrganizationService)manager.getComponentInstanceOfType(OrganizationService.class);
-      MembershipHandler membershipHandler = service.getMembershipHandler();
-      GroupHandler groupHandler = service.getGroupHandler();
+
+      MembershipHandler membershipHandler = orgService.getMembershipHandler();
+      GroupHandler groupHandler = orgService.getGroupHandler();
       Group group = groupHandler.findGroupById(groupId);
+      if (group == null)
+      {
+         return new LazyListImpl();
+      }
+
       @SuppressWarnings("unchecked")
       List<Membership> members = (List<Membership>)membershipHandler.findMembershipsByGroup(group);
 
@@ -179,11 +188,6 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
       for (Membership member : members)
       {
          dbQuery.addLIKE("USER_NAME", member.getUserName());
-         /*
-               User g = findUserByName(member.getUserName());
-               if (g != null)
-                 users.add(g);
-         */
       }
 
       return new JDBCListAccess<User>(this, dbQuery.toQueryUseOR(), dbQuery.toCountQueryUseOR());
@@ -231,5 +235,20 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
    @SuppressWarnings("unused")
    public void removeUserEventListener(UserEventListener listener)
    {
+   }
+
+   private String addAsterisk(String s)
+   {
+      StringBuffer sb = new StringBuffer(s);
+      if (!s.startsWith("*"))
+      {
+         sb.insert(0, "*");
+      }
+      if (!s.endsWith("*"))
+      {
+         sb.append("*");
+      }
+
+      return sb.toString();
    }
 }

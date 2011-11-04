@@ -19,7 +19,6 @@
 package org.exoplatform.services.organization.jdbc;
 
 import org.exoplatform.commons.exception.UniqueObjectException;
-import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.database.DBObjectMapper;
 import org.exoplatform.services.database.DBObjectQuery;
 import org.exoplatform.services.database.DBPageList;
@@ -40,6 +39,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.naming.InvalidNameException;
+
 /**
  * Created by The eXo Platform SAS Apr 7, 2007
  */
@@ -50,10 +51,15 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
 
    protected ListenerService listenerService_;
 
-   public GroupDAOImpl(ListenerService lService, ExoDatasource datasource, DBObjectMapper<GroupImpl> mapper)
+   protected final OrganizationService orgService;
+
+   public GroupDAOImpl(OrganizationService orgSerivce, ListenerService lService, ExoDatasource datasource,
+      DBObjectMapper<GroupImpl> mapper)
    {
       super(datasource, mapper, GroupImpl.class);
-      listenerService_ = lService;
+
+      this.orgService = orgSerivce;
+      this.listenerService_ = lService;
    }
 
    public Group createGroupInstance()
@@ -78,6 +84,11 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
       {
          query.addLIKE("GROUP_ID", parent.getId());
          Group parentGroup = super.loadUnique(connection, query.toQuery());
+         if (parentGroup == null)
+         {
+            throw new InvalidNameException("Can't add group " + child.getId() + " since parent group " + parent.getId()
+               + " not exists");
+         }
          groupId = parentGroup.getId() + "/" + child.getGroupName();
          childImpl.setParentId(parentGroup.getId());
       }
@@ -139,7 +150,7 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
 
       if (userName == null || membershipType == null)
          return null;
-      MembershipHandler membershipHandler = getMembershipHandler();
+      MembershipHandler membershipHandler = orgService.getMembershipHandler();
       List<Membership> members = (List<Membership>)membershipHandler.findMembershipsByUser(userName);
       List<Group> groups = new ArrayList<Group>();
       for (Membership member : members)
@@ -174,7 +185,7 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
    @SuppressWarnings("unchecked")
    public Collection findGroupsOfUser(String user) throws Exception
    {
-      MembershipHandler membershipHandler = getMembershipHandler();
+      MembershipHandler membershipHandler = orgService.getMembershipHandler();
       List<Membership> members = (List<Membership>)membershipHandler.findMembershipsByUser(user);
       List<Group> groups = new ArrayList<Group>();
       for (Membership member : members)
@@ -217,6 +228,12 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
 
    public Group removeGroup(Group group, boolean broadcast) throws Exception
    {
+      if (findGroupById(group.getId()) == null)
+      {
+         throw new InvalidNameException("Can't remove group since group with groupId " + group.getId()
+            + " is not found");
+      }
+
       GroupImpl groupImpl = (GroupImpl)group;
       if (broadcast)
          listenerService_.broadcast(GroupHandler.PRE_DELETE_GROUP_EVENT, this, groupImpl);
@@ -235,12 +252,4 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
    public void removeGroupEventListener(GroupEventListener listener)
    {
    }
-
-   private MembershipHandler getMembershipHandler()
-   {
-      PortalContainer manager = PortalContainer.getInstance();
-      OrganizationService service = (OrganizationService)manager.getComponentInstanceOfType(OrganizationService.class);
-      return service.getMembershipHandler();
-   }
-
 }

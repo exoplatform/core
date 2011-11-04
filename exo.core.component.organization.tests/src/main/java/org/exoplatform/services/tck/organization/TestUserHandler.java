@@ -123,18 +123,18 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
       query.setLastName("lasT");
       assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
 
-      // try to find user by login date
-      Calendar calc = Calendar.getInstance();
-      calc.set(Calendar.YEAR, calc.get(Calendar.YEAR) - 1);
-
-      query = new Query();
-      query.setFromLoginDate(calc.getTime());
-      query.setUserName("tolik");
-      assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
-
       String skipDateTests = System.getProperty("orgservice.test.configuration.skipDateTests");
       if (!"true".equals(skipDateTests))
       {
+         // try to find user by login date
+         Calendar calc = Calendar.getInstance();
+         calc.set(Calendar.YEAR, calc.get(Calendar.YEAR) - 1);
+
+         query = new Query();
+         query.setFromLoginDate(calc.getTime());
+         query.setUserName("tolik");
+         assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
+
          calc = Calendar.getInstance();
          calc.set(Calendar.YEAR, calc.get(Calendar.YEAR) + 1);
 
@@ -209,21 +209,21 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
       query.setLastName("lasT");
       assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
 
-      // try to find user by login date
-      Calendar calc = Calendar.getInstance();
-      calc.set(Calendar.YEAR, calc.get(Calendar.YEAR) - 1);
-
-      query = new Query();
-      query.setFromLoginDate(calc.getTime());
-      query.setUserName("tolik");
-      assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
-
-      calc = Calendar.getInstance();
-      calc.set(Calendar.YEAR, calc.get(Calendar.YEAR) + 1);
-
       String skipDateTests = System.getProperty("orgservice.test.configuration.skipDateTests");
       if (!"true".equals(skipDateTests))
       {
+         // try to find user by login date
+         Calendar calc = Calendar.getInstance();
+         calc.set(Calendar.YEAR, calc.get(Calendar.YEAR) - 1);
+
+         query = new Query();
+         query.setFromLoginDate(calc.getTime());
+         query.setUserName("tolik");
+         assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
+
+         calc = Calendar.getInstance();
+         calc.set(Calendar.YEAR, calc.get(Calendar.YEAR) + 1);
+         
          query = new Query();
          query.setFromLoginDate(calc.getTime());
          assertEquals(uHandler.findUsersByQuery(query).getSize(), 0);

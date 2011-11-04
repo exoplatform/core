@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by The eXo Platform SAS.
@@ -147,8 +148,9 @@ public class AbstractOrganizationServiceTest extends TestCase
    protected void createUserProfile(String userName) throws Exception
    {
       UserProfile up = upHandler.createUserProfileInstance(userName);
-      up.setAttribute("key1", "value1");
-      up.setAttribute("key2", "value2");
+      Map<String, String> attributes = up.getUserInfoMap();
+      attributes.put("key1", "value1");
+      attributes.put("key2", "value2");
       upHandler.saveUserProfile(up, true);
    }
 
@@ -170,7 +172,7 @@ public class AbstractOrganizationServiceTest extends TestCase
     */
    protected void createGroup(String parentId, String name, String label, String desc) throws Exception
    {
-      Group parent = gHandler.findGroupById(parentId);
+      Group parent = parentId == null ? null : gHandler.findGroupById(parentId);
 
       Group child = gHandler.createGroupInstance();
       child.setGroupName(name);
@@ -193,6 +195,15 @@ public class AbstractOrganizationServiceTest extends TestCase
       // link membership
       mHandler.linkMembership(uHandler.findUserByName(userName), gHandler.findGroupById("/" + groupName), mtHandler
                .findMembershipType(type), true);
+   }
+
+   /**
+    * Create new group instance.
+    */
+   protected Group createGroupInstance(String parentId, String name, String label, String desc) throws Exception
+   {
+      createGroup(null, name, "lable", "desc");
+      return gHandler.removeGroup(gHandler.findGroupById("/" + name), true);
    }
 
    /**
