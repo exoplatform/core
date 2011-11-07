@@ -133,12 +133,6 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
                      + " because membership type " + m.getMembershipType() + " is not exists.");
          }
 
-         // check if we already have membership record
-         if (findMembershipByUserGroupAndType(m.getUserName(), m.getGroupId(), m.getMembershipType()) != null)
-         {
-            return;
-         }
-
          for (int err = 0;; err++)
          {
             try
@@ -169,6 +163,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
                   cacheHandler.put(cacheHandler.getMembershipKey(m), m, CacheType.MEMBERSHIP);
                   return;
                }
+
                // if contains membership
                List members = getAttributes(attrs, ldapAttrMapping.membershipTypeMemberValue);
                if (members.contains(userDN))

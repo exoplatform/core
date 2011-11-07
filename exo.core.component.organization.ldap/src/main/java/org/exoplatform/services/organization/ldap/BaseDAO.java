@@ -22,9 +22,9 @@ import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.CacheHandler;
+import org.exoplatform.services.organization.CacheHandler.CacheType;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.CacheHandler.CacheType;
 import org.exoplatform.services.organization.impl.GroupImpl;
 
 import java.util.ArrayList;
@@ -183,15 +183,27 @@ public class BaseDAO
       try
       {
          if (attributes == null)
+         {
             return results;
+         }
+
          Attribute attr = attributes.get(attribute);
+         if (attr == null)
+         {
+            return results;
+         }
+
          for (int x = 0; x < attr.size(); x++)
+         {
             results.add(attr.get(x));
+         }
       }
       catch (NamingException e)
       {
          if (LOG.isDebugEnabled())
+         {
             LOG.debug(e.getLocalizedMessage(), e);
+         }
       }
       return results;
    }
