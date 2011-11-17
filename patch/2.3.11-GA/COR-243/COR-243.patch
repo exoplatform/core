@@ -1,0 +1,53 @@
+Index: pom.xml
+===================================================================
+--- pom.xml	(revision 5193)
++++ pom.xml	(working copy)
+@@ -37,7 +37,7 @@
+    <properties>
+       <exo.product.name>exo-core</exo.product.name>
+       <exo.product.specification>2.3</exo.product.specification>
+-      
++      <version.assembly.plugin>2.2.1</version.assembly.plugin>
+       <org.exoplatform.framework.junit.version>1.2.1-GA</org.exoplatform.framework.junit.version>
+       <org.exoplatform.kernel.version>2.2.11-GA-SNAPSHOT</org.exoplatform.kernel.version>
+    </properties>
+@@ -379,4 +379,39 @@
+          <scope>test</scope>
+       </dependency>
+    </dependencies>
++<profiles>
++   <profile>
++      <id>release</id>
++      <build>
++        <plugins>          
++          <plugin>
++            <artifactId>maven-assembly-plugin</artifactId>
++            <dependencies>
++              <dependency>
++                <groupId>org.apache.apache.resources</groupId>
++                <artifactId>apache-source-release-assembly-descriptor</artifactId>
++                <version>1.0.2</version>
++              </dependency>
++            </dependencies>
++            <executions>
++              <execution>
++                <id>source-release-assembly</id>
++                <phase>package</phase>
++                <goals>
++                  <goal>single</goal>
++                </goals>
++                <configuration>
++                  <runOnlyAtExecutionRoot>true</runOnlyAtExecutionRoot>
++                  <descriptorRefs>
++                    <descriptorRef>source-release</descriptorRef>
++                  </descriptorRefs>
++                  <tarLongFileFormat>gnu</tarLongFileFormat>
++                </configuration>
++              </execution>
++            </executions>
++          </plugin>
++        </plugins>
++      </build>
++    </profile>
++  </profiles>
+ </project>
