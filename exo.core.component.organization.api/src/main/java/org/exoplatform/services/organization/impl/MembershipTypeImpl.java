@@ -28,7 +28,7 @@ import java.util.Date;
  * 
  * @hibernate.class table="EXO_MEMBERSHIP_TYPE"
  */
-public class MembershipTypeImpl implements MembershipType
+public class MembershipTypeImpl implements MembershipType, Cloneable
 {
 
    private String name;
@@ -117,4 +117,18 @@ public class MembershipTypeImpl implements MembershipType
       modifiedDate = d;
    }
 
+   /**
+    * {@inheritDoc}
+    **/
+   public Object clone()
+   {
+      MembershipTypeImpl mti = new MembershipTypeImpl();
+      mti.setName(this.name);
+      mti.setDescription(this.description);
+      mti.setOwner(this.owner);
+      mti.setCreatedDate((Date)this.createdDate.clone());
+      mti.setModifiedDate((Date)this.modifiedDate.clone());
+
+      return mti;
+   }
 }

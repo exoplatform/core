@@ -23,7 +23,7 @@ import org.exoplatform.services.organization.Membership;
 /**
  * @hibernate.class table="EXO_MEMBERSHIP"
  */
-public class MembershipImpl implements Membership
+public class MembershipImpl implements Membership, Cloneable
 {
 
    private String id = null;
@@ -96,5 +96,20 @@ public class MembershipImpl implements Membership
    public String toString()
    {
       return "Membership[" + id + "]";
+   }
+
+   /**
+    * {@inheritDoc}
+    **/
+   public Object clone()
+   {
+      MembershipImpl mi = new MembershipImpl();
+
+      mi.setGroupId(this.groupId);
+      mi.setMembershipType(this.membershipType);
+      mi.setId(this.id);
+      mi.setUserName(this.userName);
+
+      return mi;
    }
 }
