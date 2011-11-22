@@ -25,12 +25,13 @@
  */
 package org.exoplatform.services.organization.impl;
 
+import org.exoplatform.services.organization.ExtendedCloneable;
 import org.exoplatform.services.organization.Group;
 
 /**
  * @hibernate.class table="EXO_GROUP"
  */
-public class GroupImpl implements Group, Cloneable
+public class GroupImpl implements Group, ExtendedCloneable
 {
 
    private String id;
@@ -148,16 +149,15 @@ public class GroupImpl implements Group, Cloneable
    /**
     * {@inheritDoc}
     **/
-   public Object clone()
+   public GroupImpl clone()
    {
-      GroupImpl gi = new GroupImpl();
-
-      gi.setId(this.id);
-      gi.setParentId(this.parentId);
-      gi.setGroupName(this.groupName);
-      gi.setLabel(this.label);
-      gi.setDescription(this.desc);
-
-      return gi;
+      try
+      {
+         return (GroupImpl)super.clone();
+      }
+      catch (CloneNotSupportedException e)
+      {
+         return this;
+      }
    }
 }

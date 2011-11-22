@@ -18,12 +18,13 @@
  */
 package org.exoplatform.services.organization.impl;
 
+import org.exoplatform.services.organization.ExtendedCloneable;
 import org.exoplatform.services.organization.Membership;
 
 /**
  * @hibernate.class table="EXO_MEMBERSHIP"
  */
-public class MembershipImpl implements Membership, Cloneable
+public class MembershipImpl implements Membership, ExtendedCloneable
 {
 
    private String id = null;
@@ -101,15 +102,15 @@ public class MembershipImpl implements Membership, Cloneable
    /**
     * {@inheritDoc}
     **/
-   public Object clone()
+   public MembershipImpl clone()
    {
-      MembershipImpl mi = new MembershipImpl();
-
-      mi.setGroupId(this.groupId);
-      mi.setMembershipType(this.membershipType);
-      mi.setId(this.id);
-      mi.setUserName(this.userName);
-
-      return mi;
+      try
+      {
+         return (MembershipImpl)super.clone();
+      }
+      catch (CloneNotSupportedException e)
+      {
+         return this;
+      }
    }
 }

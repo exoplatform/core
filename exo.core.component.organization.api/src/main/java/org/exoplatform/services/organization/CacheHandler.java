@@ -125,17 +125,9 @@ public class CacheHandler
          obj = userProfileCache.get(key);
       }
 
-      if (obj != null && obj instanceof Cloneable)
+      if (obj instanceof ExtendedCloneable)
       {
-         try
-         {
-            // need to return the clone of the object since object is mutable
-            return obj.getClass().getMethod("clone").invoke(obj);
-         }
-         catch (Exception e)
-         {
-            return obj;
-         }
+         return ((ExtendedCloneable)obj).clone();
       }
       return obj;
    }

@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.organization.impl;
 
+import org.exoplatform.services.organization.ExtendedCloneable;
 import org.exoplatform.services.organization.MembershipType;
 
 import java.util.Date;
@@ -28,7 +29,7 @@ import java.util.Date;
  * 
  * @hibernate.class table="EXO_MEMBERSHIP_TYPE"
  */
-public class MembershipTypeImpl implements MembershipType, Cloneable
+public class MembershipTypeImpl implements MembershipType, ExtendedCloneable
 {
 
    private String name;
@@ -120,14 +121,25 @@ public class MembershipTypeImpl implements MembershipType, Cloneable
    /**
     * {@inheritDoc}
     **/
-   public Object clone()
+   public MembershipTypeImpl clone()
    {
-      MembershipTypeImpl mti = new MembershipTypeImpl();
-      mti.setName(this.name);
-      mti.setDescription(this.description);
-      mti.setOwner(this.owner);
-      mti.setCreatedDate((Date)this.createdDate.clone());
-      mti.setModifiedDate((Date)this.modifiedDate.clone());
+      MembershipTypeImpl mti;
+      try
+      {
+         mti = (MembershipTypeImpl)super.clone();
+         if (createdDate != null)
+         {
+            mti.createdDate = (Date)createdDate.clone();
+         }
+         if (modifiedDate != null)
+         {
+            mti.modifiedDate = (Date)modifiedDate.clone();
+         }
+      }
+      catch (CloneNotSupportedException e)
+      {
+         return this;
+      }
 
       return mti;
    }

@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.organization.impl;
 
+import org.exoplatform.services.organization.ExtendedCloneable;
 import org.exoplatform.services.organization.User;
 
 import java.util.Date;
@@ -25,7 +26,7 @@ import java.util.Date;
 /**
  * @hibernate.class table="EXO_USER"
  */
-public class UserImpl implements User, Cloneable
+public class UserImpl implements User, ExtendedCloneable
 {
 
    private String id = null;
@@ -189,19 +190,25 @@ public class UserImpl implements User, Cloneable
    /**
     * {@inheritDoc}
     **/
-   public Object clone()
+   public UserImpl clone()
    {
-      UserImpl ui = new UserImpl();
-
-      ui.setId(this.id);
-      ui.setUserName(this.userName);
-      ui.setPassword(this.password);
-      ui.setFirstName(this.firstName);
-      ui.setLastName(this.lastName);
-      ui.setEmail(this.email);
-      ui.setCreatedDate((Date)this.createdDate.clone());
-      ui.setLastLoginTime((Date)this.lastLoginTime.clone());
-      ui.setOrganizationId(this.organizationId);
+      UserImpl ui;
+      try
+      {
+         ui = (UserImpl)super.clone();
+         if (createdDate != null)
+         {
+            ui.createdDate = (Date)createdDate.clone();
+         }
+         if (lastLoginTime != null)
+         {
+            ui.lastLoginTime = (Date)lastLoginTime.clone();
+         }
+      }
+      catch (CloneNotSupportedException e)
+      {
+         return this;
+      }
 
       return ui;
    }
