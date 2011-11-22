@@ -108,6 +108,10 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
             // "org.hibernate.dialect"
             log_.info("Using dialect " + dialect);
          }
+         else if (name.equals("hibernate.default_schema") && (value == null || value.isEmpty()))
+         {
+            continue;
+         }
 
          //
          conf_.setProperty(name, value);
