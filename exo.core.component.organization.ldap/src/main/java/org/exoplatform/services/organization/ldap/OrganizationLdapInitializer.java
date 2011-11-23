@@ -27,7 +27,10 @@ import org.exoplatform.services.organization.OrganizationServiceInitializer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.naming.NamingEnumeration;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 /**
@@ -67,36 +70,57 @@ public class OrganizationLdapInitializer extends BaseComponentPlugin implements 
       Matcher matcher = pattern.matcher(dn);
       dn = matcher.replaceAll("=");
       LdapContext context = baseHandler.ldapService.getLdapContext();
-      String[] explodeDN = baseHandler.explodeDN(dn, false);
-      if (explodeDN.length < 1)
-         return;
-      dn = explodeDN[explodeDN.length - 1];
-      int i = explodeDN.length - 2;
-      for (; i > -1; i--)
+      try
       {
-         if (!explodeDN[i].toLowerCase().startsWith("dc="))
-            break;
-         dn = explodeDN[i] + "," + dn;
-      }
-      createDN(dn, context);
-      for (; i > -1; i--)
-      {
-         dn = explodeDN[i] + "," + dn;
+         String[] explodeDN = baseHandler.explodeDN(dn, false);
+         if (explodeDN.length < 1)
+            return;
+         dn = explodeDN[explodeDN.length - 1];
+         int i = explodeDN.length - 2;
+         for (; i > -1; i--)
+         {
+            if (!explodeDN[i].toLowerCase().startsWith("dc="))
+               break;
+            dn = explodeDN[i] + "," + dn;
+         }
          createDN(dn, context);
+         for (; i > -1; i--)
+         {
+            dn = explodeDN[i] + "," + dn;
+            createDN(dn, context);
+         }
+      }
+      finally
+      {
+         baseHandler.ldapService.release(context);
       }
    }
 
    private void createDN(String dn, LdapContext context) throws Exception
    {
+      NamingEnumeration<SearchResult> results = null;
       try
       {
-         Object obj = context.lookupLink(dn);
-         if (obj != null)
+         SearchControls control = new SearchControls();
+         control.setSearchScope(SearchControls.OBJECT_SCOPE);
+         results = context.search(dn, "(objectClass=*)", control);
+
+         if (results.hasMoreElements())
+         {
             return;
+         }
       }
       catch (Exception exp)
       {
       }
+      finally
+      {
+         if (results != null)
+         {
+            results.close();
+         }
+      }
+
       String nameValue = dn.substring(dn.indexOf("=") + 1, dn.indexOf(","));
       BasicAttributes attrs = new BasicAttributes();
       if (dn.toLowerCase().startsWith("ou="))
@@ -139,33 +163,40 @@ public class OrganizationLdapInitializer extends BaseComponentPlugin implements 
 
       LdapContext context = baseHandler.ldapService.getLdapContext();
 
-      String[] edn = baseHandler.explodeDN(dn, false);
-      String[] ebasedn = baseHandler.explodeDN(basedn, false);
-
-      if (edn.length < 1)
-         throw new IllegalArgumentException("Zerro DN length, [" + dn + "]");
-      if (ebasedn.length < 1)
-         throw new IllegalArgumentException("Zerro Base DN length, [" + basedn + "]");
-      if (edn.length < ebasedn.length)
-         throw new IllegalArgumentException("DN length smaller Base DN [" + dn + " >= " + basedn + "]");
-
-      String rdn = basedn;
-      for (int i = 1; i <= edn.length; i++)
+      try
       {
-         // for (int i=edn.length - 1; i>=0; i--) {
-         String n = edn[edn.length - i];
-         if (i <= ebasedn.length)
+         String[] edn = baseHandler.explodeDN(dn, false);
+         String[] ebasedn = baseHandler.explodeDN(basedn, false);
+
+         if (edn.length < 1)
+            throw new IllegalArgumentException("Zerro DN length, [" + dn + "]");
+         if (ebasedn.length < 1)
+            throw new IllegalArgumentException("Zerro Base DN length, [" + basedn + "]");
+         if (edn.length < ebasedn.length)
+            throw new IllegalArgumentException("DN length smaller Base DN [" + dn + " >= " + basedn + "]");
+
+         String rdn = basedn;
+         for (int i = 1; i <= edn.length; i++)
          {
-            String bn = ebasedn[ebasedn.length - i];
-            if (!n.equals(bn))
-               throw new IllegalArgumentException("DN does not starts with Base DN [" + dn + " != " + basedn + "]");
+            // for (int i=edn.length - 1; i>=0; i--) {
+            String n = edn[edn.length - i];
+            if (i <= ebasedn.length)
+            {
+               String bn = ebasedn[ebasedn.length - i];
+               if (!n.equals(bn))
+                  throw new IllegalArgumentException("DN does not starts with Base DN [" + dn + " != " + basedn + "]");
+            }
+            else
+            {
+               // create RDN elem
+               rdn = n + "," + rdn;
+               createDN(rdn, context);
+            }
          }
-         else
-         {
-            // create RDN elem
-            rdn = n + "," + rdn;
-            createDN(rdn, context);
-         }
+      }
+      finally
+      {
+         baseHandler.ldapService.release(context);
       }
    }
 }

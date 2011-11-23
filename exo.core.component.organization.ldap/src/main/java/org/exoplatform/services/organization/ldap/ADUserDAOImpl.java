@@ -123,24 +123,24 @@ public class ADUserDAOImpl extends UserDAOImpl
    @Override
    protected void saveUserPassword(User user, String userDN) throws Exception
    {
-      Object v = ldapService.getLdapContext().getEnvironment().get(Context.SECURITY_PROTOCOL);
-      if (v == null)
-         return;
-      String security = String.valueOf(v);
-      if (!security.equalsIgnoreCase("ssl"))
-         return;
-      String newQuotedPassword = "\"" + user.getPassword() + "\"";
-      byte[] newUnicodePassword = newQuotedPassword.getBytes("UTF-16LE");
-      ModificationItem[] mods = new ModificationItem[2];
-      mods[0] =
-         new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ldapAttrMapping.userPassword,
-            newUnicodePassword));
-      mods[1] =
-         new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("userAccountControl", Integer
-            .toString(UF_NORMAL_ACCOUNT + UF_PASSWORD_EXPIRED)));
       LdapContext ctx = ldapService.getLdapContext();
       try
       {
+         Object v = ctx.getEnvironment().get(Context.SECURITY_PROTOCOL);
+         if (v == null)
+            return;
+         String security = String.valueOf(v);
+         if (!security.equalsIgnoreCase("ssl"))
+            return;
+         String newQuotedPassword = "\"" + user.getPassword() + "\"";
+         byte[] newUnicodePassword = newQuotedPassword.getBytes("UTF-16LE");
+         ModificationItem[] mods = new ModificationItem[2];
+         mods[0] =
+            new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ldapAttrMapping.userPassword,
+               newUnicodePassword));
+         mods[1] =
+            new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("userAccountControl",
+               Integer.toString(UF_NORMAL_ACCOUNT + UF_PASSWORD_EXPIRED)));
          for (int err = 0;; err++)
          {
             try
