@@ -410,7 +410,6 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
          assertEquals(currentUrer.getEmail(), u.getEmail());
          assertEquals(currentUrer.getOrganizationId(), u.getOrganizationId());
          assertEquals(currentUrer.getPassword(), u.getPassword());
-         assertEquals(currentUrer.getCreatedDate().toString(), u.getCreatedDate().toString());
       }
 
       // try to find users by not existed entries. We supposed to get empty list instead of Exception
@@ -444,7 +443,6 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
          assertEquals(currentUrer.getEmail(), u.getEmail());
          assertEquals(currentUrer.getOrganizationId(), u.getOrganizationId());
          assertEquals(currentUrer.getPassword(), u.getPassword());
-         assertEquals(currentUrer.getCreatedDate().toString(), u.getCreatedDate().toString());
       }
 
       // try to find users by not existed entries. We supposed to get empty list instead of Exception
