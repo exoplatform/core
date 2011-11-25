@@ -17,6 +17,7 @@
 package org.exoplatform.services.tck.organization;
 
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.commons.utils.PageList;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
@@ -394,7 +395,23 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
     */
    public void testFindUsersByGroupId() throws Exception
    {
-      assertEquals(uHandler.findUsersByGroupId("/platform/users").getSize(), 4);
+      ListAccess<User> usersListAccess = uHandler.findUsersByGroupId("/platform/users");
+
+      assertEquals(usersListAccess.getSize(), 4);
+
+      for (User u : usersListAccess.load(0, usersListAccess.getSize()))
+      {
+         User currentUrer = uHandler.findUserByName(u.getUserName());
+         assertNotNull(currentUrer);
+         
+         assertEquals(currentUrer.getUserName(), u.getUserName());
+         assertEquals(currentUrer.getFirstName(), u.getFirstName());
+         assertEquals(currentUrer.getLastName(), u.getLastName());
+         assertEquals(currentUrer.getEmail(), u.getEmail());
+         assertEquals(currentUrer.getOrganizationId(), u.getOrganizationId());
+         assertEquals(currentUrer.getPassword(), u.getPassword());
+         assertEquals(currentUrer.getCreatedDate().toString(), u.getCreatedDate().toString());
+      }
 
       // try to find users by not existed entries. We supposed to get empty list instead of Exception
       try
@@ -412,7 +429,23 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
     */
    public void testFindUsersByGroup() throws Exception
    {
-      assertEquals(uHandler.findUsersByGroup("/platform/users").getAll().size(), 4);
+      PageList<User> usersList = uHandler.findUsersByGroup("/platform/users");
+      
+      assertEquals(usersList.getAll().size(), 4);
+
+      for (User u : usersList.getAll())
+      {
+         User currentUrer = uHandler.findUserByName(u.getUserName());
+         assertNotNull(currentUrer);
+
+         assertEquals(currentUrer.getUserName(), u.getUserName());
+         assertEquals(currentUrer.getFirstName(), u.getFirstName());
+         assertEquals(currentUrer.getLastName(), u.getLastName());
+         assertEquals(currentUrer.getEmail(), u.getEmail());
+         assertEquals(currentUrer.getOrganizationId(), u.getOrganizationId());
+         assertEquals(currentUrer.getPassword(), u.getPassword());
+         assertEquals(currentUrer.getCreatedDate().toString(), u.getCreatedDate().toString());
+      }
 
       // try to find users by not existed entries. We supposed to get empty list instead of Exception
       try
