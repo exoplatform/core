@@ -92,8 +92,15 @@
         <type>org.exoplatform.services.organization.MembershipTypeEventListener</type>
         <description>Membership type listerner for testing purpose</description>
      </component-plugin>
+     <component-plugin> 
+       <name>init.service.listener</name> 
+       <set-method>addListenerPlugin</set-method> 
+       <type>org.exoplatform.services.tck.organization.TestGroupListener</type> 
+       <description>this listener populate organization data for the first launch</description> 
+     </component-plugin>
   </external-component-plugins>
   
+
   <!-- org service initializer, copied from ECM portal.war -->
   <external-component-plugins>
     <target-component>org.exoplatform.services.organization.OrganizationService</target-component>

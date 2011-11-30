@@ -114,12 +114,16 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
     */
    public void addChild(Group parent, Group child, boolean broadcast) throws Exception
    {
-      Session session = service_.openSession();
       String groupId = "/" + child.getGroupName();
       GroupImpl childImpl = (GroupImpl)child;
       if (parent != null)
       {
-         Group parentGroup = (Group)session.get(GroupImpl.class, parent.getId());
+         Group parentGroup = findGroupById(parent.getId());
+         if (parentGroup == null)
+         {
+            throw new InvalidNameException("Can't add node to not existed parent " + parent.getId());
+         }
+
          groupId = parentGroup.getId() + "/" + child.getGroupName();
          childImpl.setParentId(parentGroup.getId());
       }
@@ -127,7 +131,8 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
       {
          groupId = child.getId();
       }
-      Object o = session.get(GroupImpl.class, groupId);
+
+      Object o = findGroupById(groupId);
       if (o != null)
       {
          Object[] args = {child.getGroupName()};
@@ -138,13 +143,14 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
       if (broadcast)
          preSave(child, true);
 
+      Session session = service_.openSession();
       session.save(childImpl);
       session.flush();
 
       if (broadcast)
          postSave(child, true);
    }
-
+   
    /**
     * {@inheritDoc}
     */
