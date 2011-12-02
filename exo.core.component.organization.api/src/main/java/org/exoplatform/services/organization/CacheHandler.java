@@ -61,7 +61,7 @@ public class CacheHandler
     * Cache for Groups.
     */
    protected final ExoCache<Serializable, Group> groupCache;
-   
+
    /**
     * Constructor CacheHandler. 
     * 
@@ -79,6 +79,8 @@ public class CacheHandler
 
    public void put(Serializable key, Object value, CacheType cacheType)
    {
+      key = createInternalKey(key);
+
       if (cacheType == CacheType.USER)
       {
          userCache.put(key, (User)value);
@@ -104,6 +106,8 @@ public class CacheHandler
    public Object get(Serializable key, CacheType cacheType)
    {
       Object obj = null;
+      key = createInternalKey(key);
+
       if (cacheType == CacheType.USER)
       {
          obj = userCache.get(key);
@@ -134,15 +138,7 @@ public class CacheHandler
 
    public void remove(Serializable key, CacheType cacheType)
    {
-      if (cacheType == CacheType.USER)
-      {
-         userCache.remove(key);
-      }
-      else if (cacheType == CacheType.GROUP)
-      {
-         groupCache.remove(key);
-      }
-      else if (cacheType == CacheType.MEMBERSHIP)
+      if (cacheType == CacheType.MEMBERSHIP)
       {
          try
          {
@@ -151,7 +147,7 @@ public class CacheHandler
                String mkey = getMembershipKey(m);
                if (mkey.indexOf((String)key) >= 0)
                {
-                  membershipCache.remove(mkey);
+                  membershipCache.remove(createInternalKey(mkey));
                }
             }
          }
@@ -159,27 +155,32 @@ public class CacheHandler
          {
          }
       }
-      else if (cacheType == CacheType.MEMBERSHIPTYPE)
+      else
       {
-         membershipTypeCache.remove(key);
-      }
-      else if (cacheType == CacheType.USER_PROFILE)
-      {
-         userProfileCache.remove(key);
+         key = createInternalKey(key);
+
+         if (cacheType == CacheType.USER)
+         {
+            userCache.remove(key);
+         }
+         else if (cacheType == CacheType.GROUP)
+         {
+            groupCache.remove(key);
+         }
+         else if (cacheType == CacheType.MEMBERSHIPTYPE)
+         {
+            membershipTypeCache.remove(key);
+         }
+         else if (cacheType == CacheType.USER_PROFILE)
+         {
+            userProfileCache.remove(key);
+         }
       }
    }
 
    public void move(Serializable oldKey, Serializable newKey, CacheType cacheType)
    {
-      if (cacheType == CacheType.USER)
-      {
-         userCache.put(newKey, userCache.remove(oldKey));
-      }
-      else if (cacheType == CacheType.GROUP)
-      {
-         groupCache.put(newKey, groupCache.remove(oldKey));
-      }
-      else if (cacheType == CacheType.MEMBERSHIP)
+      if (cacheType == CacheType.MEMBERSHIP)
       {
          try
          {
@@ -190,23 +191,37 @@ public class CacheHandler
                String mkey = getMembershipKey(m);
                if (mkey.indexOf((String)oldKey) >= 0)
                {
-                  wait4Adding.put(mkey.replace((String)oldKey, (String)newKey), membershipCache.remove(mkey));
+                  wait4Adding.put(createInternalKey(mkey.replace((String)oldKey, (String)newKey)),
+                     membershipCache.remove(createInternalKey(mkey)));
                }
             }
-
             membershipCache.putMap(wait4Adding);
          }
          catch (Exception e)
          {
          }
       }
-      else if (cacheType == CacheType.MEMBERSHIPTYPE)
+      else
       {
-         membershipTypeCache.put(newKey, membershipTypeCache.remove(oldKey));
-      }
-      else if (cacheType == CacheType.USER_PROFILE)
-      {
-         userProfileCache.put(newKey, userProfileCache.remove(oldKey));
+         oldKey = createInternalKey(oldKey);
+         newKey = createInternalKey(newKey);
+
+         if (cacheType == CacheType.USER)
+         {
+            userCache.put(newKey, userCache.remove(oldKey));
+         }
+         else if (cacheType == CacheType.GROUP)
+         {
+            groupCache.put(newKey, groupCache.remove(oldKey));
+         }
+         else if (cacheType == CacheType.MEMBERSHIPTYPE)
+         {
+            membershipTypeCache.put(newKey, membershipTypeCache.remove(oldKey));
+         }
+         else if (cacheType == CacheType.USER_PROFILE)
+         {
+            userProfileCache.put(newKey, userProfileCache.remove(oldKey));
+         }
       }
    }
 
@@ -230,8 +245,16 @@ public class CacheHandler
       return key.toString();
    }
 
-   public static enum CacheType
-   {
+   public static enum CacheType {
       USER, GROUP, MEMBERSHIP, MEMBERSHIPTYPE, USER_PROFILE
+   }
+
+   /**
+    * Provide a way of defining cache prefixes for descendant classes.
+    * This factory method is executed for each cache operation (put, get, remove)
+    */
+   protected Serializable createInternalKey(Serializable key)
+   {
+      return key;
    }
 }
