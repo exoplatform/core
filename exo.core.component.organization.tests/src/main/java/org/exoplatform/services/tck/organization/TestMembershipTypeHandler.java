@@ -53,6 +53,9 @@ public class TestMembershipTypeHandler extends AbstractOrganizationServiceTest
       
       createMembershipType("*", "All membership types");
       assertEquals(mtHandler.findMembershipTypes().size(), 4);
+
+      mtHandler.removeMembershipType("*", true);
+      assertEquals(mtHandler.findMembershipTypes().size(), 3);
    }
 
    /**
