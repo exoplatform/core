@@ -50,6 +50,9 @@ public class TestMembershipTypeHandler extends AbstractOrganizationServiceTest
    public void testFindMembershipTypes() throws Exception
    {
       assertEquals(mtHandler.findMembershipTypes().size(), 3);
+      
+      createMembershipType("*", "All membership types");
+      assertEquals(mtHandler.findMembershipTypes().size(), 4);
    }
 
    /**
