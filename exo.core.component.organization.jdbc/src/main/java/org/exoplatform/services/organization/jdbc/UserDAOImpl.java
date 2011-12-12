@@ -126,10 +126,12 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
    public User findUserByName(String userName) throws Exception
    {
       DBObjectQuery<UserImpl> query = new DBObjectQuery<UserImpl>(UserImpl.class);
-      query.addLIKE("USER_NAME", userName);
+      query.addEQ("USER_NAME", userName);
       User user = loadUnique(query.toQuery());;
       if (log.isDebugEnabled())
+      {
          log.debug("+++++++++++FIND USER BY USER NAME " + userName + " - " + (user != null));
+      }
       return user;
    }
 
@@ -187,7 +189,7 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
       DBObjectQuery dbQuery = new DBObjectQuery<UserImpl>(UserImpl.class);
       for (Membership member : members)
       {
-         dbQuery.addLIKE("USER_NAME", member.getUserName());
+         dbQuery.addEQ("USER_NAME", member.getUserName());
       }
 
       return new JDBCListAccess<User>(this, dbQuery.toQueryUseOR(), dbQuery.toCountQueryUseOR());

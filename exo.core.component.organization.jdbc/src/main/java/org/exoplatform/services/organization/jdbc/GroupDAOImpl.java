@@ -82,7 +82,7 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
       DBObjectQuery<GroupImpl> query = new DBObjectQuery<GroupImpl>(GroupImpl.class);
       if (parent != null)
       {
-         query.addLIKE("GROUP_ID", parent.getId());
+         query.addEQ("GROUP_ID", parent.getId());
          Group parentGroup = super.loadUnique(connection, query.toQuery());
          if (parentGroup == null)
          {
@@ -99,7 +99,7 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
       }
 
       query.getParameters().clear();
-      query.addLIKE("GROUP_ID", groupId);
+      query.addEQ("GROUP_ID", groupId);
       Group o = super.loadUnique(connection, query.toQuery());
       if (o != null)
       {
@@ -137,7 +137,7 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
    public Group findGroupById(String groupId) throws Exception
    {
       DBObjectQuery<GroupImpl> query = new DBObjectQuery<GroupImpl>(GroupImpl.class);
-      query.addLIKE("GROUP_ID", groupId);
+      query.addEQ("GROUP_ID", groupId);
       Group g = super.loadUnique(query.toQuery());
       if (log.isDebugEnabled())
          log.debug("----------FIND GROUP BY ID: " + groupId + " _ " + (g != null));
@@ -172,7 +172,7 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
       if (parent != null)
          parentId = parent.getId();
       DBObjectQuery<GroupImpl> query = new DBObjectQuery<GroupImpl>(GroupImpl.class);
-      query.addLIKE("PARENT_ID", parentId);
+      query.addEQ("PARENT_ID", parentId);
       DBPageList<GroupImpl> pageList = new DBPageList<GroupImpl>(20, this, query);
       if (log.isDebugEnabled())
       {

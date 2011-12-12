@@ -69,7 +69,7 @@ public class MembershipTypeDAOImpl extends StandardSQLDAO<MembershipTypeImpl> im
    public MembershipType findMembershipType(String name) throws Exception
    {
       DBObjectQuery<MembershipTypeImpl> query = new DBObjectQuery<MembershipTypeImpl>(MembershipTypeImpl.class);
-      query.addLIKE("MT_NAME", name);
+      query.addEQ("MT_NAME", name);
       MembershipType mt = loadUnique(query.toQuery());;
       // System.out.println("===========FIND MT BY NAME" + name + " - " +
       // (mt!=null));
@@ -89,7 +89,7 @@ public class MembershipTypeDAOImpl extends StandardSQLDAO<MembershipTypeImpl> im
    public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception
    {
       DBObjectQuery<MembershipTypeImpl> query = new DBObjectQuery<MembershipTypeImpl>(MembershipTypeImpl.class);
-      query.addLIKE("MT_NAME", name);
+      query.addEQ("MT_NAME", name);
       MembershipTypeImpl mt = loadUnique(query.toQuery());
       if (mt == null)
       {
