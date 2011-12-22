@@ -28,10 +28,10 @@ public interface MembershipTypeEventListenerHandler
 {
 
    /**
-    * Return list of MembershipTypeEventListener. List should be unmodifiable to prevent modification outside of MembershipTypeHandler.
+    * Return list of MembershipTypeEventListener. List should be unmodifiable 
+    * to prevent modification outside of MembershipTypeHandler.
     * 
     * @return list of MembershipTypeEventListener
     */
    public List<MembershipTypeEventListener> getMembershipTypeListeners();
-
 }

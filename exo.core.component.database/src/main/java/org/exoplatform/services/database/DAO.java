@@ -44,7 +44,6 @@ public abstract class DAO<T extends DBObject>
 
    protected DBObjectMapper<T> mapper_;
 
-   // TODO need remove
    static int totalQueryTime = 0;
 
    static int totalBathTime = 0;

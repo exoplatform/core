@@ -56,8 +56,8 @@ public class ExoCacheProvider implements CacheProvider
       try
       {
          ExoCache<Serializable, Object> cache = cacheService.getCacheInstance(name);
-         cache.setMaxSize(5000); // TODO Do we really need override configuration
-         // in this way ?
+         cache.setMaxSize(5000);
+
          return new ExoCachePlugin(cache);
       }
       catch (Exception ex)

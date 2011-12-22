@@ -117,7 +117,7 @@ public class DefaultLoginModule extends AbstractLoginModule
             String userId = authenticator.validateUser(credentials);
             identity = authenticator.createIdentity(userId);
             sharedState.put("javax.security.auth.login.name", userId);
-            // TODO use PasswordCredential wrapper
+
             subject.getPrivateCredentials().add(password);
             subject.getPublicCredentials().add(new UsernameCredential(username));
          }
@@ -149,7 +149,6 @@ public class DefaultLoginModule extends AbstractLoginModule
          if (singleLogin && identityRegistry.getIdentity(identity.getUserId()) != null)
             throw new LoginException("User " + identity.getUserId() + " already logined.");
 
-         // TODO Remove subject from identity if nod need it in eXo environment.
          // Do not need implement logout by self if use tomcat 6.0.21 and later.
          // See deprecation comments in
          // org.exoplatform.services.security.web.JAASConversationStateListener

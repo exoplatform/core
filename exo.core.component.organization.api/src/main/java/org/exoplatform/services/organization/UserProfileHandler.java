@@ -66,9 +66,7 @@ public interface UserProfileHandler
     * @param broadcast Broadcast the event the listeners if broadcast is true.
     * @return The UserProfile instance that has been removed.
     * @throws Exception Throw exception if the method fail to remove the record
-    *           or any listener fail to handle the event TODO Should we provide
-    *           this method or the user profile should be removed only when the
-    *           user is removed
+    *           or any listener fail to handle the event
     */
    public UserProfile removeUserProfile(String userName, boolean broadcast) throws Exception;
 

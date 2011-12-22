@@ -147,7 +147,6 @@ public class SetCurrentIdentityFilter extends AbstractFilter
             {
                state = new ConversationState(identity);
                // Keep subject as attribute in ConversationState.
-               // TODO remove this, do not need it any more.
                state.setAttribute(ConversationState.SUBJECT, identity.getSubject());
             }
             else

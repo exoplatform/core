@@ -99,7 +99,7 @@ public class DigestPasswordEncrypter implements PasswordEncrypter
       }
       catch (NoSuchAlgorithmException e)
       {
-         //TODO add exologger
+
       }
       // calculate MD5 hash of A1 string
       String a1 = username + ":" + realm + ":" + new String(plainPassword);

@@ -31,8 +31,6 @@ public class MembershipTypeListener extends Listener
    @Override
    public void onEvent(Event arg0) throws Exception
    {
-      // TODO Auto-generated method stub
 
    }
-
 }

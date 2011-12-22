@@ -139,7 +139,6 @@ public class Identity
     */
    public Set<String> getGroups()
    {
-      // TODO : Need to protect group's set ??
       Set<String> groups = new HashSet<String>();
       for (MembershipEntry m : memberships)
       {

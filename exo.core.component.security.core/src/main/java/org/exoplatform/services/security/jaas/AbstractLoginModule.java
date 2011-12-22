@@ -108,7 +108,6 @@ public abstract class AbstractLoginModule implements LoginModule
     */
    protected ExoContainer getContainer() throws Exception
    {
-      // TODO set correct current container
       ExoContainer container = ExoContainerContext.getCurrentContainer();
       if (container instanceof RootContainer)
       {

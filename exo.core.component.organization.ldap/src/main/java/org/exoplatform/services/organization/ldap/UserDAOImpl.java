@@ -197,7 +197,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
       {
          ldapService.release(ctx);
       }
-      // TODO really need this ?
+
       if (existingUser != null && (!user.getPassword().equals(existingUser.getPassword())))
       {
          saveUserPassword(user, userDN);

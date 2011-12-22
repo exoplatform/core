@@ -38,9 +38,7 @@ public interface MembershipType
    public String getName();
 
    /**
-    * @param s The name of the membership type TODO This method should not be
-    *          available to the developer as it should call only once, When a new
-    *          membership type record is created
+    * @param s The name of the membership type 
     */
    public void setName(String s);
 
@@ -70,9 +68,7 @@ public interface MembershipType
    public Date getCreatedDate();
 
    /**
-    * @param d the created date TODO This method should be managed by the
-    *          organization service and the developer should not called this
-    *          method.
+    * @param d the created date 
     */
    public void setCreatedDate(Date d);
 
@@ -82,8 +78,7 @@ public interface MembershipType
    public Date getModifiedDate();
 
    /**
-    * @param d the modified date TODO this field should be managed by the
-    *          organization service and developer should not called this method.
+    * @param d the modified date 
     */
    public void setModifiedDate(Date d);
 }

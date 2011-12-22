@@ -35,7 +35,7 @@ import org.exoplatform.services.organization.impl.UserProfileImpl;
    @TableField(name = "PROFILE", type = "string", length = 2000)})
 public class UserProfileData extends DBObject
 {
-   // TODO: use jibx
+
    static transient private XStream xstream_;
 
    private String userName;

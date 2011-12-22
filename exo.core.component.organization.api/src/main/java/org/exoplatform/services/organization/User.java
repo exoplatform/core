@@ -45,10 +45,7 @@ public interface User
     * This method is used to change the username
     * 
     * @param s
-    * @deprecated The third party developer should not used this method TODO: I
-    *             think we should not have this method. the username should be
-    *             set only for the first time. So we can pass the username to the @see
-    *             UserHandler createUserInstance() method.
+    * @deprecated The third party developer should not used this method
     */
    public void setUserName(String s);
 

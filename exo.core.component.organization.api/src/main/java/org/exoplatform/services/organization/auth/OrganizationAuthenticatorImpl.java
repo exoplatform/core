@@ -45,7 +45,7 @@ import javax.security.auth.login.LoginException;
 
 /**
  * Created by The eXo Platform SAS . An authentication wrapper over Organization
- * service TODO move it to Organization Service / Auth
+ * service
  * 
  * @author Gennady Azarenkov
  * @version $Id:$

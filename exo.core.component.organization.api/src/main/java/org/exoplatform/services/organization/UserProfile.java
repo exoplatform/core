@@ -32,10 +32,6 @@ import java.util.Map;
  */
 public interface UserProfile
 {
-   /**
-    * TODO Those keys should be moved to the UserProfile portlet. The
-    * organization service should be generic.
-    */
 
    /**
     * The predefine attributes of the user personal info. Those attributes are

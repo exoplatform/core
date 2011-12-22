@@ -70,7 +70,7 @@ public final class SharedStateLoginModule extends AbstractLoginModule
 
          sharedState.put("exo.security.identity", identity);
          sharedState.put("javax.security.auth.login.name", userId);
-         // TODO use PasswordCredential wrapper
+
          subject.getPrivateCredentials().add(password);
          subject.getPublicCredentials().add(new UsernameCredential(username));
          return true;

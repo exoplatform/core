@@ -48,13 +48,10 @@ public interface DatabaseService
     */
    public ExoDatasource getDatasource(String dsname) throws Exception;
 
-   // TODO: This method should be removed and used the getDataSource method
    public Connection getConnection() throws Exception;
 
-   // TODO: This method should be removed and used the getDataSource method
    public Connection getConnection(String dsName) throws Exception;
 
-   // TODO: This method should be removed and used the getDataSource method
    public void closeConnection(Connection conn) throws Exception;
 
    /**

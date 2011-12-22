@@ -65,11 +65,9 @@ public class LDAPAttributeMapping
 
    public String baseURL, groupsURL, membershipTypeURL, userURL, profileURL;
 
-   // TODO remove initialization in major release. It may be not initialized from
    // for AD.
    String userDNKey = "cn";
 
-   //TODO remove initialization in major release. Should be initialized from
    // configuration.
    String groupDNKey = "ou";
 
@@ -103,7 +101,6 @@ public class LDAPAttributeMapping
 
    String ldapCreatedTimeStampAttr, ldapModifiedTimeStampAttr, ldapDescriptionAttr;
 
-   // TODO remove initialization in major release. Should be initialized from
    // configuration.
    String groupNameAttr = "ou";
 
@@ -261,9 +258,7 @@ public class LDAPAttributeMapping
       if (PROFILE_LDAP_CLASSES == null)
          PROFILE_LDAP_CLASSES = profileLDAPClasses.split(",");
       attrs.put(new ObjectClassAttribute(PROFILE_LDAP_CLASSES));
-      // TODO http://jira.exoplatform.org/browse/COR-49
-      // Comment: at the time profiles are stored in bd.
-      // 27.03.2009
+
       attrs.put("sn", profile.getUserName());
       UserProfileData upd = new UserProfileData();
       upd.setUserProfile(profile);

@@ -59,7 +59,6 @@ public class ExoDatasource
 
    final public static int SQL_SERVER_TYPE = 6;
 
-   // TODO need remove
    static int totalGetConnect = 0;
 
    // static int totalCommit = 0;

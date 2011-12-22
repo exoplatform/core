@@ -95,7 +95,7 @@ public class DigestAuthenticationJettyLoginModule extends JettyLoginModule
 
             identity = authenticator.createIdentity(userId);
             sharedState.put("javax.security.auth.login.name", userId);
-            // TODO use PasswordCredential wrapper 
+
             subject.getPrivateCredentials().add(getPassword());
             subject.getPublicCredentials().add(getUsername());
          }

@@ -179,7 +179,6 @@ public class DummyOrganizationService extends BaseOrganizationService
          usr.setPassword("admin");
          users.add(usr);
 
-         // TODO for what?
          usr = new UserImpl("weblogic");
          usr.setPassword("11111111");
          users.add(usr);
@@ -404,7 +403,6 @@ public class DummyOrganizationService extends BaseOrganizationService
          }
          else
          {
-            // TODO is it right?
             return new DummyGroup("", "/" + groupId, groupId);
          }
       }

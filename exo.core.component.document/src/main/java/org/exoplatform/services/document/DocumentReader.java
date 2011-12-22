@@ -39,8 +39,8 @@ public interface DocumentReader
    /**
     * @param is
     * @return document content
-    * @throws IOException TODO
-    * @throws DocumentReadException TODO
+    * @throws IOException
+    * @throws DocumentReadException
     */
    String getContentAsText(InputStream is) throws IOException, DocumentReadException;
 
@@ -48,8 +48,8 @@ public interface DocumentReader
     * @param is data input stream
     * @param encoding char set for input stream
     * @return document content
-    * @throws IOException TODO
-    * @throws DocumentReadException TODO
+    * @throws IOException
+    * @throws DocumentReadException
     */
    String getContentAsText(InputStream is, String encoding) throws IOException, DocumentReadException;
 
@@ -57,9 +57,8 @@ public interface DocumentReader
     * @param mimeType
     * @return metainfo properties reduced to some supported metadata set (Dublin
     *         Core or other)
-    * @throws IOException TODO
-    * @throws DocumentReadException TODO
+    * @throws IOException
+    * @throws DocumentReadException
     */
    Properties getProperties(InputStream is) throws IOException, DocumentReadException;
-
 }

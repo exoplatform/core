@@ -95,7 +95,7 @@ public class HTMLDocumentReader extends BaseDocumentReader
          StringBean sb = new StringBean();
 
          // read links or not
-         // sb.setLinks(true); //TODO make this configurable
+         // sb.setLinks(true);
 
          // extract text
          parser.visitAllNodesWith(sb);

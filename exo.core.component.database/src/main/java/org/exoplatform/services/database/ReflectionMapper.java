@@ -136,7 +136,6 @@ public class ReflectionMapper<T extends DBObject> implements DBObjectMapper<T>
       return getField(clazz.getSuperclass(), name);
    }
 
-   // TODO will review
    private Object getValue(int type, ResultSet resultSet, String name) throws Exception
    {
       switch (type)

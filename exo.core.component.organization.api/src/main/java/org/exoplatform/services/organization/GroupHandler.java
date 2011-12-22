@@ -103,12 +103,7 @@ public interface GroupHandler
     * @return Return the removed group.
     * @throws Exception An exception is throwed if the method fail to remove the
     *           group from the database, the group is not existed in the
-    *           database, or any listener fail to handle the event. TODO
-    *           Currently the implementation simply remove the children group
-    *           without broadcasting the event. We should add the parameter
-    *           'recursive' to the parameter list so the third party can have
-    *           more control. Also should we broadcast the membership remove
-    *           event
+    *           database, or any listener fail to handle the event.
     */
    public Group removeGroup(Group group, boolean broadcast) throws Exception;
 
@@ -122,9 +117,7 @@ public interface GroupHandler
     *          the membershipType is null, it should mean any membership type.
     * @return A collection of the found groups
     * @throws Exception An exception is throwed if the method cannot access the
-    *           database. TODO currently the implementation should not handle the
-    *           case of membershipType is null. Also we should merge this method
-    *           with the findGroupsOfUser method.
+    *           database.
     */
    public Collection findGroupByMembership(String userName, String membershipType) throws Exception;
 
