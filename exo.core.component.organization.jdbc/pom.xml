@@ -81,7 +81,7 @@
       <dependency>
          <groupId>org.exoplatform.core</groupId>
          <artifactId>exo.core.component.organization.tests</artifactId>
-         <classifier>sources</classifier>
+         <classifier>test-sources</classifier>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -184,7 +184,7 @@
                         <artifactItem>
                            <groupId>org.exoplatform.core</groupId>
                            <artifactId>exo.core.component.organization.tests</artifactId>
-                           <classifier>sources</classifier>
+                           <classifier>test-sources</classifier>
                            <type>jar</type>
                            <overWrite>false</overWrite>
                         </artifactItem>

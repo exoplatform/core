@@ -40,6 +40,9 @@
       
       <org.exoplatform.framework.junit.version>1.2.1-GA</org.exoplatform.framework.junit.version>
       <org.exoplatform.kernel.version>2.3.6-GA-SNAPSHOT</org.exoplatform.kernel.version>
+
+      <!-- Plugins updates -->
+      <version.source.plugin>2.1.2</version.source.plugin>
    </properties>
 
    <scm>
@@ -131,7 +134,7 @@
             <groupId>org.exoplatform.core</groupId>
             <artifactId>exo.core.component.organization.tests</artifactId>
             <version>${project.version}</version>
-            <classifier>sources</classifier>
+            <classifier>test-sources</classifier>
             <scope>test</scope>
          </dependency>
          
