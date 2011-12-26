@@ -32,35 +32,27 @@
 
    <name>eXo Core :: Component :: Organization Service Tests</name>
    <description>Create an Organisation Service TCK package</description>
+
+   <properties>
+      <!-- We don't want to compile them here -->
+      <maven.test.skip>true</maven.test.skip>
+   </properties>
    
    <build>
       <plugins>
-         <!-- 
-         To avoid test sources compilation we simply exclude them
-         -->
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-               <excludes> 
-                  <exclude>**/*.*</exclude> 
-               </excludes>
-            </configuration>
-         </plugin>
          <!--
-         Configure maven-source-plugin to add sources packed
+         Configure maven-source-plugin to add test sources packed
          in jar files to maven artifact
          -->
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>2.1.2</version>
             <executions>
                <execution>
                   <id>attach-sources</id>
-                  <phase>verify</phase>
+                  <phase>package</phase>
                   <goals>
-                     <goal>jar-no-fork</goal>
+                     <goal>test-jar-no-fork</goal>
                   </goals>
                </execution>
             </executions>
