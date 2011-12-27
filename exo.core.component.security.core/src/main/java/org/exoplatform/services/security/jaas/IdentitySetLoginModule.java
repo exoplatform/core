@@ -24,10 +24,8 @@ import org.exoplatform.services.security.Authenticator;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
 
-import java.util.Map;
-
-import javax.security.auth.Subject;
-import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.Subject; //NOSONAR
+import javax.security.auth.callback.CallbackHandler; //NOSONAR
 import javax.security.auth.login.LoginException;
 
 /**

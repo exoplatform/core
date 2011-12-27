@@ -167,8 +167,10 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
       UserProfile up = (UserProfile)cache_.get(userName);
       if (up != null)
       {
-         if (NOT_FOUND == up)
+         if (NOT_FOUND == up) //NOSONAR
+         {
             return null;
+         }
          return up;
       }
       Session session = service_.openSession();

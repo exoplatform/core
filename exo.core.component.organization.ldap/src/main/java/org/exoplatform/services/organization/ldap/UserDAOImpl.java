@@ -84,8 +84,8 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
     *          The Cache Handler
     * @throws Exception if any errors occurs
     */
-   public UserDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler, OrganizationService os)
-      throws Exception
+   public UserDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler,
+      OrganizationService os) throws Exception
    {
       this(ldapAttrMapping, ldapService, cacheHandler);
       this.os = os;

@@ -74,9 +74,14 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
       boolean ssl = url.toLowerCase().startsWith("ldaps");
       if (serverType == ACTIVE_DIRECTORY_SERVER && ssl)
       {
-         String keystore = System.getProperty("java.home");
-         keystore += File.separator + "lib" + File.separator + "security" + File.separator + "cacerts";
-         PrivilegedSystemHelper.setProperty("javax.net.ssl.trustStore", keystore);
+         StringBuilder keystore = new StringBuilder(System.getProperty("java.home"));
+         keystore.append(File.separator);
+         keystore.append("lib");
+         keystore.append(File.separator);
+         keystore.append("security");
+         keystore.append(File.separator);
+         keystore.append("cacerts");
+         PrivilegedSystemHelper.setProperty("javax.net.ssl.trustStore", keystore.toString());
       }
 
       env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
@@ -115,7 +120,7 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
          url = matcher.replaceAll("/ ldaps://");
       else
          url = matcher.replaceAll("/ ldap://");
-      url += "/";
+      url += "/"; //NOSONAR
       env.put(Context.PROVIDER_URL, url);
 
       if (serverType == ACTIVE_DIRECTORY_SERVER && ssl)

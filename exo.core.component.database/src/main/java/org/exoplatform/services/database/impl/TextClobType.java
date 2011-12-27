@@ -69,7 +69,7 @@ public class TextClobType implements UserType
 
    public boolean equals(Object x, Object y) throws HibernateException
    {
-      return (x == y) || (x != null && x.equals(y));
+      return (x == y) || (x != null && x.equals(y)); //NOSONAR
    }
 
    /**

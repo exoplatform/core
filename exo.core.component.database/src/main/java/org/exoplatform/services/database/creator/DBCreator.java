@@ -329,10 +329,14 @@ public class DBCreator
     */
    private DBConnectionInfo constructDBConnectionInfo(String dbName, String dbProductName)
    {
-      String dbUrl = serverUrl;
+      StringBuilder dbUrl = new StringBuilder(serverUrl);
+
       if (dbProductName.startsWith("Microsoft SQL Server"))
       {
-         dbUrl = dbUrl + (dbUrl.endsWith(";") ? "" : ";") + "databaseName=" + dbName + ";";
+         dbUrl.append(serverUrl.endsWith(";") ? "" : ";");
+         dbUrl.append("databaseName=");
+         dbUrl.append(dbName);
+         dbUrl.append(";");
       }
       else if (dbProductName.equals("Oracle"))
       {
@@ -340,7 +344,8 @@ public class DBCreator
       }
       else
       {
-         dbUrl = dbUrl + (dbUrl.endsWith("/") ? "" : "/") + dbName;
+         dbUrl.append(serverUrl.endsWith("/") ? "" : "/");
+         dbUrl.append(dbName);
       }
 
       // clone connection properties
@@ -352,7 +357,7 @@ public class DBCreator
       }
 
       // add url to database
-      connProperties.put(SERVER_URL, dbUrl);
+      connProperties.put(SERVER_URL, dbUrl.toString());
 
       return new DBConnectionInfo(dbName, connProperties);
    }

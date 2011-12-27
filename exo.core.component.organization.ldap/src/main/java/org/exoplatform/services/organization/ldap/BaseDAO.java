@@ -706,9 +706,9 @@ public class BaseDAO
       if (mbfilter == null)
          return null;
       if (!mbfilter.startsWith("("))
-         mbfilter = "(" + mbfilter;
+         mbfilter = "(" + mbfilter; //NOSONAR
       if (!mbfilter.endsWith(")"))
-         mbfilter += ")";
+         mbfilter += ")"; //NOSONAR
       return mbfilter;
    }
 
