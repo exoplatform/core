@@ -189,7 +189,7 @@ public class OrganizationLdapInitializer extends BaseComponentPlugin implements 
             else
             {
                // create RDN elem
-               rdn = n + "," + rdn;
+               rdn = n + "," + rdn; //NOSONAR
                createDN(rdn, context);
             }
          }
