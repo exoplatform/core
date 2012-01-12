@@ -20,12 +20,14 @@ package org.exoplatform.services.database.impl;
 
 import org.enhydra.jdbc.pool.StandardXAPoolDataSource;
 import org.enhydra.jdbc.standard.StandardXADataSource;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.database.DatabaseService;
 import org.exoplatform.services.database.ExoDatasource;
 import org.exoplatform.services.transaction.TransactionService;
 
+import java.security.PrivilegedAction;
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -94,7 +96,14 @@ public class XAPoolTxSupportDatabaseService implements DatabaseService
 
    private DataSource createDatasource(Map<String, String> props) throws Exception
    {
-      StandardXADataSource ds = new StandardXADataSource();
+      StandardXADataSource ds = SecurityHelper.doPrivilegedAction(new PrivilegedAction<StandardXADataSource>()
+      {
+         public StandardXADataSource run()
+         {
+            return new StandardXADataSource();
+         }
+      });
+
       ds.setDriverName(props.get("connection.driver"));
       ds.setUrl(props.get("connection.url"));
       ds.setUser(props.get("connection.login"));
