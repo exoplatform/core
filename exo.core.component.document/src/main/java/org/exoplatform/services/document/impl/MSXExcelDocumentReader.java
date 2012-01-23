@@ -27,6 +27,8 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DocumentReadException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +48,9 @@ import java.util.Properties;
  */
 public class MSXExcelDocumentReader extends BaseDocumentReader
 {
+
+   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.MSXExcelDocumentReader");
+
    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSZ";
 
    /**
@@ -75,7 +80,7 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
    {
       if (is == null)
       {
-         throw new NullPointerException("InputStream is null.");
+         throw new IllegalArgumentException("InputStream is null.");
       }
 
       StringBuilder builder = new StringBuilder("");
@@ -172,6 +177,10 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
             }
             catch (IOException e)
             {
+               if (LOG.isTraceEnabled())
+               {
+                  LOG.trace("An exception occurred: " + e.getMessage());
+               }
             }
          }
       }

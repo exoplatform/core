@@ -55,7 +55,7 @@ public class LDAPUserPageList extends PageList
 
    private LDAPAttributeMapping ldapAttrMapping;
    
-   private static Log logger = ExoLogger.getLogger("exo.core.component.organization.ldap.LDAPUserPageList"); 
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.ldap.LDAPUserPageList");
 
    static boolean SEARCH_CONTROL = Control.NONCRITICAL;
 
@@ -74,12 +74,12 @@ public class LDAPUserPageList extends PageList
       }
       catch (NameNotFoundException e)
       {
-         logger.warn("Cannot set the page size while creating a LDAPUserPageList, no page size will be used", e);
+         LOG.warn("Cannot set the page size while creating a LDAPUserPageList, no page size will be used", e);
          setAvailablePage(0);
       }
       catch (OperationNotSupportedException e)
       {
-         logger.warn("Cannot set the page size while creating a LDAPUserPageList, no page size will be used", e);
+         LOG.warn("Cannot set the page size while creating a LDAPUserPageList, no page size will be used", e);
          setAvailablePage(0);
       }
    }

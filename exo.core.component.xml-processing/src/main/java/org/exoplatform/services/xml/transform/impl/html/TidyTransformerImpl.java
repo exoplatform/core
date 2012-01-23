@@ -102,7 +102,7 @@ public class TidyTransformerImpl extends TransformerBase implements HTMLTransfor
       // new ByteArrayInputStream(output.toByteArray());
       //
       transformInputStream2Result(byteInputStream, getResult());
-      log.debug("Transform from temp output to " + getResult().getClass().getName() + " complete");
+      LOG.debug("Transform from temp output to " + getResult().getClass().getName() + " complete");
    }
 
    @Override
@@ -113,13 +113,13 @@ public class TidyTransformerImpl extends TransformerBase implements HTMLTransfor
 
       try
       {
-         log.debug(" input available bytes " + input.available());
+         LOG.debug(" input available bytes " + input.available());
          if (input.available() == 0)
             return;
       }
       catch (IOException ex)
       {
-         log.error("Error on read Source", ex);
+         LOG.error("Error on read Source", ex);
          new TransformerException("Error on read source", ex);
       }
 
@@ -129,16 +129,16 @@ public class TidyTransformerImpl extends TransformerBase implements HTMLTransfor
       if (getResult() instanceof StreamResult)
       {
          OutputStream output = ((StreamResult)getResult()).getOutputStream();
-         log.debug("Prepare to write transform result direct to OutputStream");
+         LOG.debug("Prepare to write transform result direct to OutputStream");
          tidy.parse(input, output);
-         log.debug("Tidy parse is complete");
+         LOG.debug("Tidy parse is complete");
       }
       else
       {
          ByteArrayOutputStream output = new ByteArrayOutputStream();
-         log.debug("Prepare to write transform result to temp output");
+         LOG.debug("Prepare to write transform result to temp output");
          tidy.parse(input, output);
-         log.debug("Tidy parse is complete");
+         LOG.debug("Tidy parse is complete");
          // sex with coding
          String outputString = output.toString();
          try

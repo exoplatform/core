@@ -61,8 +61,8 @@ public class JAASConversationStateListener extends ConversationStateListener
 
          if (conversationState != null)
          {
-            if (log.isDebugEnabled())
-               log.debug("Remove conversation state " + httpSession.getId());
+            if (LOG.isDebugEnabled())
+               LOG.debug("Remove conversation state " + httpSession.getId());
             if (conversationState.getAttribute(ConversationState.SUBJECT) != null)
             {
                Subject subject = (Subject)conversationState.getAttribute(ConversationState.SUBJECT);
@@ -74,16 +74,16 @@ public class JAASConversationStateListener extends ConversationStateListener
             }
             else
             {
-               if (log.isDebugEnabled())
+               if (LOG.isDebugEnabled())
                {
-                  log.warn("Subject was not found in ConversationState attributes.");
+                  LOG.warn("Subject was not found in ConversationState attributes.");
                }
             }
          }
       }
       catch (Exception e)
       {
-         log.error("Can't remove conversation state " + httpSession.getId());
+         LOG.error("Can't remove conversation state " + httpSession.getId());
       }
    }
 

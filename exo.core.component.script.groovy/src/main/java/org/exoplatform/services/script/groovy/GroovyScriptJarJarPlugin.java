@@ -43,7 +43,7 @@ public class GroovyScriptJarJarPlugin extends BaseComponentPlugin
    private final Map<String, String> mapping = new HashMap<String, String>();
 
    /** Our logger. */
-   private final Log log = ExoLogger.getLogger("exo.core.component.script.groovy.GroovyScriptJarJarPlugin");
+   private final static Log LOG = ExoLogger.getLogger("exo.core.component.script.groovy.GroovyScriptJarJarPlugin");
 
    @SuppressWarnings("unchecked")
    public GroovyScriptJarJarPlugin(InitParams params)
@@ -53,7 +53,7 @@ public class GroovyScriptJarJarPlugin extends BaseComponentPlugin
 
       if (mapping == null)
       {
-         log.warn("Was expecting a mapping init param");
+         LOG.warn("Was expecting a mapping init param");
       }
       else
       {
@@ -67,11 +67,11 @@ public class GroovyScriptJarJarPlugin extends BaseComponentPlugin
                String left = tmp[0].trim();
                String right = tmp[1].trim();
                mapping.put(left, right);
-               log.debug("Added mapping rule " + left + " -> " + right);
+               LOG.debug("Added mapping rule " + left + " -> " + right);
             }
             else
             {
-               log.warn("Malformed mapping rule:" + rule);
+               LOG.warn("Malformed mapping rule:" + rule);
             }
          }
       }

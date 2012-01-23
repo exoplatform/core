@@ -44,7 +44,7 @@ public class IdentitySetLoginModule extends AbstractLoginModule
    /**
     * Login.
     */
-   protected Log log = ExoLogger.getLogger("exo.core.component.security.core.IdentitySetLoginModule");
+   protected static final Log LOG = ExoLogger.getLogger("exo.core.component.security.core.IdentitySetLoginModule");
 
    /**
     * Is allowed for one user login again if he already login. If must set in LM
@@ -57,9 +57,9 @@ public class IdentitySetLoginModule extends AbstractLoginModule
     */
    public boolean abort() throws LoginException
    {
-      if (log.isDebugEnabled())
+      if (LOG.isDebugEnabled())
       {
-         log.debug("in abort");
+         LOG.debug("in abort");
       }
 
       return true;
@@ -70,9 +70,9 @@ public class IdentitySetLoginModule extends AbstractLoginModule
     */
    public boolean commit() throws LoginException
    {
-      if (log.isDebugEnabled())
+      if (LOG.isDebugEnabled())
       {
-         log.debug("in commit");
+         LOG.debug("in commit");
       }
 
       String userId = (String)sharedState.get("javax.security.auth.login.name");
@@ -99,7 +99,7 @@ public class IdentitySetLoginModule extends AbstractLoginModule
       }
       catch (Exception e)
       {
-         log.error(e.getMessage());
+         LOG.error(e.getMessage());
          throw new LoginException(e.getMessage());
       }
       return true;
@@ -110,9 +110,9 @@ public class IdentitySetLoginModule extends AbstractLoginModule
     */
    public void afterInitialize()
    {
-      if (log.isDebugEnabled())
+      if (LOG.isDebugEnabled())
       {
-         log.debug("in initialize");
+         LOG.debug("in initialize");
       }
       String sl = (String)options.get("singleLogin");
       this.singleLogin = (sl != null && (sl.equalsIgnoreCase("yes") || sl.equalsIgnoreCase("true")));
@@ -123,9 +123,9 @@ public class IdentitySetLoginModule extends AbstractLoginModule
     */
    public boolean login() throws LoginException
    {
-      if (log.isDebugEnabled())
+      if (LOG.isDebugEnabled())
       {
-         log.debug("in login");
+         LOG.debug("in login");
       }
       return true;
    }
@@ -135,9 +135,9 @@ public class IdentitySetLoginModule extends AbstractLoginModule
     */
    public boolean logout() throws LoginException
    {
-      if (log.isDebugEnabled())
+      if (LOG.isDebugEnabled())
       {
-         log.debug("in logout");
+         LOG.debug("in logout");
       }
       return true;
    }
@@ -148,6 +148,6 @@ public class IdentitySetLoginModule extends AbstractLoginModule
    @Override
    protected Log getLogger()
    {
-      return log;
+      return LOG;
    }
 }

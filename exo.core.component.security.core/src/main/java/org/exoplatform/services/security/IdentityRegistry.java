@@ -19,6 +19,7 @@
 package org.exoplatform.services.security;
 
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
@@ -69,13 +70,15 @@ public class IdentityRegistry
    {
       try
       {
-         return Integer.valueOf(params.getValueParam(INIT_PARAM_CONCURRENCY_LEVEL).getValue());
-      }
-      catch (NullPointerException e)
-      {
-         LOG.info("Parameter " + INIT_PARAM_CONCURRENCY_LEVEL + " was not found in configuration, default "
-            + DEFAULT_CONCURRENCY_LEVEL + "will be used.");
-         return DEFAULT_CONCURRENCY_LEVEL;
+         ValueParam concurrencyLevel = params.getValueParam(INIT_PARAM_CONCURRENCY_LEVEL);
+         if (concurrencyLevel != null)
+         {
+            return Integer.valueOf(concurrencyLevel.getValue());
+         }
+         else
+         {
+            return DEFAULT_CONCURRENCY_LEVEL;
+         }
       }
       catch (Exception e)
       {

@@ -54,7 +54,7 @@ public abstract class TransformerBase implements AbstractTransformer
 {
    private Result result = null;
 
-   protected Log log = ExoLogger.getLogger("exo.core.component.xml-processing.TransformerBase");
+   protected static final Log LOG = ExoLogger.getLogger("exo.core.component.xml-processing.TransformerBase");
 
    protected SAXTransformerFactory tSAXFactory;
 
@@ -62,7 +62,7 @@ public abstract class TransformerBase implements AbstractTransformer
 
    public TransformerBase()
    {
-      log.debug("Current javax.xml.parsers.SAXParserFactory sys property [ "
+      LOG.debug("Current javax.xml.parsers.SAXParserFactory sys property [ "
          + PrivilegedSystemHelper.getProperty("javax.xml.parsers.SAXParserFactory", "-Not set-") + "]");
 
       tSAXFactory = (SAXTransformerFactory)SAXTransformerFactory.newInstance();
@@ -93,7 +93,7 @@ public abstract class TransformerBase implements AbstractTransformer
     */
    protected void afterInitResult()
    {
-      log.debug("Result is set");
+      LOG.debug("Result is set");
    }
 
    final public void initResult(Result result) throws NotSupportedIOTypeException
@@ -130,13 +130,13 @@ public abstract class TransformerBase implements AbstractTransformer
 
       if (!isSourceSupported(source))
       {
-         log.error("source of type " + source.getClass().getName() + " not supported");
+         LOG.error("source of type " + source.getClass().getName() + " not supported");
          throw new NotSupportedIOTypeException(source);
       }
 
       if (this.result == null)
       {
-         log.error("Result not set");
+         LOG.error("Result not set");
          throw new IllegalStateException("Result not specified. See initResult(Result)");
       }
 
@@ -153,7 +153,7 @@ public abstract class TransformerBase implements AbstractTransformer
 
    public void transformInputStream2Result(InputStream input, Result result) throws TransformerException
    {
-      log.debug("Transform InputStream to result of type " + result.getClass().getName());
+      LOG.debug("Transform InputStream to result of type " + result.getClass().getName());
 
       // StreamResult - write data from InputStream to OutputStream
       if (result instanceof StreamResult)
@@ -169,11 +169,11 @@ public abstract class TransformerBase implements AbstractTransformer
                counter += readBytes;
                outputStream.write(byteArray, 0, readBytes);
             }
-            log.debug("Write " + counter + " bytes to ouput stream");
+            LOG.debug("Write " + counter + " bytes to ouput stream");
          }
          catch (IOException ex)
          {
-            log.error("Error on read/write ", ex);
+            LOG.error("Error on read/write ", ex);
             throw new TransformerException(ex);
          }
       }
@@ -184,13 +184,13 @@ public abstract class TransformerBase implements AbstractTransformer
          try
          {
             xmlReader = getXMLReader();
-            log.debug("xmlReader class is " + xmlReader.getClass().getName());
+            LOG.debug("xmlReader class is " + xmlReader.getClass().getName());
 
             // set default resolver
             if (resolvingService != null)
             {
                xmlReader.setEntityResolver(resolvingService.getEntityResolver());
-               log.debug("Set entity resolver");
+               LOG.debug("Set entity resolver");
             }
 
             // SAXResult use XMLReader to parce InputStream to SAXEvents
@@ -198,20 +198,20 @@ public abstract class TransformerBase implements AbstractTransformer
             {
                SAXResult saxResult = (SAXResult)result;
                xmlReader.setContentHandler(saxResult.getHandler());
-               log.debug("Parse direct to result");
+               LOG.debug("Parse direct to result");
             }
 
             // not StreamResult, not SAXResult - create empty transformation
             else
             {
-               log.debug("Create empty transformation");
+               LOG.debug("Create empty transformation");
                TransformerHandler transformerHandler = tSAXFactory.newTransformerHandler();
                transformerHandler.setResult(result);
                xmlReader.setContentHandler(transformerHandler);
-               log.debug("Parse to result throw empty transformer");
+               LOG.debug("Parse to result throw empty transformer");
             }
             xmlReader.parse(new InputSource(input));
-            log.debug("Parse complete");
+            LOG.debug("Parse complete");
          }
          catch (SAXException ex)
          {
@@ -261,9 +261,17 @@ public abstract class TransformerBase implements AbstractTransformer
       }
       catch (java.io.FileNotFoundException ex)
       {
+         if (LOG.isTraceEnabled())
+         {
+            LOG.trace("An exception occurred: " + ex.getMessage());
+         }
       }
       catch (IOException ex)
       {
+         if (LOG.isTraceEnabled())
+         {
+            LOG.trace("An exception occurred: " + ex.getMessage());
+         }
       }
    }
 

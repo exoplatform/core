@@ -57,7 +57,7 @@ public class SetCurrentIdentityFilter extends AbstractFilter
    /**
     * Logger.
     */
-   private static Log log = ExoLogger.getLogger("exo.core.component.security.core.SetCurrentIdentityFilter");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.security.core.SetCurrentIdentityFilter");
 
    /**
     * {@inheritDoc}
@@ -95,7 +95,7 @@ public class SetCurrentIdentityFilter extends AbstractFilter
          }
          catch (Exception e)
          {
-            log.warn("An error occured while cleaning the ThreadLocal", e);
+            LOG.warn("An error occured while cleaning the ThreadLocal", e);
          }
          try
          {
@@ -103,7 +103,7 @@ public class SetCurrentIdentityFilter extends AbstractFilter
          }
          catch (Exception e)
          {
-            log.warn("An error occured while cleaning the ThreadLocal", e);
+            LOG.warn("An error occured while cleaning the ThreadLocal", e);
          }
       }
    }
@@ -128,18 +128,18 @@ public class SetCurrentIdentityFilter extends AbstractFilter
          HttpSession httpSession = httpRequest.getSession();
          StateKey stateKey = new HttpSessionStateKey(httpSession);
 
-         if (log.isDebugEnabled())
+         if (LOG.isDebugEnabled())
          {
-            log.debug("Looking for Conversation State " + httpSession.getId());
+            LOG.debug("Looking for Conversation State " + httpSession.getId());
          }
 
          state = conversationRegistry.getState(stateKey);
 
          if (state == null)
          {
-            if (log.isDebugEnabled())
+            if (LOG.isDebugEnabled())
             {
-               log.debug("Conversation State not found, try create new one.");
+               LOG.debug("Conversation State not found, try create new one.");
             }
 
             Identity identity = identityRegistry.getIdentity(userId);
@@ -153,9 +153,9 @@ public class SetCurrentIdentityFilter extends AbstractFilter
             {
                if (restoreIdentity)
                {
-                  if (log.isDebugEnabled())
+                  if (LOG.isDebugEnabled())
                   {
-                     log.debug("Not found identity for " + userId + " try to restore it. ");
+                     LOG.debug("Not found identity for " + userId + " try to restore it. ");
                   }
 
                   Authenticator authenticator =
@@ -167,7 +167,7 @@ public class SetCurrentIdentityFilter extends AbstractFilter
                   }
                   catch (Exception e)
                   {
-                     log.error("Unable restore identity. " + e.getMessage(), e);
+                     LOG.error("Unable restore identity. " + e.getMessage(), e);
                   }
 
                   if (identity != null)
@@ -177,16 +177,16 @@ public class SetCurrentIdentityFilter extends AbstractFilter
                }
                else
                {
-                  log.error("Not found identity in IdentityRegistry for user " + userId + ", check Login Module.");
+                  LOG.error("Not found identity in IdentityRegistry for user " + userId + ", check Login Module.");
                }
             }
 
             if (state != null)
             {
                conversationRegistry.register(stateKey, state);
-               if (log.isDebugEnabled())
+               if (LOG.isDebugEnabled())
                {
-                  log.debug("Register Conversation state " + httpSession.getId());
+                  LOG.debug("Register Conversation state " + httpSession.getId());
                }
             }
          }

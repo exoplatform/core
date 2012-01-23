@@ -43,7 +43,7 @@ import javax.xml.transform.stream.StreamSource;
 public class TRAXTemplatesServiceImpl implements TRAXTemplatesService, Startable
 {
 
-   private static final Log LOGGER = ExoLogger.getLogger("exo.core.component.xml-processing.TRAXTemplatesServiceImpl");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.xml-processing.TRAXTemplatesServiceImpl");
 
    private Map<String, TRAXTemplates> templates_;
 
@@ -119,16 +119,16 @@ public class TRAXTemplatesServiceImpl implements TRAXTemplatesService, Startable
             {
                if (PrivilegedSystemHelper.getResource(xsltSchema) != null)
                {
-                  LOGGER.info("XSLT schema found by relative path: " + xsltSchema);
+                  LOG.info("XSLT schema found by relative path: " + xsltSchema);
                   addTRAXTemplates(key, traxTransformerService_.getTemplates(new StreamSource(PrivilegedSystemHelper
                      .getResourceAsStream(xsltSchema))));
                }
                else
-                  LOGGER.error("XSLT schema not found: " + xsltSchema);
+                  LOG.error("XSLT schema not found: " + xsltSchema);
             }
             catch (Exception e)
             {
-               LOGGER.error("Add new TRAXTemplates failed : " + e);
+               LOG.error("Add new TRAXTemplates failed : " + e.getMessage());
             }
          }
       }

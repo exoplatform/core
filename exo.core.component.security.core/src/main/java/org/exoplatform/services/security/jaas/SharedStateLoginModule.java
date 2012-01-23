@@ -60,7 +60,9 @@ public final class SharedStateLoginModule extends AbstractLoginModule
          Authenticator authenticator = (Authenticator)getContainer().getComponentInstanceOfType(Authenticator.class);
 
          if (authenticator == null)
+         {
             throw new LoginException("No Authenticator component found, check your configuration");
+         }
 
          Credential[] credentials =
             new Credential[]{new UsernameCredential(username), new PasswordCredential(password)};
@@ -75,7 +77,7 @@ public final class SharedStateLoginModule extends AbstractLoginModule
          subject.getPublicCredentials().add(new UsernameCredential(username));
          return true;
       }
-      catch (final Throwable e)
+      catch (final Exception e)
       {
          LoginException le = new LoginException(e.getMessage());
          le.initCause(e);

@@ -41,7 +41,7 @@ import java.util.Properties;
 public class ExoCacheProvider implements CacheProvider
 {
 
-   private static Log LOG = ExoLogger.getLogger("exo.core.component.database.HibernateServiceImpl");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.database.HibernateServiceImpl");
 
    private CacheService cacheService;
 

@@ -50,7 +50,7 @@ public class DBSchemaCreator
 
    private final Pattern pattern;
 
-   private static Log log = ExoLogger.getLogger("exo.core.component.database.DBSchemaCreator");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.database.DBSchemaCreator");
 
    private List<CreateDBSchemaPlugin> createDBSchemaPlugins = new ArrayList<CreateDBSchemaPlugin>();
 
@@ -84,8 +84,8 @@ public class DBSchemaCreator
             if (s.length() < 1)
                continue;
             sql = s;
-            if (log.isDebugEnabled())
-               log.debug("Execute script: \n[" + sql + "]");
+            if (LOG.isDebugEnabled())
+               LOG.debug("Execute script: \n[" + sql + "]");
 
             try
             {
@@ -100,16 +100,16 @@ public class DBSchemaCreator
                Matcher aeMatcher = pattern.matcher(e.getMessage().trim());
                if (!aeMatcher.matches())
                   throw e;
-               if (log.isDebugEnabled())
-                  log.debug(e.getMessage());
+               if (LOG.isDebugEnabled())
+                  LOG.debug(e.getMessage());
             }
 
          }
-         log.info("DB schema of DataSource: '" + dsName + "' created succesfully. context " + context);
+         LOG.info("DB schema of DataSource: '" + dsName + "' created succesfully. context " + context);
       }
       catch (SQLException e)
       {
-         log.error("Could not create db schema of DataSource: '" + dsName + "'. Reason: " + e.getMessage() + "; "
+         LOG.error("Could not create db schema of DataSource: '" + dsName + "'. Reason: " + e.getMessage() + "; "
                   + JDBCUtils.getFullMessage(e) + ". Last command: " + sql, e);
       }
       finally
@@ -131,11 +131,11 @@ public class DBSchemaCreator
          }
          catch (NamingException e)
          {
-            log.error(e.getLocalizedMessage(), e);
+            LOG.error(e.getLocalizedMessage(), e);
          }
          catch (SQLException e)
          {
-            log.error(e.getLocalizedMessage(), e);
+            LOG.error(e.getLocalizedMessage(), e);
          }
       }
    }

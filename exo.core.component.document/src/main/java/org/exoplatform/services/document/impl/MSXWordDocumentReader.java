@@ -23,6 +23,8 @@ import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DocumentReadException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +43,8 @@ import java.util.Properties;
  */
 public class MSXWordDocumentReader extends BaseDocumentReader
 {
+
+   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.MSXWordDocumentReader");
 
    /**
     * @see org.exoplatform.services.document.DocumentReader#getMimeTypes()
@@ -68,7 +72,7 @@ public class MSXWordDocumentReader extends BaseDocumentReader
    {
       if (is == null)
       {
-         throw new NullPointerException("InputStream is null.");
+         throw new IllegalArgumentException("InputStream is null.");
       }
       String text = "";
       try
@@ -117,6 +121,10 @@ public class MSXWordDocumentReader extends BaseDocumentReader
             }
             catch (IOException e)
             {
+               if (LOG.isTraceEnabled())
+               {
+                  LOG.trace("An exception occurred: " + e.getMessage());
+               }
             }
          }
       }

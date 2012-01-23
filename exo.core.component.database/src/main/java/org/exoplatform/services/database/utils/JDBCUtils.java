@@ -94,7 +94,7 @@ public class JDBCUtils
             }
             catch (SQLException e)
             {
-               LOG.error("Can't close the ResultSet: " + e);
+               LOG.error("Can't close the ResultSet: " + e.getMessage());
             }
          }
          if (stmt != null)
@@ -105,7 +105,7 @@ public class JDBCUtils
             }
             catch (SQLException e)
             {
-               LOG.error("Can't close the Statement: " + e);
+               LOG.error("Can't close the Statement: " + e.getMessage());
             }
          }
       }

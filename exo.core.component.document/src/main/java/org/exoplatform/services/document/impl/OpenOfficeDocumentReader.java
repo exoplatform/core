@@ -22,6 +22,8 @@ import org.exoplatform.commons.utils.QName;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReadException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -49,6 +51,9 @@ import javax.xml.parsers.SAXParserFactory;
 public class OpenOfficeDocumentReader extends BaseDocumentReader
 {
 
+   private static final Log LOG = ExoLogger
+      .getLogger("org.exoplatform.services.document.impl.OpenOfficeDocumentReader");
+
    /*
     * (non-Javadoc)
     * 
@@ -71,7 +76,7 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
    {
       if (is == null)
       {
-         throw new NullPointerException("InputStream is null.");
+         throw new IllegalArgumentException("InputStream is null.");
       }
       try
       {
@@ -120,6 +125,10 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
             }
             catch (IOException e)
             {
+               if (LOG.isTraceEnabled())
+               {
+                  LOG.trace("An exception occurred: " + e.getMessage());
+               }
             }
          }
 
@@ -145,11 +154,19 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
                   }
                   catch (IOException e)
                   {
+                     if (LOG.isTraceEnabled())
+                     {
+                        LOG.trace("An exception occurred: " + e.getMessage());
+                     }
                   }
                is.close();
             }
             catch (IOException e)
             {
+               if (LOG.isTraceEnabled())
+               {
+                  LOG.trace("An exception occurred: " + e.getMessage());
+               }
             }
       }
    }
@@ -225,6 +242,10 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
             }
             catch (IOException e)
             {
+               if (LOG.isTraceEnabled())
+               {
+                  LOG.trace("An exception occurred: " + e.getMessage());
+               }
             }
       }
    }

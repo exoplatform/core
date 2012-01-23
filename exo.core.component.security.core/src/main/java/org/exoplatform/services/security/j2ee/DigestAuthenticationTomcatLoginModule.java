@@ -54,17 +54,17 @@ public class DigestAuthenticationTomcatLoginModule extends TomcatLoginModule
    @Override
    public boolean login() throws LoginException
    {
-      if (log.isDebugEnabled())
+      if (LOG.isDebugEnabled())
       {
-         log.debug("In login of ExtendedTomcatLoginModule.");
+         LOG.debug("In login of ExtendedTomcatLoginModule.");
       }
       try
       {
          if (sharedState.containsKey("exo.security.identity"))
          {
-            if (log.isDebugEnabled())
+            if (LOG.isDebugEnabled())
             {
-               log.debug("Use Identity from previous LoginModule");
+               LOG.debug("Use Identity from previous LoginModule");
             }
             identity = (Identity)sharedState.get("exo.security.identity");
          }
@@ -75,9 +75,9 @@ public class DigestAuthenticationTomcatLoginModule extends TomcatLoginModule
                return super.login();
             }
 
-            if (log.isDebugEnabled())
+            if (LOG.isDebugEnabled())
             {
-               log.debug("Try create identity");
+               LOG.debug("Try create identity");
             }
 
             Authenticator authenticator = (Authenticator)getContainer().getComponentInstanceOfType(Authenticator.class);
@@ -97,11 +97,11 @@ public class DigestAuthenticationTomcatLoginModule extends TomcatLoginModule
          return true;
 
       }
-      catch (final Throwable e)
+      catch (final Exception e)
       {
-         if (log.isDebugEnabled())
+         if (LOG.isDebugEnabled())
          {
-            log.debug(e.getMessage(), e);
+            LOG.debug(e.getMessage(), e);
          }
 
          throw new LoginException(e.getMessage());
@@ -145,9 +145,9 @@ public class DigestAuthenticationTomcatLoginModule extends TomcatLoginModule
          }
          catch (UnsupportedCallbackException e)
          {
-            if (log.isDebugEnabled())
+            if (LOG.isDebugEnabled())
             {
-               log.debug("Unsupported callback type.", e);
+               LOG.debug("Unsupported callback type.", e);
             }
          }
 
@@ -161,9 +161,9 @@ public class DigestAuthenticationTomcatLoginModule extends TomcatLoginModule
       }
       catch (UnsupportedCallbackException e)
       {
-         if (log.isErrorEnabled())
+         if (LOG.isErrorEnabled())
          {
-            log.error("Error on retrieving username from callback handler! ", e);
+            LOG.error("Error on retrieving username from callback handler! ", e);
          }
       }
 
@@ -176,9 +176,9 @@ public class DigestAuthenticationTomcatLoginModule extends TomcatLoginModule
       }
       catch (UnsupportedCallbackException e)
       {
-         if (log.isErrorEnabled())
+         if (LOG.isErrorEnabled())
          {
-            log.error("Error on retrieving password from callback handler! ", e);
+            LOG.error("Error on retrieving password from callback handler! ", e);
          }
       }
 
@@ -217,9 +217,9 @@ public class DigestAuthenticationTomcatLoginModule extends TomcatLoginModule
       }
       catch (UnsupportedCallbackException e)
       {
-         if (log.isErrorEnabled())
+         if (LOG.isErrorEnabled())
          {
-            log.error("Error on retrieving username from callback handler! ", e);
+            LOG.error("Error on retrieving username from callback handler! ", e);
          }
       }
 
@@ -239,9 +239,9 @@ public class DigestAuthenticationTomcatLoginModule extends TomcatLoginModule
       }
       catch (UnsupportedCallbackException e)
       {
-         if (log.isErrorEnabled())
+         if (LOG.isErrorEnabled())
          {
-            log.error("Error on retrieving password from callback handler! ", e);
+            LOG.error("Error on retrieving password from callback handler! ", e);
          }
       }
 

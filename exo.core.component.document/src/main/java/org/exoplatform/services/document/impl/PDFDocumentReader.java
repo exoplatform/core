@@ -53,7 +53,7 @@ import java.util.Properties;
 public class PDFDocumentReader extends BaseDocumentReader
 {
 
-   protected static Log log = ExoLogger.getLogger("exo.core.component.document.PDFDocumentReader");
+   protected static final Log LOG = ExoLogger.getLogger("exo.core.component.document.PDFDocumentReader");
 
    /**
     * Get the application/pdf mime type.
@@ -82,7 +82,7 @@ public class PDFDocumentReader extends BaseDocumentReader
             {
                if (is == null)
                {
-                  throw new NullPointerException("InputStream is null.");
+                  throw new IllegalArgumentException("InputStream is null.");
                }
                PDDocument pdDocument = null;
                StringWriter sw = new StringWriter();
@@ -114,6 +114,10 @@ public class PDFDocumentReader extends BaseDocumentReader
                      }
                      catch (IOException e)
                      {
+                        if (LOG.isTraceEnabled())
+                        {
+                           LOG.trace("An exception occurred: " + e.getMessage());
+                        }
                      }
                   if (is != null)
                      try
@@ -122,6 +126,10 @@ public class PDFDocumentReader extends BaseDocumentReader
                      }
                      catch (IOException e)
                      {
+                        if (LOG.isTraceEnabled())
+                        {
+                           LOG.trace("An exception occurred: " + e.getMessage());
+                        }
                      }
                }
                return sw.toString();
@@ -170,7 +178,7 @@ public class PDFDocumentReader extends BaseDocumentReader
             {
                if (is == null)
                {
-                  throw new NullPointerException("InputStream is null.");
+                  throw new IllegalArgumentException("InputStream is null.");
                }
 
                PDDocument pdDocument = PDDocument.load(is);
@@ -209,7 +217,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         }
                         catch (Exception e)
                         {
-                           log.warn("getTitle failed: " + e);
+                           LOG.warn("getTitle failed: " + e.getMessage());
                         }
                         try
                         {
@@ -218,7 +226,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         }
                         catch (Exception e)
                         {
-                           log.warn("getSubject failed: " + e);
+                           LOG.warn("getSubject failed: " + e.getMessage());
                         }
 
                         try
@@ -233,7 +241,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         }
                         catch (Exception e)
                         {
-                           log.warn("getCreator failed: " + e);
+                           LOG.warn("getCreator failed: " + e.getMessage());
                         }
 
                         try
@@ -248,7 +256,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         }
                         catch (Exception e)
                         {
-                           log.warn("getDate failed: " + e);
+                           LOG.warn("getDate failed: " + e.getMessage());
                         }
                      }
 
@@ -262,7 +270,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         }
                         catch (Exception e)
                         {
-                           log.warn("getKeywords failed: " + e);
+                           LOG.warn("getKeywords failed: " + e.getMessage());
                         }
 
                         try
@@ -272,7 +280,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         }
                         catch (Exception e)
                         {
-                           log.warn("getProducer failed: " + e);
+                           LOG.warn("getProducer failed: " + e.getMessage());
                         }
                      }
 
@@ -286,7 +294,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         }
                         catch (Exception e)
                         {
-                           log.warn("getCreationDate failed: " + e);
+                           LOG.warn("getCreationDate failed: " + e.getMessage());
                         }
                         try
                         {
@@ -295,7 +303,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         }
                         catch (Exception e)
                         {
-                           log.warn("getModificationDate failed: " + e);
+                           LOG.warn("getModificationDate failed: " + e.getMessage());
                         }
 
                         // DCMetaData.PUBLISHER - basic.getCreatorTool()
@@ -317,7 +325,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         }
                         catch (Exception e)
                         {
-                           log.warn("getAuthor failed: " + e);
+                           LOG.warn("getAuthor failed: " + e.getMessage());
                         }
                         try
                         {
@@ -326,7 +334,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         }
                         catch (Exception e)
                         {
-                           log.warn("getCreationDate failed: " + e);
+                           LOG.warn("getCreationDate failed: " + e.getMessage());
                         }
                         try
                         {
@@ -335,7 +343,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         }
                         catch (Exception e)
                         {
-                           log.warn("getCreator failed: " + e);
+                           LOG.warn("getCreator failed: " + e.getMessage());
                         }
                         try
                         {
@@ -345,7 +353,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         }
                         catch (Exception e)
                         {
-                           log.warn("getKeywords failed: " + e);
+                           LOG.warn("getKeywords failed: " + e.getMessage());
                         }
                         try
                         {
@@ -354,7 +362,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         }
                         catch (Exception e)
                         {
-                           log.warn("getModificationDate failed: " + e);
+                           LOG.warn("getModificationDate failed: " + e.getMessage());
                         }
                         try
                         {
@@ -363,7 +371,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         }
                         catch (Exception e)
                         {
-                           log.warn("getProducer failed: " + e);
+                           LOG.warn("getProducer failed: " + e.getMessage());
                         }
                         try
                         {
@@ -372,7 +380,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         }
                         catch (Exception e)
                         {
-                           log.warn("getSubject failed: " + e);
+                           LOG.warn("getSubject failed: " + e.getMessage());
                         }
                         try
                         {
@@ -381,7 +389,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                         }
                         catch (Exception e)
                         {
-                           log.warn("getTitle failed: " + e);
+                           LOG.warn("getTitle failed: " + e.getMessage());
                         }
 
                         // docInfo.getTrapped();
@@ -403,6 +411,10 @@ public class PDFDocumentReader extends BaseDocumentReader
                      }
                      catch (IOException e)
                      {
+                        if (LOG.isTraceEnabled())
+                        {
+                           LOG.trace("An exception occurred: " + e.getMessage());
+                        }
                      }
                   }
                }
@@ -482,9 +494,9 @@ public class PDFDocumentReader extends BaseDocumentReader
                      }
                      catch (NumberFormatException e)
                      {
-                        if (log.isDebugEnabled())
+                        if (LOG.isDebugEnabled())
                         {
-                           log.debug(
+                           LOG.debug(
                               "PDF metadata exctraction warning: can not decode octal code - "
                                  + str.substring(i - 1, i + 3) + ".", e);
                         }
@@ -492,9 +504,9 @@ public class PDFDocumentReader extends BaseDocumentReader
                   }
                   else
                   {
-                     if (log.isDebugEnabled())
+                     if (LOG.isDebugEnabled())
                      {
-                        log.debug("PDF metadata exctraction warning: octal code is not complete - "
+                        LOG.debug("PDF metadata exctraction warning: octal code is not complete - "
                            + str.substring(i - 1, len));
                      }
                   }
@@ -508,7 +520,7 @@ public class PDFDocumentReader extends BaseDocumentReader
       }
       catch (UnsupportedEncodingException e)
       {
-         log.warn("PDF metadata exctraction warning: can not convert metadata string " + str, e);
+         LOG.warn("PDF metadata exctraction warning: can not convert metadata string " + str, e);
          return "";
       }
    }

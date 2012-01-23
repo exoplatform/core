@@ -21,6 +21,8 @@ package org.exoplatform.services.document.impl;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValuesParam;
 import org.exoplatform.services.document.DocumentReadException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -35,6 +37,8 @@ import java.util.Properties;
  */
 public class TextPlainDocumentReader extends BaseDocumentReader
 {
+
+   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.TextPlainDocumentReader");
 
    public static final String DEFAULT_ENCODING = "defaultEncoding";
 
@@ -106,7 +110,7 @@ public class TextPlainDocumentReader extends BaseDocumentReader
    {
       if (is == null)
       {
-         throw new NullPointerException("InputStream is null.");
+         throw new IllegalArgumentException("InputStream is null.");
       }
 
       try
@@ -115,15 +119,23 @@ public class TextPlainDocumentReader extends BaseDocumentReader
          int len;
          ByteArrayOutputStream bos = new ByteArrayOutputStream();
          while ((len = is.read(buffer)) > 0)
+         {
             bos.write(buffer, 0, len);
+         }
          bos.close();
 
          if (bos.size() == 0)
+         {
             return "";
+         }
          else if (encoding != null)
+         {
             return new String(bos.toByteArray(), encoding);
+         }
          else
+         {
             return new String(bos.toByteArray());
+         }
       }
       finally
       {
@@ -134,6 +146,10 @@ public class TextPlainDocumentReader extends BaseDocumentReader
             }
             catch (IOException e)
             {
+               if (LOG.isTraceEnabled())
+               {
+                  LOG.trace("An exception occurred: " + e.getMessage());
+               }
             }
       }
    }
@@ -146,13 +162,16 @@ public class TextPlainDocumentReader extends BaseDocumentReader
     */
    public Properties getProperties(InputStream is) throws IOException, DocumentReadException
    {
-
       try
       {
          is.close();
       }
       catch (IOException e)
       {
+         if (LOG.isTraceEnabled())
+         {
+            LOG.trace("An exception occurred: " + e.getMessage());
+         }
       }
       return new Properties();
    }

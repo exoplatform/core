@@ -35,7 +35,7 @@ import java.util.Set;
 public class XMLResolvingServiceImpl implements XMLResolvingService
 {
 
-   private static final Log LOGGER = ExoLogger.getLogger("exo.core.component.xml-processing.XMLResolvingServiceImpl");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.xml-processing.XMLResolvingServiceImpl");
 
    private Map<String, String> publicIDs_ = new HashMap<String, String>();
 
@@ -55,7 +55,7 @@ public class XMLResolvingServiceImpl implements XMLResolvingService
       if (publicIDs_.get(publicId) != null)
          throw new IllegalArgumentException("Entity whith publicId " + publicId + " already exists.");
       publicIDs_.put(publicId, uri);
-      LOGGER.info("New entries to ResolvingService added (public) : " + publicId + " : " + uri);
+      LOG.info("New entries to ResolvingService added (public) : " + publicId + " : " + uri);
    }
 
    private void addEntitySystemID(String systemId, String uri)
@@ -63,7 +63,7 @@ public class XMLResolvingServiceImpl implements XMLResolvingService
       if (systemIDs_.get(systemId) != null)
          throw new IllegalArgumentException("Entity whith systemId " + systemId + " already exists.");
       systemIDs_.put(systemId, uri);
-      LOGGER.info("New entries to ResolvingService added (system) : " + systemId + " : " + uri);
+      LOG.info("New entries to ResolvingService added (system) : " + systemId + " : " + uri);
    }
 
    public void addPlugin(ComponentPlugin plugin)

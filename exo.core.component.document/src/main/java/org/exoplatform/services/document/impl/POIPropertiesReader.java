@@ -33,6 +33,8 @@ import org.apache.poi.poifs.eventfilesystem.POIFSReaderListener;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReadException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,6 +51,8 @@ import java.util.Properties;
 
 public class POIPropertiesReader
 {
+
+   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.POIPropertiesReader");
 
    private final Properties props = new Properties();
 
@@ -69,7 +73,7 @@ public class POIPropertiesReader
    {
       if (is == null)
       {
-         throw new NullPointerException("InputStream is null.");
+         throw new IllegalArgumentException("InputStream is null.");
       }
 
       @SuppressWarnings("serial")
@@ -193,6 +197,10 @@ public class POIPropertiesReader
             }
             catch (IOException e)
             {
+               if (LOG.isTraceEnabled())
+               {
+                  LOG.trace("An exception occurred: " + e.getMessage());
+               }
             }
          }
       }

@@ -27,6 +27,8 @@ import org.apache.poi.xslf.extractor.XSLFPowerPointExtractor;
 import org.apache.xmlbeans.XmlException;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DocumentReadException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +47,8 @@ import java.util.Properties;
  */
 public class MSXPPTDocumentReader extends BaseDocumentReader
 {
+
+   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.MSXPPTDocumentReader");
 
    /**
     * @see org.exoplatform.services.document.DocumentReader#getMimeTypes()
@@ -78,7 +82,7 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
    {
       if (is == null)
       {
-         throw new NullPointerException("InputStream is null.");
+         throw new IllegalArgumentException("InputStream is null.");
       }
       try
       {
@@ -144,6 +148,10 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
             }
             catch (IOException e)
             {
+               if (LOG.isTraceEnabled())
+               {
+                  LOG.trace("An exception occurred: " + e.getMessage());
+               }
             }
          }
       }

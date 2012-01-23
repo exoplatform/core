@@ -37,7 +37,8 @@ public class StandardSQLTableManager extends DBTableManager
    /**
     * Logger.
     */
-   private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.database.StandardSQLTableManager");
+   private static final Log LOG = ExoLogger
+      .getLogger("exo.core.component.organization.database.StandardSQLTableManager");
 
    private ExoDatasource exoDatasource;
 
