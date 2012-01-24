@@ -47,7 +47,7 @@ import javax.security.auth.login.LoginException;
 public class JbossLoginModule extends DefaultLoginModule
 {
    /** . */
-   protected static Log log = ExoLogger.getLogger("exo.core.component.security.core.JbossLoginModule.class");
+   protected static final Log LOG = ExoLogger.getLogger("exo.core.component.security.core.JbossLoginModule.class");
 
    /**
     * {@inheritDoc}
@@ -98,7 +98,7 @@ public class JbossLoginModule extends DefaultLoginModule
          try
          {
 
-            log.debug("Performing JBoss security manager cache eviction");
+            LOG.debug("Performing JBoss security manager cache eviction");
 
             ObjectName securityManagerName = new ObjectName("jboss.security:service=JaasSecurityManager");
 
@@ -114,7 +114,7 @@ public class JbossLoginModule extends DefaultLoginModule
             //
             if (userName != null)
             {
-               log.debug("Going to perform JBoss security manager cache eviction for user " + userName);
+               LOG.debug("Going to perform JBoss security manager cache eviction for user " + userName);
 
                //
                List allPrincipals =
@@ -141,28 +141,28 @@ public class JbossLoginModule extends DefaultLoginModule
                {
                   jbossServer.invoke(securityManagerName, "flushAuthenticationCache", new Object[]{realmName, key},
                      new String[]{String.class.getName(), Principal.class.getName()});
-                  log.debug("Performed JBoss security manager cache eviction for user " + userName + " with principal "
+                  LOG.debug("Performed JBoss security manager cache eviction for user " + userName + " with principal "
                      + key);
                }
                else
                {
-                  log.debug("No principal found when performing JBoss security manager cache eviction for user "
+                  LOG.debug("No principal found when performing JBoss security manager cache eviction for user "
                      + userName);
                }
             }
             else
             {
-               log.warn("No user name found when performing JBoss security manager cache eviction");
+               LOG.warn("No user name found when performing JBoss security manager cache eviction");
             }
          }
          catch (Exception e)
          {
-            log.error("Could not perform JBoss security manager cache eviction", e);
+            LOG.error("Could not perform JBoss security manager cache eviction", e);
          }
       }
       else
       {
-         log.debug("Could not find mbean server for performing JBoss security manager cache eviction");
+         LOG.debug("Could not find mbean server for performing JBoss security manager cache eviction");
       }
 
       //

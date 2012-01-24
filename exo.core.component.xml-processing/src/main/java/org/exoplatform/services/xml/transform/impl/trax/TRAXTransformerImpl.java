@@ -126,7 +126,7 @@ public class TRAXTransformerImpl extends TransformerBase implements TRAXTransfor
          if (resolvingService != null)
          {
             xmlReader.setEntityResolver(resolvingService.getEntityResolver());
-            log.debug("Set entity resolver");
+            LOG.debug("Set entity resolver");
          }
       }
       catch (SAXException ex)

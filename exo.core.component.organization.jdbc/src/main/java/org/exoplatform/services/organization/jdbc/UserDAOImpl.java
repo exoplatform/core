@@ -49,7 +49,7 @@ import java.util.List;
 public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler, ExtendedUserHandler
 {
 
-   protected static Log log = ExoLogger.getLogger("exo.core.component.organization.jdbc.UserDAOImpl");
+   protected static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.jdbc.UserDAOImpl");
 
    protected ListenerService listenerService_;
 
@@ -76,8 +76,8 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
 
    public void createUser(User user, boolean broadcast) throws Exception
    {
-      if (log.isDebugEnabled())
-         log.debug("----------- CREATE USER " + user.getUserName());
+      if (LOG.isDebugEnabled())
+         LOG.debug("----------- CREATE USER " + user.getUserName());
       UserImpl userImpl = (UserImpl)user;
       if (broadcast)
          listenerService_.broadcast(UserHandler.PRE_CREATE_USER_EVENT, this, userImpl);
@@ -110,9 +110,9 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
          authenticated = encryptedPassword.equals(password);
       }
 
-      if (log.isDebugEnabled())
+      if (LOG.isDebugEnabled())
       {
-         log.debug("+++++++++++AUTHENTICATE USERNAME " + username + " AND PASS " + password + " - " + authenticated);
+         LOG.debug("+++++++++++AUTHENTICATE USERNAME " + username + " AND PASS " + password + " - " + authenticated);
       }
       if (authenticated)
       {
@@ -128,9 +128,9 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
       DBObjectQuery<UserImpl> query = new DBObjectQuery<UserImpl>(UserImpl.class);
       query.addEQ("USER_NAME", userName);
       User user = loadUnique(query.toQuery());;
-      if (log.isDebugEnabled())
+      if (LOG.isDebugEnabled())
       {
-         log.debug("+++++++++++FIND USER BY USER NAME " + userName + " - " + (user != null));
+         LOG.debug("+++++++++++FIND USER BY USER NAME " + userName + " - " + (user != null));
       }
       return user;
    }
@@ -172,8 +172,8 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
 
    public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
    {
-      if (log.isDebugEnabled())
-         log.debug("+++++++++++FIND USER BY GROUP_ID " + groupId);
+      if (LOG.isDebugEnabled())
+         LOG.debug("+++++++++++FIND USER BY GROUP_ID " + groupId);
 
       MembershipHandler membershipHandler = orgService.getMembershipHandler();
       GroupHandler groupHandler = orgService.getGroupHandler();

@@ -40,7 +40,7 @@ public class CreateUserListener extends Listener<UserDAOImpl, User>
 {
    private OrganizationService service_;
 
-   protected static Log log = ExoLogger.getLogger("exo.core.component.organization.jdbc.CreateUserListener");
+   protected static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.jdbc.CreateUserListener");
 
    public CreateUserListener(OrganizationService service)
    {
@@ -49,7 +49,7 @@ public class CreateUserListener extends Listener<UserDAOImpl, User>
 
    public void onEvent(Event<UserDAOImpl, User> event) throws Exception
    {
-      log.info("Create User Profile: " + event.getData().getUserName());
+      LOG.info("Create User Profile: " + event.getData().getUserName());
       UserProfile profile = service_.getUserProfileHandler().createUserProfileInstance(event.getData().getUserName());
       service_.getUserProfileHandler().saveUserProfile(profile, true);
       GroupHandler groupHandler = service_.getGroupHandler();

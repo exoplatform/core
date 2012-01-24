@@ -21,6 +21,8 @@ package org.exoplatform.services.organization.ldap;
 import org.exoplatform.container.component.BaseComponentPlugin;
 import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.services.ldap.ObjectClassAttribute;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.OrganizationServiceInitializer;
 
@@ -40,6 +42,9 @@ import javax.naming.ldap.LdapContext;
 public class OrganizationLdapInitializer extends BaseComponentPlugin implements OrganizationServiceInitializer,
    ComponentPlugin
 {
+
+   private static final Log LOG = ExoLogger
+      .getLogger("org.exoplatform.services.organization.ldap.OrganizationLdapInitializer");
 
    protected static Pattern COMPACT_DN = Pattern.compile("\\b\\p{Space}*=\\p{Space}*", Pattern.CASE_INSENSITIVE);
 
@@ -112,6 +117,10 @@ public class OrganizationLdapInitializer extends BaseComponentPlugin implements 
       }
       catch (Exception exp)
       {
+         if (LOG.isTraceEnabled())
+         {
+            LOG.trace("An exception occurred: " + exp.getMessage());
+         }
       }
       finally
       {

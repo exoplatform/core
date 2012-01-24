@@ -47,7 +47,7 @@ import javax.naming.InvalidNameException;
 public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHandler
 {
 
-   protected static Log log = ExoLogger.getLogger("exo.core.component.organization.jdbc.GroupDAOImpl");
+   protected static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.jdbc.GroupDAOImpl");
 
    protected ListenerService listenerService_;
 
@@ -110,8 +110,8 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
       if (broadcast)
          listenerService_.broadcast("organization.group.preSave", this, childImpl);
       childImpl.setId(groupId);
-      if (log.isDebugEnabled())
-         log.debug("----------ADD GROUP " + child.getId() + " into Group" + child.getParentId());
+      if (LOG.isDebugEnabled())
+         LOG.debug("----------ADD GROUP " + child.getId() + " into Group" + child.getParentId());
 
       try
       {
@@ -139,8 +139,8 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
       DBObjectQuery<GroupImpl> query = new DBObjectQuery<GroupImpl>(GroupImpl.class);
       query.addEQ("GROUP_ID", groupId);
       Group g = super.loadUnique(query.toQuery());
-      if (log.isDebugEnabled())
-         log.debug("----------FIND GROUP BY ID: " + groupId + " _ " + (g != null));
+      if (LOG.isDebugEnabled())
+         LOG.debug("----------FIND GROUP BY ID: " + groupId + " _ " + (g != null));
       return g;
    }
 
@@ -161,8 +161,8 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
          if (g != null)
             groups.add(g);
       }
-      if (log.isDebugEnabled())
-         log.debug("----------FIND GROUP BY USERNAME AND TYPE: " + userName + " - " + membershipType + " - ");
+      if (LOG.isDebugEnabled())
+         LOG.debug("----------FIND GROUP BY USERNAME AND TYPE: " + userName + " - " + membershipType + " - ");
       return groups;
    }
 
@@ -174,10 +174,10 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
       DBObjectQuery<GroupImpl> query = new DBObjectQuery<GroupImpl>(GroupImpl.class);
       query.addEQ("PARENT_ID", parentId);
       DBPageList<GroupImpl> pageList = new DBPageList<GroupImpl>(20, this, query);
-      if (log.isDebugEnabled())
+      if (LOG.isDebugEnabled())
       {
-         log.debug("----------FIND GROUP BY PARENT: " + parent);
-         log.debug(" Size = " + pageList.getAvailable());
+         LOG.debug("----------FIND GROUP BY PARENT: " + parent);
+         LOG.debug(" Size = " + pageList.getAvailable());
       }
       return pageList.getAll();
    }
@@ -194,8 +194,8 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
          if (g != null && !hasGroup(groups, g))
             groups.add(g);
       }
-      if (log.isDebugEnabled())
-         log.debug("----------FIND GROUP BY USER: " + user + " - " + (groups != null));
+      if (LOG.isDebugEnabled())
+         LOG.debug("----------FIND GROUP BY USER: " + user + " - " + (groups != null));
       return groups;
    }
 

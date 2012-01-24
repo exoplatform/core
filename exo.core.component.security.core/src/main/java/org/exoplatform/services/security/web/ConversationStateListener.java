@@ -41,7 +41,7 @@ public class ConversationStateListener implements HttpSessionListener
    /**
     * Logger.
     */
-   protected Log log = ExoLogger.getLogger("exo.core.component.security.core.ConversationStateListener");
+   protected static final Log LOG = ExoLogger.getLogger("exo.core.component.security.core.ConversationStateListener");
 
    /**
     * {@inheritDoc}
@@ -66,8 +66,8 @@ public class ConversationStateListener implements HttpSessionListener
       ConversationState conversationState = conversationRegistry.unregister(stateKey);
 
       if (conversationState != null)
-         if (log.isDebugEnabled())
-            log.debug("Remove conversation state " + httpSession.getId());
+         if (LOG.isDebugEnabled())
+            LOG.debug("Remove conversation state " + httpSession.getId());
 
    }
 

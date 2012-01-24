@@ -47,7 +47,7 @@ public class WebsphereJAASLoginModule extends DefaultLoginModule
    /**
     * Exo logger.
     */
-   private Log log = ExoLogger.getLogger("exo.core.component.security.core.ExoWebsphereJAASLoginModule");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.security.core.ExoWebsphereJAASLoginModule");
 
    /**
     * Default constructor.
@@ -62,8 +62,8 @@ public class WebsphereJAASLoginModule extends DefaultLoginModule
    @Override
    public boolean login() throws LoginException
    {
-      if (log.isDebugEnabled())
-         log.debug("In login of WebsphereJAASLoginModule");
+      if (LOG.isDebugEnabled())
+         LOG.debug("In login of WebsphereJAASLoginModule");
       if (super.login())
       {
          ArrayList<String> roleGroupList = new ArrayList<String>();
@@ -116,8 +116,8 @@ public class WebsphereJAASLoginModule extends DefaultLoginModule
    @Override
    public boolean abort() throws LoginException
    {
-      if (log.isDebugEnabled())
-         log.debug("In abort of WebsphereJAASLoginModule");
+      if (LOG.isDebugEnabled())
+         LOG.debug("In abort of WebsphereJAASLoginModule");
       return super.abort();
    }
 
@@ -127,8 +127,8 @@ public class WebsphereJAASLoginModule extends DefaultLoginModule
    @Override
    public boolean logout() throws LoginException
    {
-      if (log.isDebugEnabled())
-         log.debug("In logout of WebsphereJAASLoginModule");
+      if (LOG.isDebugEnabled())
+         LOG.debug("In logout of WebsphereJAASLoginModule");
       // getSubject().getPrincipals().remove(usernamePrincipal);
       return super.logout();
    }

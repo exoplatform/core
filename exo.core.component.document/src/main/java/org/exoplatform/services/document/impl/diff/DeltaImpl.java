@@ -21,6 +21,8 @@ package org.exoplatform.services.document.impl.diff;
 import org.exoplatform.services.document.diff.Chunk;
 import org.exoplatform.services.document.diff.Delta;
 import org.exoplatform.services.document.diff.DiffService;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import java.util.List;
 
@@ -39,6 +41,8 @@ import java.util.List;
 public abstract class DeltaImpl implements Delta
 {
 
+   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.diff.DeltaImpl");
+
    protected Chunk original;
 
    protected Chunk revised;
@@ -48,17 +52,10 @@ public abstract class DeltaImpl implements Delta
    static
    {
       DeltaClass = new Class[2][2];
-      try
-      {
-         DeltaClass[0][0] = org.exoplatform.services.document.impl.diff.ChangeDeltaImpl.class;
-         DeltaClass[0][1] = org.exoplatform.services.document.impl.diff.AddDeltaImpl.class;
-         DeltaClass[1][0] = org.exoplatform.services.document.impl.diff.DeleteDeltaImpl.class;
-         DeltaClass[1][1] = org.exoplatform.services.document.impl.diff.ChangeDeltaImpl.class;
-      }
-      catch (Throwable o)
-      {
-
-      }
+      DeltaClass[0][0] = org.exoplatform.services.document.impl.diff.ChangeDeltaImpl.class;
+      DeltaClass[0][1] = org.exoplatform.services.document.impl.diff.AddDeltaImpl.class;
+      DeltaClass[1][0] = org.exoplatform.services.document.impl.diff.DeleteDeltaImpl.class;
+      DeltaClass[1][1] = org.exoplatform.services.document.impl.diff.ChangeDeltaImpl.class;
    }
 
    /**
@@ -76,7 +73,11 @@ public abstract class DeltaImpl implements Delta
       {
          result = (DeltaImpl)c.newInstance();
       }
-      catch (Throwable e)
+      catch (InstantiationException e)
+      {
+         return null;
+      }
+      catch (IllegalAccessException e)
       {
          return null;
       }

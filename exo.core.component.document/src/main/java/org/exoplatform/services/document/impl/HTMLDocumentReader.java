@@ -20,6 +20,8 @@ package org.exoplatform.services.document.impl;
 
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.document.DocumentReadException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.htmlparser.Parser;
 import org.htmlparser.beans.StringBean;
 import org.htmlparser.util.ParserException;
@@ -37,6 +39,8 @@ import java.util.Properties;
  */
 public class HTMLDocumentReader extends BaseDocumentReader
 {
+
+   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.HTMLDocumentReader");
 
    /**
     * Initializes a newly created object for text/html files format parsing.
@@ -74,7 +78,7 @@ public class HTMLDocumentReader extends BaseDocumentReader
    {
       if (is == null)
       {
-         throw new NullPointerException("InputStream is null.");
+         throw new IllegalArgumentException("InputStream is null.");
       }
 
       String refined_text = new String();
@@ -118,6 +122,10 @@ public class HTMLDocumentReader extends BaseDocumentReader
             }
             catch (IOException e)
             {
+               if (LOG.isTraceEnabled())
+               {
+                  LOG.trace("An exception occurred: " + e.getMessage());
+               }
             }
          }
       }
@@ -145,6 +153,10 @@ public class HTMLDocumentReader extends BaseDocumentReader
       }
       catch (IOException e)
       {
+         if (LOG.isTraceEnabled())
+         {
+            LOG.trace("An exception occurred: " + e.getMessage());
+         }
       }
       return new Properties();
    }

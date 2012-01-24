@@ -31,6 +31,8 @@ import org.exoplatform.services.document.AdvancedDocumentReader;
 import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReadException;
 import org.exoplatform.services.document.HandlerNotFoundException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
@@ -50,6 +52,9 @@ import java.util.Properties;
  */
 public class TikaDocumentReader implements AdvancedDocumentReader
 {
+
+   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.tika.TikaDocumentReader");
+
    /**
     * Since Tika can not extract metadata without extracting document content,
     * so reed content is limited to 10 Kb.
@@ -180,8 +185,12 @@ public class TikaDocumentReader implements AdvancedDocumentReader
                   {
                      is.close();
                   }
-                  catch (Throwable e)
+                  catch (IOException e)
                   {
+                     if (LOG.isTraceEnabled())
+                     {
+                        LOG.trace("An exception occurred: " + e.getMessage());
+                     }
                   }
                }
             }
@@ -247,8 +256,12 @@ public class TikaDocumentReader implements AdvancedDocumentReader
                   {
                      is.close();
                   }
-                  catch (Throwable e)
+                  catch (IOException e)
                   {
+                     if (LOG.isTraceEnabled())
+                     {
+                        LOG.trace("An exception occurred: " + e.getMessage());
+                     }
                   }
                }
             }
@@ -344,8 +357,12 @@ public class TikaDocumentReader implements AdvancedDocumentReader
                   {
                      is.close();
                   }
-                  catch (Throwable e)
+                  catch (IOException e)
                   {
+                     if (LOG.isTraceEnabled())
+                     {
+                        LOG.trace("An exception occurred: " + e.getMessage());
+                     }
                   }
                }
             }

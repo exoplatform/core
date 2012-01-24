@@ -35,7 +35,7 @@ import java.util.Hashtable;
 
 public class EncodingMapImpl implements EncodingMap
 {
-   private static Log log = ExoLogger.getLogger("exo.core.component.xml-processing.EncodingMapImpl");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.xml-processing.EncodingMapImpl");
 
    protected final static Hashtable<String, String> IANA2JavaMap = new Hashtable<String, String>();
 
@@ -69,7 +69,7 @@ public class EncodingMapImpl implements EncodingMap
 
    public String convertJava2IANA(String java)
    {
-      log.debug("convert [" + java + "] to iana coding [" + Java2IANAMap.get(java) + "]");
+      LOG.debug("convert [" + java + "] to iana coding [" + Java2IANAMap.get(java) + "]");
       return Java2IANAMap.get(java);
    }
 

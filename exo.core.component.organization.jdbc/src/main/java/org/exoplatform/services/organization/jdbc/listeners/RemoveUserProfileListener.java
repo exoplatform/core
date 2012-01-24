@@ -34,7 +34,8 @@ public class RemoveUserProfileListener extends Listener<UserDAOImpl, User>
 {
    private OrganizationService service_;
 
-   protected static Log log = ExoLogger.getLogger("exo.core.component.organization.jdbc.RemoveUserProfileListener");
+   protected static final Log LOG = ExoLogger
+      .getLogger("exo.core.component.organization.jdbc.RemoveUserProfileListener");
 
    public RemoveUserProfileListener(OrganizationService service)
    {
@@ -43,7 +44,7 @@ public class RemoveUserProfileListener extends Listener<UserDAOImpl, User>
 
    public void onEvent(Event<UserDAOImpl, User> event) throws Exception
    {
-      log.info("Delete User Profile: " + event.getData().getUserName());
+      LOG.info("Delete User Profile: " + event.getData().getUserName());
       service_.getUserProfileHandler().removeUserProfile(event.getData().getUserName(), true);
    }
 }

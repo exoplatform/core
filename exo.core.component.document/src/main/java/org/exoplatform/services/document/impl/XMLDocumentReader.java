@@ -20,6 +20,8 @@ package org.exoplatform.services.document.impl;
 
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DocumentReadException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -43,6 +45,8 @@ import javax.xml.parsers.SAXParserFactory;
 public class XMLDocumentReader extends BaseDocumentReader
 {
 
+   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.XMLDocumentReader");
+
    /**
     * Get the text/xml, application/xml, application/x-google-gadget mime types.
     * 
@@ -63,7 +67,7 @@ public class XMLDocumentReader extends BaseDocumentReader
    {
       if (is == null)
       {
-         throw new NullPointerException("InputStream is null.");
+         throw new IllegalArgumentException("InputStream is null.");
       }
       try
       {
@@ -86,6 +90,10 @@ public class XMLDocumentReader extends BaseDocumentReader
             }
             catch (IOException e)
             {
+               if (LOG.isTraceEnabled())
+               {
+                  LOG.trace("An exception occurred: " + e.getMessage());
+               }
             }
       }
    }
@@ -110,6 +118,10 @@ public class XMLDocumentReader extends BaseDocumentReader
       }
       catch (IOException e)
       {
+         if (LOG.isTraceEnabled())
+         {
+            LOG.trace("An exception occurred: " + e.getMessage());
+         }
       }
       return new Properties();
    }

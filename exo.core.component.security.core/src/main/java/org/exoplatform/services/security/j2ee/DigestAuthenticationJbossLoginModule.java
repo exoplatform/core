@@ -55,17 +55,17 @@ public class DigestAuthenticationJbossLoginModule extends JbossLoginModule
    @Override
    public boolean login() throws LoginException
    {
-      if (log.isDebugEnabled())
+      if (LOG.isDebugEnabled())
       {
-         log.debug("In login of JbossLoginModule.");
+         LOG.debug("In login of JbossLoginModule.");
       }
       try
       {
          if (sharedState.containsKey("exo.security.identity"))
          {
-            if (log.isDebugEnabled())
+            if (LOG.isDebugEnabled())
             {
-               log.debug("Use Identity from previous LoginModule");
+               LOG.debug("Use Identity from previous LoginModule");
             }
             identity = (Identity)sharedState.get("exo.security.identity");
          }
@@ -76,9 +76,9 @@ public class DigestAuthenticationJbossLoginModule extends JbossLoginModule
                return super.login();
             }
 
-            if (log.isDebugEnabled())
+            if (LOG.isDebugEnabled())
             {
-               log.debug("Try create identity");
+               LOG.debug("Try create identity");
             }
 
             Authenticator authenticator = (Authenticator)getContainer().getComponentInstanceOfType(Authenticator.class);
@@ -98,11 +98,11 @@ public class DigestAuthenticationJbossLoginModule extends JbossLoginModule
          return true;
 
       }
-      catch (final Throwable e)
+      catch (final Exception e)
       {
-         if (log.isDebugEnabled())
+         if (LOG.isDebugEnabled())
          {
-            log.debug(e.getMessage(), e);
+            LOG.debug(e.getMessage(), e);
          }
 
          throw new LoginException(e.getMessage());
@@ -160,9 +160,9 @@ public class DigestAuthenticationJbossLoginModule extends JbossLoginModule
       }
       catch (UnsupportedCallbackException e)
       {
-         if (log.isErrorEnabled())
+         if (LOG.isErrorEnabled())
          {
-            log.error("Error on retrieving username from callback handler! ", e);
+            LOG.error("Error on retrieving username from callback handler! ", e);
          }
       }
 
@@ -175,9 +175,9 @@ public class DigestAuthenticationJbossLoginModule extends JbossLoginModule
       }
       catch (UnsupportedCallbackException e)
       {
-         if (log.isErrorEnabled())
+         if (LOG.isErrorEnabled())
          {
-            log.error("Error on retrieving password from callback handler! ", e);
+            LOG.error("Error on retrieving password from callback handler! ", e);
          }
       }
 
@@ -201,9 +201,9 @@ public class DigestAuthenticationJbossLoginModule extends JbossLoginModule
       }
       catch (UnsupportedCallbackException e)
       {
-         if (log.isErrorEnabled())
+         if (LOG.isErrorEnabled())
          {
-            log.error("Error on retrieving username from callback handler! ", e);
+            LOG.error("Error on retrieving username from callback handler! ", e);
          }
       }
 
@@ -223,9 +223,9 @@ public class DigestAuthenticationJbossLoginModule extends JbossLoginModule
       }
       catch (UnsupportedCallbackException e)
       {
-         if (log.isErrorEnabled())
+         if (LOG.isErrorEnabled())
          {
-            log.error("Error on retrieving password from callback handler! ", e);
+            LOG.error("Error on retrieving password from callback handler! ", e);
          }
       }
 

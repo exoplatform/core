@@ -21,6 +21,8 @@ package org.exoplatform.services.document.impl;
 import org.apache.poi.hsmf.MAPIMessage;
 import org.apache.poi.hsmf.exceptions.ChunkNotFoundException;
 import org.exoplatform.services.document.DocumentReadException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +36,8 @@ import java.util.Properties;
  */
 public class MSOutlookDocumentReader extends BaseDocumentReader
 {
+
+   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.MSOutlookDocumentReader");
 
    /**
     * Get the application/msword mime type.
@@ -57,7 +61,7 @@ public class MSOutlookDocumentReader extends BaseDocumentReader
    {
       if (is == null)
       {
-         throw new NullPointerException("InputStream is null.");
+         throw new IllegalArgumentException("InputStream is null.");
       }
       try
       {
@@ -83,6 +87,10 @@ public class MSOutlookDocumentReader extends BaseDocumentReader
          catch (ChunkNotFoundException e)
          {
             // "from" is empty
+            if (LOG.isTraceEnabled())
+            {
+               LOG.trace("An exception occurred: " + e.getMessage());
+            }
          }
          try
          {
@@ -91,6 +99,10 @@ public class MSOutlookDocumentReader extends BaseDocumentReader
          catch (ChunkNotFoundException e)
          {
             // "to" is empty
+            if (LOG.isTraceEnabled())
+            {
+               LOG.trace("An exception occurred: " + e.getMessage());
+            }
          }
          try
          {
@@ -99,6 +111,10 @@ public class MSOutlookDocumentReader extends BaseDocumentReader
          catch (ChunkNotFoundException e)
          {
             // "subject" is empty
+            if (LOG.isTraceEnabled())
+            {
+               LOG.trace("An exception occurred: " + e.getMessage());
+            }
          }
          try
          {
@@ -107,6 +123,10 @@ public class MSOutlookDocumentReader extends BaseDocumentReader
          catch (ChunkNotFoundException e)
          {
             // "textBody" is empty
+            if (LOG.isTraceEnabled())
+            {
+               LOG.trace("An exception occurred: " + e.getMessage());
+            }
          }
          return builder.toString();
 
@@ -121,6 +141,10 @@ public class MSOutlookDocumentReader extends BaseDocumentReader
             }
             catch (IOException e)
             {
+               if (LOG.isTraceEnabled())
+               {
+                  LOG.trace("An exception occurred: " + e.getMessage());
+               }
             }
          }
       }
@@ -140,6 +164,10 @@ public class MSOutlookDocumentReader extends BaseDocumentReader
       }
       catch (IOException e)
       {
+         if (LOG.isTraceEnabled())
+         {
+             LOG.trace("An exception occurred: " + e.getMessage());
+         }
       }
       return new Properties();
    }

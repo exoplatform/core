@@ -58,17 +58,17 @@ public class DigestAuthenticationJettyLoginModule extends JettyLoginModule
    @Override
    public boolean login() throws LoginException
    {
-      if (log.isDebugEnabled())
+      if (LOG.isDebugEnabled())
       {
-         log.debug("In login of JettyLoginModule.");
+         LOG.debug("In login of JettyLoginModule.");
       }
       try
       {
          if (sharedState.containsKey("exo.security.identity"))
          {
-            if (log.isDebugEnabled())
+            if (LOG.isDebugEnabled())
             {
-               log.debug("Use Identity from previous LoginModule");
+               LOG.debug("Use Identity from previous LoginModule");
             }
             identity = (Identity)sharedState.get("exo.security.identity");
          }
@@ -79,9 +79,9 @@ public class DigestAuthenticationJettyLoginModule extends JettyLoginModule
                return super.login();
             }
 
-            if (log.isDebugEnabled())
+            if (LOG.isDebugEnabled())
             {
-               log.debug("Try create identity");
+               LOG.debug("Try create identity");
             }
 
             Authenticator authenticator = (Authenticator)getContainer().getComponentInstanceOfType(Authenticator.class);
@@ -102,11 +102,11 @@ public class DigestAuthenticationJettyLoginModule extends JettyLoginModule
          return true;
 
       }
-      catch (final Throwable e)
+      catch (final Exception e)
       {
-         if (log.isDebugEnabled())
+         if (LOG.isDebugEnabled())
          {
-            log.debug(e.getMessage(), e);
+            LOG.debug(e.getMessage(), e);
          }
 
          throw new LoginException(e.getMessage());
@@ -189,9 +189,9 @@ public class DigestAuthenticationJettyLoginModule extends JettyLoginModule
       }
       catch (Exception e)
       {
-         if (log.isErrorEnabled())
+         if (LOG.isErrorEnabled())
          {
-            log.error("Could not get credentials.", e);
+            LOG.error("Could not get credentials.", e);
          }
       }
 
@@ -215,9 +215,9 @@ public class DigestAuthenticationJettyLoginModule extends JettyLoginModule
       }
       catch (Exception e)
       {
-         if (log.isErrorEnabled())
+         if (LOG.isErrorEnabled())
          {
-            log.error("Could not get username.", e);
+            LOG.error("Could not get username.", e);
          }
       }
 
@@ -237,9 +237,9 @@ public class DigestAuthenticationJettyLoginModule extends JettyLoginModule
       }
       catch (Exception e)
       {
-         if (log.isErrorEnabled())
+         if (LOG.isErrorEnabled())
          {
-            log.error("Could not get password.", e);
+            LOG.error("Could not get password.", e);
          }
       }
 

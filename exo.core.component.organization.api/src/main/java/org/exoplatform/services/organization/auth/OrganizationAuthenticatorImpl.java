@@ -54,7 +54,7 @@ import javax.security.auth.login.LoginException;
 public class OrganizationAuthenticatorImpl implements Authenticator
 {
 
-   protected static Log log =
+   protected static final Log LOG =
       ExoLogger.getLogger("exo.core.component.organization.api.OrganizationUserRegistry");
 
    private final OrganizationService orgService;

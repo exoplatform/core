@@ -19,6 +19,9 @@
  
 package org.exoplatform.services.security;
 
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
@@ -34,6 +37,9 @@ import java.util.Map;
 
 public class DigestPasswordEncrypter implements PasswordEncrypter
 {
+
+   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.security.DigestPasswordEncrypter");
+
    final private int HASH_HEX_LENGTH = 32;
    
    final private Map<String, String> context;
@@ -99,7 +105,10 @@ public class DigestPasswordEncrypter implements PasswordEncrypter
       }
       catch (NoSuchAlgorithmException e)
       {
-
+         if (LOG.isTraceEnabled())
+         {
+            LOG.trace("An exception occurred: " + e.getMessage());
+         }
       }
       // calculate MD5 hash of A1 string
       String a1 = username + ":" + realm + ":" + new String(plainPassword);

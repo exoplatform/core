@@ -80,7 +80,7 @@ public class TestDocumentReadersIncomVals extends BaseStandaloneTest
             sb.append(serviceList.get(i).toString() + "\n");
             //  fails.add(serviceList.get(i).toString());
          }
-         catch (NullPointerException e)
+         catch (IllegalArgumentException e)
          {
             //ok
          }

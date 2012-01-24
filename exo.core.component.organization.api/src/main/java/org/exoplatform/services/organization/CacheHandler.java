@@ -22,6 +22,8 @@ import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.CachedObjectSelector;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.cache.ObjectCacheInfo;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -55,6 +57,9 @@ import java.util.Map;
  */
 public class CacheHandler
 {
+
+   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.organization.CacheHandler");
+
    public static final String MEMBERSHIPTYPE_PREFIX = "mt=";
 
    public static final String GROUP_PREFIX = "g=";
@@ -187,6 +192,10 @@ public class CacheHandler
          }
          catch (Exception e)
          {
+            if (LOG.isTraceEnabled())
+            {
+               LOG.trace("An exception occurred: " + e.getMessage());
+            }
          }
       }
       else
@@ -245,6 +254,10 @@ public class CacheHandler
          }
          catch (Exception e)
          {
+            if (LOG.isTraceEnabled())
+            {
+               LOG.trace("An exception occurred: " + e.getMessage());
+            }
          }
       }
       else
