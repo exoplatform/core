@@ -20,6 +20,7 @@ package org.exoplatform.services.organization.hibernate;
 
 import org.exoplatform.commons.utils.LazyPageList;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.database.HibernateService;
@@ -33,6 +34,7 @@ import org.exoplatform.services.organization.UserEventListenerHandler;
 import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.impl.UserImpl;
 import org.exoplatform.services.security.PasswordEncrypter;
+import org.exoplatform.services.security.PermissionConstants;
 import org.hibernate.Session;
 
 import java.util.ArrayList;
@@ -75,6 +77,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
     */
    public void addUserEventListener(UserEventListener listener)
    {
+      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
       listeners_.add(listener);
    }
 
@@ -83,6 +86,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
     */
    public void removeUserEventListener(UserEventListener listener)
    {
+      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
       listeners_.remove(listener);
    }
 

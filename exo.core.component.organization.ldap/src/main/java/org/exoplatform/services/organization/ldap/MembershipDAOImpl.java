@@ -19,6 +19,7 @@
 package org.exoplatform.services.organization.ldap;
 
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -33,6 +34,7 @@ import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.impl.MembershipImpl;
+import org.exoplatform.services.security.PermissionConstants;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -99,6 +101,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
     */
    public void addMembershipEventListener(MembershipEventListener listener)
    {
+      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
       listeners.add(listener);
    }
 
@@ -107,6 +110,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
     */
    public void removeMembershipEventListener(MembershipEventListener listener)
    {
+      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
       listeners.remove(listener);
    }
 

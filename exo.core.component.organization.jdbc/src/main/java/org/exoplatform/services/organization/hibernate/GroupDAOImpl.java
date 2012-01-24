@@ -19,12 +19,14 @@
 package org.exoplatform.services.organization.hibernate;
 
 import org.exoplatform.commons.exception.UniqueObjectException;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
 import org.exoplatform.services.organization.GroupEventListenerHandler;
 import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.impl.GroupImpl;
+import org.exoplatform.services.security.PermissionConstants;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
@@ -82,6 +84,7 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
     */
    public void addGroupEventListener(GroupEventListener listener)
    {
+      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
       listeners_.add(listener);
    }
 
@@ -90,6 +93,7 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
     */
    public void removeGroupEventListener(GroupEventListener listener)
    {
+      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
       listeners_.remove(listener);
    }
 

@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.organization.hibernate;
 
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.database.HibernateService;
@@ -27,6 +28,7 @@ import org.exoplatform.services.organization.UserProfileEventListenerHandler;
 import org.exoplatform.services.organization.UserProfileHandler;
 import org.exoplatform.services.organization.impl.UserProfileData;
 import org.exoplatform.services.organization.impl.UserProfileImpl;
+import org.exoplatform.services.security.PermissionConstants;
 import org.hibernate.Session;
 
 import java.util.ArrayList;
@@ -67,6 +69,7 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
     */
    public void addUserProfileEventListener(UserProfileEventListener listener)
    {
+      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
       listeners_.add(listener);
    }
 
@@ -75,6 +78,7 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
     */
    public void removeUserProfileEventListener(UserProfileEventListener listener)
    {
+      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
       listeners_.remove(listener);
    }
 
