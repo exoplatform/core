@@ -256,7 +256,7 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
     */
    public void addUserProfileEventListener(UserProfileEventListener listener)
    {
-      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners.add(listener);
    }
 
@@ -265,7 +265,7 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
     */
    public void removeUserProfileEventListener(UserProfileEventListener listener)
    {
-      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners.remove(listener);
    }
 

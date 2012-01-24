@@ -90,7 +90,7 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
     */
    public void addMembershipEventListener(MembershipEventListener listener)
    {
-      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners_.add(listener);
    }
 
@@ -99,7 +99,7 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
     */
    public void removeMembershipEventListener(MembershipEventListener listener)
    {
-      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners_.remove(listener);
    }
 

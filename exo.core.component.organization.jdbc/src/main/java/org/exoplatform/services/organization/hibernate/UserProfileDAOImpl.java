@@ -69,7 +69,7 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
     */
    public void addUserProfileEventListener(UserProfileEventListener listener)
    {
-      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners_.add(listener);
    }
 
@@ -78,7 +78,7 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
     */
    public void removeUserProfileEventListener(UserProfileEventListener listener)
    {
-      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners_.remove(listener);
    }
 

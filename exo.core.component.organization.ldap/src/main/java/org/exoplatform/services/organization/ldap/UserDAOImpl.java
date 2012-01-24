@@ -98,7 +98,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
     */
    public void addUserEventListener(UserEventListener listener)
    {
-      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners.add(listener);
    }
 
@@ -107,7 +107,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
     */
    public void removeUserEventListener(UserEventListener listener)
    {
-      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners.remove(listener);
    }
 
