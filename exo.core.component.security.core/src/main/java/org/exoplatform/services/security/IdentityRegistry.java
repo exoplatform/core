@@ -70,15 +70,17 @@ public class IdentityRegistry
    {
       try
       {
-         ValueParam concurrencyLevel = params.getValueParam(INIT_PARAM_CONCURRENCY_LEVEL);
-         if (concurrencyLevel != null)
+         if (params != null)
          {
-            return Integer.valueOf(concurrencyLevel.getValue());
+            ValueParam concurrencyLevel = params.getValueParam(INIT_PARAM_CONCURRENCY_LEVEL);
+
+            if (concurrencyLevel != null)
+            {
+               return Integer.valueOf(concurrencyLevel.getValue());
+            }
          }
-         else
-         {
-            return DEFAULT_CONCURRENCY_LEVEL;
-         }
+
+         return DEFAULT_CONCURRENCY_LEVEL;
       }
       catch (Exception e)
       {
