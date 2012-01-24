@@ -77,7 +77,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
     */
    public void addUserEventListener(UserEventListener listener)
    {
-      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners_.add(listener);
    }
 
@@ -86,7 +86,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
     */
    public void removeUserEventListener(UserEventListener listener)
    {
-      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners_.remove(listener);
    }
 

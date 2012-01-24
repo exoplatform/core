@@ -91,7 +91,7 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
     */
    public void addGroupEventListener(GroupEventListener listener)
    {
-      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners.add(listener);
    }
 
@@ -100,7 +100,7 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
     */
    public void removeGroupEventListener(GroupEventListener listener)
    {
-      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners.remove(listener);
    }
 

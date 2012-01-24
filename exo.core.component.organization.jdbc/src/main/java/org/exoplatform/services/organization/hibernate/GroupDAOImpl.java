@@ -84,7 +84,7 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
     */
    public void addGroupEventListener(GroupEventListener listener)
    {
-      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners_.add(listener);
    }
 
@@ -93,7 +93,7 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
     */
    public void removeGroupEventListener(GroupEventListener listener)
    {
-      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners_.remove(listener);
    }
 

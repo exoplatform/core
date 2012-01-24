@@ -375,7 +375,7 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
     */
    public void addMembershipTypeEventListener(MembershipTypeEventListener listener)
    {
-      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners.add(listener);
    }
 
@@ -384,7 +384,7 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
     */
    public void removeMembershipTypeEventListener(MembershipTypeEventListener listener)
    {
-      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners.remove(listener);
    }
 
