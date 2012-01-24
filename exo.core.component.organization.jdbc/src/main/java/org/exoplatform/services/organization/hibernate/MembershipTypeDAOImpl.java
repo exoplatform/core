@@ -18,12 +18,14 @@
  */
 package org.exoplatform.services.organization.hibernate;
 
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.MembershipTypeEventListener;
 import org.exoplatform.services.organization.MembershipTypeEventListenerHandler;
 import org.exoplatform.services.organization.MembershipTypeHandler;
 import org.exoplatform.services.organization.impl.MembershipTypeImpl;
+import org.exoplatform.services.security.PermissionConstants;
 import org.hibernate.Session;
 
 import java.util.ArrayList;
@@ -155,6 +157,7 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler, MembershipT
     */
    public void addMembershipTypeEventListener(MembershipTypeEventListener listener)
    {
+      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
       listeners.add(listener);
    }
 
@@ -163,6 +166,7 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler, MembershipT
     */
    public void removeMembershipTypeEventListener(MembershipTypeEventListener listener)
    {
+      SecurityHelper.validateSecurityPermissions(new RuntimePermission[]{PermissionConstants.MANAGE_LISTENERS});
       listeners.remove(listener);
    }
 
