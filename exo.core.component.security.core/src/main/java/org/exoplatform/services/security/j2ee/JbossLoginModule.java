@@ -47,7 +47,7 @@ import javax.security.auth.login.LoginException;
 public class JbossLoginModule extends DefaultLoginModule
 {
    /** . */
-   protected static final Log LOG = ExoLogger.getLogger("exo.core.component.security.core.JbossLoginModule.class");
+   protected static final Log LOG = ExoLogger.getLogger("exo.core.component.security.core.JbossLoginModule");
 
    /**
     * {@inheritDoc}
