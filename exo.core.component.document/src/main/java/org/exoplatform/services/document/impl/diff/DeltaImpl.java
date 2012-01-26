@@ -75,10 +75,18 @@ public abstract class DeltaImpl implements Delta
       }
       catch (InstantiationException e)
       {
+         if (LOG.isTraceEnabled())
+         {
+            LOG.trace("An exception occurred: " + e.getMessage());
+         }
          return null;
       }
       catch (IllegalAccessException e)
       {
+         if (LOG.isTraceEnabled())
+         {
+            LOG.trace("An exception occurred: " + e.getMessage());
+         }
          return null;
       }
       result.init(orig, rev);
