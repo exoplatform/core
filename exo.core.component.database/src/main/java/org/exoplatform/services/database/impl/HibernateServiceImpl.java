@@ -32,6 +32,7 @@ import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.database.ObjectQuery;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -340,9 +341,11 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
       {
          session.close();
          if (log_.isDebugEnabled())
+         {
             log_.debug("close hibernate session in openSession(Session session)");
+         }
       }
-      catch (Throwable t)
+      catch (HibernateException t)
       {
          log_.error("Error closing hibernate session : " + t.getMessage(), t);
       }
