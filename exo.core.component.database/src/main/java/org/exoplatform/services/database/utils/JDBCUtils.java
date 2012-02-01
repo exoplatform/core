@@ -121,7 +121,7 @@ public class JDBCUtils
    {
       StringBuilder errorTrace = new StringBuilder(exception.getMessage());
 
-      SQLException next = exception.getNextException();
+      SQLException next = exception;
       while (next != null)
       {
          errorTrace.append("; ");

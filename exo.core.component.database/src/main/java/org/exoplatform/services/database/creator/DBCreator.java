@@ -244,7 +244,7 @@ public class DBCreator
       }
       catch (SQLException e)
       {
-         throw new DBCreatorException("Can't execute SQL script : " + JDBCUtils.getFullMessage(e));
+         throw new DBCreatorException("Can't execute SQL script : " + JDBCUtils.getFullMessage(e), e);
       }
       finally
       {
