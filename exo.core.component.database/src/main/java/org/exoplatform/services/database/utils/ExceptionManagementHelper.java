@@ -38,7 +38,7 @@ public class ExceptionManagementHelper
     */
    public static String getFullSQLExceptionMessage(SQLException e)
    {
-      SQLException next = e.getNextException();
+      SQLException next = e;
       StringBuilder errorTrace = new StringBuilder();
 
       while (next != null)
