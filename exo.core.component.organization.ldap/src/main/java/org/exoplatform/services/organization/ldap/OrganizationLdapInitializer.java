@@ -30,6 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -115,7 +116,7 @@ public class OrganizationLdapInitializer extends BaseComponentPlugin implements 
             return;
          }
       }
-      catch (Exception exp)
+      catch (NamingException exp)
       {
          if (LOG.isTraceEnabled())
          {

@@ -443,7 +443,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
       {
          return ldapService.authenticate(userDN, password);
       }
-      catch (Exception exp)
+      catch (NamingException exp)
       {
          return false;
       }

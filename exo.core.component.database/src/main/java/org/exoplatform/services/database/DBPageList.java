@@ -120,10 +120,6 @@ public class DBPageList<T extends DBObject> extends PageList
          resultSet.close();
          statement.close();
       }
-      catch (Exception e)
-      {
-         throw e;
-      }
       finally
       {
          dao_.getExoDatasource().closeConnection(connection);
@@ -150,10 +146,6 @@ public class DBPageList<T extends DBObject> extends PageList
          resultSet.close();
          statement.close();
          return list;
-      }
-      catch (Exception e)
-      {
-         throw e;
       }
       finally
       {

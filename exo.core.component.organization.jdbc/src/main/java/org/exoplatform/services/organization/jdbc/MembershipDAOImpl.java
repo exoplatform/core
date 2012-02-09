@@ -269,10 +269,6 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
             listenerService_.broadcast("organization.membership.postDelete", this, membershipImpl);
          return membershipImpl;
       }
-      catch (Exception e)
-      {
-         throw e;
-      }
       finally
       {
          eXoDS_.closeConnection(connection);
@@ -318,10 +314,6 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
                listenerService_.broadcast("organization.membership.postDelete", this, membershipImpl);
          }
          return list;
-      }
-      catch (Exception e)
-      {
-         throw e;
       }
       finally
       {

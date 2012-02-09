@@ -82,7 +82,7 @@ public class IdentityRegistry
 
          return DEFAULT_CONCURRENCY_LEVEL;
       }
-      catch (Exception e)
+      catch (NumberFormatException e)
       {
          LOG.error("Can't parse parameter " + INIT_PARAM_CONCURRENCY_LEVEL, e);
          return DEFAULT_CONCURRENCY_LEVEL;

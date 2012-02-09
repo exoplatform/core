@@ -92,10 +92,6 @@ public abstract class DAO<T extends DBObject>
       {
          return loadUnique(connection, query);
       }
-      catch (Exception e)
-      {
-         throw e;
-      }
       finally
       {
          eXoDS_.closeConnection(connection);
@@ -137,10 +133,6 @@ public abstract class DAO<T extends DBObject>
       {
          loadInstances(connection, loadQuery, list);
       }
-      catch (Exception e)
-      {
-         throw e;
-      }
       finally
       {
          eXoDS_.closeConnection(connection);
@@ -172,10 +164,6 @@ public abstract class DAO<T extends DBObject>
       {
          execute(connection, query, bean);
       }
-      catch (Exception e)
-      {
-         throw e;
-      }
       finally
       {
          eXoDS_.closeConnection(connection);
@@ -203,10 +191,6 @@ public abstract class DAO<T extends DBObject>
       try
       {
          return this.<E> loadDBField(connection, query);
-      }
-      catch (Exception e)
-      {
-         throw e;
       }
       finally
       {
@@ -237,10 +221,6 @@ public abstract class DAO<T extends DBObject>
       try
       {
          execute(connection, template, beans);
-      }
-      catch (Exception e)
-      {
-         throw e;
       }
       finally
       {
