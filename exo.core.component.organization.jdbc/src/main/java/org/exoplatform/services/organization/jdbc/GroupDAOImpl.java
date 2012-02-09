@@ -122,11 +122,9 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
          long id = childImpl.getDBObjectId();
          execute(connection, eXoDS_.getQueryBuilder().createInsertQuery(type_, id), childImpl);
          if (broadcast)
+         {
             listenerService_.broadcast("organization.group.postSave", this, childImpl);
-      }
-      catch (Exception e)
-      {
-         throw e;
+         }
       }
       finally
       {

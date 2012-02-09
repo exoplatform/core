@@ -126,7 +126,15 @@ public class TRAXTemplatesServiceImpl implements TRAXTemplatesService, Startable
                else
                   LOG.error("XSLT schema not found: " + xsltSchema);
             }
-            catch (Exception e)
+            catch (IllegalArgumentException e)
+            {
+               LOG.error("Add new TRAXTemplates failed : " + e.getMessage());
+            }
+            catch (TransformerException e)
+            {
+               LOG.error("Add new TRAXTemplates failed : " + e.getMessage());
+            }
+            catch (NotSupportedIOTypeException e)
             {
                LOG.error("Add new TRAXTemplates failed : " + e.getMessage());
             }

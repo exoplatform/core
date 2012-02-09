@@ -34,6 +34,7 @@ import org.exoplatform.services.database.ObjectQuery;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.hibernate.HibernateException;
+import org.hibernate.MappingException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -263,11 +264,14 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
                {
                   Class<?> clazz = ClassLoading.loadClass(annotation, this);
                   conf_.addAnnotatedClass(clazz);
-
                }
             }
          }
-         catch (Exception ex)
+         catch (MappingException ex)
+         {
+            LOG.error(ex.getLocalizedMessage(), ex);
+         }
+         catch (ClassNotFoundException ex)
          {
             LOG.error(ex.getLocalizedMessage(), ex);
          }

@@ -187,7 +187,28 @@ public class DigestAuthenticationJettyLoginModule extends JettyLoginModule
          field.setAccessible(true);
          password = (String)field.get(objectFromCallback);
       }
-      catch (Exception e)
+      catch (IllegalArgumentException e)
+      {
+         if (LOG.isErrorEnabled())
+         {
+            LOG.error("Could not get credentials.", e);
+         }
+      }
+      catch (NoSuchFieldException e)
+      {
+         if (LOG.isErrorEnabled())
+         {
+            LOG.error("Could not get credentials.", e);
+         }
+      }
+      catch (SecurityException e)
+      {
+         if (LOG.isErrorEnabled())
+         {
+            LOG.error("Could not get credentials.", e);
+         }
+      }
+      catch (IllegalAccessException e)
       {
          if (LOG.isErrorEnabled())
          {
@@ -207,13 +228,35 @@ public class DigestAuthenticationJettyLoginModule extends JettyLoginModule
    {
       String username = null;
       Class<?> digestAuthenticatorClazz = DigestAuthenticator.class.getDeclaredClasses()[0];
+
       try
       {
          Field field = digestAuthenticatorClazz.getDeclaredField("username");
          field.setAccessible(true);
          username = (String)field.get((((ObjectCallback)objectCallback[0]).getObject()));
       }
-      catch (Exception e)
+      catch (IllegalArgumentException e)
+      {
+         if (LOG.isErrorEnabled())
+         {
+            LOG.error("Could not get username.", e);
+         }
+      }
+      catch (IllegalAccessException e)
+      {
+         if (LOG.isErrorEnabled())
+         {
+            LOG.error("Could not get username.", e);
+         }
+      }
+      catch (NoSuchFieldException e)
+      {
+         if (LOG.isErrorEnabled())
+         {
+            LOG.error("Could not get username.", e);
+         }
+      }
+      catch (SecurityException e)
       {
          if (LOG.isErrorEnabled())
          {
@@ -229,13 +272,35 @@ public class DigestAuthenticationJettyLoginModule extends JettyLoginModule
    {
       String password = null;
       Class<?> digestAuthenticatorClazz = DigestAuthenticator.class.getDeclaredClasses()[0];
+
       try
       {
          Field field = digestAuthenticatorClazz.getDeclaredField("response");
          field.setAccessible(true);
          password = (String)field.get((((ObjectCallback)objectCallback[0]).getObject()));
       }
-      catch (Exception e)
+      catch (IllegalArgumentException e)
+      {
+         if (LOG.isErrorEnabled())
+         {
+            LOG.error("Could not get password.", e);
+         }
+      }
+      catch (IllegalAccessException e)
+      {
+         if (LOG.isErrorEnabled())
+         {
+            LOG.error("Could not get password.", e);
+         }
+      }
+      catch (NoSuchFieldException e)
+      {
+         if (LOG.isErrorEnabled())
+         {
+            LOG.error("Could not get password.", e);
+         }
+      }
+      catch (SecurityException e)
       {
          if (LOG.isErrorEnabled())
          {

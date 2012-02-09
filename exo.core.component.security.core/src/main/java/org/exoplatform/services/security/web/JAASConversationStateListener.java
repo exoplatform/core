@@ -26,6 +26,7 @@ import org.exoplatform.services.security.StateKey;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 
@@ -81,7 +82,11 @@ public class JAASConversationStateListener extends ConversationStateListener
             }
          }
       }
-      catch (Exception e)
+      catch (LoginException e)
+      {
+         LOG.error("Can't remove conversation state " + httpSession.getId());
+      }
+      catch (SecurityException e)
       {
          LOG.error("Can't remove conversation state " + httpSession.getId());
       }
