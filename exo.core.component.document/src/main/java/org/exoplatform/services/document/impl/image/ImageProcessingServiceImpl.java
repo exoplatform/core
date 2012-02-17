@@ -31,8 +31,7 @@ import java.awt.image.BufferedImage;
 public class ImageProcessingServiceImpl implements ImageProcessingService
 {
 
-   private static final Log LOG = ExoLogger
-      .getLogger("org.exoplatform.services.document.impl.image.ImageProcessingServiceImpl");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.ImageProcessingServiceImpl");
 
    public BufferedImage createCroppedImage(BufferedImage img, int chosenWidth, int chosenHeight)
    {

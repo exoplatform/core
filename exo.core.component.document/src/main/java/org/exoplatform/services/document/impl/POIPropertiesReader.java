@@ -52,7 +52,7 @@ import java.util.Properties;
 public class POIPropertiesReader
 {
 
-   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.POIPropertiesReader");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.POIPropertiesReader");
 
    private final Properties props = new Properties();
 

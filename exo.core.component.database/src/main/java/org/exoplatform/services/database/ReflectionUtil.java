@@ -33,7 +33,7 @@ import java.util.List;
 public class ReflectionUtil
 {
 
-   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.database.ReflectionUtil");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.database.ReflectionUtil");
 
    public final static void setValue(Object bean, Field field, Object value) throws Exception
    {

@@ -53,7 +53,7 @@ import java.util.Properties;
 public class TikaDocumentReader implements AdvancedDocumentReader
 {
 
-   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.tika.TikaDocumentReader");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.TikaDocumentReader");
 
    /**
     * Since Tika can not extract metadata without extracting document content,

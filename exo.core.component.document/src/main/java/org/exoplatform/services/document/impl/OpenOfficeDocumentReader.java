@@ -51,8 +51,7 @@ import javax.xml.parsers.SAXParserFactory;
 public class OpenOfficeDocumentReader extends BaseDocumentReader
 {
 
-   private static final Log LOG = ExoLogger
-      .getLogger("org.exoplatform.services.document.impl.OpenOfficeDocumentReader");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.OpenOfficeDocumentReader");
 
    /*
     * (non-Javadoc)

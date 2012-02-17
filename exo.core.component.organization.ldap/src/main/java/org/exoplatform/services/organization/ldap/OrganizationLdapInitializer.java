@@ -45,7 +45,7 @@ public class OrganizationLdapInitializer extends BaseComponentPlugin implements 
 {
 
    private static final Log LOG = ExoLogger
-      .getLogger("org.exoplatform.services.organization.ldap.OrganizationLdapInitializer");
+      .getLogger("exo.core.component.organization.ldap.OrganizationLdapInitializer");
 
    protected static Pattern COMPACT_DN = Pattern.compile("\\b\\p{Space}*=\\p{Space}*", Pattern.CASE_INSENSITIVE);
 

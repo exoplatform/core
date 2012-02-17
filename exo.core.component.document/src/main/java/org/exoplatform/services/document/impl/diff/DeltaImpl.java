@@ -41,7 +41,7 @@ import java.util.List;
 public abstract class DeltaImpl implements Delta
 {
 
-   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.diff.DeltaImpl");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.DeltaImpl");
 
    protected Chunk original;
 

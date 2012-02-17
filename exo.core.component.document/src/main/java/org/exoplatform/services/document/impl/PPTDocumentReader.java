@@ -38,7 +38,7 @@ import java.util.Properties;
 public class PPTDocumentReader extends BaseDocumentReader
 {
 
-   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.PPTDocumentReader");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.PPTDocumentReader");
 
    /**
     * Get the application/powerpoint mime type.

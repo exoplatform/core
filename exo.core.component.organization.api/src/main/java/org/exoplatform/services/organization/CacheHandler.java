@@ -58,7 +58,7 @@ import java.util.Map;
 public class CacheHandler
 {
 
-   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.organization.CacheHandler");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.api.CacheHandler");
 
    public static final String MEMBERSHIPTYPE_PREFIX = "mt=";
 

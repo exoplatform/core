@@ -40,7 +40,7 @@ import java.util.Properties;
 public class MSWordDocumentReader extends BaseDocumentReader
 {
 
-   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.MSWordDocumentReader");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.MSWordDocumentReader");
 
    /**
     * Get the application/msword mime type.

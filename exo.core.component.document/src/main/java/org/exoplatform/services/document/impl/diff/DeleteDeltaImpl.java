@@ -49,7 +49,7 @@ public class DeleteDeltaImpl extends DeltaImpl implements DeleteDelta
    {
       if (!original.verify(target))
       {
-         throw new Exception();
+         throw new IllegalStateException("target isn't correct");
       }
    }
 

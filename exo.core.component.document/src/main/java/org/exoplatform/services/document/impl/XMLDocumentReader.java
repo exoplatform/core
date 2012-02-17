@@ -45,7 +45,7 @@ import javax.xml.parsers.SAXParserFactory;
 public class XMLDocumentReader extends BaseDocumentReader
 {
 
-   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.XMLDocumentReader");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.XMLDocumentReader");
 
    /**
     * Get the text/xml, application/xml, application/x-google-gadget mime types.
