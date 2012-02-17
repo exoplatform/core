@@ -49,11 +49,11 @@ public class ChangeDeltaImpl extends DeltaImpl implements ChangeDelta
    {
       if (!original.verify(target))
       {
-         throw new Exception();
+         throw new IllegalStateException("target isn't correct");
       }
       if (original.first() > target.size())
       {
-         throw new Exception("original.first() > target.size()");
+         throw new IllegalStateException("original.first() > target.size()");
       }
    }
 

@@ -50,7 +50,7 @@ public class AddDeltaImpl extends DeltaImpl implements AddDelta
    {
       if (original.first() > target.size())
       {
-         throw new Exception("original.first() > target.size()");
+         throw new IllegalStateException("original.first() > target.size()");
       }
    }
 

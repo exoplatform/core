@@ -49,7 +49,7 @@ import java.util.Properties;
 public class MSXExcelDocumentReader extends BaseDocumentReader
 {
 
-   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.MSXExcelDocumentReader");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.MSXExcelDocumentReader");
 
    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSZ";
 

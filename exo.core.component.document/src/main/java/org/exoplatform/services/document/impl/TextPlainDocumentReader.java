@@ -38,7 +38,7 @@ import java.util.Properties;
 public class TextPlainDocumentReader extends BaseDocumentReader
 {
 
-   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.TextPlainDocumentReader");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.TextPlainDocumentReader");
 
    public static final String DEFAULT_ENCODING = "defaultEncoding";
 

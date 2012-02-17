@@ -40,7 +40,7 @@ import java.util.Properties;
 public class HTMLDocumentReader extends BaseDocumentReader
 {
 
-   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.HTMLDocumentReader");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.HTMLDocumentReader");
 
    /**
     * Initializes a newly created object for text/html files format parsing.

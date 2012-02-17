@@ -38,7 +38,7 @@ import java.util.Map;
 public class DigestPasswordEncrypter implements PasswordEncrypter
 {
 
-   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.security.DigestPasswordEncrypter");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.security.core.DigestPasswordEncrypter");
 
    final private int HASH_HEX_LENGTH = 32;
    

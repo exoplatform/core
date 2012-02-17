@@ -44,7 +44,7 @@ import java.util.Properties;
 public class MSXWordDocumentReader extends BaseDocumentReader
 {
 
-   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.MSXWordDocumentReader");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.MSXWordDocumentReader");
 
    /**
     * @see org.exoplatform.services.document.DocumentReader#getMimeTypes()

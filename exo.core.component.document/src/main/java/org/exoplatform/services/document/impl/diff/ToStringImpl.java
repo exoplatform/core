@@ -37,7 +37,7 @@ import java.util.List;
 public class ToStringImpl implements ToString
 {
 
-   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.diff.ToStringImpl");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.ToStringImpl");
 
    public ToStringImpl()
    {

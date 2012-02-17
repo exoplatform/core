@@ -38,7 +38,7 @@ public abstract class DAO<T extends DBObject>
    /**
     * Logger.
     */
-   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.database.DAO");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.database.DAO");
 
    protected ExoDatasource eXoDS_;
 

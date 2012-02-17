@@ -37,7 +37,7 @@ import java.util.Properties;
 public class MSOutlookDocumentReader extends BaseDocumentReader
 {
 
-   private static final Log LOG = ExoLogger.getLogger("org.exoplatform.services.document.impl.MSOutlookDocumentReader");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.MSOutlookDocumentReader");
 
    /**
     * Get the application/msword mime type.

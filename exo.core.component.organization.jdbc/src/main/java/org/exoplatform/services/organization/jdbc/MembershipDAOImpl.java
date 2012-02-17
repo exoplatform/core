@@ -327,7 +327,7 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
    @SuppressWarnings("unchecked")
    public void addMembershipEventListener(MembershipEventListener listener)
    {
-      throw new RuntimeException("This method is not supported anymore, please use the new api");
+      throw new UnsupportedOperationException("This method is not supported anymore, please use the new api");
    }
 
    /**
@@ -335,6 +335,6 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
     */
    public void removeMembershipEventListener(MembershipEventListener listener)
    {
-      throw new RuntimeException("This method is not supported anymore, please use the new api");
+      throw new UnsupportedOperationException("This method is not supported anymore, please use the new api");
    }
 }
