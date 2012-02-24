@@ -40,11 +40,6 @@
       </dependency>
 
       <dependency>
-         <groupId>org.slf4j</groupId>
-         <artifactId>slf4j-log4j12</artifactId>
-      </dependency> 
-
-      <dependency>
          <groupId>org.exoplatform.kernel</groupId>
          <artifactId>exo.kernel.component.common</artifactId>
       </dependency>
@@ -116,6 +111,15 @@
          <groupId>commons-pool</groupId>
          <artifactId>commons-pool</artifactId>
       </dependency>
+
+      <dependency>
+         <groupId>xml-apis</groupId>
+         <artifactId>xml-apis</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.ow2.spec.ee</groupId>
+         <artifactId>ow2-jta-1.1-spec</artifactId>
+      </dependency>
   </dependencies>
    
    <build>
@@ -134,7 +138,7 @@
                   <id>prepare-test-policy</id>
                   <phase>process-test-resources</phase>
                   <configuration>
-                     <tasks>
+                     <target>
                         <echo>Creating Access Policy for tests</echo>
                         <makeurl file="${settings.localRepository}" property="localRepositoryURL" />
                         <makeurl file="${project.build.outputDirectory}" property="outputDirectoryURL" />
@@ -149,7 +153,7 @@
                               <filter token="TEST_CLASSES" value="${testOutputDirectoryURL}" />
                            </filterset>
                         </copy>
-                     </tasks>                     
+                     </target>                     
                   </configuration>
                   <goals>
                      <goal>run</goal>

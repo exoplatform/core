@@ -216,13 +216,6 @@
             <artifactId>commons-lang</artifactId>
             <version>2.6</version>
          </dependency>
-         
-         <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <version>2.0.0</version>
-            <scope>test</scope>
-         </dependency>
 
          <dependency>
             <groupId>com.experlog</groupId>
@@ -361,28 +354,52 @@
            <artifactId>commons-pool</artifactId>
            <version>1.5.5</version>
         </dependency>
-        
+
         <dependency>
-           <groupId>org.javassist</groupId>
-           <artifactId>javassist</artifactId>
-           <version>3.14.0-GA</version>
+           <groupId>org.apache.tika</groupId>
+           <artifactId>tika-core</artifactId>
+           <version>0.7</version>
         </dependency>
 
-      <dependency>
-    <groupId>org.apache.tika</groupId>
-    <artifactId>tika-core</artifactId>
-    <version>0.7</version>
-  </dependency>
+        <dependency>
+           <groupId>org.apache.tika</groupId>
+           <artifactId>tika-parsers</artifactId>
+           <version>0.7</version>
+        </dependency>
 
-  <dependency>
-    <groupId>org.apache.tika</groupId>
-    <artifactId>tika-parsers</artifactId>
-    <version>0.7</version>
-  </dependency>
+        <dependency>
+           <groupId>org.apache.xmlbeans</groupId>
+           <artifactId>xmlbeans</artifactId>
+           <version>2.3.0</version>
+           <scope>compile</scope>
+        </dependency>
+        <dependency>
+           <groupId>xml-apis</groupId>
+           <artifactId>xml-apis</artifactId>
+           <version>1.0.b2</version>
+           <scope>compile</scope>
+        </dependency>
+        <dependency>
+           <groupId>org.apache.pdfbox</groupId>
+           <artifactId>jempbox</artifactId>
+           <version>1.6.0</version>
+           <scope>compile</scope>
+        </dependency>
 
+        <dependency>
+           <groupId>org.ow2.spec.ee</groupId>
+           <artifactId>ow2-jta-1.1-spec</artifactId>
+           <version>1.0-M1</version>
+           <scope>compile</scope>
+        </dependency>
 
+        <dependency>
+           <artifactId>commons-io</artifactId>
+           <groupId>commons-io</groupId>
+           <version>1.2</version>
+           <scope>test</scope>
+        </dependency>
      
-
       </dependencies>
    </dependencyManagement>
 

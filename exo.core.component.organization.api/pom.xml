@@ -69,10 +69,6 @@
          <groupId>picocontainer</groupId>
          <artifactId>picocontainer</artifactId>
       </dependency>
-      <dependency>
-         <groupId>org.slf4j</groupId>
-         <artifactId>slf4j-log4j12</artifactId>
-      </dependency>
    </dependencies>
    <build>
       <testResources>
@@ -107,7 +103,7 @@
                <execution>
                   <phase>compile</phase>
                   <configuration>
-                     <tasks>
+                     <target>
                         <taskdef name="hibernatedoclet" classname="xdoclet.modules.hibernate.HibernateDocletTask" classpathref="maven.dependency.classpath" />
                         <hibernatedoclet destdir="${basedir}/target/classes" excludedtags="@version,@author,@todo" mergedir="target/classes" force="true" verbose="false">
                            <fileset dir="${basedir}/src/main/java">
@@ -119,7 +115,7 @@
                            </fileset>
                            <hibernate version="3.0" />
                         </hibernatedoclet>
-                     </tasks>
+                     </target>
                   </configuration>
                   <goals>
                      <goal>run</goal>

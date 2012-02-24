@@ -50,7 +50,7 @@
             <executions>
                <execution>
                   <id>attach-sources</id>
-                  <phase>package</phase>
+                  <phase>generate-sources</phase>
                   <goals>
                      <goal>test-jar-no-fork</goal>
                   </goals>
