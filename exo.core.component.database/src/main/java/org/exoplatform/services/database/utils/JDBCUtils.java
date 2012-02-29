@@ -86,28 +86,7 @@ public class JDBCUtils
       }
       finally
       {
-         if (trs != null)
-         {
-            try
-            {
-               trs.close();
-            }
-            catch (SQLException e)
-            {
-               LOG.error("Can't close the ResultSet: " + e.getMessage());
-            }
-         }
-         if (stmt != null)
-         {
-            try
-            {
-               stmt.close();
-            }
-            catch (SQLException e)
-            {
-               LOG.error("Can't close the Statement: " + e.getMessage());
-            }
-         }
+         freeResources(trs, stmt, null);
       }
    }
 
@@ -190,4 +169,47 @@ public class JDBCUtils
          return resource.split(SQL_DELIMITER);
       }
    }
+
+   /**
+    * Closes database related resources.
+    */
+   public static void freeResources(ResultSet resultSet, Statement statement, Connection conn)
+   {
+      if (resultSet != null)
+      {
+         try
+         {
+            resultSet.close();
+         }
+         catch (SQLException e)
+         {
+            LOG.error(e.getMessage(), e);
+         }
+      }
+
+      if (statement != null)
+      {
+         try
+         {
+            statement.close();
+         }
+         catch (SQLException e)
+         {
+            LOG.error(e.getMessage(), e);
+         }
+      }
+
+      if (conn != null)
+      {
+         try
+         {
+            conn.close();
+         }
+         catch (SQLException e)
+         {
+            LOG.error(e.getMessage(), e);
+         }
+      }
+   }
+
 }
