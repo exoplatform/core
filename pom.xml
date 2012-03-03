@@ -39,7 +39,7 @@
       <exo.product.specification>2.4</exo.product.specification>
       
       <org.exoplatform.framework.junit.version>1.2.1-GA</org.exoplatform.framework.junit.version>
-      <org.exoplatform.kernel.version>2.3.6-GA</org.exoplatform.kernel.version>
+      <org.exoplatform.kernel.version>2.3.6-GA-JBAS7</org.exoplatform.kernel.version>
 
       <!-- Plugins updates -->
       <version.source.plugin>2.1.2</version.source.plugin>
