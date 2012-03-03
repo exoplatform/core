@@ -21,6 +21,7 @@ package org.exoplatform.services.database.impl;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.PrivilegedSystemHelper;
 import org.exoplatform.commons.utils.SecurityHelper;
+import org.exoplatform.commons.utils.Tools;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.container.component.ComponentRequestLifecycle;
@@ -173,7 +174,7 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
                   try
                   {
                      //load driver class
-                     Class.forName(conf_.getProperty("hibernate.connection.driver_class")).newInstance();
+                     Tools.forName(conf_.getProperty("hibernate.connection.driver_class"), this).newInstance();
                   }
                   catch (InstantiationException e)
                   {
@@ -260,7 +261,7 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
             {
                for (String annotation : annotations)
                {
-                  Class clazz = cl.loadClass(annotation);
+                  Class<?> clazz = Tools.loadClass(annotation, this);
                   conf_.addAnnotatedClass(clazz);
 
                }

@@ -20,6 +20,7 @@ package org.exoplatform.services.database.creator;
 
 import org.exoplatform.commons.utils.PrivilegedFileHelper;
 import org.exoplatform.commons.utils.SecurityHelper;
+import org.exoplatform.commons.utils.Tools;
 import org.exoplatform.container.configuration.ConfigurationException;
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.container.xml.InitParams;
@@ -481,7 +482,7 @@ public class DBCreator
       Connection conn = null;
       try
       {
-         Class.forName(connectionProperties.get(DRIVER_NAME));
+         Tools.forName(connectionProperties.get(DRIVER_NAME), this);
 
          conn = SecurityHelper.doPrivilegedSQLExceptionAction(new PrivilegedExceptionAction<Connection>()
          {
