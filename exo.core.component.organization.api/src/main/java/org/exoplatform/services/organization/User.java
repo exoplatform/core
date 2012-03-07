@@ -84,11 +84,13 @@ public interface User
    /**
     * @return return the full name of the user. The full name shoul have the
     *         format: first name, last name by default
+    * @deprecated This method call getDiplayName
     */
    public String getFullName();
 
    /**
     * @param s The name that should show in the full name
+    * @deprecated This method call setDiplayName
     */
    public void setFullName(String s);
 
@@ -123,6 +125,16 @@ public interface User
     * @deprecated The third party developer should not aware of this method
     */
    public void setLastLoginTime(Date t);
+
+   /**
+    * @return return the display name
+    */
+   public String getDisplayName();
+
+   /**
+    * @param displayName The name that should show in the display name
+    */
+   public void setDisplayName(String displayName);
 
    /**
     * @return the id of organization the user belongs to or null if not

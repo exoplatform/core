@@ -158,6 +158,7 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
          user.setFirstName(data.getFirstName());
          user.setLastName(data.getLastName());
          user.setEmail(data.getEmail());
+         user.setDisplayName(data.getDisplayName());
          if (service.getUserHandler().findUserByName(data.getUserName()) == null)
          {
             service.getUserHandler().createUser(user, true);

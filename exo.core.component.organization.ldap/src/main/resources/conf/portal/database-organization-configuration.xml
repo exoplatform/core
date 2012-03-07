@@ -359,6 +359,9 @@
                               <field name="email">
                                  <string>root@localhost</string>
                               </field>
+                              <field name="displayName">
+                                 <string>Root</string>
+                              </field>
                               <field name="groups">
                                  <string>
                                     *:/platform/administrators,manager:/platform/users,
@@ -385,6 +388,9 @@
                               <field name="email">
                                  <string>john@localhost</string>
                               </field>
+                              <field name="displayName">
+                                 <string>John</string>
+                              </field>
                               <field name="groups">
                                  <string>
                                     member:/platform/administrators,manager:/platform/users,
@@ -410,6 +416,9 @@
                               <field name="email">
                                  <string>marry@localhost</string>
                               </field>
+                              <field name="displayName">
+                                 <string>Marry</string>
+                              </field>
                               <field name="groups">
                                  <string>member:/platform/users</string>
                               </field>
@@ -432,6 +441,9 @@
                               <field name="email">
                                  <string>demo@localhost</string>
                               </field>
+                              <field name="displayName">
+                                 <string>Demo</string>
+                              </field>
                               <field name="groups">
                                  <string>member:/platform/users</string>
                               </field>
@@ -453,6 +465,9 @@
                               </field>
                               <field name="email">
                                  <string>james@localhost</string>
+                              </field>
+                              <field name="displayName">
+                                 <string>James</string>
                               </field>
                               <field name="groups">
                                  <string>manager:/organization/management/human-resources,member:/platform/users</string>

@@ -78,8 +78,9 @@ public class OrganizationServiceImpl extends BaseOrganizationService
          java.sql.Date lastLogin = new java.sql.Date(date.getTime());
          return new String[][]{{"ID", String.valueOf(bean.getDBObjectId())}, {"USER_NAME", bean.getUserName()},
             {"PASSWORD", bean.getPassword()}, {"FIRST_NAME", bean.getFirstName()}, {"LAST_NAME", bean.getLastName()},
-            {"EMAIL", bean.getEmail()}, {"CREATED_DATE", createdDate.toString()},
-            {"LAST_LOGIN_TIME", lastLogin.toString()}, {"ORGANIZATION_ID", bean.getOrganizationId()}};
+            {"EMAIL", bean.getEmail()}, {"DISPLAY_NAME", bean.getDisplayName()},
+            {"CREATED_DATE", createdDate.toString()}, {"LAST_LOGIN_TIME", lastLogin.toString()},
+            {"ORGANIZATION_ID", bean.getOrganizationId()}};
       }
 
       public void mapUpdate(UserImpl bean, PreparedStatement statement) throws Exception
@@ -89,18 +90,19 @@ public class OrganizationServiceImpl extends BaseOrganizationService
          statement.setString(3, bean.getFirstName());
          statement.setString(4, bean.getLastName());
          statement.setString(5, bean.getEmail());
+         statement.setString(6, bean.getDisplayName());
 
          Date createdDate = bean.getCreatedDate();
          if (createdDate == null)
             createdDate = Calendar.getInstance().getTime();
-         statement.setDate(6, new java.sql.Date(createdDate.getTime()));
+         statement.setDate(7, new java.sql.Date(createdDate.getTime()));
 
          Date lastLoginTime = bean.getLastLoginTime();
          if (lastLoginTime == null)
             lastLoginTime = Calendar.getInstance().getTime();
-         statement.setDate(7, new java.sql.Date(lastLoginTime.getTime()));
+         statement.setDate(8, new java.sql.Date(lastLoginTime.getTime()));
 
-         statement.setString(8, bean.getOrganizationId());
+         statement.setString(9, bean.getOrganizationId());
       }
 
       public void mapResultSet(ResultSet res, UserImpl bean) throws Exception
@@ -111,6 +113,7 @@ public class OrganizationServiceImpl extends BaseOrganizationService
          bean.setFirstName(res.getString("FIRST_NAME"));
          bean.setLastName(res.getString("LAST_NAME"));
          bean.setEmail(res.getString("EMAIL"));
+         bean.setDisplayName(res.getString("DISPLAY_NAME"));
 
          Calendar calendar = Calendar.getInstance();
          res.getDate("CREATED_DATE", calendar);
