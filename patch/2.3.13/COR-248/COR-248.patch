@@ -1,0 +1,29 @@
+Index: packaging/module/src/main/javascript/core.packaging.module.js
+===================================================================
+--- packaging/module/src/main/javascript/core.packaging.module.js	(revision 5833)
++++ packaging/module/src/main/javascript/core.packaging.module.js	(working copy)
+@@ -38,8 +38,9 @@
+ 
+   module.component.documents =
+     new Project("org.exoplatform.core", "exo.core.component.document", "jar", module.version).
+-    addDependency(new Project("org.apache.pdfbox", "pdfbox", "jar", "1.1.0")).
+-    addDependency(new Project("org.apache.pdfbox", "jempbox", "jar", "1.1.0")).
++    addDependency(new Project("org.apache.pdfbox", "pdfbox", "jar", "1.1.0-eXo01")).
++    addDependency(new Project("org.apache.pdfbox", "fontbox", "jar", "1.1.0-eXo01")).
++    addDependency(new Project("org.apache.pdfbox", "jempbox", "jar", "1.1.0-eXo01")).
+     addDependency(new Project("com.lowagie", "itext", "jar", "2.1.0")).
+     addDependency(new Project("bouncycastle", "bcmail-jdk14", "jar", "136")).
+     addDependency(new Project("bouncycastle", "bcprov-jdk14", "jar", "136")).
+Index: pom.xml
+===================================================================
+--- pom.xml	(revision 5833)
++++ pom.xml	(working copy)
+@@ -269,7 +269,7 @@
+          <dependency>
+             <groupId>org.apache.pdfbox</groupId>
+             <artifactId>pdfbox</artifactId>
+-            <version>1.1.0</version>
++            <version>1.1.0-eXo01</version>
+          </dependency>
+          
+          <dependency>
