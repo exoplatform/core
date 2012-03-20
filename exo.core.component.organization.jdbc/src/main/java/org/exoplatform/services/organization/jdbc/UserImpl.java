@@ -31,6 +31,7 @@ import java.util.Date;
    @TableField(name = "FIRST_NAME", type = "string", length = 500),
    @TableField(name = "LAST_NAME", type = "string", length = 200),
    @TableField(name = "EMAIL", type = "string", length = 200),
+   @TableField(name = "DISPLAY_NAME", type = "string", length = 200),
    @TableField(name = "CREATED_DATE", type = "date", length = 100),
    @TableField(name = "LAST_LOGIN_TIME", type = "date", length = 100),
    @TableField(name = "ORGANIZATION_ID", type = "string", length = 100)})
@@ -53,6 +54,8 @@ public class UserImpl extends DBObject implements User
 
    private String organizationId = null;
 
+   private String displayName = null;
+
    public UserImpl()
    {
    }
@@ -60,6 +63,16 @@ public class UserImpl extends DBObject implements User
    public UserImpl(String username)
    {
       this.userName = username;
+   }
+
+   public String getDisplayName()
+   {
+      return displayName != null ? displayName : getFirstName() + " " + getLastName();
+   }
+
+   public void setDisplayName(String displayName)
+   {
+      this.displayName = displayName;
    }
 
    public String getUserName()
@@ -114,12 +127,13 @@ public class UserImpl extends DBObject implements User
 
    public String getFullName()
    {
-      return getFirstName() + " " + getLastName();
+      return getDisplayName();
    }
 
    @SuppressWarnings("unused")
    public void setFullName(String s)
    {
+      setDisplayName(s);
    }
 
    public Date getCreatedDate()

@@ -77,7 +77,7 @@ public class StandardSQLDAO<T extends DBObject> extends DAO<T>
       {
          if (bean.getDBObjectId() < 0)
          {
-            throw new Exception("The given bean " + bean.getClass() + " doesn't have an id");
+            throw new IllegalStateException("The given bean " + bean.getClass() + " doesn't have an id");
          }
       }
       execute(eXoDS_.getQueryBuilder().createUpdateQuery(type_), list);

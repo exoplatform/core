@@ -24,12 +24,12 @@
    <parent>
       <groupId>org.exoplatform</groupId>
       <artifactId>foundation-parent</artifactId>
-      <version>9</version>
+      <version>1.15.0-SNAPSHOT</version>
    </parent>
 
    <groupId>org.exoplatform.core</groupId>
    <artifactId>core-parent</artifactId>
-   <version>2.4.8-GA-SNAPSHOT</version>
+   <version>2.5.0-Beta01-SNAPSHOT</version>
    <packaging>pom</packaging>
 
    <name>eXo Core</name>
@@ -39,16 +39,16 @@
       <exo.product.specification>2.4</exo.product.specification>
       
       <org.exoplatform.framework.junit.version>1.2.1-GA</org.exoplatform.framework.junit.version>
-      <org.exoplatform.kernel.version>2.3.8-GA-SNAPSHOT</org.exoplatform.kernel.version>
+      <org.exoplatform.kernel.version>2.4.0-Beta01-SNAPSHOT</org.exoplatform.kernel.version>
 
       <!-- Plugins updates -->
       <version.source.plugin>2.1.2</version.source.plugin>
    </properties>
 
    <scm>
-      <connection>scm:svn:https://anonsvn.jboss.org/repos/exo-jcr/core/trunk/</connection>
-      <developerConnection>scm:svn:https://svn.jboss.org/repos/exo-jcr/core/trunk/</developerConnection>
-      <url>http://fisheye.jboss.org/browse/exo-jcr/core/trunk</url>
+      <connection>scm:svn:https://anonsvn.jboss.org/repos/exo-jcr/core/branches/2.5.x</connection>
+      <developerConnection>scm:svn:https://svn.jboss.org/repos/exo-jcr/core/branches/2.5.x</developerConnection>
+      <url>http://fisheye.jboss.org/browse/exo-jcr/core/branches/2.5.x</url>
    </scm>
 
    <modules>
@@ -216,13 +216,6 @@
             <artifactId>commons-lang</artifactId>
             <version>2.6</version>
          </dependency>
-         
-         <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <version>2.0.0</version>
-            <scope>test</scope>
-         </dependency>
 
          <dependency>
             <groupId>com.experlog</groupId>
@@ -361,33 +354,53 @@
            <artifactId>commons-pool</artifactId>
            <version>1.5.5</version>
         </dependency>
-        
+
         <dependency>
-           <groupId>org.javassist</groupId>
-           <artifactId>javassist</artifactId>
-           <version>3.14.0-GA</version>
+           <groupId>org.apache.tika</groupId>
+           <artifactId>tika-core</artifactId>
+           <version>0.7</version>
         </dependency>
 
-      <dependency>
-    <groupId>org.apache.tika</groupId>
-    <artifactId>tika-core</artifactId>
-    <version>0.7</version>
-  </dependency>
+        <dependency>
+           <groupId>org.apache.tika</groupId>
+           <artifactId>tika-parsers</artifactId>
+           <version>0.7</version>
+        </dependency>
 
-  <dependency>
-    <groupId>org.apache.tika</groupId>
-    <artifactId>tika-parsers</artifactId>
-    <version>0.7</version>
-  </dependency>
+        <dependency>
+           <groupId>org.apache.xmlbeans</groupId>
+           <artifactId>xmlbeans</artifactId>
+           <version>2.3.0</version>
+           <scope>compile</scope>
+        </dependency>
+        <dependency>
+           <groupId>xml-apis</groupId>
+           <artifactId>xml-apis</artifactId>
+           <version>1.0.b2</version>
+           <scope>compile</scope>
+        </dependency>
+        <dependency>
+           <groupId>org.apache.pdfbox</groupId>
+           <artifactId>jempbox</artifactId>
+           <version>1.6.0</version>
+           <scope>compile</scope>
+        </dependency>
 
-    <dependency>
-       <groupId>org.ow2.jotm</groupId>
-       <artifactId>jotm-core</artifactId>
-       <version>2.1.9</version>
-       <scope>test</scope>
-    </dependency>
+        <dependency>
+           <groupId>org.ow2.spec.ee</groupId>
+           <artifactId>ow2-jta-1.1-spec</artifactId>
+           <version>1.0-M1</version>
+           <scope>compile</scope>
+        </dependency>
 
-   </dependencies>
+        <dependency>
+           <artifactId>commons-io</artifactId>
+           <groupId>commons-io</groupId>
+           <version>1.2</version>
+           <scope>test</scope>
+        </dependency>
+     
+      </dependencies>
    </dependencyManagement>
 
    <dependencies>

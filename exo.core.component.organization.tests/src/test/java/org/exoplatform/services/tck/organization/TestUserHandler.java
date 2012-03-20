@@ -297,14 +297,23 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
       createUser(userName);
 
       String newEmail = "new@Email";
+      String displayName = "name";
 
       // change email and check
       User u = uHandler.findUserByName(userName);
       u.setEmail(newEmail);
 
       uHandler.saveUser(u, true);
-      assertEquals(newEmail, uHandler.findUserByName(userName).getEmail());
 
+      u = uHandler.findUserByName(userName);
+      assertEquals(newEmail, u.getEmail());
+      assertEquals(u.getDisplayName(), u.getFirstName() + " " + u.getLastName());
+
+      u.setDisplayName(displayName);
+      uHandler.saveUser(u, true);
+
+      u = uHandler.findUserByName(userName);
+      assertEquals(u.getDisplayName(), displayName);
    }
 
    /**

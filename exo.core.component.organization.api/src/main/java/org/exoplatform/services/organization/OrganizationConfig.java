@@ -163,6 +163,8 @@ public class OrganizationConfig
 
       private String email;
 
+      private String displayName;
+
       private String groups;
 
       public User()
@@ -177,6 +179,16 @@ public class OrganizationConfig
       public void setEmail(String email)
       {
          this.email = email;
+      }
+
+      public String getDisplayName()
+      {
+         return displayName;
+      }
+
+      public void setDisplayName(String displayName)
+      {
+         this.displayName = displayName;
       }
 
       public String getFirstName()

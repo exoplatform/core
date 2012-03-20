@@ -47,6 +47,8 @@ public class UserImpl implements User, ExtendedCloneable
 
    private String organizationId = null;
 
+   private String displayName = null;
+
    public UserImpl()
    {
    }
@@ -57,8 +59,21 @@ public class UserImpl implements User, ExtendedCloneable
    }
 
    /**
+    * @hibernate.property
+    */
+   public String getDisplayName()
+   {
+      return displayName != null ? displayName : getFirstName() + " " + getLastName();
+   }
+
+   public void setDisplayName(String displayName)
+   {
+      this.displayName = displayName;
+   }
+
+   /**
     * @hibernate.id generator-class="assigned" unsaved-value="null"
-    ***/
+    */
    public String getId()
    {
       return id;
@@ -71,7 +86,7 @@ public class UserImpl implements User, ExtendedCloneable
 
    /**
     * @hibernate.property
-    **/
+    */
    public String getUserName()
    {
       return userName;
@@ -84,7 +99,7 @@ public class UserImpl implements User, ExtendedCloneable
 
    /**
     * @hibernate.property
-    **/
+    */
    public String getPassword()
    {
       return password;
@@ -97,7 +112,7 @@ public class UserImpl implements User, ExtendedCloneable
 
    /**
     * @hibernate.property
-    **/
+    */
    public String getFirstName()
    {
       return firstName;
@@ -110,7 +125,7 @@ public class UserImpl implements User, ExtendedCloneable
 
    /**
     * @hibernate.property
-    **/
+    */
    public String getLastName()
    {
       return lastName;
@@ -123,7 +138,7 @@ public class UserImpl implements User, ExtendedCloneable
 
    /**
     * @hibernate.property
-    **/
+    */
    public String getEmail()
    {
       return email;
@@ -137,17 +152,17 @@ public class UserImpl implements User, ExtendedCloneable
    // wrapper method
    public String getFullName()
    {
-      return getFirstName() + " " + getLastName();
+      return getDisplayName();
    }
 
    public void setFullName(String fullName)
    {
-
+      setDisplayName(fullName);
    }
 
    /**
     * @hibernate.property
-    **/
+    */
    public Date getCreatedDate()
    {
       return createdDate;
@@ -160,7 +175,7 @@ public class UserImpl implements User, ExtendedCloneable
 
    /**
     * @hibernate.property
-    **/
+    */
    public Date getLastLoginTime()
    {
       return lastLoginTime;
@@ -189,7 +204,7 @@ public class UserImpl implements User, ExtendedCloneable
 
    /**
     * {@inheritDoc}
-    **/
+    */
    public UserImpl clone()
    {
       UserImpl ui;

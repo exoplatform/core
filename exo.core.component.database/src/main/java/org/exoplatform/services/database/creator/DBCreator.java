@@ -18,18 +18,19 @@
  */
 package org.exoplatform.services.database.creator;
 
-import org.exoplatform.commons.utils.PrivilegedFileHelper;
+import org.exoplatform.commons.utils.ClassLoading;
+import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.container.configuration.ConfigurationException;
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.Property;
-import org.exoplatform.services.database.utils.ExceptionManagementHelper;
+import org.exoplatform.services.database.utils.DialectConstants;
+import org.exoplatform.services.database.utils.DialectDetecter;
+import org.exoplatform.services.database.utils.JDBCUtils;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.security.PrivilegedExceptionAction;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -120,7 +121,7 @@ public class DBCreator
       this.connectionProperties = connectionProperties;
       this.dbUserName = dbUserName;
       this.dbPassword = dbPassword;
-      this.dbScript = findScriptResource(scriptPath, cm);
+      this.dbScript = readScript(scriptPath, cm);
    }
 
    /**
@@ -186,7 +187,7 @@ public class DBCreator
          String scriptPath = prop.getProperty(DB_SCRIPT_PATH);
          if (scriptPath != null)
          {
-            this.dbScript = findScriptResource(scriptPath, cm);
+            this.dbScript = readScript(scriptPath, cm);
          }
          else
          {
@@ -227,24 +228,23 @@ public class DBCreator
       Connection conn = openConnection();
       try
       {
-         String dbProductName = getDBProductName(conn);
+         String dialect = DialectDetecter.detect(conn.getMetaData());
 
-         if (dbProductName.startsWith("Microsoft SQL Server") || dbProductName.startsWith("Adaptive Server Anywhere")
-            || dbProductName.equals("Sybase SQL Server") || dbProductName.equals("Adaptive Server Enterprise"))
+         if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_MSSQL)
+            || dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_SYBASE))
          {
-            executeAutoCommitMode(conn, dbName);
+            executeInAutoCommitMode(conn, dbName);
          }
          else
          {
-            executeBatchMode(conn, dbName);
+            executeInBatchMode(conn, dbName);
          }
 
-         return constructDBConnectionInfo(dbName, dbProductName);
+         return constructDBConnectionInfo(dbName, dialect);
       }
       catch (SQLException e)
       {
-         throw new DBCreatorException("Can't execute SQL script : "
-            + ExceptionManagementHelper.getFullSQLExceptionMessage(e), e);
+         throw new DBCreatorException("Can't execute SQL script : " + JDBCUtils.getFullMessage(e), e);
       }
       finally
       {
@@ -272,7 +272,11 @@ public class DBCreator
       Connection conn = openConnection();
       try
       {
-         return constructDBConnectionInfo(dbName, getDBProductName(conn));
+         return constructDBConnectionInfo(dbName, DialectDetecter.detect(conn.getMetaData()));
+      }
+      catch (SQLException e)
+      {
+         throw new DBCreatorException("Can not get database connection information", e);
       }
       finally
       {
@@ -297,7 +301,7 @@ public class DBCreator
     * @throws SQLException
     *          if any errors occurs
     */
-   private void executeBatchMode(Connection conn, String dbName) throws SQLException
+   private void executeInBatchMode(Connection conn, String dbName) throws SQLException
    {
       Statement statement = conn.createStatement();
       for (String scr : dbScript.split(";"))
@@ -306,7 +310,7 @@ public class DBCreator
          scr = scr.replace(USERNAME_TEMPLATE, dbUserName);
          scr = scr.replace(PASSWORD_TEMPLATE, dbPassword);
 
-         String s = cleanWhitespaces(scr.trim());
+         String s = JDBCUtils.cleanWhitespaces(scr.trim());
          if (s.length() > 0)
          {
             statement.addBatch(s);
@@ -320,26 +324,27 @@ public class DBCreator
     * 
     * @param dbName
     *          database name
-    * @param dbProductName
-    *          database product name
+    * @param dialect
+    *          dialect
     * @param serverUrl
     *          url to DB server
     * @param connectionProperties
     *          connection properties         
     * @return DBConnectionInfo
     */
-   private DBConnectionInfo constructDBConnectionInfo(String dbName, String dbProductName)
+   private DBConnectionInfo constructDBConnectionInfo(String dbName, String dialect)
    {
       StringBuilder dbUrl = new StringBuilder(serverUrl);
 
-      if (dbProductName.startsWith("Microsoft SQL Server"))
+      if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_MSSQL))
       {
          dbUrl.append(serverUrl.endsWith(";") ? "" : ";");
          dbUrl.append("databaseName=");
          dbUrl.append(dbName);
          dbUrl.append(";");
       }
-      else if (dbProductName.equals("Oracle"))
+      else if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_ORACLE)
+         || dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_ORACLEOCI))
       {
          // do nothing
       }
@@ -375,7 +380,7 @@ public class DBCreator
     * @throws SQLException
     *          if any errors occurs
     */
-   private void executeAutoCommitMode(Connection conn, String dbName) throws SQLException
+   private void executeInAutoCommitMode(Connection conn, String dbName) throws SQLException
    {
       conn.setAutoCommit(true);
       for (String scr : dbScript.split(";"))
@@ -384,7 +389,7 @@ public class DBCreator
          scr = scr.replace(USERNAME_TEMPLATE, dbUserName);
          scr = scr.replace(PASSWORD_TEMPLATE, dbPassword);
 
-         String s = cleanWhitespaces(scr.trim());
+         String s = JDBCUtils.cleanWhitespaces(scr.trim());
          if (s.length() > 0)
          {
             conn.createStatement().executeUpdate(s);
@@ -393,31 +398,7 @@ public class DBCreator
    }
 
    /**
-    * Read SQL script from {@link InputStream}.
-    */
-   private String readResource(InputStream is) throws IOException
-   {
-      InputStreamReader isr = new InputStreamReader(is);
-      try
-      {
-         StringBuilder sbuff = new StringBuilder();
-         char[] buff = new char[is.available()];
-         int r = 0;
-         while ((r = isr.read(buff)) > 0)
-         {
-            sbuff.append(buff, 0, r);
-         }
-
-         return sbuff.toString();
-      }
-      finally
-      {
-         is.close();
-      }
-   }
-
-   /**
-    * Find script resource.
+    * Read script resource.
     * 
     * @param scriptPath
     *          path to the script
@@ -428,43 +409,23 @@ public class DBCreator
     * @throws ConfigurationException 
     *          if script not found
     */
-   private String findScriptResource(String scriptPath, ConfigurationManager cm) throws ConfigurationException
+   private String readScript(String scriptPath, ConfigurationManager cm) throws ConfigurationException
    {
       try
       {
-         return readResource(cm.getInputStream(scriptPath));
+         return IOUtil.getStreamContentAsString(cm.getInputStream(scriptPath));
       }
       catch (Exception e)
       {
          try
          {
-            return readResource(PrivilegedFileHelper.fileInputStream(scriptPath));
+            return IOUtil.getFileContentAsString(scriptPath);
          }
          catch (IOException ioe)
          {
-            throw new ConfigurationException("Can't read script resource " + scriptPath, e);
+            throw new ConfigurationException("Can't read script at " + scriptPath, e);
          }
       }
-   }
-
-   /**
-    * Clean whitespace.
-    */
-   private String cleanWhitespaces(String string)
-   {
-      if (string != null)
-      {
-         char[] cc = string.toCharArray();
-         for (int ci = cc.length - 1; ci > 0; ci--)
-         {
-            if (Character.isWhitespace(cc[ci]))
-            {
-               cc[ci] = ' ';
-            }
-         }
-         return new String(cc);
-      }
-      return string;
    }
 
    /**
@@ -481,7 +442,7 @@ public class DBCreator
       Connection conn = null;
       try
       {
-         Class.forName(connectionProperties.get(DRIVER_NAME));
+         ClassLoading.forName(connectionProperties.get(DRIVER_NAME), this);
 
          conn = SecurityHelper.doPrivilegedSQLExceptionAction(new PrivilegedExceptionAction<Connection>()
          {
@@ -501,33 +462,6 @@ public class DBCreator
       catch (ClassNotFoundException e)
       {
          throw new DBCreatorException("Can't load the JDBC driver " + connectionProperties.get(DRIVER_NAME), e);
-      }
-   }
-
-   /**
-    * Get database product name.
-    * 
-    * @param conn
-    *          connection to database
-    * @return product name
-    * @throws DBCreatorException
-    *          if can't resolve database product name
-    */
-   private String getDBProductName(final Connection conn) throws DBCreatorException
-   {
-      try
-      {
-         return SecurityHelper.doPrivilegedSQLExceptionAction(new PrivilegedExceptionAction<String>()
-         {
-            public String run() throws Exception
-            {
-               return conn.getMetaData().getDatabaseProductName();
-            }
-         });
-      }
-      catch (SQLException e)
-      {
-         throw new DBCreatorException("Can't resolve database product name ", e);
       }
    }
 }

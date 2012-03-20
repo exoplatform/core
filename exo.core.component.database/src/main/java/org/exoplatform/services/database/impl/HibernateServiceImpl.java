@@ -19,6 +19,7 @@
 package org.exoplatform.services.database.impl;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.commons.utils.ClassLoading;
 import org.exoplatform.commons.utils.PrivilegedSystemHelper;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.container.ExoContainer;
@@ -33,6 +34,7 @@ import org.exoplatform.services.database.ObjectQuery;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.hibernate.HibernateException;
+import org.hibernate.MappingException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -70,7 +72,7 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
 
    private ThreadLocal<Session> threadLocal_;
 
-   private static Log log_ = ExoLogger.getLogger("exo.core.component.database.HibernateServiceImpl");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.database.HibernateServiceImpl");
 
    private HibernateConfigurationImpl conf_;
 
@@ -107,7 +109,7 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
             String dialect = value.substring(22);
             value = pkg.getName() + "." + dialect; // 22 is the length of
             // "org.hibernate.dialect"
-            log_.info("Using dialect " + dialect);
+            LOG.info("Using dialect " + dialect);
          }
          else if (name.equals("hibernate.default_schema") && (value == null || value.isEmpty()))
          {
@@ -149,7 +151,7 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
                   dataSource = (DataSource)new InitialContext().lookup(dataSourceName);
                   if (dataSource == null)
                   {
-                     log_.error("DataSource is configured but not finded.", new Exception());
+                     LOG.error("DataSource is configured but not finded.", new Exception());
                   }
                   else
                   {
@@ -161,7 +163,7 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
                }
                catch (NamingException e)
                {
-                  log_.error(e.getMessage(), e);
+                  LOG.error(e.getMessage(), e);
                }
             }
             else
@@ -173,19 +175,19 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
                   try
                   {
                      //load driver class
-                     Class.forName(conf_.getProperty("hibernate.connection.driver_class")).newInstance();
+                     ClassLoading.forName(conf_.getProperty("hibernate.connection.driver_class"), this).newInstance();
                   }
                   catch (InstantiationException e)
                   {
-                     log_.error(e.getMessage(), e);
+                     LOG.error(e.getMessage(), e);
                   }
                   catch (IllegalAccessException e)
                   {
-                     log_.error(e.getMessage(), e);
+                     LOG.error(e.getMessage(), e);
                   }
                   catch (ClassNotFoundException e)
                   {
-                     log_.error(e.getMessage(), e);
+                     LOG.error(e.getMessage(), e);
                   }
 
                   String dbUserName = conf_.getProperty("hibernate.connection.username");
@@ -201,13 +203,13 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
                else
                {
                   Exception e = new Exception("Any data source is not configured!");
-                  log_.error(e.getMessage(), e);
+                  LOG.error(e.getMessage(), e);
                }
             }
          }
          catch (SQLException e)
          {
-            log_.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
          }
          finally
          {
@@ -219,7 +221,7 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
                }
                catch (SQLException e)
                {
-                  log_.error(e.getMessage(), e);
+                  LOG.error(e.getMessage(), e);
                }
             }
          }
@@ -246,7 +248,7 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
                   {
                      mappings_.add(relativePath);
                      URL url = cl.getResource(relativePath);
-                     log_.info("Adding  Hibernate Mapping: " + relativePath);
+                     LOG.info("Adding  Hibernate Mapping: " + relativePath);
                      conf_.addURL(url);
                   }
                }
@@ -260,15 +262,18 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
             {
                for (String annotation : annotations)
                {
-                  Class clazz = cl.loadClass(annotation);
+                  Class<?> clazz = ClassLoading.loadClass(annotation, this);
                   conf_.addAnnotatedClass(clazz);
-
                }
             }
          }
-         catch (Exception ex)
+         catch (MappingException ex)
          {
-            log_.error(ex.getLocalizedMessage(), ex);
+            LOG.error(ex.getLocalizedMessage(), ex);
+         }
+         catch (ClassNotFoundException ex)
+         {
+            LOG.error(ex.getLocalizedMessage(), ex);
          }
       }
    }
@@ -313,8 +318,8 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
       Session currentSession = threadLocal_.get();
       if (currentSession == null)
       {
-         if (log_.isDebugEnabled())
-            log_.debug("open new hibernate session in openSession()");
+         if (LOG.isDebugEnabled())
+            LOG.debug("open new hibernate session in openSession()");
          currentSession = getSessionFactory().openSession();
          threadLocal_.set(currentSession);
       }
@@ -340,14 +345,14 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
       try
       {
          session.close();
-         if (log_.isDebugEnabled())
+         if (LOG.isDebugEnabled())
          {
-            log_.debug("close hibernate session in openSession(Session session)");
+            LOG.debug("close hibernate session in openSession(Session session)");
          }
       }
       catch (HibernateException t)
       {
-         log_.error("Error closing hibernate session : " + t.getMessage(), t);
+         LOG.error("Error closing hibernate session : " + t.getMessage(), t);
       }
       threadLocal_.set(null);
    }

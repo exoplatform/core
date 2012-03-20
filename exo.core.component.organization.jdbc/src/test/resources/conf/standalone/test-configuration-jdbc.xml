@@ -311,6 +311,7 @@
                     <field  name="firstName"><string>Root</string></field>
                     <field  name="lastName"><string>Root</string></field>
                     <field  name="email"><string>root@localhost</string></field>
+                    <field  name="displayName"><string>Root</string></field>
                     <field  name="groups">
                       <string>
                       	manager:/platform/administrators,member:/platform/users,
@@ -327,6 +328,7 @@
                     <field  name="firstName"><string>John</string></field>
                     <field  name="lastName"><string>Anthony</string></field>
                     <field  name="email"><string>john@localhost</string></field>
+                    <field  name="displayName"><string>John</string></field>
                     <field  name="groups">
                       <string>
                       	member:/platform/administrators,member:/platform/users,
@@ -342,6 +344,7 @@
                     <field  name="firstName"><string>Marry</string></field>
                     <field  name="lastName"><string>Kelly</string></field>
                     <field  name="email"><string>marry@localhost</string></field>
+                    <field  name="displayName"><string>Marry</string></field>
                     <field  name="groups">
                       <string>member:/platform/users</string>
                     </field>
@@ -354,6 +357,7 @@
                     <field  name="firstName"><string>Demo</string></field>
                     <field  name="lastName"><string>exo</string></field>
                     <field  name="email"><string>demo@localhost</string></field>
+                    <field  name="displayName"><string>Demo</string></field>
                     <field  name="groups">
                       <string>member:/platform/guests,member:/platform/users</string>
                     </field>

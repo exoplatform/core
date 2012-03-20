@@ -119,13 +119,13 @@ public class LDAPAttributeMapping
          USER_LDAP_CLASSES = userLDAPClasses.split(",");
       attrs.put(new ObjectClassAttribute(USER_LDAP_CLASSES));
       attrs.put(userDNKey, user.getUserName());
-      attrs.put(userDisplayNameAttr, user.getFullName());
+      attrs.put(userDisplayNameAttr, user.getDisplayName());
       attrs.put(userUsernameAttr, user.getUserName());
       attrs.put(userPassword, user.getPassword());
       attrs.put(userLastNameAttr, user.getLastName());
       attrs.put(userFirstNameAttr, user.getFirstName());
       attrs.put(userMailAttr, user.getEmail());
-      attrs.put(ldapDescriptionAttr, "Account for " + user.getFullName());
+      attrs.put(ldapDescriptionAttr, "Account for " + user.getDisplayName());
       return attrs;
    }
 
@@ -143,7 +143,7 @@ public class LDAPAttributeMapping
       user.setUserName(getAttributeValueAsString(attrs, userUsernameAttr));
       user.setLastName(getAttributeValueAsString(attrs, userLastNameAttr));
       user.setFirstName(getAttributeValueAsString(attrs, userFirstNameAttr));
-      user.setFullName(getAttributeValueAsString(attrs, userDisplayNameAttr));
+      user.setDisplayName(getAttributeValueAsString(attrs, userDisplayNameAttr));
       user.setEmail(getAttributeValueAsString(attrs, userMailAttr));
       user.setPassword(getAttributeValueAsString(attrs, userPassword));
       user.setCreatedDate(Calendar.getInstance().getTime());
