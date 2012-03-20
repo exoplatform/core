@@ -19,24 +19,30 @@
 package org.exoplatform.services.organization.hibernate;
 
 import org.exoplatform.commons.exception.UniqueObjectException;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
+import org.exoplatform.services.organization.GroupEventListenerHandler;
 import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.impl.GroupImpl;
+import org.exoplatform.services.security.PermissionConstants;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+
+import javax.naming.InvalidNameException;
 
 /**
  * Created by The eXo Platform SAS Author : Mestrallet Benjamin
  * benjmestrallet@users.sourceforge.net Author : Tuan Nguyen
  * tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:51:21 PM
  */
-public class GroupDAOImpl implements GroupHandler
+public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
 {
    public static final String queryFindGroupByName =
       "from g in class org.exoplatform.services.organization.impl.GroupImpl " + "where g.groupName = ? ";
@@ -73,29 +79,55 @@ public class GroupDAOImpl implements GroupHandler
       listeners_ = new ArrayList<GroupEventListener>();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void addGroupEventListener(GroupEventListener listener)
    {
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners_.add(listener);
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   public void removeGroupEventListener(GroupEventListener listener)
+   {
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
+      listeners_.remove(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
    final public Group createGroupInstance()
    {
       return new GroupImpl();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void createGroup(Group group, boolean broadcast) throws Exception
    {
       addChild(null, group, broadcast);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void addChild(Group parent, Group child, boolean broadcast) throws Exception
    {
-      Session session = service_.openSession();
       String groupId = "/" + child.getGroupName();
       GroupImpl childImpl = (GroupImpl)child;
       if (parent != null)
       {
-         Group parentGroup = (Group)session.get(GroupImpl.class, parent.getId());
+         Group parentGroup = findGroupById(parent.getId());
+         if (parentGroup == null)
+         {
+            throw new InvalidNameException("Can't add node to not existed parent " + parent.getId());
+         }
+
          groupId = parentGroup.getId() + "/" + child.getGroupName();
          childImpl.setParentId(parentGroup.getId());
       }
@@ -103,57 +135,73 @@ public class GroupDAOImpl implements GroupHandler
       {
          groupId = child.getId();
       }
-      Object o = session.get(GroupImpl.class, groupId);
+
+      Object o = findGroupById(groupId);
       if (o != null)
       {
          Object[] args = {child.getGroupName()};
          throw new UniqueObjectException("OrganizationService.unique-group-exception", args);
       }
-      if (broadcast)
-         preSave(child, true);
       childImpl.setId(groupId);
 
-      session = service_.openSession();
+      if (broadcast)
+         preSave(child, true);
+
+      Session session = service_.openSession();
       session.save(childImpl);
+      session.flush();
+
       if (broadcast)
          postSave(child, true);
-      session.flush();
    }
-
+   
+   /**
+    * {@inheritDoc}
+    */
    public void saveGroup(Group group, boolean broadcast) throws Exception
    {
       if (broadcast)
          preSave(group, false);
+
       Session session = service_.openSession();
       session.update(group);
+      session.flush();
+
       if (broadcast)
          postSave(group, false);
-      session.flush();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Group removeGroup(Group group, boolean broadcast) throws Exception
    {
       if (broadcast)
          preDelete(group);
       Session session = service_.openSession();
+
+      if (session.get(group.getClass(), group.getId()) == null)
+      {
+         throw new InvalidNameException("Can not remove group " + group.getGroupName()
+            + "record, because group does not exist.");
+      }
+
       session.delete(group);
       List entries = session.createQuery(queryFindGroupByParent).setString(0, group.getId()).list();
       for (int i = 0; i < entries.size(); i++)
          removeGroup((Group)entries.get(i), broadcast);
       MembershipDAOImpl.removeMembershipEntriesOfGroup(group, session);
+      session.flush();
+
       if (broadcast)
          postDelete(group);
-      session.flush();
+
       return group;
    }
 
-   static void removeGroupEntry(String groupName, Session session) throws Exception
-   {
-      List entries = session.createQuery(queryFindGroupByName).setString(0, groupName).list();
-      for (int i = 0; i < entries.size(); i++)
-         session.delete(entries.get(i));
-   }
-
+   /**
+    * {@inheritDoc}
+    */
    public Collection findGroupByMembership(String userName, String membershipType) throws Exception
    {
       Session session = service_.openSession();
@@ -162,6 +210,9 @@ public class GroupDAOImpl implements GroupHandler
       return groups;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Group findGroupByName(String groupName) throws Exception
    {
       Session session = service_.openSession();
@@ -169,6 +220,9 @@ public class GroupDAOImpl implements GroupHandler
       return group;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Group findGroupById(String groupId) throws Exception
    {
       Session session = service_.openSession();
@@ -176,6 +230,9 @@ public class GroupDAOImpl implements GroupHandler
       return group;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection findGroups(Group parent) throws Exception
    {
       Session session = service_.openSession();
@@ -189,6 +246,9 @@ public class GroupDAOImpl implements GroupHandler
 
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection findGroupsOfUser(String user) throws Exception
    {
       Session session = service_.openSession();
@@ -196,6 +256,9 @@ public class GroupDAOImpl implements GroupHandler
       return session.createQuery(queryFindGroupsOfUser).setString(0, user).list();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection getAllGroups() throws Exception
    {
       Session session = service_.openSession();
@@ -226,5 +289,13 @@ public class GroupDAOImpl implements GroupHandler
    {
       for (GroupEventListener listener : listeners_)
          listener.postDelete(group);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public List<GroupEventListener> getGroupListeners()
+   {
+      return Collections.unmodifiableList(listeners_);
    }
 }

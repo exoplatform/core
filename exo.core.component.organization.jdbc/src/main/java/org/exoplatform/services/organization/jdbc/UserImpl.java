@@ -144,7 +144,7 @@ public class UserImpl extends DBObject implements User
 
    public String toString()
    {
-      return "User[" + dbObjectId_ + "|" + userName + "]" + organizationId == null ? "" : ("@" + organizationId);
+      return "User[" + dbObjectId_ + "|" + userName + "]" + (organizationId == null ? "" : ("@" + organizationId));
    }
 
    public String getOrganizationId()

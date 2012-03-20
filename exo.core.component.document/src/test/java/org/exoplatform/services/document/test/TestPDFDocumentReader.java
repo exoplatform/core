@@ -18,9 +18,8 @@
  */
 package org.exoplatform.services.document.test;
 
-import org.exoplatform.container.PortalContainer;
-import org.exoplatform.services.document.DocumentReaderService;
-import org.exoplatform.test.BasicTestCase;
+import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
+import org.exoplatform.services.document.impl.PDFDocumentReader;
 
 import java.io.InputStream;
 
@@ -31,23 +30,30 @@ import java.io.InputStream;
  * @version $Id: $
  */
 
-public class TestPDFDocumentReader extends BasicTestCase
+public class TestPDFDocumentReader extends BaseStandaloneTest
 {
-   DocumentReaderService service_;
+   DocumentReaderServiceImpl service;
 
    public void setUp() throws Exception
    {
-      PortalContainer pcontainer = PortalContainer.getInstance();
-      service_ = (DocumentReaderService)pcontainer.getComponentInstanceOfType(DocumentReaderService.class);
+      super.setUp();
+      service = new DocumentReaderServiceImpl(null);
+      service.addDocumentReader(new PDFDocumentReader());
    }
 
    public void testGetContentAsString() throws Exception
    {
       InputStream is = TestPDFDocumentReader.class.getResourceAsStream("/test.pdf");
-      String text = service_.getDocumentReader("application/pdf").getContentAsText(is);
-      String etalon = "Hello\nThis is my first Cocoon page!\npage 1 \n";
+      try
+      {
+         String text = service.getDocumentReader("application/pdf").getContentAsText(is);
+         String expected = "Hello This is my first Cocoon page! page 1";
 
-      System.out.println("[" + text + "]");
-      // assertEquals("Wrong string returned",etalon ,text );
+         assertEquals("Wrong string returned", normalizeWhitespaces(expected), normalizeWhitespaces(text));
+      }
+      finally
+      {
+         is.close();
+      }
    }
 }

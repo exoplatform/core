@@ -21,7 +21,6 @@ import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
 import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.Membership;
-import org.exoplatform.services.organization.UserHandler;
 
 import java.util.Collection;
 import java.util.List;
@@ -72,6 +71,14 @@ public class CacheableGroupHandlerImpl implements GroupHandler
    public void addGroupEventListener(GroupEventListener listener)
    {
       groupHandler.addGroupEventListener(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public void removeGroupEventListener(GroupEventListener listener)
+   {
+      groupHandler.removeGroupEventListener(listener);
    }
 
    /**

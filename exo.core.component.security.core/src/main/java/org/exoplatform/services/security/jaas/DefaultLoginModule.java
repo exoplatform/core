@@ -34,7 +34,7 @@ import javax.security.auth.login.LoginException;
 
 /**
  * Created by The eXo Platform SAS .
- * 
+ *
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -45,7 +45,7 @@ public class DefaultLoginModule extends AbstractLoginModule
    /**
     * Logger.
     */
-   protected Log log = ExoLogger.getLogger("exo.core.component.security.core.DefaultLoginModule");
+   protected static final Log LOG = ExoLogger.getLogger("exo.core.component.security.core.DefaultLoginModule");
 
    /**
     * encapsulates user's principals such as name, groups, etc .
@@ -66,7 +66,7 @@ public class DefaultLoginModule extends AbstractLoginModule
    }
 
    /**
-    * {@inheritDoc} 
+    * {@inheritDoc}
     */
    public void afterInitialize()
    {
@@ -80,21 +80,21 @@ public class DefaultLoginModule extends AbstractLoginModule
    @SuppressWarnings("unchecked")
    public boolean login() throws LoginException
    {
-      if (log.isDebugEnabled())
-         log.debug("In login of DefaultLoginModule.");
+      if (LOG.isDebugEnabled())
+         LOG.debug("In login of DefaultLoginModule.");
 
       try
       {
          if (sharedState.containsKey("exo.security.identity"))
          {
-            if (log.isDebugEnabled())
-               log.debug("Use Identity from previous LoginModule");
+            if (LOG.isDebugEnabled())
+               LOG.debug("Use Identity from previous LoginModule");
             identity = (Identity)sharedState.get("exo.security.identity");
          }
          else
          {
-            if (log.isDebugEnabled())
-               log.debug("Try create identity");
+            if (LOG.isDebugEnabled())
+               LOG.debug("Try create identity");
             Callback[] callbacks = new Callback[2];
             callbacks[0] = new NameCallback("Username");
             callbacks[1] = new PasswordCallback("Password", false);
@@ -109,7 +109,9 @@ public class DefaultLoginModule extends AbstractLoginModule
             Authenticator authenticator = (Authenticator)getContainer().getComponentInstanceOfType(Authenticator.class);
 
             if (authenticator == null)
+            {
                throw new LoginException("No Authenticator component found, check your configuration");
+            }
 
             Credential[] credentials =
                new Credential[]{new UsernameCredential(username), new PasswordCredential(password)};
@@ -117,20 +119,20 @@ public class DefaultLoginModule extends AbstractLoginModule
             String userId = authenticator.validateUser(credentials);
             identity = authenticator.createIdentity(userId);
             sharedState.put("javax.security.auth.login.name", userId);
-            // TODO use PasswordCredential wrapper
+
             subject.getPrivateCredentials().add(password);
             subject.getPublicCredentials().add(new UsernameCredential(username));
          }
          return true;
 
       }
-      catch (final Throwable e)
+      catch (final Exception e)
       {
-         if (log.isDebugEnabled())
+         if (LOG.isDebugEnabled())
          {
-            log.debug(e.getMessage());
+            LOG.debug(e.getMessage());
          }
-            
+
          throw new LoginException(e.getMessage());
       }
    }
@@ -147,15 +149,20 @@ public class DefaultLoginModule extends AbstractLoginModule
             (IdentityRegistry)getContainer().getComponentInstanceOfType(IdentityRegistry.class);
 
          if (singleLogin && identityRegistry.getIdentity(identity.getUserId()) != null)
+         {
             throw new LoginException("User " + identity.getUserId() + " already logined.");
+         }
 
+         // Do not need implement logout by self if use tomcat 6.0.21 and later.
+         // See deprecation comments in
+         // org.exoplatform.services.security.web.JAASConversationStateListener
          identity.setSubject(subject);
          identityRegistry.register(identity);
 
       }
-      catch (final Throwable e)
+      catch (final Exception e)
       {
-         log.error(e.getLocalizedMessage());
+         LOG.error(e.getLocalizedMessage());
          throw new LoginException(e.getMessage());
       }
       return true;
@@ -166,8 +173,8 @@ public class DefaultLoginModule extends AbstractLoginModule
     */
    public boolean abort() throws LoginException
    {
-      if (log.isDebugEnabled())
-         log.debug("In abort of DefaultLoginModule.");
+      if (LOG.isDebugEnabled())
+         LOG.debug("In abort of DefaultLoginModule.");
       return true;
    }
 
@@ -176,8 +183,8 @@ public class DefaultLoginModule extends AbstractLoginModule
     */
    public boolean logout() throws LoginException
    {
-      if (log.isDebugEnabled())
-         log.debug("In logout of DefaultLoginModule.");
+      if (LOG.isDebugEnabled())
+         LOG.debug("In logout of DefaultLoginModule.");
 
       return true;
    }
@@ -188,6 +195,6 @@ public class DefaultLoginModule extends AbstractLoginModule
    @Override
    protected Log getLogger()
    {
-      return log;
+      return LOG;
    }
 }

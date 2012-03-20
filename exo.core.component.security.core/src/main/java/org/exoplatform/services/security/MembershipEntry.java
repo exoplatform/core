@@ -52,7 +52,9 @@ public final class MembershipEntry
    {
       this.membershipType = membershipType != null ? membershipType : ANY_TYPE;
       if (group == null)
-         throw new NullPointerException("Group is null");
+      {
+         throw new IllegalArgumentException("Group is null");
+      }
       this.group = group;
    }
 
@@ -79,12 +81,18 @@ public final class MembershipEntry
    public boolean equals(Object obj)
    {
       if (this == obj)
+      {
          return true;
+      }
       if (!(obj instanceof MembershipEntry))
+      {
          return false;
+      }
       MembershipEntry me = (MembershipEntry)obj;
       if (membershipType.equals(ANY_TYPE) || me.membershipType.equals(ANY_TYPE))
+      {
          return this.group.equals(me.group);
+      }
       return this.group.equals(me.group) && this.membershipType.equals(me.membershipType);
    }
 

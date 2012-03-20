@@ -60,7 +60,9 @@ public final class SharedStateLoginModule extends AbstractLoginModule
          Authenticator authenticator = (Authenticator)getContainer().getComponentInstanceOfType(Authenticator.class);
 
          if (authenticator == null)
+         {
             throw new LoginException("No Authenticator component found, check your configuration");
+         }
 
          Credential[] credentials =
             new Credential[]{new UsernameCredential(username), new PasswordCredential(password)};
@@ -70,14 +72,16 @@ public final class SharedStateLoginModule extends AbstractLoginModule
 
          sharedState.put("exo.security.identity", identity);
          sharedState.put("javax.security.auth.login.name", userId);
-         // TODO use PasswordCredential wrapper
+
          subject.getPrivateCredentials().add(password);
          subject.getPublicCredentials().add(new UsernameCredential(username));
          return true;
       }
-      catch (final Throwable e)
+      catch (final Exception e)
       {
-         throw new LoginException(e.getMessage());
+         LoginException le = new LoginException(e.getMessage());
+         le.initCause(e);
+         throw le;
       }
    }
 

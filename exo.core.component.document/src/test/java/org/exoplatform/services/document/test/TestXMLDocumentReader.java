@@ -18,9 +18,8 @@
  */
 package org.exoplatform.services.document.test;
 
-import org.exoplatform.container.PortalContainer;
-import org.exoplatform.services.document.DocumentReaderService;
-import org.exoplatform.test.BasicTestCase;
+import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
+import org.exoplatform.services.document.impl.XMLDocumentReader;
 
 import java.io.InputStream;
 
@@ -31,21 +30,61 @@ import java.io.InputStream;
  * @version $Id: $
  */
 
-public class TestXMLDocumentReader extends BasicTestCase
+public class TestXMLDocumentReader extends BaseStandaloneTest
 {
-   DocumentReaderService service_;
+   DocumentReaderServiceImpl service;
 
    public void setUp() throws Exception
    {
-      PortalContainer pcontainer = PortalContainer.getInstance();
-      service_ = (DocumentReaderService)pcontainer.getComponentInstanceOfType(DocumentReaderService.class);
+      super.setUp();
+      service = new DocumentReaderServiceImpl(null);
+      service.addDocumentReader(new XMLDocumentReader());
    }
 
    public void testGetContentAsString() throws Exception
    {
       InputStream is = TestXMLDocumentReader.class.getResourceAsStream("/test.xml");
-      String text = service_.getDocumentReader("text/xml").getContentAsText(is);
-      String etalon = "\n\n  John\n" + "  Alice\n" + "  Reminder\n" + "  Don't forget it this weekend!\n\n";
-      assertEquals("Wrong string returned", etalon, text);
+      try
+      {
+         String text = service.getDocumentReader("text/xml").getContentAsText(is);
+         String expected = "John\n" + "  Alice\n" + "  Reminder\n" + "  Don't forget it this weekend!";
+         assertEquals("Wrong string returned", expected, text.trim());
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testCDATAGetContentAsString() throws Exception
+   {
+      InputStream is = TestXMLDocumentReader.class.getResourceAsStream("/testCDATA.xml");
+      try
+      {
+         String text = service.getDocumentReader("text/xml").getContentAsText(is);
+         String expected = "This is a text inside CDATA.";
+         assertEquals("Wrong string returned", expected, text.trim());
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testI18ngetContentAsString() throws Exception
+   {
+      InputStream is = TestXMLDocumentReader.class.getResourceAsStream("/testUTF8.xml");
+      try
+      {
+         String text = service.getDocumentReader("text/xml").getContentAsText(is);
+         final String expected =
+            "\u0426\u0435 \u0442\u0435\u0441\u0442\u043e\u0432\u0438\u0439 \u0442\u0435\u043a\u0441\u0442.\n"
+               + "Archim\u00E8de et Lius \u00E0 Ch\u00E2teauneuf testing chars en \u00E9t\u00E9";
+         assertEquals("Wrong string returned", expected, text.trim());
+      }
+      finally
+      {
+         is.close();
+      }
    }
 }

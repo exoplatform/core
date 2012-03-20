@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.ldap.impl;
 
+import org.exoplatform.commons.utils.PrivilegedSystemHelper;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.container.component.ComponentRequestLifecycle;
@@ -31,7 +32,6 @@ import org.exoplatform.services.log.Log;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -74,17 +74,40 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
       boolean ssl = url.toLowerCase().startsWith("ldaps");
       if (serverType == ACTIVE_DIRECTORY_SERVER && ssl)
       {
-         String keystore = System.getProperty("java.home");
-         keystore += File.separator + "lib" + File.separator + "security" + File.separator + "cacerts";
-         System.setProperty("javax.net.ssl.trustStore", keystore);
+         StringBuilder keystore = new StringBuilder(System.getProperty("java.home"));
+         keystore.append(File.separator);
+         keystore.append("lib");
+         keystore.append(File.separator);
+         keystore.append("security");
+         keystore.append(File.separator);
+         keystore.append("cacerts");
+         PrivilegedSystemHelper.setProperty("javax.net.ssl.trustStore", keystore.toString());
       }
 
       env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
       env.put(Context.SECURITY_AUTHENTICATION, config.getAuthenticationType());
       env.put(Context.SECURITY_PRINCIPAL, config.getRootDN());
       env.put(Context.SECURITY_CREDENTIALS, config.getPassword());
-      // TODO move it in configuration ?
-      env.put("com.sun.jndi.ldap.connect.timeout", "60000");
+
+      if (config.getTimeout() > 0)
+      {
+         PrivilegedSystemHelper.setProperty("com.sun.jndi.ldap.connect.pool.timeout",
+            Integer.toString(config.getTimeout()));
+      }
+      
+      if (config.getMinConnection() > 0)
+      {
+         PrivilegedSystemHelper.setProperty("com.sun.jndi.ldap.connect.pool.initsize",
+            Integer.toString(config.getMinConnection()));
+         PrivilegedSystemHelper.setProperty("com.sun.jndi.ldap.connect.pool.prefsize",
+            Integer.toString(config.getMinConnection()));
+      }
+
+      if (config.getMaxConnection() > 0)
+      {
+         PrivilegedSystemHelper.setProperty("com.sun.jndi.ldap.connect.pool.maxsize",
+            Integer.toString(config.getMaxConnection()));
+      }
 
       env.put("com.sun.jndi.ldap.connect.pool", "true");
       env.put("java.naming.ldap.version", config.getVerion());
@@ -97,7 +120,7 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
          url = matcher.replaceAll("/ ldaps://");
       else
          url = matcher.replaceAll("/ ldap://");
-      url += "/";
+      url += "/"; //NOSONAR
       env.put(Context.PROVIDER_URL, url);
 
       if (serverType == ACTIVE_DIRECTORY_SERVER && ssl)
@@ -132,15 +155,7 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
    {
       // Just close since we are not pooling anything by self.
       // Override this method if need other behavior.
-      try
-      {
-         if (ctx != null)
-            ctx.close();
-      }
-      catch (NamingException e)
-      {
-         LOG.warn("Exception occur when try close LDAP context. ", e);
-      }
+      closeContext(ctx);
    }
 
    /**
@@ -164,16 +179,23 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
       props.put(Context.SECURITY_PRINCIPAL, userDN);
       props.put(Context.SECURITY_CREDENTIALS, password);
       props.put("com.sun.jndi.ldap.connect.pool", "false");
+
+      InitialContext ctx = null;
       try
       {
-         new InitialLdapContext(props, null);
-         return true;
+         ctx = new InitialLdapContext(props, null);
+
+         // anonymous user could be bind to AD but aren't able to pick up information
+         return (ctx.lookup(userDN) != null);
       }
       catch (NamingException e)
       {
-         if (LOG.isDebugEnabled())
-            e.printStackTrace();
+         LOG.debug("Error during initialization LDAP Context", e);
          return false;
+      }
+      finally
+      {
+         closeContext(ctx);
       }
    }
 
@@ -193,46 +215,6 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
     */
    public void addDeleteObject(ComponentPlugin plugin) throws NamingException
    {
-      if (false && plugin instanceof DeleteObjectCommand)
-      {
-         DeleteObjectCommand command = (DeleteObjectCommand)plugin;
-         List<String> objectsToDelete = command.getObjectsToDelete();
-         if (objectsToDelete == null || objectsToDelete.size() == 0)
-            return;
-         LdapContext ctx = getLdapContext();
-         for (String name : objectsToDelete)
-         {
-            try
-            {
-               try
-               {
-                  unbind(ctx, name);
-               }
-               catch (CommunicationException e1)
-               {
-                  // create new LDAP context
-                  ctx = getLdapContext(true);
-                  // try repeat operation where communication error occurs
-                  unbind(ctx, name);
-               }
-               catch (ServiceUnavailableException e2)
-               {
-                  // do the same as for CommunicationException
-                  ctx = getLdapContext(true);
-                  //
-                  unbind(ctx, name);
-               }
-            }
-            catch (Exception e3)
-            {
-               // Catch all exceptions here.
-               // Just inform about exception if it is not connection problem.
-               LOG.error("Remove object (" + name + ") failed. ", e3);
-            }
-         }
-         // close context
-         release(ctx);
-      }
    }
 
    private void unbind(LdapContext ctx, String name) throws NamingException
@@ -240,13 +222,19 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
       SearchControls constraints = new SearchControls();
       constraints.setSearchScope(SearchControls.ONELEVEL_SCOPE);
       NamingEnumeration<SearchResult> results = ctx.search(name, "(objectclass=*)", constraints);
-      while (results.hasMore())
+      try
       {
-         SearchResult sr = results.next();
-         unbind(ctx, sr.getNameInNamespace());
+         while (results.hasMore())
+         {
+            SearchResult sr = results.next();
+            unbind(ctx, sr.getNameInNamespace());
+         }
+         // close search results enumeration
       }
-      // close search results enumeration
-      results.close();
+      finally
+      {
+         results.close();
+      }
       ctx.unbind(name);
    }
 
@@ -339,6 +327,27 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
       // if(name.equalsIgnoreCase("NETSCAPE.DIRECTORY")) return NETSCAPE_SERVER;
       // if(name.equalsIgnoreCase("REDHAT.DIRECTORY")) return REDHAT_SERVER;
       return DEFAULT_SERVER;
+   }
+
+   /**
+    * Closes LDAP context and shows warning if exception occurred. 
+    * 
+    * @param ctx
+    *          LDAP context
+    */
+   private void closeContext(Context ctx)
+   {
+      try
+      {
+         if (ctx != null)
+         {
+            ctx.close();
+         }
+      }
+      catch (NamingException e)
+      {
+         LOG.warn("Exception occurred when tried to close context", e);
+      }
    }
 
 }

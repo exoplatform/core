@@ -18,9 +18,8 @@
  */
 package org.exoplatform.services.document.test;
 
-import org.exoplatform.container.PortalContainer;
-import org.exoplatform.services.document.DocumentReaderService;
-import org.exoplatform.test.BasicTestCase;
+import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
+import org.exoplatform.services.document.impl.PPTDocumentReader;
 
 import java.io.InputStream;
 
@@ -31,24 +30,31 @@ import java.io.InputStream;
  * @version $Id: $
  */
 
-public class TestPPTDocumentReader extends BasicTestCase
+public class TestPPTDocumentReader extends BaseStandaloneTest
 {
-
-   DocumentReaderService service_;
+   DocumentReaderServiceImpl service;
 
    public void setUp() throws Exception
    {
-      PortalContainer pcontainer = PortalContainer.getInstance();
-      service_ = (DocumentReaderService)pcontainer.getComponentInstanceOfType(DocumentReaderService.class);
+      super.setUp();
+      service = new DocumentReaderServiceImpl(null);
+      service.addDocumentReader(new PPTDocumentReader());
    }
 
    public void testGetContentAsString() throws Exception
    {
       InputStream is = TestPPTDocumentReader.class.getResourceAsStream("/test.ppt");
-      String text = service_.getDocumentReader("application/powerpoint").getContentAsText(is);
-      String etalon =
-         "TEST POWERPOINT\n" + "Manchester United \n" + "AC Milan\n" + "SLIDE 2 \n" + "Eric Cantona\n" + "Kaka\n"
-            + "Ronaldo\n" + "The natural scients universitys\n\n";
-      assertEquals("Wrong string returned", etalon, text);
+      try
+      {
+         String text = service.getDocumentReader("application/powerpoint").getContentAsText(is);
+         String etalon =
+            "TEST POWERPOINT\n" + "Manchester United \n" + "AC Milan\n" + "SLIDE 2 \n" + "Eric Cantona\n" + "Kaka\n"
+               + "Ronaldo\n" + "The natural scients universitys\n\n";
+         assertEquals("Wrong string returned", etalon, text);
+      }
+      finally
+      {
+         is.close();
+      }
    }
 }

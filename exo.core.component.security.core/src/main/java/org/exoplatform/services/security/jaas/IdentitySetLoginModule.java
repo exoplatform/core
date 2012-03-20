@@ -24,10 +24,8 @@ import org.exoplatform.services.security.Authenticator;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
 
-import java.util.Map;
-
-import javax.security.auth.Subject;
-import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.Subject; //NOSONAR
+import javax.security.auth.callback.CallbackHandler; //NOSONAR
 import javax.security.auth.login.LoginException;
 
 /**
@@ -36,7 +34,7 @@ import javax.security.auth.login.LoginException;
  * Required name of user MUST be passed to LM via sharedState (see method
  * {@link #initialize(Subject, CallbackHandler, Map, Map)}), with name
  * javax.security.auth.login.name.
- * 
+ *
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
@@ -46,7 +44,7 @@ public class IdentitySetLoginModule extends AbstractLoginModule
    /**
     * Login.
     */
-   protected Log log = ExoLogger.getLogger("exo.core.component.security.core.IdentitySetLoginModule");
+   protected static final Log LOG = ExoLogger.getLogger("exo.core.component.security.core.IdentitySetLoginModule");
 
    /**
     * Is allowed for one user login again if he already login. If must set in LM
@@ -59,9 +57,9 @@ public class IdentitySetLoginModule extends AbstractLoginModule
     */
    public boolean abort() throws LoginException
    {
-      if (log.isDebugEnabled())
+      if (LOG.isDebugEnabled())
       {
-         log.debug("in abort");
+         LOG.debug("in abort");
       }
 
       return true;
@@ -72,9 +70,9 @@ public class IdentitySetLoginModule extends AbstractLoginModule
     */
    public boolean commit() throws LoginException
    {
-      if (log.isDebugEnabled())
+      if (LOG.isDebugEnabled())
       {
-         log.debug("in commit");
+         LOG.debug("in commit");
       }
 
       String userId = (String)sharedState.get("javax.security.auth.login.name");
@@ -92,14 +90,16 @@ public class IdentitySetLoginModule extends AbstractLoginModule
             throw new LoginException("User " + userId + " already logined.");
 
          Identity identity = authenticator.createIdentity(userId);
+         // Do not need implement logout by self if use tomcat 6.0.21 and later.
+         // See deprecation comments in
+         // org.exoplatform.services.security.web.JAASConversationStateListener
          identity.setSubject(subject);
 
          identityRegistry.register(identity);
-
       }
       catch (Exception e)
       {
-         e.printStackTrace();
+         LOG.error(e.getMessage());
          throw new LoginException(e.getMessage());
       }
       return true;
@@ -110,11 +110,10 @@ public class IdentitySetLoginModule extends AbstractLoginModule
     */
    public void afterInitialize()
    {
-      if (log.isDebugEnabled())
+      if (LOG.isDebugEnabled())
       {
-         log.debug("in initialize");
+         LOG.debug("in initialize");
       }
-
       String sl = (String)options.get("singleLogin");
       this.singleLogin = (sl != null && (sl.equalsIgnoreCase("yes") || sl.equalsIgnoreCase("true")));
    }
@@ -124,9 +123,9 @@ public class IdentitySetLoginModule extends AbstractLoginModule
     */
    public boolean login() throws LoginException
    {
-      if (log.isDebugEnabled())
+      if (LOG.isDebugEnabled())
       {
-         log.debug("in login");
+         LOG.debug("in login");
       }
       return true;
    }
@@ -136,9 +135,9 @@ public class IdentitySetLoginModule extends AbstractLoginModule
     */
    public boolean logout() throws LoginException
    {
-      if (log.isDebugEnabled())
+      if (LOG.isDebugEnabled())
       {
-         log.debug("in logout");
+         LOG.debug("in logout");
       }
       return true;
    }
@@ -149,6 +148,6 @@ public class IdentitySetLoginModule extends AbstractLoginModule
    @Override
    protected Log getLogger()
    {
-      return log;
+      return LOG;
    }
 }

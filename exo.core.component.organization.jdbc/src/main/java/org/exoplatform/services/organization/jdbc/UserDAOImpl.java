@@ -20,7 +20,6 @@ package org.exoplatform.services.organization.jdbc;
 
 import org.exoplatform.commons.utils.LazyPageList;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.database.DBObjectMapper;
 import org.exoplatform.services.database.DBObjectQuery;
 import org.exoplatform.services.database.ExoDatasource;
@@ -28,7 +27,18 @@ import org.exoplatform.services.database.StandardSQLDAO;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.ExtendedUserHandler;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.GroupHandler;
+import org.exoplatform.services.organization.Membership;
+import org.exoplatform.services.organization.MembershipHandler;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.Query;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserEventListener;
+import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.impl.mock.LazyListImpl;
+import org.exoplatform.services.security.PasswordEncrypter;
 
 import java.util.Calendar;
 import java.util.List;
@@ -36,17 +46,22 @@ import java.util.List;
 /**
  * Created by The eXo Platform SAS Apr 7, 2007
  */
-public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
+public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler, ExtendedUserHandler
 {
 
-   protected static Log log = ExoLogger.getLogger("exo.core.component.organization.jdbc.UserDAOImpl");
+   protected static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.jdbc.UserDAOImpl");
 
    protected ListenerService listenerService_;
 
-   public UserDAOImpl(ListenerService lService, ExoDatasource datasource, DBObjectMapper<UserImpl> mapper)
+   protected final OrganizationService orgService;
+
+   public UserDAOImpl(OrganizationService orgSerivce, ListenerService lService, ExoDatasource datasource,
+      DBObjectMapper<UserImpl> mapper)
    {
       super(datasource, mapper, UserImpl.class);
-      listenerService_ = lService;
+
+      this.orgService = orgSerivce;
+      this.listenerService_ = lService;
    }
 
    public User createUserInstance()
@@ -61,8 +76,8 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
 
    public void createUser(User user, boolean broadcast) throws Exception
    {
-      if (log.isDebugEnabled())
-         log.debug("----------- CREATE USER " + user.getUserName());
+      if (LOG.isDebugEnabled())
+         LOG.debug("----------- CREATE USER " + user.getUserName());
       UserImpl userImpl = (UserImpl)user;
       if (broadcast)
          listenerService_.broadcast(UserHandler.PRE_CREATE_USER_EVENT, this, userImpl);
@@ -73,13 +88,32 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
 
    public boolean authenticate(String username, String password) throws Exception
    {
+      return authenticate(username, password, null);
+   }
+
+   public boolean authenticate(String username, String password, PasswordEncrypter pe) throws Exception
+   {
       User user = findUserByName(username);
       if (user == null)
+      {
          return false;
+      }
 
-      boolean authenticated = user.getPassword().equals(password);
-      if (log.isDebugEnabled())
-         log.debug("+++++++++++AUTHENTICATE USERNAME " + username + " AND PASS " + password + " - " + authenticated);
+      boolean authenticated;
+      if (pe == null)
+      {
+         authenticated = user.getPassword().equals(password);
+      }
+      else
+      {
+         String encryptedPassword = new String(pe.encrypt(user.getPassword().getBytes()));
+         authenticated = encryptedPassword.equals(password);
+      }
+
+      if (LOG.isDebugEnabled())
+      {
+         LOG.debug("+++++++++++AUTHENTICATE USERNAME " + username + " AND PASS " + password + " - " + authenticated);
+      }
       if (authenticated)
       {
          UserImpl userImpl = (UserImpl)user;
@@ -92,10 +126,12 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
    public User findUserByName(String userName) throws Exception
    {
       DBObjectQuery<UserImpl> query = new DBObjectQuery<UserImpl>(UserImpl.class);
-      query.addLIKE("USER_NAME", userName);
+      query.addEQ("USER_NAME", userName);
       User user = loadUnique(query.toQuery());;
-      if (log.isDebugEnabled())
-         log.debug("+++++++++++FIND USER BY USER NAME " + userName + " - " + (user != null));
+      if (LOG.isDebugEnabled())
+      {
+         LOG.debug("+++++++++++FIND USER BY USER NAME " + userName + " - " + (user != null));
+      }
       return user;
    }
 
@@ -112,7 +148,7 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
       DBObjectQuery dbQuery = new DBObjectQuery<UserImpl>(UserImpl.class);
       if (orgQuery.getUserName() != null)
       {
-         dbQuery.addLIKE("UPPER(USER_NAME)", orgQuery.getUserName().toUpperCase());
+         dbQuery.addLIKE("UPPER(USER_NAME)", addAsterisk(orgQuery.getUserName().toUpperCase()));
       }
       if (orgQuery.getFirstName() != null)
       {
@@ -126,7 +162,7 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
       dbQuery.addGT("LAST_LOGIN_TIME", orgQuery.getFromLoginDate());
       dbQuery.addLT("LAST_LOGIN_TIME", orgQuery.getToLoginDate());
 
-      return new SimpleJDBCUserListAccess(this, dbQuery.toQuery(), dbQuery.toCountQuery());
+      return new JDBCListAccess<User>(this, dbQuery.toQuery(), dbQuery.toCountQuery());
    }
 
    public LazyPageList<User> findUsersByGroup(String groupId) throws Exception
@@ -136,28 +172,27 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
 
    public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
    {
-      if (log.isDebugEnabled())
-         log.debug("+++++++++++FIND USER BY GROUP_ID " + groupId);
-      PortalContainer manager = PortalContainer.getInstance();
-      OrganizationService service = (OrganizationService)manager.getComponentInstanceOfType(OrganizationService.class);
-      MembershipHandler membershipHandler = service.getMembershipHandler();
-      GroupHandler groupHandler = service.getGroupHandler();
+      if (LOG.isDebugEnabled())
+         LOG.debug("+++++++++++FIND USER BY GROUP_ID " + groupId);
+
+      MembershipHandler membershipHandler = orgService.getMembershipHandler();
+      GroupHandler groupHandler = orgService.getGroupHandler();
       Group group = groupHandler.findGroupById(groupId);
+      if (group == null)
+      {
+         return new LazyListImpl();
+      }
+
       @SuppressWarnings("unchecked")
       List<Membership> members = (List<Membership>)membershipHandler.findMembershipsByGroup(group);
 
       DBObjectQuery dbQuery = new DBObjectQuery<UserImpl>(UserImpl.class);
       for (Membership member : members)
       {
-         dbQuery.addLIKE("USER_NAME", member.getUserName());
-         /*
-               User g = findUserByName(member.getUserName());
-               if (g != null)
-                 users.add(g);
-         */
+         dbQuery.addEQ("USER_NAME", member.getUserName());
       }
 
-      return new SimpleJDBCUserListAccess(this, dbQuery.toQueryUseOR(), dbQuery.toCountQueryUseOR());
+      return new JDBCListAccess<User>(this, dbQuery.toQueryUseOR(), dbQuery.toCountQueryUseOR());
    }
 
    public LazyPageList<User> getUserPageList(int pageSize) throws Exception
@@ -168,7 +203,7 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
    public ListAccess<User> findAllUsers() throws Exception
    {
       DBObjectQuery dbQuery = new DBObjectQuery<UserImpl>(UserImpl.class);
-      return new SimpleJDBCUserListAccess(this, dbQuery.toQuery(), dbQuery.toCountQuery());
+      return new JDBCListAccess<User>(this, dbQuery.toQuery(), dbQuery.toCountQuery());
    }
 
    public User removeUser(String userName, boolean broadcast) throws Exception
@@ -199,4 +234,23 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
    {
    }
 
+   @SuppressWarnings("unused")
+   public void removeUserEventListener(UserEventListener listener)
+   {
+   }
+
+   private String addAsterisk(String s)
+   {
+      StringBuffer sb = new StringBuffer(s);
+      if (!s.startsWith("*"))
+      {
+         sb.insert(0, "*");
+      }
+      if (!s.endsWith("*"))
+      {
+         sb.append("*");
+      }
+
+      return sb.toString();
+   }
 }

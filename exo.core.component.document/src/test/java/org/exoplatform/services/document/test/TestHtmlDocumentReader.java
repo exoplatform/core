@@ -18,11 +18,9 @@
  */
 package org.exoplatform.services.document.test;
 
-import org.exoplatform.commons.utils.MimeTypeResolver;
-import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.document.DocumentReader;
-import org.exoplatform.services.document.DocumentReaderService;
-import org.exoplatform.test.BasicTestCase;
+import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
+import org.exoplatform.services.document.impl.HTMLDocumentReader;
 
 import java.io.InputStream;
 
@@ -33,24 +31,47 @@ import java.io.InputStream;
  * @version $Id: $
  */
 
-public class TestHtmlDocumentReader extends BasicTestCase
+public class TestHtmlDocumentReader extends BaseStandaloneTest
 {
-   DocumentReaderService service_;
+   DocumentReaderServiceImpl service;
 
    public void setUp() throws Exception
    {
-      PortalContainer pcontainer = PortalContainer.getInstance();
-      service_ = (DocumentReaderService)pcontainer.getComponentInstanceOfType(DocumentReaderService.class);
+      super.setUp();
+      service = new DocumentReaderServiceImpl(null);
+      service.addDocumentReader(new HTMLDocumentReader());
    }
 
    public void testGetContentAsString() throws Exception
    {
       InputStream is = TestHtmlDocumentReader.class.getResourceAsStream("/test.html");
-      MimeTypeResolver mimetypeResolver = new MimeTypeResolver();
-      String mimeType = mimetypeResolver.getMimeType("test.html");
+      try
+      {
+         String mimeType = mimetypeResolver.getMimeType("test.html");
 
-      DocumentReader dr = service_.getDocumentReader(mimeType);
-      String text = dr.getContentAsText(is);
-      // TODO text is too huge, need small test file
+         DocumentReader dr = service.getDocumentReader(mimeType);
+         String text = dr.getContentAsText(is);
+         assertTrue(text.contains("This is the third maintenance release of the redesigned 2.0"));
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testXHTMLGetContentAsString() throws Exception
+   {
+      InputStream is = TestHtmlDocumentReader.class.getResourceAsStream("/testXHTML.html");
+      try
+      {
+         DocumentReader dr = service.getDocumentReader("application/xhtml+xml");
+         String text = dr.getContentAsText(is);
+         assertTrue(text
+            .contains("This document tests the ability of Apache Tika to extract content from an XHTML document."));
+      }
+      finally
+      {
+         is.close();
+      }
    }
 }

@@ -34,8 +34,23 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class ByGroupLdapUserListAccess extends LdapUserListAccess
+public class ByGroupLdapUserListAccess extends LdapListAccess<User>
 {
+
+   /**
+    * Base search DN.
+    */
+   protected final String searchBase;
+
+   /**
+    * Search filter.
+    */
+   protected final String filter;
+
+   /**
+    * LDAP attribute to organization service essences.
+    */
+   protected final LDAPAttributeMapping ldapAttrMapping;
 
    /**
     * Logger.
@@ -56,7 +71,10 @@ public class ByGroupLdapUserListAccess extends LdapUserListAccess
    public ByGroupLdapUserListAccess(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, String searchBase,
       String filter)
    {
-      super(ldapAttrMapping, ldapService, searchBase, filter);
+      super(ldapService);
+      this.ldapAttrMapping = ldapAttrMapping;
+      this.searchBase = searchBase;
+      this.filter = filter;
    }
 
    /**

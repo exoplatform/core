@@ -101,9 +101,7 @@ public interface UserHandler
     *          broadcasted to all registered listener
     * @return return the User object after that user has beed removed from
     *         database
-    * @throws Exception
-    * @TODO Should we broadcast the membership remove event when a user is
-    *       removed ??
+    * @throws Exception    
     */
    public User removeUser(String userName, boolean broadcast) throws Exception;
 
@@ -202,4 +200,11 @@ public interface UserHandler
     * @param listener
     */
    public void addUserEventListener(UserEventListener listener);
+
+   /**
+    * This method is used to unregister an user event listener
+    * 
+    * @param listener
+    */
+   public void removeUserEventListener(UserEventListener listener);
 }

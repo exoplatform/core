@@ -24,15 +24,16 @@ import org.exoplatform.services.document.impl.HTMLDocumentReader;
 import org.exoplatform.services.document.impl.MSExcelDocumentReader;
 import org.exoplatform.services.document.impl.MSOutlookDocumentReader;
 import org.exoplatform.services.document.impl.MSWordDocumentReader;
+import org.exoplatform.services.document.impl.MSXExcelDocumentReader;
+import org.exoplatform.services.document.impl.MSXPPTDocumentReader;
+import org.exoplatform.services.document.impl.MSXWordDocumentReader;
 import org.exoplatform.services.document.impl.OpenOfficeDocumentReader;
 import org.exoplatform.services.document.impl.PDFDocumentReader;
 import org.exoplatform.services.document.impl.PPTDocumentReader;
 import org.exoplatform.services.document.impl.TextPlainDocumentReader;
 import org.exoplatform.services.document.impl.XMLDocumentReader;
-import org.exoplatform.test.BasicTestCase;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,21 +46,23 @@ import java.util.List;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
  * @version $Id: TestDocumentReadersIncomVals.java 111 2008-11-11 11:11:11Z serg $
  */
-public class TestDocumentReadersIncomVals extends BasicTestCase
+public class TestDocumentReadersIncomVals extends BaseStandaloneTest
 {
-
    List<DocumentReader> serviceList;
 
    public TestDocumentReadersIncomVals()
    {
       serviceList = new ArrayList<DocumentReader>();
-      serviceList.add(new HTMLDocumentReader(null));
+      serviceList.add(new HTMLDocumentReader());
       serviceList.add(new MSExcelDocumentReader());
+      serviceList.add(new MSXExcelDocumentReader());
       serviceList.add(new MSOutlookDocumentReader());
       serviceList.add(new MSWordDocumentReader());
+      serviceList.add(new MSXWordDocumentReader());
       serviceList.add(new OpenOfficeDocumentReader());
       serviceList.add(new PDFDocumentReader());
       serviceList.add(new PPTDocumentReader());
+      serviceList.add(new MSXPPTDocumentReader());
       serviceList.add(new TextPlainDocumentReader(new InitParams()));
       serviceList.add(new XMLDocumentReader());
    }
@@ -77,7 +80,7 @@ public class TestDocumentReadersIncomVals extends BasicTestCase
             sb.append(serviceList.get(i).toString() + "\n");
             //  fails.add(serviceList.get(i).toString());
          }
-         catch (NullPointerException e)
+         catch (IllegalArgumentException e)
          {
             //ok
          }
@@ -99,13 +102,13 @@ public class TestDocumentReadersIncomVals extends BasicTestCase
    {
       StringBuilder sb = new StringBuilder();
 
-      File f = File.createTempFile("dfd", "suf");
-      f.createNewFile();
+      File f = createTempFile("dfd", "suf");
+      createNewFile(f);
       InputStream in;
 
       for (int i = 0; i < serviceList.size(); i++)
       {
-         in = new FileInputStream(f);
+         in = getInputStream(f);
          try
          {
             assertEquals("", serviceList.get(i).getContentAsText(in));
@@ -124,6 +127,6 @@ public class TestDocumentReadersIncomVals extends BasicTestCase
          System.out.println(sb.toString());
       }
 
-      f.delete();
+      deleteFile(f);
    }
 }

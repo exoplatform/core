@@ -106,7 +106,6 @@ public class OrganizationConfig
 
       private String parentId;
 
-      // TODO: Tung.Pham added
       private String label;
 
       // --------------------------------------

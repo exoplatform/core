@@ -108,11 +108,20 @@ public abstract class AbstractLoginModule implements LoginModule
     */
    protected ExoContainer getContainer() throws Exception
    {
-      // TODO set correct current container
       ExoContainer container = ExoContainerContext.getCurrentContainer();
       if (container instanceof RootContainer)
       {
          container = RootContainer.getInstance().getPortalContainer(portalContainerName);
+         if (container == null)
+         {
+            throw new IllegalStateException(
+               "The eXo container is null, because the current container is a RootContainer "
+                  + "and there is no PortalContainer with the name '" + portalContainerName + "'.");
+         }
+      }
+      else if (container == null)
+      {
+         throw new IllegalStateException("The eXo container is null, because the current container is null.");
       }
       return container;
    }

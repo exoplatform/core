@@ -20,6 +20,8 @@ package org.exoplatform.services.document.impl;
 
 import org.apache.poi.hslf.extractor.PowerPointExtractor;
 import org.exoplatform.services.document.DocumentReadException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +38,8 @@ import java.util.Properties;
 public class PPTDocumentReader extends BaseDocumentReader
 {
 
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.PPTDocumentReader");
+
    /**
     * Get the application/powerpoint mime type.
     * 
@@ -43,7 +47,7 @@ public class PPTDocumentReader extends BaseDocumentReader
     */
    public String[] getMimeTypes()
    {
-      return new String[]{"application/powerpoint", "application/ppt"};
+      return new String[]{"application/powerpoint", "application/ppt", "application/vnd.ms-powerpoint"};
    }
 
    /**
@@ -56,10 +60,16 @@ public class PPTDocumentReader extends BaseDocumentReader
    {
       if (is == null)
       {
-         throw new NullPointerException("InputStream is null.");
+         throw new IllegalArgumentException("InputStream is null.");
       }
       try
       {
+         
+         if (is.available() == 0)
+         {
+            return "";
+         }
+         
          PowerPointExtractor ppe;
          try
          {
@@ -67,20 +77,26 @@ public class PPTDocumentReader extends BaseDocumentReader
          }
          catch (IOException e)
          {
-            return "";
+            throw new DocumentReadException("Can't open presentation.", e);
          }
          return ppe.getText(true, true);
       }
       finally
       {
          if (is != null)
+         {
             try
             {
                is.close();
             }
             catch (IOException e)
             {
+               if (LOG.isTraceEnabled())
+               {
+                  LOG.trace("An exception occurred: " + e.getMessage());
+               }
             }
+         }
       }
    }
 

@@ -162,7 +162,8 @@ public interface DCMetaData
     * URI:  http://purl.org/dc/elements/1.1/relation 
     * Label:  Relation
     * Definition:   A related resource.
-    * Comment:  Recommended best practice is to identify the related resource by means of a string conforming to a formal identification system.
+    * Comment:  Recommended best practice is to identify the related resource 
+    * by means of a string conforming to a formal identification system.
     */
    public final QName RELATION = new QName(DC_NAMESPACE, "relation");
 

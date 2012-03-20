@@ -25,11 +25,14 @@ import org.exoplatform.services.database.ExoDatasource;
 import org.exoplatform.services.database.StandardSQLDAO;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.MembershipTypeEventListener;
 import org.exoplatform.services.organization.MembershipTypeHandler;
 
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+
+import javax.naming.InvalidNameException;
 
 /**
  * Created by The eXo Platform SAS Author : Nhu Dinh Thuan
@@ -66,7 +69,7 @@ public class MembershipTypeDAOImpl extends StandardSQLDAO<MembershipTypeImpl> im
    public MembershipType findMembershipType(String name) throws Exception
    {
       DBObjectQuery<MembershipTypeImpl> query = new DBObjectQuery<MembershipTypeImpl>(MembershipTypeImpl.class);
-      query.addLIKE("MT_NAME", name);
+      query.addEQ("MT_NAME", name);
       MembershipType mt = loadUnique(query.toQuery());;
       // System.out.println("===========FIND MT BY NAME" + name + " - " +
       // (mt!=null));
@@ -86,15 +89,25 @@ public class MembershipTypeDAOImpl extends StandardSQLDAO<MembershipTypeImpl> im
    public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception
    {
       DBObjectQuery<MembershipTypeImpl> query = new DBObjectQuery<MembershipTypeImpl>(MembershipTypeImpl.class);
-      query.addLIKE("MT_NAME", name);
+      query.addEQ("MT_NAME", name);
       MembershipTypeImpl mt = loadUnique(query.toQuery());
       if (mt == null)
-         return null;
+      {
+         throw new InvalidNameException("Can not remove membership type" + name
+            + "record, because membership type does not exist.");
+      }
+
       if (broadcast)
+      {
          listenerService_.broadcast(MembershipTypeHandler.PRE_DELETE_MEMBERSHIP_TYPE_EVENT, this, mt);
+      }
       super.remove(mt);
+
       if (broadcast)
+      {
          listenerService_.broadcast(MembershipTypeHandler.POST_DELETE_MEMBERSHIP_TYPE_EVENT, this, mt);
+      }
+
       return mt;
    }
 
@@ -106,4 +119,19 @@ public class MembershipTypeDAOImpl extends StandardSQLDAO<MembershipTypeImpl> im
       return mt;
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   public void addMembershipTypeEventListener(MembershipTypeEventListener listener)
+   {
+      throw new UnsupportedOperationException("This method is not supported anymore, please use the new api");
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public void removeMembershipTypeEventListener(MembershipTypeEventListener listener)
+   {
+      throw new UnsupportedOperationException("This method is not supported anymore, please use the new api");
+   }
 }

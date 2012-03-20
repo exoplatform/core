@@ -18,20 +18,28 @@
  */
 package org.exoplatform.services.document.impl;
 
+import org.apache.poi.POIXMLDocument;
+import org.apache.poi.POIXMLProperties.CoreProperties;
+import org.apache.poi.POIXMLPropertiesTextExtractor;
 import org.apache.poi.hpsf.MarkUnsupportedException;
 import org.apache.poi.hpsf.NoPropertySetStreamException;
 import org.apache.poi.hpsf.PropertySet;
 import org.apache.poi.hpsf.PropertySetFactory;
 import org.apache.poi.hpsf.SummaryInformation;
+import org.apache.poi.openxml4j.util.Nullable;
 import org.apache.poi.poifs.eventfilesystem.POIFSReader;
 import org.apache.poi.poifs.eventfilesystem.POIFSReaderEvent;
 import org.apache.poi.poifs.eventfilesystem.POIFSReaderListener;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReadException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Properties;
 
 /**
@@ -44,6 +52,8 @@ import java.util.Properties;
 public class POIPropertiesReader
 {
 
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.POIPropertiesReader");
+
    private final Properties props = new Properties();
 
    public Properties getProperties()
@@ -51,11 +61,19 @@ public class POIPropertiesReader
       return props;
    }
 
-   public Properties readDCProperties(InputStream is) throws IOException, DocumentReadException
+   /**
+    * Metadata extraction from OLE2 documents (legacy MS office file formats)
+    * 
+    * @param is
+    * @return
+    * @throws IOException
+    * @throws DocumentReadException
+    */
+   public Properties readDCProperties(final InputStream is) throws IOException, DocumentReadException
    {
       if (is == null)
       {
-         throw new NullPointerException("InputStream is null.");
+         throw new IllegalArgumentException("InputStream is null.");
       }
 
       @SuppressWarnings("serial")
@@ -89,23 +107,39 @@ public class POIPropertiesReader
                   SummaryInformation si = (SummaryInformation)ps;
 
                   if (si.getLastAuthor() != null && si.getLastAuthor().length() > 0)
+                  {
                      props.put(DCMetaData.CONTRIBUTOR, si.getLastAuthor());
+                  }
                   if (si.getComments() != null && si.getComments().length() > 0)
+                  {
                      props.put(DCMetaData.DESCRIPTION, si.getComments());
+                  }
                   if (si.getCreateDateTime() != null)
+                  {
                      props.put(DCMetaData.DATE, si.getCreateDateTime());
+                  }
                   if (si.getAuthor() != null && si.getAuthor().length() > 0)
+                  {
                      props.put(DCMetaData.CREATOR, si.getAuthor());
+                  }
                   if (si.getKeywords() != null && si.getKeywords().length() > 0)
+                  {
                      props.put(DCMetaData.SUBJECT, si.getKeywords());
+                  }
                   if (si.getLastSaveDateTime() != null)
+                  {
                      props.put(DCMetaData.DATE, si.getLastSaveDateTime());
+                  }
                   // if(docInfo.getProducer() != null)
                   // props.put(DCMetaData.PUBLISHER, docInfo.getProducer());
                   if (si.getSubject() != null && si.getSubject().length() > 0)
+                  {
                      props.put(DCMetaData.SUBJECT, si.getSubject());
+                  }
                   if (si.getTitle() != null && si.getTitle().length() > 0)
+                  {
                      props.put(DCMetaData.TITLE, si.getTitle());
+                  }
 
                }
             }
@@ -130,9 +164,16 @@ public class POIPropertiesReader
 
       try
       {
-         POIFSReader poiFSReader = new POIFSReader();
+         final POIFSReader poiFSReader = new POIFSReader();
          poiFSReader.registerListener(readerListener, SummaryInformation.DEFAULT_STREAM_NAME);
-         poiFSReader.read(is);
+         SecurityHelper.doPrivilegedIOExceptionAction(new PrivilegedExceptionAction<Void>()
+         {
+            public Void run() throws Exception
+            {
+               poiFSReader.read(is);
+               return null;
+            }
+         });
       }
       catch (POIRuntimeException e)
       {
@@ -156,8 +197,64 @@ public class POIPropertiesReader
             }
             catch (IOException e)
             {
+               if (LOG.isTraceEnabled())
+               {
+                  LOG.trace("An exception occurred: " + e.getMessage());
+               }
             }
          }
+      }
+
+      return props;
+   }
+
+   /**
+    * Metadata extraction from ooxml documents (MS 2007 office file formats)
+    * 
+    * @param document
+    * @return
+    * @throws IOException
+    * @throws DocumentReadException
+    */
+   public Properties readDCProperties(POIXMLDocument document) throws IOException, DocumentReadException
+   {
+
+      POIXMLPropertiesTextExtractor extractor = new POIXMLPropertiesTextExtractor(document);
+
+      CoreProperties coreProperties = extractor.getCoreProperties();
+
+      Nullable<String> lastModifiedBy = coreProperties.getUnderlyingProperties().getLastModifiedByProperty();
+      if (lastModifiedBy != null && lastModifiedBy.getValue() != null && lastModifiedBy.getValue().length() > 0)
+      {
+         props.put(DCMetaData.CONTRIBUTOR, lastModifiedBy.getValue());
+      }
+      if (coreProperties.getDescription() != null && coreProperties.getDescription().length() > 0)
+      {
+         props.put(DCMetaData.DESCRIPTION, coreProperties.getDescription());
+      }
+      if (coreProperties.getCreated() != null)
+      {
+         props.put(DCMetaData.DATE, coreProperties.getCreated());
+      }
+      if (coreProperties.getCreator() != null && coreProperties.getCreator().length() > 0)
+      {
+         props.put(DCMetaData.CREATOR, coreProperties.getCreator());
+      }
+      if (coreProperties.getSubject() != null && coreProperties.getSubject().length() > 0)
+      {
+         props.put(DCMetaData.SUBJECT, coreProperties.getSubject());
+      }
+      if (coreProperties.getModified() != null)
+      {
+         props.put(DCMetaData.DATE, coreProperties.getModified());
+      }
+      if (coreProperties.getSubject() != null && coreProperties.getSubject().length() > 0)
+      {
+         props.put(DCMetaData.SUBJECT, coreProperties.getSubject());
+      }
+      if (coreProperties.getTitle() != null && coreProperties.getTitle().length() > 0)
+      {
+         props.put(DCMetaData.TITLE, coreProperties.getTitle());
       }
 
       return props;

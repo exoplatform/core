@@ -19,6 +19,8 @@
 package org.exoplatform.services.database;
 
 import org.exoplatform.commons.utils.PageList;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,11 +35,15 @@ import java.util.List;
 public abstract class DAO<T extends DBObject>
 {
 
+   /**
+    * Logger.
+    */
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.database.DAO");
+
    protected ExoDatasource eXoDS_;
 
    protected DBObjectMapper<T> mapper_;
 
-   // TODO need remove
    static int totalQueryTime = 0;
 
    static int totalBathTime = 0;
@@ -86,10 +92,6 @@ public abstract class DAO<T extends DBObject>
       {
          return loadUnique(connection, query);
       }
-      catch (Exception e)
-      {
-         throw e;
-      }
       finally
       {
          eXoDS_.closeConnection(connection);
@@ -131,10 +133,6 @@ public abstract class DAO<T extends DBObject>
       {
          loadInstances(connection, loadQuery, list);
       }
-      catch (Exception e)
-      {
-         throw e;
-      }
       finally
       {
          eXoDS_.closeConnection(connection);
@@ -166,10 +164,6 @@ public abstract class DAO<T extends DBObject>
       {
          execute(connection, query, bean);
       }
-      catch (Exception e)
-      {
-         throw e;
-      }
       finally
       {
          eXoDS_.closeConnection(connection);
@@ -197,10 +191,6 @@ public abstract class DAO<T extends DBObject>
       try
       {
          return this.<E> loadDBField(connection, query);
-      }
-      catch (Exception e)
-      {
-         throw e;
       }
       finally
       {
@@ -232,10 +222,6 @@ public abstract class DAO<T extends DBObject>
       {
          execute(connection, template, beans);
       }
-      catch (Exception e)
-      {
-         throw e;
-      }
       finally
       {
          eXoDS_.closeConnection(connection);
@@ -250,7 +236,7 @@ public abstract class DAO<T extends DBObject>
       {
          String query = builder.mapDataToSql(template, mapper_.toParameters(bean));
          statement.addBatch(query);
-         System.out.println(" addBatch " + query);
+         LOG.info(" addBatch " + query);
       }
       statement.executeBatch();
       statement.close();

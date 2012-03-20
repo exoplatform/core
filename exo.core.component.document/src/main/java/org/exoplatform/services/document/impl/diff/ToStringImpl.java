@@ -18,7 +18,10 @@
  */
 package org.exoplatform.services.document.impl.diff;
 
+import org.exoplatform.commons.utils.PrivilegedSystemHelper;
 import org.exoplatform.services.document.diff.ToString;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
@@ -33,6 +36,9 @@ import java.util.List;
  */
 public class ToStringImpl implements ToString
 {
+
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.ToStringImpl");
+
    public ToStringImpl()
    {
    }
@@ -41,6 +47,7 @@ public class ToStringImpl implements ToString
     * (non-Javadoc)
     * @see org.exoplatform.services.diff.ToString#toString()
     */
+   @Override
    public String toString()
    {
       StringBuffer s = new StringBuffer();
@@ -78,6 +85,10 @@ public class ToStringImpl implements ToString
       }
       catch (java.io.IOException e)
       {
+         if (LOG.isTraceEnabled())
+         {
+            LOG.trace("An exception occurred: " + e.getMessage());
+         }
       }
       return (String[])l.toArray(new String[l.size()]);
    }
@@ -90,7 +101,7 @@ public class ToStringImpl implements ToString
     */
    public String arrayToString(Object[] o)
    {
-      return arrayToString(o, System.getProperty("line.separator"));
+      return arrayToString(o, PrivilegedSystemHelper.getProperty("line.separator"));
    }
 
    /**

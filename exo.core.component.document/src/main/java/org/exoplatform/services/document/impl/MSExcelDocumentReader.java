@@ -24,10 +24,14 @@ import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DocumentReadException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.PrivilegedAction;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
@@ -42,8 +46,10 @@ import java.util.Properties;
 public class MSExcelDocumentReader extends BaseDocumentReader
 {
 
-   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.MSExcelDocumentReader");
 
+   private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSZ";
+   
    /**
     * Get the application/excel mime type.
     * 
@@ -51,7 +57,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
     */
    public String[] getMimeTypes()
    {
-      return new String[]{"application/excel", "application/xls"};
+      return new String[]{"application/excel", "application/xls", "application/vnd.ms-excel"};
    }
 
    /**
@@ -64,13 +70,20 @@ public class MSExcelDocumentReader extends BaseDocumentReader
    {
       if (is == null)
       {
-         throw new NullPointerException("InputStream is null.");
+         throw new IllegalArgumentException("InputStream is null.");
       }
 
-      String text = "";
+      final StringBuilder builder = new StringBuilder("");
+      
+      SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 
       try
       {
+         if (is.available() == 0)
+         {
+            return "";
+         }
+         
          HSSFWorkbook wb;
          try
          {
@@ -78,7 +91,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
          }
          catch (IOException e)
          {
-            return text;
+            throw new DocumentReadException("Can't open spreadsheet.", e);
          }
          for (int sheetNum = 0; sheetNum < wb.getNumberOfSheets(); sheetNum++)
          {
@@ -94,7 +107,7 @@ public class MSExcelDocumentReader extends BaseDocumentReader
                      int lastcell = row.getLastCellNum();
                      for (int k = 0; k < lastcell; k++)
                      {
-                        HSSFCell cell = row.getCell((short)k);
+                        final HSSFCell cell = row.getCell((short)k);
                         if (cell != null)
                         {
                            switch (cell.getCellType())
@@ -104,26 +117,54 @@ public class MSExcelDocumentReader extends BaseDocumentReader
                                  if (isCellDateFormatted(cell))
                                  {
                                     Date date = HSSFDateUtil.getJavaDate(d);
-                                    String cellText = this.DATE_FORMAT.format(date);
-                                    text = text + cellText + " ";
+                                    String cellText = dateFormat.format(date);
+                                    builder.append(cellText).append(" ");
                                  }
                                  else
                                  {
-                                    text = text + d + " ";
+                                   builder.append(d).append(" ");
                                  }
                                  break;
                               }
                               case HSSFCell.CELL_TYPE_FORMULA :
-                                 text = text + cell.getCellFormula().toString() + " ";
+                                 SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>()
+                                 {
+                                    public Void run()
+                                    {
+                                       builder.append(cell.getCellFormula().toString()).append(" ");
+                                       return null;
+                                    }
+                                 });
                                  break;
                               case HSSFCell.CELL_TYPE_BOOLEAN :
-                                 text = text + cell.getBooleanCellValue() + " ";
+                                 SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>()
+                                 {
+                                    public Void run()
+                                    {
+                                       builder.append(cell.getBooleanCellValue()).append(" ");
+                                       return null;
+                                    }
+                                 });
                                  break;
                               case HSSFCell.CELL_TYPE_ERROR :
-                                 text = text + cell.getErrorCellValue() + " ";
+                                 SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>()
+                                 {
+                                    public Void run()
+                                    {
+                                       builder.append(cell.getErrorCellValue()).append(" ");
+                                       return null;
+                                    }
+                                 });
                                  break;
                               case HSSFCell.CELL_TYPE_STRING :
-                                 text = text + cell.getStringCellValue().toString() + " ";
+                                 SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>()
+                                 {
+                                    public Void run()
+                                    {
+                                       builder.append(cell.getStringCellValue().toString()).append(" ");
+                                       return null;
+                                    }
+                                 });
                                  break;
                               default :
                                  break;
@@ -145,10 +186,14 @@ public class MSExcelDocumentReader extends BaseDocumentReader
             }
             catch (IOException e)
             {
+               if (LOG.isTraceEnabled())
+               {
+                  LOG.trace("An exception occurred: " + e.getMessage());
+               }
             }
          }
       }
-      return text;
+      return builder.toString();
    }
 
    public String getContentAsText(InputStream is, String encoding) throws IOException, DocumentReadException

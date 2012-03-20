@@ -17,7 +17,6 @@
 package org.exoplatform.services.organization.cache;
 
 import org.exoplatform.services.cache.ExoCache;
-import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserProfileEventListener;
 import org.exoplatform.services.organization.UserProfileHandler;
@@ -60,6 +59,14 @@ public class CacheableUserProfileHandlerImpl implements UserProfileHandler
    public void addUserProfileEventListener(UserProfileEventListener listener)
    {
       userProfileHandler.addUserProfileEventListener(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public void removeUserProfileEventListener(UserProfileEventListener listener)
+   {
+      userProfileHandler.removeUserProfileEventListener(listener);
    }
 
    /**

@@ -20,10 +20,14 @@ package org.exoplatform.services.document.impl;
 
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.usermodel.Range;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DocumentReadException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.PrivilegedExceptionAction;
 import java.util.Properties;
 
 /**
@@ -35,6 +39,8 @@ import java.util.Properties;
  */
 public class MSWordDocumentReader extends BaseDocumentReader
 {
+
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.MSWordDocumentReader");
 
    /**
     * Get the application/msword mime type.
@@ -52,23 +58,34 @@ public class MSWordDocumentReader extends BaseDocumentReader
     * @param is an input stream with .doc file content.
     * @return The string only with text from file content.
     */
-   public String getContentAsText(InputStream is) throws IOException, DocumentReadException
+   public String getContentAsText(final InputStream is) throws IOException, DocumentReadException
    {
       if (is == null)
       {
-         throw new NullPointerException("InputStream is null.");
+         throw new IllegalArgumentException("InputStream is null.");
       }
       String text = "";
       try
       {
+         if (is.available() == 0)
+         {
+            return "";
+         }
+         
          HWPFDocument doc;
          try
          {
-            doc = new HWPFDocument(is);
+            doc = SecurityHelper.doPrivilegedIOExceptionAction(new PrivilegedExceptionAction<HWPFDocument>()
+            {
+               public HWPFDocument run() throws Exception
+               {
+                  return new HWPFDocument(is);
+               }
+            });
          }
          catch (IOException e)
          {
-            return "";
+            throw new DocumentReadException("Can't open document.", e);
          }
 
          Range range = doc.getRange();
@@ -77,13 +94,19 @@ public class MSWordDocumentReader extends BaseDocumentReader
       finally
       {
          if (is != null)
+         {
             try
             {
                is.close();
             }
             catch (IOException e)
             {
+               if (LOG.isTraceEnabled())
+               {
+                  LOG.trace("An exception occurred: " + e.getMessage());
+               }
             }
+         }
       }
       return text.trim();
    }

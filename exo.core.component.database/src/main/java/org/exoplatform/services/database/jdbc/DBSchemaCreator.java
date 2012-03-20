@@ -19,6 +19,7 @@
 package org.exoplatform.services.database.jdbc;
 
 import org.exoplatform.container.component.ComponentPlugin;
+import org.exoplatform.services.database.utils.ExceptionManagementHelper;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.naming.InitialContextInitializer;
@@ -137,17 +138,8 @@ public class DBSchemaCreator
       }
       catch (SQLException e)
       {
-         SQLException next = e.getNextException();
-         String errorTrace = "";
-         while (next != null)
-         {
-            errorTrace += next.getMessage() + "; ";
-            next = next.getNextException();
-         }
-         Throwable cause = e.getCause();
          log.error("Could not create db schema of DataSource: '" + dsName + "'. Reason: " + e.getMessage() + "; "
-            + errorTrace + (cause != null ? " (Cause: " + cause.getMessage() + ")" : "") + ". Last command: " + sql);
-         e.printStackTrace();
+                  + ExceptionManagementHelper.getFullSQLExceptionMessage(e) + ". Last command: " + sql, e);
       }
       finally
       {
@@ -168,11 +160,11 @@ public class DBSchemaCreator
          }
          catch (NamingException e)
          {
-            e.printStackTrace();
+            log.error(e.getLocalizedMessage(), e);
          }
          catch (SQLException e)
          {
-            e.printStackTrace();
+            log.error(e.getLocalizedMessage(), e);
          }
       }
    }

@@ -19,6 +19,7 @@
 package org.exoplatform.services.organization.ldap;
 
 import org.exoplatform.services.ldap.LDAPService;
+import org.exoplatform.services.organization.CacheHandler;
 import org.exoplatform.services.organization.Group;
 
 import java.util.ArrayList;
@@ -48,12 +49,14 @@ public class ADGroupDAOImpl extends GroupDAOImpl
     *          items
     * @param ldapService {@link LDAPService}
     * @param ad See {@link ADSearchBySID}
+    * @param cacheHandler
+    *          The Cache Handler
     * @throws Exception if any errors occurs
     */
-   public ADGroupDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, ADSearchBySID ad)
-      throws Exception
+   public ADGroupDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, ADSearchBySID ad,
+      CacheHandler cacheHandler) throws Exception
    {
-      super(ldapAttrMapping, ldapService);
+      super(ldapAttrMapping, ldapService, cacheHandler);
       adSearch = ad;
    }
 
@@ -126,10 +129,7 @@ public class ADGroupDAOImpl extends GroupDAOImpl
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
             finally
             {

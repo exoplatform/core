@@ -18,16 +18,24 @@
  */
 package org.exoplatform.services.organization.ldap;
 
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.organization.CacheHandler;
+import org.exoplatform.services.organization.CacheHandler.CacheType;
 import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.MembershipTypeEventListener;
+import org.exoplatform.services.organization.MembershipTypeEventListenerHandler;
 import org.exoplatform.services.organization.MembershipTypeHandler;
 import org.exoplatform.services.organization.impl.MembershipTypeImpl;
+import org.exoplatform.services.security.PermissionConstants;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
@@ -44,7 +52,7 @@ import javax.naming.ldap.LdapContext;
  * Created by The eXo Platform SAS Author : Tuan Nguyen
  * tuan08@users.sourceforge.net Oct 14, 2005. @version andrew00x $
  */
-public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHandler
+public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHandler, MembershipTypeEventListenerHandler
 {
 
    /**
@@ -53,14 +61,22 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
    private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.ldap.MembershipTypeDAOImpl");
 
    /**
+    * The list of listeners to broadcast the events.
+    */
+   protected final List<MembershipTypeEventListener> listeners = new ArrayList<MembershipTypeEventListener>();
+
+   /**
     * @param ldapAttrMapping mapping LDAP attributes to eXo organization service
     *          items (users, groups, etc)
     * @param ldapService {@link LDAPService}
+    * @param cacheHandler
+    *          The Cache Handler
     * @throws Exception if any errors occurs
     */
-   public MembershipTypeDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
+   public MembershipTypeDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler)
+      throws Exception
    {
-      super(ldapAttrMapping, ldapService);
+      super(ldapAttrMapping, ldapService, cacheHandler);
    }
 
    /**
@@ -94,16 +110,26 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
                   Date now = new Date();
                   mt.setCreatedDate(now);
                   mt.setModifiedDate(now);
+
+                  if (broadcast)
+                  {
+                     preSave(mt, true);
+                  }
+
                   ctx.createSubcontext(membershipTypeDN, ldapAttrMapping.membershipTypeToAttributes(mt));
+
+                  if (broadcast)
+                  {
+                     postSave(mt, true);
+                  }
+
+                  cacheHandler.put(mt.getName(), mt, CacheType.MEMBERSHIPTYPE);
                }
                return mt;
             }
             catch (NamingException e1)
             {
-               if (isConnectionError(e1) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e1;
+               ctx = reloadCtx(ctx, err, e1);
             }
          }
       }
@@ -145,15 +171,24 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
                      new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(
                         ldapAttrMapping.ldapDescriptionAttr, mt.getDescription()));
                }
+
+               if (broadcast)
+               {
+                  preSave(mt, false);
+               }
+
                ctx.modifyAttributes(membershipTypeDN, mods);
+               cacheHandler.put(mt.getName(), mt, CacheType.MEMBERSHIPTYPE);
+
+               if (broadcast)
+               {
+                  postSave(mt, false);
+               }
                return mt;
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -180,23 +215,35 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
                Attributes attrs = ctx.getAttributes(membershipTypeDN);
                MembershipType m = ldapAttrMapping.attributesToMembershipType(attrs);
                removeMembership(ctx, name);
+
+               if (broadcast)
+               {
+                  preDelete(m);
+               }
+
                ctx.destroySubcontext(membershipTypeDN);
+               cacheHandler.remove(name, CacheType.MEMBERSHIPTYPE);
+
+               if (broadcast)
+               {
+                  postDelete(m);
+               }
+
                return m;
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
       catch (NameNotFoundException e)
       {
          if (LOG.isDebugEnabled())
-            e.printStackTrace();
-         return null;
+         {
+            LOG.debug(e.getLocalizedMessage(), e);
+         }
+         throw new Exception(e);
       }
       finally
       {
@@ -209,6 +256,12 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
     */
    public MembershipType findMembershipType(String name) throws Exception
    {
+      MembershipType mt = (MembershipType)cacheHandler.get(name, CacheType.MEMBERSHIPTYPE);
+      if (mt != null)
+      {
+         return mt;
+      }
+
       String membershipTypeDN =
          ldapAttrMapping.membershipTypeNameAttr + "=" + name + "," + ldapAttrMapping.membershipTypeURL;
       LdapContext ctx = ldapService.getLdapContext();
@@ -219,21 +272,23 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
             try
             {
                Attributes attrs = ctx.getAttributes(membershipTypeDN);
-               return ldapAttrMapping.attributesToMembershipType(attrs);
+               mt = ldapAttrMapping.attributesToMembershipType(attrs);
+               if (mt != null)
+               {
+                  cacheHandler.put(name, mt, CacheType.MEMBERSHIPTYPE);
+               }
+               return mt;
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
       catch (NameNotFoundException e)
       {
          if (LOG.isDebugEnabled())
-            e.printStackTrace();
+            LOG.debug(e.getLocalizedMessage(), e);
          return null;
       }
       finally
@@ -274,10 +329,7 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
             finally
             {
@@ -307,6 +359,8 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
          {
             SearchResult sr = results.next();
             ctx.destroySubcontext(sr.getNameInNamespace());
+
+            cacheHandler.remove(CacheHandler.MEMBERSHIPTYPE_PREFIX + name, CacheType.MEMBERSHIP);
          }
       }
       finally
@@ -316,4 +370,73 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
       }
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   public void addMembershipTypeEventListener(MembershipTypeEventListener listener)
+   {
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
+      listeners.add(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public void removeMembershipTypeEventListener(MembershipTypeEventListener listener)
+   {
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
+      listeners.remove(listener);
+   }
+
+   /**
+    * PreSave event.
+    */
+   private void preSave(MembershipType type, boolean isNew) throws Exception
+   {
+      for (MembershipTypeEventListener listener : listeners)
+      {
+         listener.preSave(type, isNew);
+      }
+   }
+
+   /**
+    * PostSave event.
+    */
+   private void postSave(MembershipType type, boolean isNew) throws Exception
+   {
+      for (MembershipTypeEventListener listener : listeners)
+      {
+         listener.postSave(type, isNew);
+      }
+   }
+
+   /**
+    * PreDelete event.
+    */
+   private void preDelete(MembershipType type) throws Exception
+   {
+      for (MembershipTypeEventListener listener : listeners)
+      {
+         listener.preDelete(type);
+      }
+   }
+
+   /**
+    * PostDelete event.
+    */
+   private void postDelete(MembershipType type) throws Exception
+   {
+      for (MembershipTypeEventListener listener : listeners)
+      {
+         listener.postDelete(type);
+      }
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public List<MembershipTypeEventListener> getMembershipTypeListeners()
+   {
+      return Collections.unmodifiableList(listeners);
+   }
 }

@@ -18,12 +18,13 @@
  */
 package org.exoplatform.services.security;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 
 /**
  * Created by The eXo Platform SAS .
- * 
+ *
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -67,11 +68,12 @@ public class ConversationState
 
    /**
     * Preset current ConversationState.
-    * 
+    *
     * @param state ConversationState
     */
    public static void setCurrent(ConversationState state)
    {
+      checkPermissions();
       current.set(state);
    }
 
@@ -85,12 +87,13 @@ public class ConversationState
 
    /**
     * sets attribute.
-    * 
+    *
     * @param key
     * @param value
     */
    public void setAttribute(String name, Object value)
    {
+      checkPermissions();
       this.attributes.put(name, value);
    }
 
@@ -104,21 +107,35 @@ public class ConversationState
    }
 
    /**
+    * Returns unmodifiable set of attribute names.
+    * 
     * @return all attribute names
     */
    public Set<String> getAttributeNames()
    {
-      return attributes.keySet();
+      return Collections.unmodifiableSet(attributes.keySet());
    }
 
    /**
     * removes attribute.
-    * 
+    *
     * @param key
     */
    public void removeAttribute(String name)
    {
+      checkPermissions();
       this.attributes.remove(name);
    }
 
+   /**
+    *  Checks if modification allowed
+    */
+   private static void checkPermissions()
+   {
+      SecurityManager security = System.getSecurityManager();
+      if (security != null)
+      {
+         security.checkPermission(PermissionConstants.MODIFY_CONVERSATION_STATE_PERMISSION);
+      }
+   }
 }

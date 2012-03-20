@@ -23,9 +23,9 @@ package org.exoplatform.services.organization.impl.mock;
 
 import org.exoplatform.commons.utils.LazyPageList;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.commons.utils.ObjectPageList;
 import org.exoplatform.commons.utils.PageList;
 import org.exoplatform.services.organization.BaseOrganizationService;
+import org.exoplatform.services.organization.ExtendedUserHandler;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
 import org.exoplatform.services.organization.GroupHandler;
@@ -43,6 +43,7 @@ import org.exoplatform.services.organization.UserProfileHandler;
 import org.exoplatform.services.organization.impl.MembershipImpl;
 import org.exoplatform.services.organization.impl.UserImpl;
 import org.exoplatform.services.organization.impl.UserProfileImpl;
+import org.exoplatform.services.security.PasswordEncrypter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -84,6 +85,10 @@ public class DummyOrganizationService extends BaseOrganizationService
       {
       }
 
+      public void removeMembershipEventListener(MembershipEventListener listener)
+      {
+      }
+
       public void createMembership(Membership m, boolean broadcast) throws Exception
       {
       }
@@ -104,6 +109,11 @@ public class DummyOrganizationService extends BaseOrganizationService
       }
 
       public Collection findMembershipsByGroup(Group group) throws Exception
+      {
+         return null;
+      }
+
+      public ListAccess<Membership> findAllMembershipsByGroup(Group group) throws Exception
       {
          return null;
       }
@@ -149,7 +159,7 @@ public class DummyOrganizationService extends BaseOrganizationService
       }
    }
 
-   static public class UserHandlerImpl implements UserHandler
+   static public class UserHandlerImpl implements UserHandler, ExtendedUserHandler
    {
 
       private static final int DEFAULT_LIST_SIZE = 6;
@@ -169,7 +179,6 @@ public class DummyOrganizationService extends BaseOrganizationService
          usr.setPassword("admin");
          users.add(usr);
 
-         // TODO for what?
          usr = new UserImpl("weblogic");
          usr.setPassword("11111111");
          users.add(usr);
@@ -298,10 +307,13 @@ public class DummyOrganizationService extends BaseOrganizationService
       {
       }
 
-      public boolean authenticate(String username, String password) throws Exception
+      public void removeUserEventListener(UserEventListener listener)
+      {
+      }
+
+      public boolean authenticate(String username, String password, PasswordEncrypter pe) throws Exception
       {
          Iterator<User> it = users.iterator();
-
          User usr = null;
          User temp = null;
          while (it.hasNext())
@@ -317,13 +329,36 @@ public class DummyOrganizationService extends BaseOrganizationService
          if (usr != null)
          {
             if (usr.getUserName().equals("__anonim"))
+            {
                return true;
-
-            if (usr.getPassword().equals(password))
-               return true;
+            }
+            if (pe == null)
+            {
+               if (usr.getPassword().equals(password))
+               {
+                  return true;
+               }
+            }
+            // passwordContext != null means that digest authentication is used
+            else
+            {
+               // so we need calculate MD5 cast
+               String dp = new String(pe.encrypt(usr.getPassword().getBytes()));
+               // to compare it to sent by client
+               if (dp.equals(password))
+               {
+                  return true;
+               }
+            }
          }
 
          return false;
+
+      }
+
+      public boolean authenticate(String username, String password) throws Exception
+      {
+         return authenticate(username, password, null);
       }
    }
 
@@ -368,7 +403,6 @@ public class DummyOrganizationService extends BaseOrganizationService
          }
          else
          {
-            // TODO is it right?
             return new DummyGroup("", "/" + groupId, groupId);
          }
       }
@@ -387,6 +421,10 @@ public class DummyOrganizationService extends BaseOrganizationService
       }
 
       public void addGroupEventListener(GroupEventListener listener)
+      {
+      }
+
+      public void removeGroupEventListener(GroupEventListener listener)
       {
       }
 
@@ -500,6 +538,10 @@ public class DummyOrganizationService extends BaseOrganizationService
    {
 
       public void addUserProfileEventListener(UserProfileEventListener listener)
+      {
+      }
+
+      public void removeUserProfileEventListener(UserProfileEventListener listener)
       {
       }
 

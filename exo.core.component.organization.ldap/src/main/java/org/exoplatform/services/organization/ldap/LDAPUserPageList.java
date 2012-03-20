@@ -55,7 +55,7 @@ public class LDAPUserPageList extends PageList
 
    private LDAPAttributeMapping ldapAttrMapping;
    
-   private static Log logger = ExoLogger.getLogger("exo.core.component.organization.ldap.LDAPUserPageList"); 
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.ldap.LDAPUserPageList");
 
    static boolean SEARCH_CONTROL = Control.NONCRITICAL;
 
@@ -74,12 +74,12 @@ public class LDAPUserPageList extends PageList
       }
       catch (NameNotFoundException e)
       {
-         logger.warn("Cannot set the page size while creating a LDAPUserPageList, no page size will be used", e);
+         LOG.warn("Cannot set the page size while creating a LDAPUserPageList, no page size will be used", e);
          setAvailablePage(0);
       }
       catch (OperationNotSupportedException e)
       {
-         logger.warn("Cannot set the page size while creating a LDAPUserPageList, no page size will be used", e);
+         LOG.warn("Cannot set the page size while creating a LDAPUserPageList, no page size will be used", e);
          setAvailablePage(0);
       }
    }
@@ -87,7 +87,8 @@ public class LDAPUserPageList extends PageList
    /**
     * {@inheritDoc}
     */
-   protected void populateCurrentPage(int page) throws Exception
+   @Override
+  protected void populateCurrentPage(int page) throws Exception
    {
       List<User> users = new ArrayList<User>();
       PagedResultsControl prc = new PagedResultsControl(getPageSize(), Control.NONCRITICAL);
@@ -141,7 +142,10 @@ public class LDAPUserPageList extends PageList
             catch (NamingException e)
             {
                if (BaseDAO.isConnectionError(e) && err < BaseDAO.getMaxConnectionError())
+               {
+                  ldapService.release(ctx);
                   ctx = ldapService.getLdapContext(true);
+               }
                else
                   throw e;
             }
@@ -166,7 +170,8 @@ public class LDAPUserPageList extends PageList
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
+   @Override
+  @SuppressWarnings("unchecked")
    public List getAll() throws Exception
    {
       LdapContext ctx = ldapService.getLdapContext();
@@ -197,7 +202,10 @@ public class LDAPUserPageList extends PageList
             catch (NamingException e)
             {
                if (BaseDAO.isConnectionError(e) && err < 1)
+               {
+                  ldapService.release(ctx);
                   ctx = ldapService.getLdapContext(true);
+               }
                else
                   throw e;
             }

@@ -31,9 +31,6 @@ import java.util.Collection;
  * type and delete the membership type event. Each event should have 2 phases: pre event and post
  * event. The method createMembershipType(..) , saveMembershipType(..) and removeMembershipType
  * broadcast the event at each phase so the listeners can handle the event properly
- * 
- * TODO Currently the membership type handler do not support the listener and broadcasting. We
- * should implement this and broadcast the event properly.
  */
 public interface MembershipTypeHandler
 {
@@ -115,4 +112,18 @@ public interface MembershipTypeHandler
     *           Ususally an exception is throwed when the method cannot access the database.
     */
    public Collection findMembershipTypes() throws Exception;
+
+   /**
+    * Use this method to register a membership type event listener.
+    * 
+    * @param listener the listener instance.
+    */
+   public void addMembershipTypeEventListener(MembershipTypeEventListener listener);
+
+   /**
+    * Use this method to unregister a membership type event listener.
+    * 
+    * @param listener the listener instance.
+    */
+   public void removeMembershipTypeEventListener(MembershipTypeEventListener listener);
 }

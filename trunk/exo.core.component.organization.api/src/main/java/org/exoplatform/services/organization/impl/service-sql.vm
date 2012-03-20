@@ -1,4 +1,0 @@
-##Available object : $group , $type
-
-Need to implement checkNull directive to check if the group pr type existed 
-and render the object

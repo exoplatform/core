@@ -31,7 +31,8 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
    ComponentPlugin
 {
 
-   protected static Log log = ExoLogger.getLogger("exo.core.component.organization.api.OrganizationDatabaseInitializer");
+   protected static final Log LOG = ExoLogger
+      .getLogger("exo.core.component.organization.api.OrganizationDatabaseInitializer");
 
    private OrganizationConfig config_;
 
@@ -194,6 +195,6 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
    private void printInfo(String message)
    {
       if (printInfo_)
-         log.info(message);
+         LOG.info(message);
    }
 }

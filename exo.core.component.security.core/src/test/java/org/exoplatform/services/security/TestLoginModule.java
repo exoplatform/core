@@ -22,8 +22,12 @@ import junit.framework.TestCase;
 
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.security.jaas.BasicCallbackHandler;
+import org.exoplatform.services.security.jaas.DigestCallbackHandler;
 
 import java.net.URL;
+import java.security.MessageDigest;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.security.auth.login.LoginContext;
 
@@ -73,9 +77,71 @@ public class TestLoginModule extends TestCase
       conversationRegistry.clear();
    }
 
-   public void testLogin() throws Exception
+   public void testBasicLogin() throws Exception
    {
       BasicCallbackHandler handler = new BasicCallbackHandler("exo", "exo".toCharArray());
+      LoginContext loginContext = new LoginContext("exo", handler);
+      loginContext.login();
+
+      assertNotNull(identityRegistry.getIdentity("exo"));
+      assertEquals("exo", identityRegistry.getIdentity("exo").getUserId());
+
+      assertEquals(1, identityRegistry.getIdentity("exo").getGroups().size());
+
+      StateKey key = new SimpleStateKey("exo");
+      conversationRegistry.register(key, new ConversationState(identityRegistry.getIdentity("exo")));
+      assertNotNull(conversationRegistry.getState(key));
+
+   }
+
+   /**
+    * Here we test Digest Authorization. We artificially create a password context, to emulate 
+    * Authorize request environment. Than we login and expect to have "exo" identity registered 
+    * and corresponding group created. More information about Digest Authorization is settled 
+    * <a href=http://www.apps.ietf.org/rfc/rfc2617.html>here</a>.  
+    * @throws Exception
+    */
+   public void testDigestLogin() throws Exception
+   {
+      /**
+       * Number of hex digits.
+       * Hex digits are needed to encode A2, A1 elements as defined in RFC-2617.
+       */
+      int HASH_HEX_LENGTH = 32;
+
+      /**
+       * Here we are going to keep all password context information
+       */
+      Map<String, String> passwordContext = new HashMap<String, String>();
+
+      passwordContext.put("realmName", "eXo REST services");
+      passwordContext.put("nonce", "2c613333aa4cc017d358c09f61977718");
+      passwordContext.put("cnonce", "bFaGgjcb+QP47nzPpxtonQ28Kgbz22WsBqmKjHU49q9=");
+      passwordContext.put("qop", "auth");
+      passwordContext.put("nc", "00000001");
+      passwordContext.put("response", "303c5080ac28ed876ea138d207fdf2cd");
+
+      // encrypt A2 string using MD5
+      String md5a2 = "Method:" + "/rest/jcr/repository/production";
+      MessageDigest md = MessageDigest.getInstance("MD5");
+      md.update(md5a2.getBytes());
+
+      // encode encrypted A2 string using HEX digits
+      byte[] bin = md.digest();
+      StringBuffer tmpStr = new StringBuffer(HASH_HEX_LENGTH);
+      int digit;
+      for (int i = 0; i < HASH_HEX_LENGTH / 2; i++)
+      {
+         digit = (bin[i] >> 4) & 0xf;
+         tmpStr.append(Integer.toHexString(digit));
+         digit = bin[i] & 0xf;
+         tmpStr.append(Integer.toHexString(digit));
+
+      };
+
+      passwordContext.put("md5a2", tmpStr.toString());
+
+      DigestCallbackHandler handler = new DigestCallbackHandler("exo", "exo".toCharArray(), passwordContext);
       LoginContext loginContext = new LoginContext("exo", handler);
       loginContext.login();
 

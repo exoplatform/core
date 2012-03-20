@@ -24,6 +24,7 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.TextInputCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
 public class BasicCallbackHandler implements CallbackHandler
@@ -43,6 +44,12 @@ public class BasicCallbackHandler implements CallbackHandler
     * @param login name
     * @param password password
     */
+
+   /**
+    * Authentication method. 
+    */
+   private final String authMethod = "BASIC";
+
    public BasicCallbackHandler(String login, char[] password)
    {
       this.login = login;
@@ -63,6 +70,13 @@ public class BasicCallbackHandler implements CallbackHandler
          else if (callbacks[i] instanceof PasswordCallback)
          {
             ((PasswordCallback)callbacks[i]).setPassword(password);
+         }
+         else if (callbacks[i] instanceof TextInputCallback)
+         {
+            if ("authMethod".equals(((TextInputCallback)callbacks[i]).getPrompt()))
+            {
+               ((TextInputCallback)callbacks[i]).setText(authMethod);
+            }
          }
          else
          {

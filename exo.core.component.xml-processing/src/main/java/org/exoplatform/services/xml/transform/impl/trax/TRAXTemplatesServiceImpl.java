@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.xml.transform.impl.trax;
 
+import org.exoplatform.commons.utils.PrivilegedSystemHelper;
 import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -42,7 +43,7 @@ import javax.xml.transform.stream.StreamSource;
 public class TRAXTemplatesServiceImpl implements TRAXTemplatesService, Startable
 {
 
-   private static final Log LOGGER = ExoLogger.getLogger("exo.core.component.xml-processing.TRAXTemplatesServiceImpl");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.xml-processing.TRAXTemplatesServiceImpl");
 
    private Map<String, TRAXTemplates> templates_;
 
@@ -116,18 +117,26 @@ public class TRAXTemplatesServiceImpl implements TRAXTemplatesService, Startable
             String xsltSchema = m.get(key);
             try
             {
-               if (Thread.currentThread().getContextClassLoader().getResource(xsltSchema) != null)
+               if (PrivilegedSystemHelper.getResource(xsltSchema) != null)
                {
-                  LOGGER.info("XSLT schema found by relative path: " + xsltSchema);
-                  addTRAXTemplates(key, traxTransformerService_.getTemplates(new StreamSource(Thread.currentThread()
-                     .getContextClassLoader().getResourceAsStream(xsltSchema))));
+                  LOG.info("XSLT schema found by relative path: " + xsltSchema);
+                  addTRAXTemplates(key, traxTransformerService_.getTemplates(new StreamSource(PrivilegedSystemHelper
+                     .getResourceAsStream(xsltSchema))));
                }
                else
-                  LOGGER.error("XSLT schema not found: " + xsltSchema);
+                  LOG.error("XSLT schema not found: " + xsltSchema);
             }
-            catch (Exception e)
+            catch (IllegalArgumentException e)
             {
-               LOGGER.error("Add new TRAXTemplates failed : " + e);
+               LOG.error("Add new TRAXTemplates failed : " + e.getMessage());
+            }
+            catch (TransformerException e)
+            {
+               LOG.error("Add new TRAXTemplates failed : " + e.getMessage());
+            }
+            catch (NotSupportedIOTypeException e)
+            {
+               LOG.error("Add new TRAXTemplates failed : " + e.getMessage());
             }
          }
       }

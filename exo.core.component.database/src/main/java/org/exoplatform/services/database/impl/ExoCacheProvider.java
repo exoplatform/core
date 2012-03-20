@@ -20,6 +20,8 @@ package org.exoplatform.services.database.impl;
 
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.CacheProvider;
@@ -39,6 +41,8 @@ import java.util.Properties;
 public class ExoCacheProvider implements CacheProvider
 {
 
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.database.HibernateServiceImpl");
+
    private CacheService cacheService;
 
    public ExoCacheProvider(CacheService cacheService)
@@ -52,13 +56,13 @@ public class ExoCacheProvider implements CacheProvider
       try
       {
          ExoCache<Serializable, Object> cache = cacheService.getCacheInstance(name);
-         cache.setMaxSize(5000); // TODO Do we really need override configuration
-         // in this way ?
+         cache.setMaxSize(5000);
+
          return new ExoCachePlugin(cache);
       }
       catch (Exception ex)
       {
-         ex.printStackTrace();
+         LOG.error(ex.getLocalizedMessage(), ex);
          throw new CacheException("Cannot instanstiate cache provider");
       }
    }

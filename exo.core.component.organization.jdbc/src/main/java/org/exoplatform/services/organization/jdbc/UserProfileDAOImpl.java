@@ -39,7 +39,7 @@ import java.util.List;
 public class UserProfileDAOImpl extends StandardSQLDAO<UserProfileData> implements UserProfileHandler
 {
 
-   protected static Log log = ExoLogger.getLogger("exo.core.component.organization.jdbc.UserProfileDAOImpl");
+   protected static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.jdbc.UserProfileDAOImpl");
 
    protected ListenerService listenerService_;
 
@@ -57,8 +57,8 @@ public class UserProfileDAOImpl extends StandardSQLDAO<UserProfileData> implemen
 
    public UserProfile createUserProfileInstance(String userName)
    {
-      if (log.isDebugEnabled())
-         log.debug("----------------Create Profile with userName = " + userName);
+      if (LOG.isDebugEnabled())
+         LOG.debug("----------------Create Profile with userName = " + userName);
       return new UserProfileData(userName).getUserProfile();
    }
 
@@ -73,7 +73,7 @@ public class UserProfileDAOImpl extends StandardSQLDAO<UserProfileData> implemen
    private UserProfileData findUserProfileDataByName(String userName) throws Exception
    {
       DBObjectQuery<UserProfileData> query = new DBObjectQuery<UserProfileData>(UserProfileData.class);
-      query.addLIKE("USER_NAME", userName);
+      query.addEQ("USER_NAME", userName);
       return loadUnique(query.toQuery());
    }
 
@@ -129,7 +129,10 @@ public class UserProfileDAOImpl extends StandardSQLDAO<UserProfileData> implemen
 
    public void addUserProfileEventListener(UserProfileEventListener listener)
    {
-      // TODO Auto-generated method stub
-
    }
+
+   public void removeUserProfileEventListener(UserProfileEventListener listener)
+   {
+   }
+
 }

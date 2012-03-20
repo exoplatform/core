@@ -18,6 +18,8 @@
  */
 package org.exoplatform.services.database.creator;
 
+import java.util.Map;
+
 /**
  * Class contains needed database connection information. 
  * 
@@ -26,76 +28,28 @@ package org.exoplatform.services.database.creator;
  */
 public class DBConnectionInfo
 {
-   /**
-    * Driver class name.
-    */
-   private final String driver;
+   private final Map<String, String> connectionProperties;
 
-   /**
-    * DB connection url;
-    */
-   private final String url;
-
-   /**
-    * DB connection user name;
-    */
-   private final String username;
-
-   /**
-    * User's password.
-    */
-   private final String password;
+   private final String dbName;
 
    /**
     * DBConnectionInfo constructor.
-    * 
-    * @param driver
-    *          driver class name
-    * @param url
-    *          db connection url
-    * @param username
-    *          db connection user name
-    * @param password
-    *          user's password      
+    * @param connectionProperties
+    *          connection properties      
     */
-   public DBConnectionInfo(String driver, String url, String username, String password)
+   public DBConnectionInfo(String dbName, Map<String, String> connectionProperties)
    {
-      this.driver = driver;
-      this.url = url;
-      this.username = username;
-      this.password = password;
+      this.dbName = dbName;
+      this.connectionProperties = connectionProperties;
    }
 
-   /**
-    * @return the driver
-    */
-   public String getDriver()
+   public Map<String, String> getProperties()
    {
-      return driver;
+      return connectionProperties;
    }
 
-   /**
-    * @return the url
-    */
-   public String getUrl()
+   public String getDBName()
    {
-      return url;
+      return dbName;
    }
-
-   /**
-    * @return the username
-    */
-   public String getUsername()
-   {
-      return username;
-   }
-
-   /**
-    * @return the password
-    */
-   public String getPassword()
-   {
-      return password;
-   }
-
 }

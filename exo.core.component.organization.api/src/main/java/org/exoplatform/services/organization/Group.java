@@ -45,9 +45,7 @@ public interface Group
    public String getGroupName();
 
    /**
-    * @param name the local name for the group TODO This method should be called
-    *          once only and should be set in the
-    *          GroupHandler.createGroupInstance() method
+    * @param name the local name for the group
     */
    public void setGroupName(String name);
 

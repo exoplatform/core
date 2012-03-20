@@ -18,8 +18,8 @@
  */
 package org.exoplatform.services.document.test;
 
-import org.exoplatform.container.PortalContainer;
-import org.exoplatform.services.document.DocumentReaderService;
+import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
+import org.exoplatform.services.document.impl.MSOutlookDocumentReader;
 import org.exoplatform.test.BasicTestCase;
 
 import java.io.InputStream;
@@ -31,14 +31,15 @@ import java.io.InputStream;
  * @version $Id: $
  */
 
-public class TestMSOutlookDocumentReader extends BasicTestCase
+public class TestMSOutlookDocumentReader extends BaseStandaloneTest
 {
-   DocumentReaderService service_;
+   DocumentReaderServiceImpl service;
 
    public void setUp() throws Exception
    {
-      PortalContainer pcontainer = PortalContainer.getInstance();
-      service_ = (DocumentReaderService)pcontainer.getComponentInstanceOfType(DocumentReaderService.class);
+      super.setUp();
+      service = new DocumentReaderServiceImpl(null);
+      service.addDocumentReader(new MSOutlookDocumentReader());
    }
 
    public void testGetContentAsString() throws Exception
@@ -46,9 +47,15 @@ public class TestMSOutlookDocumentReader extends BasicTestCase
       String name = "/test.msg";
       InputStream is = BasicTestCase.class.getResourceAsStream(name);
       assertNotNull(is);
-
-      String text = service_.getDocumentReader("application/vnd.ms-outlook").getContentAsText(is);
-      String etalon = "Goooogle\n" + "theme\n" + "Hello, this is the test outlook message.\r\n";
-      assertEquals("Wrong string returned", etalon, text);
+      try
+      {
+         String text = service.getDocumentReader("application/vnd.ms-outlook").getContentAsText(is);
+         String etalon = "Goooogle\n" + "theme\n" + "Hello, this is the test outlook message.\r\n";
+         assertEquals("Wrong string returned", etalon, text);
+      }
+      finally
+      {
+         is.close();
+      }
    }
 }

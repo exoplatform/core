@@ -18,6 +18,8 @@
  */
 package org.exoplatform.services.security;
 
+import org.exoplatform.commons.utils.secure.SecureCollections;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,10 +27,11 @@ import java.util.Set;
 import javax.security.auth.Subject;
 
 /**
- * Created by The eXo Platform SAS .<br/> User Session encapsulates user's
- * principals such as name, groups along with JAAS subject (useful in J2EE
- * environment) as well as other optional attributes
- * 
+ * Created by The eXo Platform SAS .<br/>
+ * User Session encapsulates user's principals such as name, groups along with
+ * JAAS subject (useful in J2EE environment) as well as other optional
+ * attributes
+ *
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -44,7 +47,7 @@ public class Identity
    /**
     * Memberships.
     */
-   private Set<MembershipEntry> memberships;
+   private final Set<MembershipEntry> memberships;
 
    /**
     * javax.security.auth.Subject can be used for logout process. <code>
@@ -57,7 +60,7 @@ public class Identity
    /**
     * User's roles.
     */
-   private Collection<String> roles;
+   private final Set<String> roles;
 
    /**
     * @param userId the iser's identifier.
@@ -84,8 +87,11 @@ public class Identity
    public Identity(String userId, Collection<MembershipEntry> memberships, Collection<String> roles)
    {
       this.userId = userId;
-      this.memberships = new HashSet<MembershipEntry>(memberships);
-      this.roles = roles;
+      this.memberships =
+         SecureCollections.secureSet(new HashSet<MembershipEntry>(memberships),
+            PermissionConstants.MODIFY_IDENTITY_PERMISSION);
+      this.roles =
+         SecureCollections.secureSet(new HashSet<String>(roles), PermissionConstants.MODIFY_IDENTITY_PERMISSION);;
    }
 
    /**
@@ -118,7 +124,7 @@ public class Identity
 
    /**
     * Check is user member of group.
-    * 
+    *
     * @param group the group.
     * @return true if user has any membershipType for given group, false
     *         otherwise.
@@ -144,9 +150,11 @@ public class Identity
    /**
     * @deprecated for back compatibility.
     */
+   @Deprecated
    public void setMemberships(Collection<MembershipEntry> memberships)
    {
-      this.memberships = new HashSet<MembershipEntry>(memberships);
+      this.memberships.clear();
+      this.memberships.addAll(memberships);
    }
 
    /**
@@ -159,12 +167,13 @@ public class Identity
 
    /**
     * Sets the roles for J2EE environment using.
-    * 
+    *
     * @param roles the roles.
     */
    public void setRoles(Collection<String> roles)
    {
-      this.roles = roles;
+      this.roles.clear();
+      this.roles.addAll(roles);
    }
 
    /**
@@ -177,6 +186,9 @@ public class Identity
 
    /**
     * @return @see {@link Subject} .
+    * @deprecated Do not need store subject any more. It was used before to
+    *             perform logout, since tomcat 6.0.21 logout implemented in
+    *             web-container.
     */
    public Subject getSubject()
    {
@@ -185,15 +197,21 @@ public class Identity
 
    /**
     * @param subject @see {@link Subject} .
+    * @deprecated See {@link #getSubject()}
     */
    public void setSubject(Subject subject)
    {
+      SecurityManager security = System.getSecurityManager();
+      if (security != null)
+      {
+         security.checkPermission(PermissionConstants.MODIFY_IDENTITY_PERMISSION);
+      }
       this.subject = subject;
    }
 
    /**
     * Check is given {@link MembershipEntry} presents in user's memberships.
-    * 
+    *
     * @param checkMe the MembershipEntry.
     * @return true if presents false otherwise.
     */
@@ -201,5 +219,4 @@ public class Identity
    {
       return memberships.contains(checkMe);
    }
-
 }

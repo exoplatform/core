@@ -19,6 +19,8 @@
 package org.exoplatform.services.document.impl.image;
 
 import org.exoplatform.services.document.image.ImageProcessingService;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -28,6 +30,8 @@ import java.awt.image.BufferedImage;
 
 public class ImageProcessingServiceImpl implements ImageProcessingService
 {
+
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.ImageProcessingServiceImpl");
 
    public BufferedImage createCroppedImage(BufferedImage img, int chosenWidth, int chosenHeight)
    {
@@ -172,6 +176,10 @@ public class ImageProcessingServiceImpl implements ImageProcessingService
          }
          catch (NumberFormatException nfe)
          {
+            if (LOG.isTraceEnabled())
+            {
+               LOG.trace("An exception occurred: " + nfe.getMessage());
+            }
          }
       }
 

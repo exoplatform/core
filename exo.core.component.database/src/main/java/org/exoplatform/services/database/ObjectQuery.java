@@ -21,7 +21,9 @@ package org.exoplatform.services.database;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Tuan Nguyen (tuan08@users.sourceforge.net)
@@ -89,9 +91,6 @@ public class ObjectQuery
    public String optimizeInputString(String value)
    {
       value = value.replace('*', '%');
-      value = value.replaceAll("'", "&#39;");
-      value = value.replaceAll("<", "&#60;");
-      value = value.replaceAll(">", "&#62;");
       return value;
    }
 
@@ -151,7 +150,14 @@ public class ObjectQuery
             Parameter p = parameters_.get(i);
             if (p.value_ instanceof String)
             {
-               b.append(" o.").append(p.field_).append(p.op_).append("'").append(p.value_).append("'");
+               if (p.field_.startsWith("UPPER") || p.field_.startsWith("LOWER"))
+               {
+                  b.append(p.field_).append(p.op_).append("'").append(p.value_).append("'");
+               }
+               else
+               {
+                  b.append(" o.").append(p.field_).append(p.op_).append("'").append(p.value_).append("'");
+               }
             }
             else if (p.value_ instanceof Date)
             {
@@ -167,6 +173,84 @@ public class ObjectQuery
       if (orderBy_ != null)
          b.append(orderBy_);
       return b.toString();
+   }
+
+   /**
+    * 
+    * @return
+    */
+   public String getHibernateQueryWithBinding()
+   {
+      StringBuffer b = new StringBuffer();
+      b.append("from o in class ").append(type_.getName());
+      if (parameters_.size() > 0)
+      {
+         b.append(" WHERE ");
+         for (int i = 0; i < parameters_.size(); i++)
+         {
+            if (i > 0)
+               b.append(" AND ");
+            Parameter p = parameters_.get(i);
+            if (p.value_ instanceof String)
+            {
+               if (p.field_.startsWith("UPPER") || p.field_.startsWith("LOWER"))
+               {
+                  b.append(p.field_).append(p.op_).append(":").append(p.field_.substring(6, p.field_.length() - 1))
+                     .append(i);
+               }
+               else
+               {
+                  b.append(" o.").append(p.field_).append(p.op_).append(":").append(p.field_).append(i);
+               }
+            }
+            else if (p.value_ instanceof Date)
+            {
+               String value = ft_.format((Date)p.value_);
+               b.append(" o.").append(p.field_).append(p.op_).append("'").append(value).append("'");
+            }
+            else
+            {
+               b.append(" o.").append(p.field_).append(p.op_).append(p.value_);
+            }
+         }
+      }
+
+      if (orderBy_ != null)
+      {
+         b.append(orderBy_);
+      }
+
+      return b.toString();
+   }
+
+   /**
+    * 
+    * @return
+    */
+   public Map<String, Object> getBindingFields()
+   {
+      Map<String, Object> binding = new HashMap<String, Object>();
+
+      if (parameters_.size() > 0)
+      {
+         for (int i = 0; i < parameters_.size(); i++)
+         {
+            Parameter p = parameters_.get(i);
+            if (p.value_ instanceof String)
+            {
+               if (p.field_.startsWith("UPPER") || p.field_.startsWith("LOWER"))
+               {
+                  binding.put(p.field_.substring(6, p.field_.length() - 1) + i, p.value_);
+               }
+               else
+               {
+                  binding.put(p.field_ + i, p.value_);
+               }
+            }
+         }
+      }
+
+      return binding;
    }
 
    public String getHibernateGroupByQuery()
@@ -185,7 +269,7 @@ public class ObjectQuery
             else if (p.op_.equals("countselect"))
             {
                b.append("COUNT");
-               if (p.field_ != "" || p.field_.length() > 0)
+               if (!(p.field_.equals("")) || p.field_.length() > 0)
                {
                   b.append("(").append(p.field_).append(" o)");
                }
@@ -251,7 +335,56 @@ public class ObjectQuery
             Parameter p = parameters_.get(i);
             if (p.value_ instanceof String)
             {
-               b.append(" o.").append(p.field_).append(p.op_).append("'").append(p.value_).append("'");
+               if (p.field_.startsWith("UPPER") || p.field_.startsWith("LOWER"))
+               {
+                  b.append(p.field_).append(p.op_).append("'").append(p.value_).append("'");
+               }
+               else
+               {
+                  b.append(" o.").append(p.field_).append(p.op_).append("'").append(p.value_).append("'");
+               }
+            }
+            else if (p.value_ instanceof Date)
+            {
+               String value = ft_.format((Date)p.value_);
+               b.append(" o.").append(p.field_).append(p.op_).append("'").append(value).append("'");
+            }
+            else
+            {
+               b.append(" o.").append(p.field_).append(p.op_).append(p.value_);
+            }
+         }
+      }
+      return b.toString();
+   }
+
+   /**
+    * 
+    * @return
+    */
+   public String getHibernateCountQueryWithBinding()
+   {
+      StringBuffer b = new StringBuffer();
+      b.append("SELECT COUNT(o) FROM o IN CLASS ").append(type_.getName());
+      if (parameters_.size() > 0)
+      {
+         b.append(" WHERE ");
+         for (int i = 0; i < parameters_.size(); i++)
+         {
+            if (i > 0)
+               b.append(" AND ");
+            Parameter p = parameters_.get(i);
+            if (p.value_ instanceof String)
+            {
+               if (p.field_.startsWith("UPPER") || p.field_.startsWith("LOWER"))
+               {
+                  b.append(p.field_).append(p.op_).append(":").append(p.field_.substring(6, p.field_.length() - 1))
+                     .append(i);
+               }
+               else
+               {
+                  b.append(" o.").append(p.field_).append(p.op_).append(":").append(p.field_).append(i);
+               }
             }
             else if (p.value_ instanceof Date)
             {

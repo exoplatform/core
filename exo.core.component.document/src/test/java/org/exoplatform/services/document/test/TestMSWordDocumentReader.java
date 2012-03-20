@@ -18,9 +18,8 @@
  */
 package org.exoplatform.services.document.test;
 
-import org.exoplatform.container.PortalContainer;
-import org.exoplatform.services.document.DocumentReaderService;
-import org.exoplatform.test.BasicTestCase;
+import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
+import org.exoplatform.services.document.impl.MSWordDocumentReader;
 
 import java.io.InputStream;
 
@@ -31,40 +30,45 @@ import java.io.InputStream;
  * @version $Id: $
  */
 
-public class TestMSWordDocumentReader extends BasicTestCase
+public class TestMSWordDocumentReader extends BaseStandaloneTest
 {
-   DocumentReaderService service_;
+   DocumentReaderServiceImpl service;
 
    public void setUp() throws Exception
    {
-      PortalContainer pcontainer = PortalContainer.getInstance();
-      service_ = (DocumentReaderService)pcontainer.getComponentInstanceOfType(DocumentReaderService.class);
+      super.setUp();
+      service = new DocumentReaderServiceImpl(null);
+      service.addDocumentReader(new MSWordDocumentReader());
    }
 
    public void testGetContentAsStringTemplate() throws Exception
    {
       InputStream is = TestMSWordDocumentReader.class.getResourceAsStream("/test.dot");
-      String text = service_.getDocumentReader("application/msworddot").getContentAsText(is);
-      System.out.println("text [" + text + "]");
-      String etalon = "exotest";
-      System.out.println("etalon [" + etalon + "]");
-
-      System.out.println("[" + text.length() + "] [" + etalon.length() + "]");
-      assertEquals("Wrong string returned", etalon, text);
+      try
+      {
+         String text = service.getDocumentReader("application/msworddot").getContentAsText(is);
+         String etalon = "exotest";
+         assertEquals("Wrong string returned", etalon, text);
+      }
+      finally
+      {
+         is.close();
+      }
    }
 
    public void testGetContentAsStringDoc() throws Exception
    {
       InputStream is = TestMSWordDocumentReader.class.getResourceAsStream("/test.doc");
-      String text = service_.getDocumentReader("application/msword").getContentAsText(is);
-      System.out.println("text [" + text + "]");
+      try
+      {
+         String text = service.getDocumentReader("application/msword").getContentAsText(is);
+         assertTrue(text
+            .contains("Before the test starts there is a directions section, which takes a few minutes to read"));
 
-      /*
-       * String etalon = "Hello.\n" +"This is the test document 12345\n"
-       * +"Table\n" +"Title One Two\n" +"Hello_Title Hello_One Hello_Two\n";
-       * System.out.println("etalon ["+etalon+"]");
-       * System.out.println("["+text.length()+"] ["+etalon.length()+"]");
-       * assertEquals("Wrong string returned",etalon ,text );
-       */
+      }
+      finally
+      {
+         is.close();
+      }
    }
 }

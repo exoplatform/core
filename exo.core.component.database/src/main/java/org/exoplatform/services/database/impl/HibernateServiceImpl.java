@@ -19,6 +19,8 @@
 package org.exoplatform.services.database.impl;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.commons.utils.PrivilegedSystemHelper;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.container.component.ComponentRequestLifecycle;
@@ -30,6 +32,7 @@ import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.database.ObjectQuery;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -39,6 +42,7 @@ import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
 import java.io.Serializable;
 import java.net.URL;
+import java.security.PrivilegedAction;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -79,8 +83,14 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
    {
       threadLocal_ = new ThreadLocal<Session>();
       PropertiesParam param = initParams.getPropertiesParam("hibernate.properties");
-      HibernateSettingsFactory settingsFactory = new HibernateSettingsFactory(new ExoCacheProvider(cacheService));
-      conf_ = new HibernateConfigurationImpl(settingsFactory);
+      final HibernateSettingsFactory settingsFactory = new HibernateSettingsFactory(new ExoCacheProvider(cacheService));
+      conf_ = SecurityHelper.doPrivilegedAction(new PrivilegedAction<HibernateConfigurationImpl>()
+      {
+         public HibernateConfigurationImpl run()
+         {
+            return new HibernateConfigurationImpl(settingsFactory);
+         }
+      });
       Iterator properties = param.getPropertyIterator();
       while (properties.hasNext())
       {
@@ -99,6 +109,10 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
             // "org.hibernate.dialect"
             log_.info("Using dialect " + dialect);
          }
+         else if (name.equals("hibernate.default_schema") && (value == null || value.isEmpty()))
+         {
+            continue;
+         }
 
          //
          conf_.setProperty(name, value);
@@ -108,7 +122,8 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
       String connectionURL = conf_.getProperty("hibernate.connection.url");
       if (connectionURL != null)
       {
-         connectionURL = connectionURL.replace("${java.io.tmpdir}", System.getProperty("java.io.tmpdir"));
+         connectionURL =
+            connectionURL.replace("${java.io.tmpdir}", PrivilegedSystemHelper.getProperty("java.io.tmpdir"));
          conf_.setProperty("hibernate.connection.url", connectionURL);
       }
 
@@ -253,7 +268,7 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
          }
          catch (Exception ex)
          {
-            ex.printStackTrace();
+            log_.error(ex.getLocalizedMessage(), ex);
          }
       }
    }
@@ -280,8 +295,15 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
    {
       if (sessionFactory_ == null)
       {
-         sessionFactory_ = conf_.buildSessionFactory();
-         new SchemaUpdate(conf_).execute(false, true);
+         sessionFactory_ = SecurityHelper.doPrivilegedAction(new PrivilegedAction<SessionFactory>()
+         {
+            public SessionFactory run()
+            {
+               SessionFactory factory = conf_.buildSessionFactory();
+               new SchemaUpdate(conf_).execute(false, true);
+               return factory;
+            }
+         });
       }
       return sessionFactory_;
    }
@@ -319,9 +341,11 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
       {
          session.close();
          if (log_.isDebugEnabled())
+         {
             log_.debug("close hibernate session in openSession(Session session)");
+         }
       }
-      catch (Throwable t)
+      catch (HibernateException t)
       {
          log_.error("Error closing hibernate session : " + t.getMessage(), t);
       }
@@ -360,6 +384,19 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
       else
       {
          return l.get(0);
+      }
+   }
+
+   public Collection findAll(Session session, String query) throws Exception
+   {
+      List l = session.createQuery(query).list();
+      if (l.size() == 0)
+      {
+         return null;
+      }
+      else
+      {
+         return l;
       }
    }
 

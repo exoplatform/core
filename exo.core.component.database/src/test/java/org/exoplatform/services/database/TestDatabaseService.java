@@ -64,7 +64,7 @@ public class TestDatabaseService extends BasicTestCase
       try
       {
          s = conn.createStatement();
-         s.addBatch("create table test (name varchar, data varchar)");
+         s.addBatch("create table test (name varchar(25), data varchar(25))");
          s.addBatch("insert into test values('name1', 'value1')");
          s.executeBatch();
          s.close();

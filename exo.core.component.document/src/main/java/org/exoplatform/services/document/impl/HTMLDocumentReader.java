@@ -20,6 +20,8 @@ package org.exoplatform.services.document.impl;
 
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.document.DocumentReadException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.htmlparser.Parser;
 import org.htmlparser.beans.StringBean;
 import org.htmlparser.util.ParserException;
@@ -38,9 +40,11 @@ import java.util.Properties;
 public class HTMLDocumentReader extends BaseDocumentReader
 {
 
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.HTMLDocumentReader");
+
    /**
     * Initializes a newly created object for text/html files format parsing.
-    * 
+    * @deprecated Use the default constructor instead
     * @param params the container parameters.
     */
    public HTMLDocumentReader(InitParams params)
@@ -48,13 +52,20 @@ public class HTMLDocumentReader extends BaseDocumentReader
    }
 
    /**
-    * Get the text/html mime type.
+    * Initializes a newly created object for text/html files format parsing.
+    */
+   public HTMLDocumentReader()
+   {
+   }
+
+   /**
+    * Get the text/html,application/x-groovy+html mime type.
     * 
-    * @return The string with text/html mime type.
+    * @return The string with text/html,application/x-groovy+html mime type.
     */
    public String[] getMimeTypes()
    {
-      return new String[]{"text/html"};
+      return new String[]{"text/html", "application/x-groovy+html", "application/xhtml+xml"};
    }
 
    /**
@@ -67,7 +78,7 @@ public class HTMLDocumentReader extends BaseDocumentReader
    {
       if (is == null)
       {
-         throw new NullPointerException("InputStream is null.");
+         throw new IllegalArgumentException("InputStream is null.");
       }
 
       String refined_text = new String();
@@ -77,7 +88,9 @@ public class HTMLDocumentReader extends BaseDocumentReader
          int len;
          ByteArrayOutputStream bos = new ByteArrayOutputStream();
          while ((len = is.read(buffer)) > 0)
+         {
             bos.write(buffer, 0, len);
+         }
          bos.close();
 
          String html = new String(bos.toByteArray());
@@ -86,7 +99,7 @@ public class HTMLDocumentReader extends BaseDocumentReader
          StringBean sb = new StringBean();
 
          // read links or not
-         // sb.setLinks(true); //TODO make this configurable
+         // sb.setLinks(true);
 
          // extract text
          parser.visitAllNodesWith(sb);
@@ -109,6 +122,10 @@ public class HTMLDocumentReader extends BaseDocumentReader
             }
             catch (IOException e)
             {
+               if (LOG.isTraceEnabled())
+               {
+                  LOG.trace("An exception occurred: " + e.getMessage());
+               }
             }
          }
       }
@@ -136,6 +153,10 @@ public class HTMLDocumentReader extends BaseDocumentReader
       }
       catch (IOException e)
       {
+         if (LOG.isTraceEnabled())
+         {
+            LOG.trace("An exception occurred: " + e.getMessage());
+         }
       }
       return new Properties();
    }

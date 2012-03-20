@@ -18,16 +18,12 @@
     02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
 -->
-<project
-   xmlns="http://maven.apache.org/POM/4.0.0"
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
       <groupId>org.exoplatform.core</groupId>
       <artifactId>core-parent</artifactId>
-      <version>2.4.0-Beta01-SNAPSHOT</version>
+      <version>2.4.8-GA-SNAPSHOT</version>
    </parent>
    <artifactId>exo.core.component.document</artifactId>
    <name>eXo Core :: Component :: Demo Service</name>
@@ -46,16 +42,17 @@
          <artifactId>exo.kernel.container</artifactId>
       </dependency>
       <dependency>
+         <groupId>org.exoplatform.kernel</groupId>
+         <artifactId>exo.kernel.commons.test</artifactId>
+      </dependency>
+
+      <dependency>
          <groupId>org.slf4j</groupId>
          <artifactId>slf4j-log4j12</artifactId>
       </dependency>
       <dependency>
-         <groupId>pdfbox</groupId>
+         <groupId>org.apache.pdfbox</groupId>
          <artifactId>pdfbox</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>com.lowagie</groupId>
-         <artifactId>itext</artifactId>
       </dependency>
       <dependency>
          <groupId>org.htmlparser</groupId>
@@ -81,6 +78,28 @@
             </exclusion>
          </exclusions>
       </dependency>
+
+      <dependency>
+         <groupId>org.apache.poi</groupId>
+         <artifactId>poi-ooxml</artifactId>
+         <exclusions>
+            <exclusion>
+               <groupId>log4j</groupId>
+               <artifactId>log4j</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+
+  <dependency>
+    <groupId>org.apache.tika</groupId>
+    <artifactId>tika-core</artifactId>
+  </dependency>
+
+  <dependency>
+    <groupId>org.apache.tika</groupId>
+    <artifactId>tika-parsers</artifactId>
+  </dependency>
+
    </dependencies>
    <build>
       <testResources>
@@ -92,9 +111,12 @@
                <include>**/*.drl</include>
                <include>**/*.vm</include>
                <include>**/*.doc</include>
+               <include>**/*.docx</include>
                <include>**/*.dot</include>
                <include>**/*.xls</include>
+               <include>**/*.xlsx</include>
                <include>**/*.ppt</include>
+               <include>**/*.pptx</include>
                <include>**/*.txt</include>
                <include>**/*.tiff</include>
                <include>**/*.pdf</include>
@@ -102,8 +124,101 @@
                <include>**/*.html</include>
                <include>**/*.msg</include>
                <include>**/*.pst</include>
+               <include>**/*.policy</include>
+               <include>**/*.rtf</include>
+               <include>**/*.dotx</include>
+               <include>**/*.docm</include>
+               <include>**/*.dotm</include>
+               <include>**/*.xlsb</include>
+               <include>**/*.pptm</include>
+               <include>**/*.ppsx</include>
+               <include>**/*.ppsm</include>
+               <include>**/*.potm</include>
             </includes>
          </testResource>
       </testResources>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+               <argLine>-Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy</argLine>
+               <systemProperties>
+                  <!--property>
+                     <name>jcr.test.configuration.file</name>
+                     <value>${jcr.test.configuration.file}</value>
+                  </property-->
+                  <property>
+                     <name>emma.coverage.out.file</name>
+                     <value>target/emma/coverage.ec</value>
+                  </property>
+               </systemProperties>
+               <includes>
+                  <include>org/exoplatform/services/document/**/Test*.java</include>
+               </includes>
+               <excludes>
+                  <exclude>org/exoplatform/services/document/**/TestMSXExcelOnTikaDocumentReader.java</exclude>
+               </excludes>
+            </configuration>
+         </plugin>
+         <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+               <!--execution>
+                  <id>delete-sources</id>
+                  <phase>process-sources</phase>
+                  <configuration>
+                     <tasks>
+                        <echo>Remove files that have been customized</echo>
+                        <delete>
+                           <fileset dir="${project.build.directory}/generated-sources/javacc/org/exoplatform/services/jcr/impl/core/query">
+                              <include name="sql/ASTLiteral.java" />
+                              <include name="sql/ASTContainsExpression.java" />
+                              <include name="sql/ASTPredicate.java" />
+                              <include name="sql/ASTIdentifier.java" />
+                              <include name="xpath/SimpleNode.java" />
+                           </fileset>
+                        </delete>
+                     </tasks>
+                  </configuration>
+                  <goals>
+                     <goal>run</goal>
+                  </goals>
+               </execution-->
+               <execution>
+                  <id>prepare-test-policy</id>
+                  <phase>process-test-resources</phase>
+                  <configuration>
+                     <tasks>
+                        <echo>Creating Access Policy for tests</echo>
+                        <makeurl file="${settings.localRepository}" property="localRepositoryURL" />
+                        <makeurl file="${project.build.outputDirectory}" property="outputDirectoryURL" />
+                        <makeurl file="${project.build.testOutputDirectory}" property="testOutputDirectoryURL" />
+                        <copy todir="${project.build.testOutputDirectory}" overwrite="true">
+                           <fileset dir="${project.basedir}/src/test/resources/">
+                              <include name="test.policy" />
+                           </fileset>
+                           <filterset>
+                              <filter token="MAVEN_REPO" value="${localRepositoryURL}" />
+                              <filter token="MAIN_CLASSES" value="${outputDirectoryURL}" />
+                              <filter token="TEST_CLASSES" value="${testOutputDirectoryURL}" />
+                           </filterset>
+                        </copy>
+                     </tasks>                     
+                  </configuration>
+                  <goals>
+                     <goal>run</goal>
+                  </goals>
+               </execution>
+            </executions>
+            <dependencies>
+               <dependency>
+                  <groupId>ant</groupId>
+                  <artifactId>ant-optional</artifactId>
+                  <version>1.5.3-1</version>
+               </dependency>
+            </dependencies>
+         </plugin>
+      </plugins>
    </build>
 </project>

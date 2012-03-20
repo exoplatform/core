@@ -17,11 +17,10 @@
 package org.exoplatform.services.organization.cache;
 
 import org.exoplatform.services.cache.ExoCache;
-import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.MembershipTypeEventListener;
 import org.exoplatform.services.organization.MembershipTypeHandler;
-import org.exoplatform.services.organization.UserHandler;
 
 import java.util.Collection;
 import java.util.List;
@@ -142,4 +141,19 @@ public class CacheableMembershipTypeHandlerImpl implements MembershipTypeHandler
       return membershipType;
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   public void addMembershipTypeEventListener(MembershipTypeEventListener listener)
+   {
+      membershipTypeHandler.addMembershipTypeEventListener(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public void removeMembershipTypeEventListener(MembershipTypeEventListener listener)
+   {
+      membershipTypeHandler.removeMembershipTypeEventListener(listener);
+   }
 }

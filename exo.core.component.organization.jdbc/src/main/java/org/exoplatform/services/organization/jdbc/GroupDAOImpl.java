@@ -19,7 +19,6 @@
 package org.exoplatform.services.organization.jdbc;
 
 import org.exoplatform.commons.exception.UniqueObjectException;
-import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.database.DBObjectMapper;
 import org.exoplatform.services.database.DBObjectQuery;
 import org.exoplatform.services.database.DBPageList;
@@ -40,20 +39,27 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.naming.InvalidNameException;
+
 /**
  * Created by The eXo Platform SAS Apr 7, 2007
  */
 public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHandler
 {
 
-   protected static Log log = ExoLogger.getLogger("exo.core.component.organization.jdbc.GroupDAOImpl");
+   protected static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.jdbc.GroupDAOImpl");
 
    protected ListenerService listenerService_;
 
-   public GroupDAOImpl(ListenerService lService, ExoDatasource datasource, DBObjectMapper<GroupImpl> mapper)
+   protected final OrganizationService orgService;
+
+   public GroupDAOImpl(OrganizationService orgSerivce, ListenerService lService, ExoDatasource datasource,
+      DBObjectMapper<GroupImpl> mapper)
    {
       super(datasource, mapper, GroupImpl.class);
-      listenerService_ = lService;
+
+      this.orgService = orgSerivce;
+      this.listenerService_ = lService;
    }
 
    public Group createGroupInstance()
@@ -76,8 +82,13 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
       DBObjectQuery<GroupImpl> query = new DBObjectQuery<GroupImpl>(GroupImpl.class);
       if (parent != null)
       {
-         query.addLIKE("GROUP_ID", parent.getId());
+         query.addEQ("GROUP_ID", parent.getId());
          Group parentGroup = super.loadUnique(connection, query.toQuery());
+         if (parentGroup == null)
+         {
+            throw new InvalidNameException("Can't add group " + child.getId() + " since parent group " + parent.getId()
+               + " not exists");
+         }
          groupId = parentGroup.getId() + "/" + child.getGroupName();
          childImpl.setParentId(parentGroup.getId());
       }
@@ -88,7 +99,7 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
       }
 
       query.getParameters().clear();
-      query.addLIKE("GROUP_ID", groupId);
+      query.addEQ("GROUP_ID", groupId);
       Group o = super.loadUnique(connection, query.toQuery());
       if (o != null)
       {
@@ -99,8 +110,8 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
       if (broadcast)
          listenerService_.broadcast("organization.group.preSave", this, childImpl);
       childImpl.setId(groupId);
-      if (log.isDebugEnabled())
-         log.debug("----------ADD GROUP " + child.getId() + " into Group" + child.getParentId());
+      if (LOG.isDebugEnabled())
+         LOG.debug("----------ADD GROUP " + child.getId() + " into Group" + child.getParentId());
 
       try
       {
@@ -111,11 +122,9 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
          long id = childImpl.getDBObjectId();
          execute(connection, eXoDS_.getQueryBuilder().createInsertQuery(type_, id), childImpl);
          if (broadcast)
+         {
             listenerService_.broadcast("organization.group.postSave", this, childImpl);
-      }
-      catch (Exception e)
-      {
-         throw e;
+         }
       }
       finally
       {
@@ -126,10 +135,10 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
    public Group findGroupById(String groupId) throws Exception
    {
       DBObjectQuery<GroupImpl> query = new DBObjectQuery<GroupImpl>(GroupImpl.class);
-      query.addLIKE("GROUP_ID", groupId);
+      query.addEQ("GROUP_ID", groupId);
       Group g = super.loadUnique(query.toQuery());
-      if (log.isDebugEnabled())
-         log.debug("----------FIND GROUP BY ID: " + groupId + " _ " + (g != null));
+      if (LOG.isDebugEnabled())
+         LOG.debug("----------FIND GROUP BY ID: " + groupId + " _ " + (g != null));
       return g;
    }
 
@@ -139,7 +148,7 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
 
       if (userName == null || membershipType == null)
          return null;
-      MembershipHandler membershipHandler = getMembershipHandler();
+      MembershipHandler membershipHandler = orgService.getMembershipHandler();
       List<Membership> members = (List<Membership>)membershipHandler.findMembershipsByUser(userName);
       List<Group> groups = new ArrayList<Group>();
       for (Membership member : members)
@@ -150,8 +159,8 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
          if (g != null)
             groups.add(g);
       }
-      if (log.isDebugEnabled())
-         log.debug("----------FIND GROUP BY USERNAME AND TYPE: " + userName + " - " + membershipType + " - ");
+      if (LOG.isDebugEnabled())
+         LOG.debug("----------FIND GROUP BY USERNAME AND TYPE: " + userName + " - " + membershipType + " - ");
       return groups;
    }
 
@@ -161,12 +170,12 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
       if (parent != null)
          parentId = parent.getId();
       DBObjectQuery<GroupImpl> query = new DBObjectQuery<GroupImpl>(GroupImpl.class);
-      query.addLIKE("PARENT_ID", parentId);
+      query.addEQ("PARENT_ID", parentId);
       DBPageList<GroupImpl> pageList = new DBPageList<GroupImpl>(20, this, query);
-      if (log.isDebugEnabled())
+      if (LOG.isDebugEnabled())
       {
-         log.debug("----------FIND GROUP BY PARENT: " + parent);
-         log.debug(" Size = " + pageList.getAvailable());
+         LOG.debug("----------FIND GROUP BY PARENT: " + parent);
+         LOG.debug(" Size = " + pageList.getAvailable());
       }
       return pageList.getAll();
    }
@@ -174,7 +183,7 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
    @SuppressWarnings("unchecked")
    public Collection findGroupsOfUser(String user) throws Exception
    {
-      MembershipHandler membershipHandler = getMembershipHandler();
+      MembershipHandler membershipHandler = orgService.getMembershipHandler();
       List<Membership> members = (List<Membership>)membershipHandler.findMembershipsByUser(user);
       List<Group> groups = new ArrayList<Group>();
       for (Membership member : members)
@@ -183,8 +192,8 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
          if (g != null && !hasGroup(groups, g))
             groups.add(g);
       }
-      if (log.isDebugEnabled())
-         log.debug("----------FIND GROUP BY USER: " + user + " - " + (groups != null));
+      if (LOG.isDebugEnabled())
+         LOG.debug("----------FIND GROUP BY USER: " + user + " - " + (groups != null));
       return groups;
    }
 
@@ -217,6 +226,12 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
 
    public Group removeGroup(Group group, boolean broadcast) throws Exception
    {
+      if (findGroupById(group.getId()) == null)
+      {
+         throw new InvalidNameException("Can't remove group since group with groupId " + group.getId()
+            + " is not found");
+      }
+
       GroupImpl groupImpl = (GroupImpl)group;
       if (broadcast)
          listenerService_.broadcast(GroupHandler.PRE_DELETE_GROUP_EVENT, this, groupImpl);
@@ -231,11 +246,8 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
    {
    }
 
-   private MembershipHandler getMembershipHandler()
+   @SuppressWarnings("unused")
+   public void removeGroupEventListener(GroupEventListener listener)
    {
-      PortalContainer manager = PortalContainer.getInstance();
-      OrganizationService service = (OrganizationService)manager.getComponentInstanceOfType(OrganizationService.class);
-      return service.getMembershipHandler();
    }
-
 }

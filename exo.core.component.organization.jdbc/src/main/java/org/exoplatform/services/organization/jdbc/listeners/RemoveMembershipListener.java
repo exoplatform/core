@@ -42,7 +42,8 @@ public class RemoveMembershipListener extends Listener<Object, Object>
 {
    private OrganizationService service_;
 
-   protected static Log log = ExoLogger.getLogger("exo.core.component.organization.jdbc.RemoveMembershipListener");
+   protected static final Log LOG = ExoLogger
+      .getLogger("exo.core.component.organization.jdbc.RemoveMembershipListener");
 
    public RemoveMembershipListener(OrganizationService service)
    {
@@ -58,13 +59,13 @@ public class RemoveMembershipListener extends Listener<Object, Object>
       if (target instanceof User)
       {
          User user = (User)target;
-         log.info("Remove all Membership by User: " + user.getUserName());
+         LOG.info("Remove all Membership by User: " + user.getUserName());
          membershipHanler.removeMembershipByUser(user.getUserName(), true);
       }
       else if (target instanceof Group)
       {
          Group group = (Group)target;
-         log.info("Remove all Membership by Group: " + group.getGroupName());
+         LOG.info("Remove all Membership by Group: " + group.getGroupName());
          List<Membership> members = (List<Membership>)membershipHanler.findMembershipsByGroup(group);
          for (Membership member : members)
          {
@@ -78,12 +79,12 @@ public class RemoveMembershipListener extends Listener<Object, Object>
             MembershipType memberType = (MembershipType)target;
             MembershipDAOImpl mtHandler = (MembershipDAOImpl)service_.getMembershipHandler();
             DBObjectQuery<MembershipImpl> query = new DBObjectQuery<MembershipImpl>(MembershipImpl.class);
-            query.addLIKE("MEMBERSHIP_TYPE", memberType.getName());
+            query.addEQ("MEMBERSHIP_TYPE", memberType.getName());
             mtHandler.removeMemberships(query, true);
          }
          catch (Exception e)
          {
-            log.error("Error while removing a Membership", e);
+            LOG.error("Error while removing a Membership", e);
          }
       }
    }

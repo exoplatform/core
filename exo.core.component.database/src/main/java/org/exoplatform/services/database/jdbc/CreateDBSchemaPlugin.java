@@ -40,7 +40,7 @@ import java.net.URL;
 public class CreateDBSchemaPlugin extends BaseComponentPlugin
 {
 
-   protected static Log log = ExoLogger.getLogger("exo.core.component.database.CreateDBSchemaPlugin");
+   protected static final Log LOG = ExoLogger.getLogger("exo.core.component.database.CreateDBSchemaPlugin");
 
    private String dataSource;
 
@@ -72,14 +72,14 @@ public class CreateDBSchemaPlugin extends BaseComponentPlugin
       {
          try
          {
-            log.warn("Db script not found as system resource... Trying to search as file by path: "
+            LOG.warn("Db script not found as system resource... Trying to search as file by path: "
                + scriptFileParam.getValue());
             is = new FileInputStream(scriptFileParam.getValue());
-            log.info("Db script found as file by path: " + scriptFileParam.getValue());
+            LOG.info("Db script found as file by path: " + scriptFileParam.getValue());
          }
          catch (IOException e)
          {
-            log.warn("Db script not found as file by path: " + scriptFileParam.getValue() + ". " + e);
+            LOG.warn("Db script not found as file by path: " + scriptFileParam.getValue() + ". " + e.getMessage());
          }
       }
 
@@ -87,14 +87,14 @@ public class CreateDBSchemaPlugin extends BaseComponentPlugin
       {
          try
          {
-            log.warn("Db script not found as system resource... Trying to search as file by url: "
+            LOG.warn("Db script not found as system resource... Trying to search as file by url: "
                + scriptFileParam.getValue());
             is = new URL(scriptFileParam.getValue()).openStream();
-            log.info("Db script found as file by url: " + scriptFileParam.getValue());
+            LOG.info("Db script found as file by url: " + scriptFileParam.getValue());
          }
          catch (IOException e)
          {
-            log.warn("Db script not found as file by url: " + scriptFileParam.getValue() + ". " + e);
+            LOG.warn("Db script not found as file by url: " + scriptFileParam.getValue() + ". " + e.getMessage());
          }
       }
 
@@ -112,7 +112,7 @@ public class CreateDBSchemaPlugin extends BaseComponentPlugin
       }
       catch (IOException e)
       {
-         e.printStackTrace();
+         LOG.error(e.getLocalizedMessage(), e);
       }
       finally
       {
@@ -122,9 +122,12 @@ public class CreateDBSchemaPlugin extends BaseComponentPlugin
          }
          catch (IOException e)
          {
+            if (LOG.isTraceEnabled())
+            {
+               LOG.trace("An exception occurred: " + e.getMessage());
+            }
          }
       }
-
    }
 
    public String getDataSource()

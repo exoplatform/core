@@ -21,6 +21,10 @@ package org.exoplatform.services.organization.impl;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 
+import org.exoplatform.commons.utils.SecurityHelper;
+
+import java.security.PrivilegedAction;
+
 /**
  * Created by The eXo Platform SAS . Author : Tuan Nguyen
  * tuan08@users.sourceforge.net Date: Jun 14, 2003 Time: 1:12:22 PM
@@ -77,8 +81,14 @@ public class UserProfileData
 
    public org.exoplatform.services.organization.UserProfile getUserProfile()
    {
-      XStream xstream = getXStream();
-      UserProfileImpl up = (UserProfileImpl)xstream.fromXML(profile);
+      final XStream xstream = getXStream();
+      UserProfileImpl up = SecurityHelper.doPrivilegedAction(new PrivilegedAction<UserProfileImpl>()
+      {
+         public UserProfileImpl run()
+         {
+            return (UserProfileImpl)xstream.fromXML(profile);
+         }
+      });
       return up;
    }
 
@@ -89,17 +99,29 @@ public class UserProfileData
          profile = "";
          return;
       }
-      UserProfileImpl impl = (UserProfileImpl)up;
+      final UserProfileImpl impl = (UserProfileImpl)up;
       userName = up.getUserName();
-      XStream xstream = getXStream();
-      profile = xstream.toXML(impl);
+      final XStream xstream = getXStream();
+      profile = SecurityHelper.doPrivilegedAction(new PrivilegedAction<String>()
+      {
+         public String run()
+         {
+            return xstream.toXML(impl);
+         }
+      });
    }
 
    static private XStream getXStream()
    {
       if (xstream_ == null)
       {
-         xstream_ = new XStream(new XppDriver());
+         xstream_ = SecurityHelper.doPrivilegedAction(new PrivilegedAction<XStream>()
+         {
+            public XStream run()
+            {
+               return new XStream(new XppDriver());
+            }
+         });
          xstream_.alias("user-profile", UserProfileImpl.class);
       }
       return xstream_;

@@ -24,6 +24,7 @@ import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.organization.BaseOrganizationService;
+import org.exoplatform.services.organization.CacheHandler;
 import org.exoplatform.services.organization.hibernate.UserProfileDAOImpl;
 
 /**
@@ -47,25 +48,27 @@ public class OrganizationServiceImpl extends BaseOrganizationService
       LDAPAttributeMapping ldapAttrMapping =
          (LDAPAttributeMapping)params.getObjectParam("ldap.attribute.mapping").getObject();
 
+      CacheHandler cacheHandler = new CacheHandler(cservice);
+
       if (ldapService.getServerType() == LDAPService.ACTIVE_DIRECTORY_SERVER)
       {
-         userDAO_ = new ADUserDAOImpl(ldapAttrMapping, ldapService);
+         userDAO_ = new ADUserDAOImpl(ldapAttrMapping, ldapService, cacheHandler);
          //      ADSearchBySID adSearch = new ADSearchBySID(ldapAttrMapping, ldapService);
          ADSearchBySID adSearch = new ADSearchBySID(ldapAttrMapping);
-         groupDAO_ = new ADGroupDAOImpl(ldapAttrMapping, ldapService, adSearch);
-         membershipDAO_ = new ADMembershipDAOImpl(ldapAttrMapping, ldapService, adSearch);
+         groupDAO_ = new ADGroupDAOImpl(ldapAttrMapping, ldapService, adSearch, cacheHandler);
+         membershipDAO_ = new ADMembershipDAOImpl(ldapAttrMapping, ldapService, adSearch, this, cacheHandler);
       }
       else
       {
          //      ValueParam param = params.getValueParam("ldap.userDN.key");
          //      ldapAttrMapping.userDNKey = param.getValue();
-         userDAO_ = new UserDAOImpl(ldapAttrMapping, ldapService);
-         groupDAO_ = new GroupDAOImpl(ldapAttrMapping, ldapService);
-         membershipDAO_ = new MembershipDAOImpl(ldapAttrMapping, ldapService);
+         userDAO_ = new UserDAOImpl(ldapAttrMapping, ldapService, cacheHandler, this);
+         groupDAO_ = new GroupDAOImpl(ldapAttrMapping, ldapService, cacheHandler);
+         membershipDAO_ = new MembershipDAOImpl(ldapAttrMapping, ldapService, this, cacheHandler);
       }
       // userProfileHandler_ = new UserProfileHandlerImpl(ldapAttrMapping, ldapService) ;
       userProfileDAO_ = new UserProfileDAOImpl(hservice, cservice);
-      membershipTypeDAO_ = new MembershipTypeDAOImpl(ldapAttrMapping, ldapService);
+      membershipTypeDAO_ = new MembershipTypeDAOImpl(ldapAttrMapping, ldapService, cacheHandler);
 
       ValueParam param = params.getValueParam("ldap.userDN.key");
       if (param != null)

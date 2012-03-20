@@ -19,6 +19,7 @@
 package org.exoplatform.services.organization.jdbc;
 
 import org.exoplatform.commons.utils.IdentifierUtil;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.database.DBObjectMapper;
 import org.exoplatform.services.database.DBObjectQuery;
 import org.exoplatform.services.database.DBPageList;
@@ -32,6 +33,7 @@ import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 
 import java.sql.Connection;
@@ -49,12 +51,16 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
 
    protected static Log log = ExoLogger.getLogger("exo.core.component.organization.jdbc.MembershipDAOImpl");
 
+   protected final OrganizationService service;
+
    protected ListenerService listenerService_;
 
-   public MembershipDAOImpl(ListenerService lService, ExoDatasource datasource, DBObjectMapper<MembershipImpl> mapper)
+   public MembershipDAOImpl(ListenerService lService, ExoDatasource datasource, DBObjectMapper<MembershipImpl> mapper,
+      OrganizationService service)
    {
       super(datasource, mapper, MembershipImpl.class);
-      listenerService_ = lService;
+      this.service = service;
+      this.listenerService_ = lService;
    }
 
    public Membership createMembershipInstance()
@@ -62,19 +68,61 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
       return new MembershipImpl();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void createMembership(Membership membership, boolean broadcast) throws Exception
    {
+      if (service.getMembershipTypeHandler().findMembershipType(membership.getMembershipType()) == null)
+      {
+         throw new InvalidNameException("Can not create membership record " + membership.getId()
+            + " because membership type " + membership.getMembershipType() + " not exists.");
+      }
+      
+      if (service.getGroupHandler().findGroupById(membership.getGroupId()) == null)
+      {
+         throw new InvalidNameException("Can not create membership record " + membership.getId() + ", because group "
+            + membership.getGroupId() + " does not exist.");
+      }
+
+      if (service.getUserHandler().findUserByName(membership.getUserName()) == null)
+      {
+         throw new InvalidNameException("Can not create membership record " + membership.getId() + ", because user "
+            + membership.getGroupId() + " does not exist.");
+      }
+
+      // check if we already have membership record
+      if (findMembershipByUserGroupAndType(membership.getUserName(), membership.getGroupId(),
+         membership.getMembershipType()) != null)
+      {
+         return;
+      }
+
       MembershipImpl membershipImpl = (MembershipImpl)membership;
       if (broadcast)
+      {
          listenerService_.broadcast("organization.membership.preSave", this, membershipImpl);
+      }
+
       membershipImpl.setId(IdentifierUtil.generateUUID(membership));
       super.save(membershipImpl);
+
       if (broadcast)
+      {
          listenerService_.broadcast("organization.membership.postSave", this, membershipImpl);
+      }
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void linkMembership(User user, Group group, MembershipType mt, boolean broadcast) throws Exception
    {
+      if (user == null)
+      {
+         throw new InvalidNameException("Can not create membership record because group is null");
+      }
+
       if (group == null)
       {
          throw new InvalidNameException("Can not create membership record for " + user.getUserName()
@@ -88,25 +136,39 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
       }
 
       if (log.isDebugEnabled())
+      {
          log.debug("LINK MEMBER SHIP (" + user.getUserName() + ", " + group.getId() + " , " + mt.getName() + ");");
+      }
+
       MembershipImpl membership = new MembershipImpl();
       membership.setUserName(user.getUserName());
       membership.setMembershipType(mt.getName());
       membership.setGroupId(group.getId());
-      if (findMembershipByUserGroupAndType(user.getUserName(), group.getId(), mt.getName()) != null)
-         return;
       createMembership(membership, broadcast);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Membership findMembership(String id) throws Exception
    {
       if (id == null)
          return null;
       DBObjectQuery<MembershipImpl> query = new DBObjectQuery<MembershipImpl>(MembershipImpl.class);
       query.addLIKE("MEMBERSHIP_ID", id);
-      return loadUnique(query.toQuery());
+      Membership membership = loadUnique(query.toQuery());
+
+      if (membership == null)
+      {
+         throw new InvalidNameException("Can't find membership with id " + id);
+      }
+
+      return membership;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Membership findMembershipByUserGroupAndType(String userName, String groupId, String type) throws Exception
    {
 
@@ -123,9 +185,11 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
       return member;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection findMembershipsByGroup(Group group) throws Exception
    {
-
       if (group == null)
          return null;
       List<MembershipImpl> list = new ArrayList<MembershipImpl>();
@@ -135,6 +199,25 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
       return list;
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   public ListAccess<Membership> findAllMembershipsByGroup(Group group) throws Exception
+   {
+      if (group == null)
+      {
+         return null;
+      }
+
+      DBObjectQuery<MembershipImpl> query = new DBObjectQuery<MembershipImpl>(MembershipImpl.class);
+      query.addLIKE("GROUP_ID", group.getId());
+
+      return new JDBCListAccess<Membership>(this, query.toQuery(), query.toCountQuery());
+   }
+
+   /**
+    * {@inheritDoc}
+    */
    public Collection findMembershipsByUser(String userName) throws Exception
    {
       if (userName == null)
@@ -148,6 +231,9 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
       return list;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection findMembershipsByUserAndGroup(String userName, String groupId) throws Exception
    {
       if (userName == null || groupId == null)
@@ -162,6 +248,9 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
       return list;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Membership removeMembership(String id, boolean broadcast) throws Exception
    {
       DBObjectQuery<MembershipImpl> query = new DBObjectQuery<MembershipImpl>(MembershipImpl.class);
@@ -180,16 +269,15 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
             listenerService_.broadcast("organization.membership.postDelete", this, membershipImpl);
          return membershipImpl;
       }
-      catch (Exception e)
-      {
-         throw e;
-      }
       finally
       {
          eXoDS_.closeConnection(connection);
       }
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @SuppressWarnings("unchecked")
    public Collection removeMembershipByUser(String username, boolean broadcast) throws Exception
    {
@@ -204,6 +292,9 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
       return members;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection removeMemberships(DBObjectQuery<MembershipImpl> query, boolean broadcast) throws Exception
    {
       DBPageList<MembershipImpl> pageList = new DBPageList<MembershipImpl>(20, this, query);
@@ -224,20 +315,26 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
          }
          return list;
       }
-      catch (Exception e)
-      {
-         throw e;
-      }
       finally
       {
          eXoDS_.closeConnection(connection);
       }
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @SuppressWarnings("unchecked")
    public void addMembershipEventListener(MembershipEventListener listener)
    {
-      throw new RuntimeException("This method is not supported anymore, please use the new api");
+      throw new UnsupportedOperationException("This method is not supported anymore, please use the new api");
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   public void removeMembershipEventListener(MembershipEventListener listener)
+   {
+      throw new UnsupportedOperationException("This method is not supported anymore, please use the new api");
+   }
 }

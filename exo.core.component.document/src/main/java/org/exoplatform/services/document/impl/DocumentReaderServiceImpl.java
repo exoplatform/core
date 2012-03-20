@@ -37,17 +37,17 @@ import java.util.Map;
  */
 public class DocumentReaderServiceImpl implements DocumentReaderService
 {
-   private Map<String, BaseDocumentReader> readers_;
+   protected volatile Map<String, DocumentReader> readers_;
 
    public DocumentReaderServiceImpl(InitParams params)
    {
-      readers_ = new HashMap<String, BaseDocumentReader>();
+      readers_ = new HashMap<String, DocumentReader>();
    }
 
    @Deprecated
    public String getContentAsText(String mimeType, InputStream is) throws Exception
    {
-      BaseDocumentReader reader = readers_.get(mimeType.toLowerCase());
+      DocumentReader reader = readers_.get(mimeType.toLowerCase());
       if (reader != null)
          return reader.getContentAsText(is);
       throw new Exception("Cannot handle the document type: " + mimeType);
@@ -71,7 +71,7 @@ public class DocumentReaderServiceImpl implements DocumentReaderService
     */
    public DocumentReader getDocumentReader(String mimeType) throws HandlerNotFoundException
    {
-      BaseDocumentReader reader = readers_.get(mimeType.toLowerCase());
+      DocumentReader reader = readers_.get(mimeType.toLowerCase());
       if (reader != null)
          return reader;
       else

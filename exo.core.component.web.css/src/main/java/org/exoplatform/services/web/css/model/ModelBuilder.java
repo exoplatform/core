@@ -27,7 +27,8 @@ import org.w3c.css.sac.Selector;
 import org.w3c.css.sac.SelectorList;
 
 /**
- * A document handler implementation that creates an instance of a {@link org.exoplatform.services.web.css.model.StylesheetObject } object.
+ * A document handler implementation that creates 
+ * an instance of a {@link org.exoplatform.services.web.css.model.StylesheetObject } object.
  *
  * @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a>
  * @version $Revision$

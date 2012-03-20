@@ -18,18 +18,22 @@
  */
 package org.exoplatform.services.organization.hibernate;
 
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserProfileEventListener;
+import org.exoplatform.services.organization.UserProfileEventListenerHandler;
 import org.exoplatform.services.organization.UserProfileHandler;
 import org.exoplatform.services.organization.impl.UserProfileData;
 import org.exoplatform.services.organization.impl.UserProfileImpl;
+import org.exoplatform.services.security.PermissionConstants;
 import org.hibernate.Session;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,12 +41,15 @@ import java.util.List;
  * benjmestrallet@users.sourceforge.net Author : Tuan Nguyen
  * tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:51:21 PM
  */
-public class UserProfileDAOImpl implements UserProfileHandler
+public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventListenerHandler
 {
    static private UserProfile NOT_FOUND = new UserProfileImpl();
 
    private static final String queryFindUserProfileByName =
       "from u in class org.exoplatform.services.organization.impl.UserProfileData " + "where u.userName = ?";
+
+   private static final String queryFindUserProfiles =
+      "from u in class org.exoplatform.services.organization.impl.UserProfileData";
 
    private HibernateService service_;
 
@@ -57,30 +64,43 @@ public class UserProfileDAOImpl implements UserProfileHandler
       listeners_ = new ArrayList<UserProfileEventListener>(3);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void addUserProfileEventListener(UserProfileEventListener listener)
    {
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners_.add(listener);
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   public void removeUserProfileEventListener(UserProfileEventListener listener)
+   {
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
+      listeners_.remove(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
    final public UserProfile createUserProfileInstance()
    {
       return new UserProfileImpl();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public UserProfile createUserProfileInstance(String userName)
    {
       return new UserProfileImpl(userName);
    }
 
-   void createUserProfileEntry(UserProfile up, Session session) throws Exception
-   {
-      UserProfileData upd = new UserProfileData();
-      upd.setUserProfile(up);
-      session.save(upd);
-      session.flush();
-      cache_.remove(up.getUserName());
-   }
-
+   /**
+    * {@inheritDoc}
+    */
    public void saveUserProfile(UserProfile profile, boolean broadcast) throws Exception
    {
       Session session = service_.openSession();
@@ -92,26 +112,32 @@ public class UserProfileDAOImpl implements UserProfileHandler
          upd.setUserProfile(profile);
          if (broadcast)
             preSave(profile, true);
-         session = service_.openSession();
+
          session.save(profile.getUserName(), upd);
+         session.flush();
+         cache_.put(profile.getUserName(), profile);
+
          if (broadcast)
             postSave(profile, true);
-         session.flush();
       }
       else
       {
          upd.setUserProfile(profile);
          if (broadcast)
             preSave(profile, false);
-         session = service_.openSession();
+
          session.update(upd);
+         session.flush();
+         cache_.put(profile.getUserName(), profile);
+
          if (broadcast)
             postSave(profile, false);
-         session.flush();
       }
-      cache_.put(profile.getUserName(), profile);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public UserProfile removeUserProfile(String userName, boolean broadcast) throws Exception
    {
       Session session = service_.openSession();
@@ -121,12 +147,14 @@ public class UserProfileDAOImpl implements UserProfileHandler
          UserProfile profile = upd.getUserProfile();
          if (broadcast)
             preDelete(profile);
-         session = service_.openSession();
+
          session.delete(upd);
-         if (broadcast)
-            postDelete(profile);
          session.flush();
          cache_.remove(userName);
+
+         if (broadcast)
+            postDelete(profile);
+
          return profile;
       }
       catch (Exception exp)
@@ -135,13 +163,18 @@ public class UserProfileDAOImpl implements UserProfileHandler
       }
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public UserProfile findUserProfileByName(String userName) throws Exception
    {
       UserProfile up = (UserProfile)cache_.get(userName);
       if (up != null)
       {
-         if (NOT_FOUND == up)
+         if (NOT_FOUND == up) //NOSONAR
+         {
             return null;
+         }
          return up;
       }
       Session session = service_.openSession();
@@ -153,6 +186,9 @@ public class UserProfileDAOImpl implements UserProfileHandler
       return up;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public UserProfile findUserProfileByName(String userName, Session session) throws Exception
    {
       UserProfileData upd = (UserProfileData)service_.findOne(session, queryFindUserProfileByName, userName);
@@ -163,16 +199,23 @@ public class UserProfileDAOImpl implements UserProfileHandler
       return null;
    }
 
-   static void removeUserProfileEntry(String userName, Session session) throws Exception
+   void removeUserProfileEntry(String userName, Session session) throws Exception
    {
       Object user = session.createQuery(queryFindUserProfileByName).setString(0, userName).uniqueResult();
       if (user != null)
+      {
          session.delete(user);
+         cache_.remove(userName);
+      }
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection findUserProfiles() throws Exception
    {
-      return null;
+      Session session = service_.openSession();
+      return service_.findAll(session, queryFindUserProfiles);
    }
 
    private void preSave(UserProfile profile, boolean isNew) throws Exception
@@ -197,6 +240,14 @@ public class UserProfileDAOImpl implements UserProfileHandler
    {
       for (UserProfileEventListener listener : listeners_)
          listener.postDelete(profile);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public List<UserProfileEventListener> getUserProfileListeners()
+   {
+      return Collections.unmodifiableList(listeners_);
    }
 
 }

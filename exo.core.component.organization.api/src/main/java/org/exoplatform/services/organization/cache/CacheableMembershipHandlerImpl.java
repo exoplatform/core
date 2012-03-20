@@ -16,8 +16,7 @@
  */
 package org.exoplatform.services.organization.cache;
 
-import com.sun.org.apache.bcel.internal.generic.RETURN;
-
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;
@@ -25,6 +24,7 @@ import org.exoplatform.services.organization.MembershipEventListener;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.User;
+
 import java.util.Collection;
 
 /**
@@ -63,6 +63,14 @@ public class CacheableMembershipHandlerImpl implements MembershipHandler
    public void addMembershipEventListener(MembershipEventListener listener)
    {
       membershipHandler.addMembershipEventListener(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public void removeMembershipEventListener(MembershipEventListener listener)
+   {
+      membershipHandler.removeMembershipEventListener(listener);
    }
 
    /**
@@ -134,6 +142,11 @@ public class CacheableMembershipHandlerImpl implements MembershipHandler
       }
 
       return memberships;
+   }
+
+   public ListAccess<Membership> findAllMembershipsByGroup(Group group) throws Exception
+   {
+      return membershipHandler.findAllMembershipsByGroup(group);
    }
 
    /**

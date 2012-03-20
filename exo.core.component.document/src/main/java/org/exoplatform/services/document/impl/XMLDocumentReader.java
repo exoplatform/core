@@ -18,15 +18,23 @@
  */
 package org.exoplatform.services.document.impl;
 
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DocumentReadException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.security.PrivilegedExceptionAction;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 /**
  * Created by The eXo Platform SAS A parser of XML files.
@@ -36,6 +44,8 @@ import java.util.regex.PatternSyntaxException;
  */
 public class XMLDocumentReader extends BaseDocumentReader
 {
+
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.XMLDocumentReader");
 
    /**
     * Get the text/xml, application/xml, application/x-google-gadget mime types.
@@ -57,18 +67,19 @@ public class XMLDocumentReader extends BaseDocumentReader
    {
       if (is == null)
       {
-         throw new NullPointerException("InputStream is null.");
+         throw new IllegalArgumentException("InputStream is null.");
       }
       try
       {
-         byte[] buffer = new byte[2048];
-         int len;
-         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-         while ((len = is.read(buffer)) > 0)
-            bos.write(buffer, 0, len);
-         bos.close();
-         String xml = new String(bos.toByteArray());
-         return delete(xml);
+
+         //         byte[] buffer = new byte[2048];
+         //         int len;
+         //         ByteArrayOutputStream bos = new ByteArrayOutputStream();
+         //         while ((len = is.read(buffer)) > 0)
+         //            bos.write(buffer, 0, len);
+         //         bos.close();
+         //         String xml = new String(bos.toByteArray());
+         return parse(is);
       }
       finally
       {
@@ -79,6 +90,10 @@ public class XMLDocumentReader extends BaseDocumentReader
             }
             catch (IOException e)
             {
+               if (LOG.isTraceEnabled())
+               {
+                  LOG.trace("An exception occurred: " + e.getMessage());
+               }
             }
       }
    }
@@ -103,6 +118,10 @@ public class XMLDocumentReader extends BaseDocumentReader
       }
       catch (IOException e)
       {
+         if (LOG.isTraceEnabled())
+         {
+            LOG.trace("An exception occurred: " + e.getMessage());
+         }
       }
       return new Properties();
    }
@@ -113,27 +132,82 @@ public class XMLDocumentReader extends BaseDocumentReader
     * @param str the string which contain a text with user's tags.
     * @return The string cleaned from user's tags and their bodies.
     */
-   private String delete(String str)
+   private String parse(InputStream is)
    {
+      final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+      //      saxParserFactory.setNamespaceAware(true);
+      //      saxParserFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+      SAXParser saxParser;
+      StringWriter writer = new StringWriter();
+
+      DefaultHandler dh = new WriteOutContentHandler(writer);
       try
       {
-         StringBuffer input = new StringBuffer(str);
-         String patternString = "<+[^>]*>+";
-         Pattern pattern = Pattern.compile(patternString, Pattern.CASE_INSENSITIVE + Pattern.DOTALL);
-         Matcher matcher = pattern.matcher(input);
-         while (matcher.find())
-         {
-            int start = matcher.start();
-            int end = matcher.end();
-            input.delete(start, end);
-            matcher = pattern.matcher(input);
-         }
-         return input.substring(0, input.length());
+         saxParser =
+            SecurityHelper
+               .doPrivilegedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
+            {
+               public SAXParser run() throws Exception
+               {
+                  return saxParserFactory.newSAXParser();
+               }
+            });
+         saxParser.parse(is, dh);
       }
-      catch (PatternSyntaxException e)
+      catch (SAXException e)
       {
+         return "";
       }
-      return "";
+      catch (IOException e)
+      {
+         return "";
+      }
+      catch (ParserConfigurationException e)
+      {
+         return "";
+      }
+
+      return writer.toString();
+
+   }
+
+   class WriteOutContentHandler extends DefaultHandler
+   {
+      private final Writer writer;
+
+      public WriteOutContentHandler(Writer writer)
+      {
+         this.writer = writer;
+      }
+
+      /**
+       * Writes the given characters to the given character stream.
+       */
+      @Override
+      public void characters(char[] ch, int start, int length) throws SAXException
+      {
+         try
+         {
+            writer.write(ch, start, length);
+         }
+         catch (IOException e)
+         {
+            throw new SAXException(e.getMessage(), e);
+         }
+      }
+
+      @Override
+      public void endDocument() throws SAXException
+      {
+         try
+         {
+            writer.flush();
+         }
+         catch (IOException e)
+         {
+            throw new SAXException(e.getMessage(), e);
+         }
+      }
    }
 
 }

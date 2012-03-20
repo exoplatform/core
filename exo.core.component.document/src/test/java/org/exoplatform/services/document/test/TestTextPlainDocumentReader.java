@@ -18,9 +18,9 @@
  */
 package org.exoplatform.services.document.test;
 
-import org.exoplatform.container.PortalContainer;
-import org.exoplatform.services.document.DocumentReaderService;
-import org.exoplatform.test.BasicTestCase;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
+import org.exoplatform.services.document.impl.TextPlainDocumentReader;
 
 import java.io.InputStream;
 
@@ -31,31 +31,46 @@ import java.io.InputStream;
  * @version $Id: $
  */
 
-public class TestTextPlainDocumentReader extends BasicTestCase
+public class TestTextPlainDocumentReader extends BaseStandaloneTest
 {
-
-   DocumentReaderService service_;
+   DocumentReaderServiceImpl service;
 
    public void setUp() throws Exception
    {
-      PortalContainer pcontainer = PortalContainer.getInstance();
-      service_ = (DocumentReaderService)pcontainer.getComponentInstanceOfType(DocumentReaderService.class);
+      super.setUp();
+      service = new DocumentReaderServiceImpl(null);
+      InitParams params = new InitParams();
+      service.addDocumentReader(new TextPlainDocumentReader(params));
    }
 
    public void testGetContentAsString() throws Exception
    {
       InputStream is = TestTextPlainDocumentReader.class.getResourceAsStream("/test.txt");
-      String text = service_.getDocumentReader("text/plain").getContentAsText(is);
-      assertEquals("Wrong string returned", "This is a test text\n", text);
+      try
+      {
+         String text = service.getDocumentReader("text/plain").getContentAsText(is);
+         assertEquals("Wrong string returned", "This is a test text\n", text);
+      }
+      finally
+      {
+         is.close();
+      }
    }
 
    public void testGetContentAsStringWithEncoding() throws Exception
    {
       InputStream is = TestTextPlainDocumentReader.class.getResourceAsStream("/testUTF8.txt");
-      String text = service_.getDocumentReader("text/plain").getContentAsText(is, "UTF-8");
-      String etalon =
-         "\ufeff\u0426\u0435 \u0442\u0435\u0441\u0442\u043e\u0432\u0438\u0439 \u0442\u0435\u043a\u0441\u0442. \u042d\u0442\u043e \u0442\u0435\u0441\u0442\u043e\u0432\u044b\u0439 \u0442\u0435\u043a\u0441\u0442.";
-      assertEquals("Wrong string returned", etalon, text);
+      try
+      {
+         String text = service.getDocumentReader("text/plain").getContentAsText(is, "UTF-8");
+         String expected =
+            "\ufeff\u0426\u0435 \u0442\u0435\u0441\u0442\u043e\u0432\u0438\u0439 \u0442\u0435\u043a\u0441\u0442. \u042d\u0442\u043e \u0442\u0435\u0441\u0442\u043e\u0432\u044b\u0439 \u0442\u0435\u043a\u0441\u0442.";
+         assertEquals("Wrong string returned", expected, text);
+      }
+      finally
+      {
+         is.close();
+      }
    }
 
 }

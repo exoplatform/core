@@ -20,25 +20,34 @@ package org.exoplatform.services.organization.hibernate;
 
 import org.exoplatform.commons.utils.LazyPageList;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.database.ObjectQuery;
-import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.ExtendedUserHandler;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.Query;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserEventListener;
+import org.exoplatform.services.organization.UserEventListenerHandler;
+import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.impl.UserImpl;
+import org.exoplatform.services.security.PasswordEncrypter;
+import org.exoplatform.services.security.PermissionConstants;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Created by The eXo Platform SAS Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
  * Author : Tuan Nguyen tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:51:21 PM
  */
-public class UserDAOImpl implements UserHandler
+public class UserDAOImpl implements UserHandler, UserEventListenerHandler, ExtendedUserHandler
 {
    public static final String queryFindUserByName =
       "from u in class org.exoplatform.services.organization.impl.UserImpl " + "where u.userName = ?";
@@ -49,10 +58,13 @@ public class UserDAOImpl implements UserHandler
 
    private List<UserEventListener> listeners_ = new ArrayList<UserEventListener>(3);
 
-   public UserDAOImpl(HibernateService service, CacheService cservice) throws Exception
+   private OrganizationService orgService;
+
+   public UserDAOImpl(HibernateService service, CacheService cservice, OrganizationService orgService) throws Exception
    {
       service_ = service;
       cache_ = cservice.getCacheInstance(UserImpl.class.getName());
+      this.orgService = orgService;
    }
 
    final public List getUserEventListeners()
@@ -60,72 +72,107 @@ public class UserDAOImpl implements UserHandler
       return listeners_;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void addUserEventListener(UserEventListener listener)
    {
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners_.add(listener);
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   public void removeUserEventListener(UserEventListener listener)
+   {
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
+      listeners_.remove(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
    public User createUserInstance()
    {
       return new UserImpl();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public User createUserInstance(String username)
    {
       return new UserImpl(username);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void createUser(User user, boolean broadcast) throws Exception
    {
       if (broadcast)
          preSave(user, true);
-      Session session = service_.openSession();
-      Transaction transaction = session.beginTransaction();
+
+      final Session session = service_.openSession();
 
       UserImpl userImpl = (UserImpl)user;
       userImpl.setId(user.getUserName());
       session.save(user);
+      session.flush();
+
       if (broadcast)
          postSave(user, true);
-      transaction.commit();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void saveUser(User user, boolean broadcast) throws Exception
    {
       if (broadcast)
          preSave(user, false);
+
       Session session = service_.openSession();
+
       session.merge(user);
-      // session.update(user);
-      if (broadcast)
-         postSave(user, false);
       session.flush();
       cache_.put(user.getUserName(), user);
+
+      if (broadcast)
+         postSave(user, false);
    }
 
-   void createUserEntry(User user, Session session) throws Exception
-   {
-      session.save(user);
-   }
-
+   /**
+    * {@inheritDoc}
+    */
    public User removeUser(String userName, boolean broadcast) throws Exception
    {
       Session session = service_.openSession();
       User foundUser = findUserByName(userName, session);
+
       if (foundUser == null)
          return null;
 
       if (broadcast)
          preDelete(foundUser);
-      session = service_.openSession();
+
       session.delete(foundUser);
-      if (broadcast)
-         postDelete(foundUser);
+      ((UserProfileDAOImpl)orgService.getUserProfileHandler()).removeUserProfileEntry(userName, session);
+      MembershipDAOImpl.removeMembershipEntriesOfUser(userName, session);
+
       session.flush();
       cache_.remove(userName);
+
+      if (broadcast)
+         postDelete(foundUser);
+
       return foundUser;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public User findUserByName(String userName) throws Exception
    {
       User user = (User)cache_.get(userName);
@@ -144,25 +191,54 @@ public class UserDAOImpl implements UserHandler
       return user;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public LazyPageList<User> getUserPageList(int pageSize) throws Exception
    {
       return new LazyPageList<User>(findAllUsers(), 20);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public ListAccess<User> findAllUsers() throws Exception
    {
       String findQuery = "from o in class " + UserImpl.class.getName();
       String countQuery = "select count(o) from " + UserImpl.class.getName() + " o";
 
-      return new SimpleHibernateUserListAccess(service_, findQuery, countQuery);
+      return new HibernateListAccess<User>(service_, findQuery, countQuery);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public boolean authenticate(String username, String password) throws Exception
+   {
+      return authenticate(username, password, null);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public boolean authenticate(String username, String password, PasswordEncrypter pe) throws Exception
    {
       User user = findUserByName(username);
       if (user == null)
+      {
          return false;
-      boolean authenticated = user.getPassword().equals(password);
+      }
+      
+      boolean authenticated;
+      if (pe == null)
+      {
+         authenticated = user.getPassword().equals(password);
+      }
+      else
+      {
+         String encryptedPassword = new String(pe.encrypt(user.getPassword().getBytes()));
+         authenticated = encryptedPassword.equals(password);
+      }
       if (authenticated)
       {
          UserImpl userImpl = (UserImpl)user;
@@ -172,17 +248,23 @@ public class UserDAOImpl implements UserHandler
       return authenticated;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public LazyPageList<User> findUsers(Query q) throws Exception
    {
       return new LazyPageList<User>(findUsersByQuery(q), 20);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public ListAccess<User> findUsersByQuery(Query q) throws Exception
    {
       ObjectQuery oq = new ObjectQuery(UserImpl.class);
       if (q.getUserName() != null)
       {
-         oq.addLIKE("UPPER(userName)", q.getUserName().toUpperCase());
+         oq.addLIKE("UPPER(userName)", addAsterisk(q.getUserName().toUpperCase()));
       }
       if (q.getFirstName() != null)
       {
@@ -196,14 +278,21 @@ public class UserDAOImpl implements UserHandler
       oq.addGT("lastLoginTime", q.getFromLoginDate());
       oq.addLT("lastLoginTime", q.getToLoginDate());
 
-      return new SimpleHibernateUserListAccess(service_, oq.getHibernateQuery(), oq.getHibernateCountQuery());
+      return new HibernateListAccess<User>(service_, oq.getHibernateQueryWithBinding(),
+         oq.getHibernateCountQueryWithBinding(), oq.getBindingFields());
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public LazyPageList<User> findUsersByGroup(String groupId) throws Exception
    {
       return new LazyPageList<User>(findUsersByGroupId(groupId), 20);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
    {
       String queryFindUsersInGroup =
@@ -215,9 +304,12 @@ public class UserDAOImpl implements UserHandler
             + "     m in class org.exoplatform.services.organization.impl.MembershipImpl "
             + "where m.userName = u.userName " + "  and m.groupId =  '" + groupId + "'";
 
-      return new SimpleHibernateUserListAccess(service_, queryFindUsersInGroup, countUsersInGroup);
+      return new HibernateListAccess<User>(service_, queryFindUsersInGroup, countUsersInGroup);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection findUsersByGroupAndRole(String groupName, String role) throws Exception
    {
       String queryFindUsersByGroupAndRole =
@@ -254,5 +346,29 @@ public class UserDAOImpl implements UserHandler
    {
       for (UserEventListener listener : listeners_)
          listener.postDelete(user);
+   }
+
+   private String addAsterisk(String s)
+   {
+      StringBuffer sb = new StringBuffer(s);
+      if (!s.startsWith("*"))
+      {
+         sb.insert(0, "*");
+      }
+      if (!s.endsWith("*"))
+      {
+         sb.append("*");
+      }
+
+      return sb.toString();
+
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public List<UserEventListener> getUserListeners()
+   {
+      return Collections.unmodifiableList(listeners_);
    }
 }

@@ -19,7 +19,9 @@
 package org.exoplatform.services.organization.ldap;
 
 import org.exoplatform.services.ldap.LDAPService;
+import org.exoplatform.services.organization.CacheHandler;
 import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.CacheHandler.CacheType;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -61,11 +63,14 @@ public class ADUserDAOImpl extends UserDAOImpl
    /**
     * @param ldapAttrMapping {@link LDAPAttributeMapping}
     * @param ldapService {@link LDAPService}
+    * @param cservice 
+    *          The Cache Handler
     * @throws Exception if any errors occurs
     */
-   public ADUserDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
+   public ADUserDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler)
+      throws Exception
    {
-      super(ldapAttrMapping, ldapService);
+      super(ldapAttrMapping, ldapService, cacheHandler);
       LDAPUserPageList.SEARCH_CONTROL = Control.CRITICAL;
    }
 
@@ -75,7 +80,7 @@ public class ADUserDAOImpl extends UserDAOImpl
    @Override
    public void createUser(User user, boolean broadcast) throws Exception
    {
-      String userDN = "CN=" + user.getUserName() + "," + ldapAttrMapping.userURL;
+      String userDN = ldapAttrMapping.userDNKey + "=" + user.getUserName() + "," + ldapAttrMapping.userURL;
       Attributes attrs = ldapAttrMapping.userToAttributes(user);
       attrs.put("userAccountControl", Integer.toString(UF_NORMAL_ACCOUNT + UF_PASSWD_NOTREQD + UF_PASSWORD_EXPIRED
          + UF_ACCOUNTDISABLE));
@@ -93,14 +98,13 @@ public class ADUserDAOImpl extends UserDAOImpl
                ctx.createSubcontext(userDN, attrs);
                if (broadcast)
                   postSave(user, true);
+
+               cacheHandler.put(user.getUserName(), user, CacheType.USER);
                break;
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -118,26 +122,26 @@ public class ADUserDAOImpl extends UserDAOImpl
     * {@inheritDoc}
     */
    @Override
-   void saveUserPassword(User user, String userDN) throws Exception
+   protected void saveUserPassword(User user, String userDN) throws Exception
    {
-      Object v = ldapService.getLdapContext().getEnvironment().get(Context.SECURITY_PROTOCOL);
-      if (v == null)
-         return;
-      String security = String.valueOf(v);
-      if (!security.equalsIgnoreCase("ssl"))
-         return;
-      String newQuotedPassword = "\"" + user.getPassword() + "\"";
-      byte[] newUnicodePassword = newQuotedPassword.getBytes("UTF-16LE");
-      ModificationItem[] mods = new ModificationItem[2];
-      mods[0] =
-         new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ldapAttrMapping.userPassword,
-            newUnicodePassword));
-      mods[1] =
-         new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("userAccountControl", Integer
-            .toString(UF_NORMAL_ACCOUNT + UF_PASSWORD_EXPIRED)));
       LdapContext ctx = ldapService.getLdapContext();
       try
       {
+         Object v = ctx.getEnvironment().get(Context.SECURITY_PROTOCOL);
+         if (v == null)
+            return;
+         String security = String.valueOf(v);
+         if (!security.equalsIgnoreCase("ssl"))
+            return;
+         String newQuotedPassword = "\"" + user.getPassword() + "\"";
+         byte[] newUnicodePassword = newQuotedPassword.getBytes("UTF-16LE");
+         ModificationItem[] mods = new ModificationItem[2];
+         mods[0] =
+            new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ldapAttrMapping.userPassword,
+               newUnicodePassword));
+         mods[1] =
+            new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("userAccountControl",
+               Integer.toString(UF_NORMAL_ACCOUNT + UF_PASSWORD_EXPIRED)));
          for (int err = 0;; err++)
          {
             try
@@ -147,10 +151,7 @@ public class ADUserDAOImpl extends UserDAOImpl
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }

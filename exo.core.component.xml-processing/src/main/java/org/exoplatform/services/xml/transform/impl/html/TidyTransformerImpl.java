@@ -18,6 +18,8 @@
  */
 package org.exoplatform.services.xml.transform.impl.html;
 
+import org.exoplatform.commons.utils.PrivilegedSystemHelper;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.xml.transform.EncodingMap;
 import org.exoplatform.services.xml.transform.NotSupportedIOTypeException;
 import org.exoplatform.services.xml.transform.html.HTMLTransformer;
@@ -31,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.security.PrivilegedAction;
 import java.util.Properties;
 
 import javax.xml.transform.Source;
@@ -53,7 +56,13 @@ public class TidyTransformerImpl extends TransformerBase implements HTMLTransfor
    public TidyTransformerImpl()
    {
       super();
-      tidy = new Tidy();
+      tidy = SecurityHelper.doPrivilegedAction(new PrivilegedAction<Tidy>()
+      {
+         public Tidy run()
+         {
+            return new Tidy();
+         }
+      });
       initProps();
    }
 
@@ -93,9 +102,10 @@ public class TidyTransformerImpl extends TransformerBase implements HTMLTransfor
       // new ByteArrayInputStream(output.toByteArray());
       //
       transformInputStream2Result(byteInputStream, getResult());
-      log.debug("Transform from temp output to " + getResult().getClass().getName() + " complete");
+      LOG.debug("Transform from temp output to " + getResult().getClass().getName() + " complete");
    }
 
+   @Override
    protected void internalTransform(Source source) throws NotSupportedIOTypeException, TransformerException,
       IllegalStateException
    {
@@ -103,13 +113,13 @@ public class TidyTransformerImpl extends TransformerBase implements HTMLTransfor
 
       try
       {
-         log.debug(" input available bytes " + input.available());
+         LOG.debug(" input available bytes " + input.available());
          if (input.available() == 0)
             return;
       }
       catch (IOException ex)
       {
-         log.error("Error on read Source", ex);
+         LOG.error("Error on read Source", ex);
          new TransformerException("Error on read source", ex);
       }
 
@@ -119,16 +129,16 @@ public class TidyTransformerImpl extends TransformerBase implements HTMLTransfor
       if (getResult() instanceof StreamResult)
       {
          OutputStream output = ((StreamResult)getResult()).getOutputStream();
-         log.debug("Prepare to write transform result direct to OutputStream");
+         LOG.debug("Prepare to write transform result direct to OutputStream");
          tidy.parse(input, output);
-         log.debug("Tidy parse is complete");
+         LOG.debug("Tidy parse is complete");
       }
       else
       {
          ByteArrayOutputStream output = new ByteArrayOutputStream();
-         log.debug("Prepare to write transform result to temp output");
+         LOG.debug("Prepare to write transform result to temp output");
          tidy.parse(input, output);
-         log.debug("Tidy parse is complete");
+         LOG.debug("Tidy parse is complete");
          // sex with coding
          String outputString = output.toString();
          try
@@ -150,7 +160,7 @@ public class TidyTransformerImpl extends TransformerBase implements HTMLTransfor
    protected String getCurrentIANAEncoding() throws UnsupportedEncodingException
    {
       EncodingMap encodingMap = new EncodingMapImpl();
-      String ianaEncoding = encodingMap.convertJava2IANA(System.getProperty("file.encoding"));
+      String ianaEncoding = encodingMap.convertJava2IANA(PrivilegedSystemHelper.getProperty("file.encoding"));
       if (ianaEncoding == null)
       {
          throw new UnsupportedEncodingException("Can't find corresponding type of encoding for : "

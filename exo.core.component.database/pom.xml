@@ -25,7 +25,7 @@
    <parent>
       <groupId>org.exoplatform.core</groupId>
       <artifactId>core-parent</artifactId>
-      <version>2.4.0-Beta01-SNAPSHOT</version>
+      <version>2.4.8-GA-SNAPSHOT</version>
    </parent>
 
    <artifactId>exo.core.component.database</artifactId>
@@ -61,6 +61,10 @@
          <artifactId>exo.kernel.component.cache</artifactId>
       </dependency>
       <dependency>
+         <groupId>org.exoplatform.kernel</groupId>
+         <artifactId>exo.kernel.commons.test</artifactId>
+      </dependency>
+      <dependency>
          <groupId>javax.resource</groupId>
          <artifactId>connector-api</artifactId>
          <scope>test</scope>
@@ -70,13 +74,8 @@
          <artifactId>jta</artifactId>
       </dependency>
       <dependency>
-         <groupId>pull-parser</groupId>
-         <artifactId>pull-parser</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>hsqldb</groupId>
+         <groupId>org.hsqldb</groupId>
          <artifactId>hsqldb</artifactId>
-         <scope>runtime</scope>
       </dependency>
       <dependency>
          <groupId>com.experlog</groupId>
@@ -102,22 +101,73 @@
             </exclusion>
          </exclusions> 
       </dependency>
+      
+      <dependency>
+         <groupId>commons-dbcp</groupId>
+         <artifactId>commons-dbcp</artifactId>
+         <exclusions>
+            <exclusion>
+               <groupId>xerces</groupId>
+               <artifactId>xercesImpl</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>commons-pool</groupId>
+         <artifactId>commons-pool</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.jotm</groupId>
+        <artifactId>jotm-core</artifactId>
+     </dependency>
   </dependencies>
    
    <build>
-      <pluginManagement>
-         <plugins>   
-            <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-surefire-plugin</artifactId>
-               <configuration>
-                  <excludes>
-                     <exclude>**/DBCreatorTest.java</exclude>
-                     <exclude>**/TestDBCreator.java</exclude>
-                  </excludes>
-               </configuration>
-            </plugin>
-         </plugins>      
-      </pluginManagement>
+     <plugins>   
+        <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-surefire-plugin</artifactId>
+           <configuration>
+              <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy</argLine>
+           </configuration>
+        </plugin>
+         <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>prepare-test-policy</id>
+                  <phase>process-test-resources</phase>
+                  <configuration>
+                     <tasks>
+                        <echo>Creating Access Policy for tests</echo>
+                        <makeurl file="${settings.localRepository}" property="localRepositoryURL" />
+                        <makeurl file="${project.build.outputDirectory}" property="outputDirectoryURL" />
+                        <makeurl file="${project.build.testOutputDirectory}" property="testOutputDirectoryURL" />
+                        <copy todir="${project.build.testOutputDirectory}" overwrite="true">
+                           <fileset dir="${project.basedir}/src/test/resources/">
+                              <include name="test.policy" />
+                           </fileset>
+                           <filterset>
+                              <filter token="MAVEN_REPO" value="${localRepositoryURL}" />
+                              <filter token="MAIN_CLASSES" value="${outputDirectoryURL}" />
+                              <filter token="TEST_CLASSES" value="${testOutputDirectoryURL}" />
+                           </filterset>
+                        </copy>
+                     </tasks>                     
+                  </configuration>
+                  <goals>
+                     <goal>run</goal>
+                  </goals>
+               </execution>
+            </executions>
+            <dependencies>
+               <dependency>
+                  <groupId>ant</groupId>
+                  <artifactId>ant-optional</artifactId>
+                  <version>1.5.3-1</version>
+               </dependency>
+            </dependencies>
+         </plugin>
+      </plugins>      
    </build>
 </project>

@@ -66,9 +66,13 @@ public class StandardSQLDAO<T extends DBObject> extends DAO<T>
    public void update(List<T> list) throws Exception
    {
       if (list == null)
-         throw new Exception("The given beans null ");
+      {
+         throw new IllegalStateException("The given beans null ");
+      }
       if (list.size() < 1)
+      {
          return;
+      }
       for (T bean : list)
       {
          if (bean.getDBObjectId() < 0)
@@ -89,13 +93,19 @@ public class StandardSQLDAO<T extends DBObject> extends DAO<T>
    public void save(List<T> list) throws Exception
    {
       if (list == null)
-         throw new Exception("The given beans null ");
+      {
+         throw new IllegalStateException("The given beans null ");
+      }
       if (list.size() < 1)
+      {
          return;
+      }
       for (T bean : list)
       {
          if (bean.getDBObjectId() != -1)
+         {
             continue;
+         }
          bean.setDBObjectId(eXoDS_.getIDGenerator().generateLongId(bean));
       }
       execute(eXoDS_.getQueryBuilder().createInsertQuery(type_), list);

@@ -23,6 +23,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 /**
  * Created by The eXo Platform SAS . Author : Tuan Nguyen
@@ -44,6 +45,8 @@ public interface HibernateService
    SessionFactory getSessionFactory();
 
    public Object findOne(Session session, String query, String id) throws Exception;
+
+   public Collection findAll(Session session, String query) throws Exception;
 
    public Object findExactOne(Session session, String query, String id) throws Exception;
 

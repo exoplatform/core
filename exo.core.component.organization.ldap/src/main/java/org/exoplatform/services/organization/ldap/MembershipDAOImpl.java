@@ -18,19 +18,27 @@
  */
 package org.exoplatform.services.organization.ldap;
 
+import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.organization.CacheHandler;
+import org.exoplatform.services.organization.CacheHandler.CacheType;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
+import org.exoplatform.services.organization.MembershipEventListenerHandler;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.impl.MembershipImpl;
+import org.exoplatform.services.security.PermissionConstants;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.naming.InvalidNameException;
@@ -50,7 +58,7 @@ import javax.naming.ldap.LdapContext;
  * Created by The eXo Platform SAS Author : Tuan Nguyen tuan08@users.sourceforge.net Oct 14, 2005. @version
  * andrew00x $
  */
-public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
+public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, MembershipEventListenerHandler
 {
 
    /**
@@ -62,19 +70,30 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
     * See {@link MembershipEventListener}.
     */
    protected List<MembershipEventListener> listeners;
+   
+   /**
+    * Organization service;
+    */
+   protected final OrganizationService service;
 
    /**
     * @param ldapAttrMapping
     *          mapping LDAP attributes to eXo organization service items (users, groups, etc)
     * @param ldapService
     *          {@link LDAPService}
+    * @param service 
+    *          Organization service implementation covering the handler. 
+    * @param cacheHandler
+    *          The Cache Handler
     * @throws Exception
     *           if any errors occurs
     */
-   public MembershipDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
+   public MembershipDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, OrganizationService service,
+      CacheHandler cacheHandler) throws Exception
    {
-      super(ldapAttrMapping, ldapService);
+      super(ldapAttrMapping, ldapService, cacheHandler);
       this.listeners = new ArrayList<MembershipEventListener>(3);
+      this.service = service;
    }
 
    /**
@@ -82,7 +101,17 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
     */
    public void addMembershipEventListener(MembershipEventListener listener)
    {
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners.add(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public void removeMembershipEventListener(MembershipEventListener listener)
+   {
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
+      listeners.remove(listener);
    }
 
    /**
@@ -102,6 +131,12 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
       LdapContext ctx = ldapService.getLdapContext();
       try
       {
+         if (service.getMembershipTypeHandler().findMembershipType(m.getMembershipType()) == null)
+         {
+            throw new InvalidNameException("Can not create membership record " + m.getId()
+                     + " because membership type " + m.getMembershipType() + " is not exists.");
+         }
+
          for (int err = 0;; err++)
          {
             try
@@ -119,7 +154,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
                catch (NameNotFoundException e)
                {
                   if (LOG.isDebugEnabled())
-                     e.printStackTrace();
+                     LOG.debug(e.getLocalizedMessage(), e);
                }
                // if not found
                if (attrs == null)
@@ -129,8 +164,10 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
                   ctx.createSubcontext(membershipDN, ldapAttrMapping.membershipToAttributes(m, userDN));
                   if (broadcast)
                      postSave(m, true);
+                  cacheHandler.put(cacheHandler.getMembershipKey(m), m, CacheType.MEMBERSHIP);
                   return;
                }
+
                // if contains membership
                List members = getAttributes(attrs, ldapAttrMapping.membershipTypeMemberValue);
                if (members.contains(userDN))
@@ -146,15 +183,13 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
                ctx.modifyAttributes(membershipDN, mods);
                if (broadcast)
                   postSave(m, true);
+               cacheHandler.put(cacheHandler.getMembershipKey(m), m, CacheType.MEMBERSHIP);
                return;
 
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -169,6 +204,11 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
     */
    public void linkMembership(User user, Group group, MembershipType mt, boolean broadcast) throws Exception
    {
+      if (user == null)
+      {
+         throw new InvalidNameException("Can not create membership record because user is null");
+      }
+
       if (group == null)
       {
          throw new InvalidNameException("Can not create membership record for " + user.getUserName()
@@ -180,12 +220,8 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
          throw new InvalidNameException("Can not create membership record for " + user.getUserName()
             + " because membership type is null");
       }
-
-      MembershipImpl membership = new MembershipImpl();
-      membership.setMembershipType(mt.getName());
-      membership.setUserName(user.getUserName());
-      membership.setGroupId(group.getId());
-      createMembership(membership, broadcast);
+      
+      createMembership(createMembershipObject(user.getUserName(), group.getId(), mt.getName()), broadcast);
    }
 
    /**
@@ -243,6 +279,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
                   ctx.modifyAttributes(membershipDN, mods);
                   if (broadcast)
                      postSave(m, true);
+                  cacheHandler.put(cacheHandler.getMembershipKey(m), m, CacheType.MEMBERSHIP);
                }
                else
                {
@@ -251,22 +288,20 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
                   ctx.destroySubcontext(membershipDN);
                   if (broadcast)
                      postDelete(m);
+                  cacheHandler.remove(cacheHandler.getMembershipKey(m), CacheType.MEMBERSHIP);
                }
                return m;
             }
             catch (NamingException e1)
             {
-               if (isConnectionError(e1) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e1;
+               ctx = reloadCtx(ctx, err, e1);
             }
          }
       }
       catch (NameNotFoundException e2)
       {
          if (LOG.isDebugEnabled())
-            e2.printStackTrace();
+            LOG.debug(e2.getLocalizedMessage(), e2);
          return null;
       }
       finally
@@ -292,6 +327,12 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
             try
             {
                String userDN = getDNFromUsername(ctx, username);
+               // if userDN equals null than there is no such user
+               // so we return empty collection
+               if (userDN == null)
+               {
+                  return memberships;
+               }
                String filter = ldapAttrMapping.membershipTypeMemberValue + "=" + escapeDN(userDN);
                SearchControls constraints = new SearchControls();
                constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -316,23 +357,24 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
                            new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(
                               ldapAttrMapping.membershipTypeMemberValue, userDN));
                         ctx.modifyAttributes(membershipDN, mods);
+                        cacheHandler.put(cacheHandler.getMembershipKey(membership), membership, CacheType.MEMBERSHIP);
                      }
                      else
+                     {
                         ctx.destroySubcontext(membershipDN);
+                        cacheHandler.remove(cacheHandler.getMembershipKey(membership), CacheType.MEMBERSHIP);
+                     }
                   }
                   catch (Exception e1)
                   {
-                     e1.printStackTrace();
+                     LOG.error(e1.getLocalizedMessage(), e1);
                   }
                }
                return memberships;
             }
             catch (NamingException e2)
             {
-               if (isConnectionError(e2) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e2;
+               ctx = reloadCtx(ctx, err, e2);
             }
             finally
             {
@@ -363,12 +405,19 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
     */
    public Membership findMembershipByUserGroupAndType(String userName, String groupId, String type) throws Exception
    {
+      MembershipImpl membership =
+         (MembershipImpl)cacheHandler.get(cacheHandler.getMembershipKey(userName, groupId, type), CacheType.MEMBERSHIP);
+      if (membership != null)
+      {
+         return membership;
+      }
+
       LdapContext ctx = ldapService.getLdapContext();
       try
       {
          for (int err = 0;; err++)
          {
-            Membership membership = null;
+            membership = null;
             try
             {
                String userDN = getDNFromUsername(ctx, userName);
@@ -384,23 +433,32 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
                      + ldapAttrMapping.membershipTypeMemberValue + "=" + userDN + "))";
 
                NamingEnumeration<SearchResult> results = findMembershipsInGroup(ctx, groupId, filter);
-               if (results.hasMoreElements())
+               try
                {
-                  // SearchResult sr = results.next();
-                  // if (haveUser(sr.getAttributes(), userDN)) {
-                  // membership = createMembershipObject(userName, groupId, type);
-                  // }
-                  membership = createMembershipObject(userName, groupId, type);
+                  if (results.hasMoreElements())
+                  {
+                     // SearchResult sr = results.next();
+                     // if (haveUser(sr.getAttributes(), userDN)) {
+                     // membership = createMembershipObject(userName, groupId, type);
+                     // }
+                     membership = createMembershipObject(userName, groupId, type);
+                  }
+               }
+               finally
+               {
+                  results.close();
                }
 
+
+               if (membership != null)
+               {
+                  cacheHandler.put(cacheHandler.getMembershipKey(membership), membership, CacheType.MEMBERSHIP);
+               }
                return membership;
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -492,7 +550,43 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
       SearchControls constraints = new SearchControls();
       constraints.setSearchScope(SearchControls.ONELEVEL_SCOPE);
       String groupDN = getGroupDNFromGroupId(groupId);
-      return ctx.search(groupDN, filter, constraints);
+      try
+      {
+         return ctx.search(groupDN, filter, constraints);
+      }
+      catch (NamingException ne)
+      {
+         // we assume that NamingException means that
+         // groupDN represent not existing sequence of elements
+         // so the result should be an empty NamingEnumeration
+         return new NamingEnumeration<SearchResult>()
+         {
+
+            public boolean hasMoreElements()
+            {
+               return false;
+            }
+
+            public SearchResult nextElement()
+            {
+               return null;
+            }
+
+            public SearchResult next() throws NamingException
+            {
+               return null;
+            }
+
+            public boolean hasMore() throws NamingException
+            {
+               return false;
+            }
+
+            public void close() throws NamingException
+            {
+            }
+         };
+      }
    }
 
    /**
@@ -536,9 +630,9 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
                {
                   SearchResult sr = results.next();
                   String membershipDN = sr.getNameInNamespace();
-                  Group group = getGroupFromMembershipDN(ctx, membershipDN);
+                  String groupId = getGroupIdFromGroupDN(getGroupDNFromMembershipDN(membershipDN));
                   String type = explodeDN(membershipDN, true)[0];
-                  Membership membership = createMembershipObject(userName, group.getId(), type);
+                  Membership membership = createMembershipObject(userName, groupId, type);
                   memberships.add(membership);
                }
                if (LOG.isDebugEnabled())
@@ -549,10 +643,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
             finally
             {
@@ -617,10 +708,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
             finally
             {
@@ -629,10 +717,22 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
             }
          }
       }
+      catch (NamingException e)
+      {
+         return new ArrayList<Membership>();
+      }
       finally
       {
          ldapService.release(ctx);
       }
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public ListAccess<Membership> findAllMembershipsByGroup(Group group) throws Exception
+   {
+      return new MembershipsByGroupLdapListAccess(ldapService, this, ldapAttrMapping, group.getId());
    }
 
    //
@@ -648,7 +748,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
     *          membership type
     * @return newly created instance of {@link Membership}
     */
-   private MembershipImpl createMembershipObject(String userName, String groupId, String type)
+   protected MembershipImpl createMembershipObject(String userName, String groupId, String type)
    {
       MembershipImpl membership = new MembershipImpl();
       membership.setGroupId(groupId);
@@ -720,4 +820,11 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler
          listener.preSave(membership, isNew);
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   public List<MembershipEventListener> getMembershipListeners()
+   {
+      return Collections.unmodifiableList(listeners);
+   }
 }

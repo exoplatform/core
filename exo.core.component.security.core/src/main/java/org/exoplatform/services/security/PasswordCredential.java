@@ -18,6 +18,8 @@
  */
 package org.exoplatform.services.security;
 
+import java.util.Map;
+
 /**
  * Created by The eXo Platform SAS .
  * 
@@ -39,12 +41,39 @@ public class PasswordCredential implements Credential
    private String password;
 
    /**
+    * Digest Authorization Request Context. 
+    * Here we're going to keep some information passed through request:
+    * qop, nonce, cnonce, algorithm, ns, etc. All context is defined in  
+    * <a href=http://www.apps.ietf.org/rfc/rfc2617.html#sec-3.2.2>RFC-2617</a>.
+    */
+   private Map<String, String> passwordContext = null;
+
+   /**
     * Create new PasswordCredential.
     * @param password password
     */
    public PasswordCredential(String password)
    {
       this.password = password;
+   }
+
+   /**
+    * Create new PasswordCredential.
+    * @param password password
+    * @param passwordContext password context passed through Digest Authorization request
+    */
+   public PasswordCredential(String password, Map<String, String> passwordContext)
+   {
+      this.password = password;
+      this.passwordContext = passwordContext;
+   }
+
+   /**
+    * @return password context
+    */
+   public Map<String, String> getPasswordContext()
+   {
+      return this.passwordContext;
    }
 
    /**

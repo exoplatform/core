@@ -1,4 +1,4 @@
-<!--
+  <!--
 
     Copyright (C) 2009 eXo Platform SAS.
 
@@ -25,7 +25,7 @@
    <parent>
       <groupId>org.exoplatform.core</groupId>
       <artifactId>core-parent</artifactId>
-      <version>2.4.0-Beta01-SNAPSHOT</version>
+      <version>2.4.8-GA-SNAPSHOT</version>
    </parent>
 
    <artifactId>exo.core.component.organization.ldap</artifactId>
@@ -33,7 +33,7 @@
    <name>eXo Core :: Component :: Organization Service LDAP</name>
    <description>eXo Organization Service LDAP</description>
 
-   <dependencies>
+   <dependencies>     
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
          <artifactId>exo.kernel.component.cache</artifactId>
@@ -41,6 +41,10 @@
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
          <artifactId>exo.kernel.commons</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.exoplatform.kernel</groupId>
+         <artifactId>exo.kernel.commons.test</artifactId>
       </dependency>
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
@@ -62,22 +66,155 @@
       <dependency>
          <groupId>org.exoplatform.core</groupId>
          <artifactId>exo.core.component.organization.jdbc</artifactId>
+      </dependency>   
+      <dependency>
+         <groupId>org.exoplatform.core</groupId>
+         <artifactId>exo.core.component.organization.tests</artifactId>
+         <classifier>test-sources</classifier>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.directory.server</groupId>
+         <artifactId>apacheds-server-unit</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.javassist</groupId>
+         <artifactId>javassist</artifactId>
+      </dependency>
+      <dependency>
+         <artifactId>hsqldb</artifactId>
+         <groupId>org.hsqldb</groupId>
       </dependency>
    </dependencies>
    
    <build>
-      <pluginManagement>
-         <plugins>   
-            <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-surefire-plugin</artifactId>
-               <configuration>
-                  <excludes>
-                     <exclude>**/TestOrganizationService.java</exclude>
-                  </excludes>
-               </configuration>
-            </plugin>
-         </plugins>      
-      </pluginManagement>
+     <plugins>   
+        <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-dependency-plugin</artifactId>
+           <executions>
+              <execution>
+                 <id>unpack</id>
+                 <phase>generate-test-sources</phase>
+                 <goals>
+                    <goal>unpack</goal>
+                 </goals>
+                 <configuration>
+                    <artifactItems>
+                       <artifactItem>
+                          <groupId>org.exoplatform.core</groupId>
+                          <artifactId>exo.core.component.organization.tests</artifactId>
+                          <classifier>test-sources</classifier>
+                          <type>jar</type>
+                          <overWrite>false</overWrite>
+                       </artifactItem>
+                    </artifactItems>
+                    <outputDirectory>${project.build.directory}/org-service-tck-tests</outputDirectory>
+                 </configuration>
+              </execution>
+           </executions>
+        </plugin>         
+        <plugin>
+           <groupId>org.codehaus.mojo</groupId>
+             <artifactId>build-helper-maven-plugin</artifactId>
+             <version>1.3</version>
+             <executions>
+               <execution>
+                 <id>add-test-resource</id>
+                 <phase>generate-test-sources</phase>
+                 <goals>
+                   <goal>add-test-resource</goal>
+                 </goals>
+                 <configuration>
+                   <resources>
+                     <resource>
+                         <directory>${project.build.directory}/org-service-tck-tests</directory>
+                        <excludes>
+                        </excludes>
+                      </resource>
+                   </resources>
+                </configuration>
+             </execution> 
+             <execution>
+             <id>add-test-source</id>
+                <phase>generate-test-sources</phase>
+                <goals>
+                   <goal>add-test-source</goal>
+                </goals>
+                <configuration>
+                   <sources>
+                     <source>${project.build.directory}/org-service-tck-tests</source>
+                   </sources>
+                </configuration>
+              </execution>
+           </executions>
+        </plugin>
+        <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-surefire-plugin</artifactId>
+           <configuration>
+              <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy</argLine>
+              <systemProperties>
+                  <!--
+                     This property defines TCK tests configuration file location
+                  -->
+                  <property>
+                     <name>orgservice.test.configuration.file</name>
+                     <value>/conf/standalone/test-configuration.xml</value>
+                  </property>
+                  <!--
+                     This property allow to define if we should skip testing
+                     login and logaout time processing 
+                  -->  
+                  <property>
+                     <name>orgservice.test.configuration.skipDateTests</name>
+                     <value>true</value>
+                  </property>
+               </systemProperties>
+               
+               <includes>
+                  <include>org/exoplatform/services/tck/organization/Test*.java</include>
+               </includes>                 
+           </configuration>
+        </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>prepare-test-policy</id>
+                  <phase>process-test-resources</phase>
+                  <configuration>
+                     <tasks>
+                        <echo>Creating Access Policy for tests</echo>
+                        <makeurl file="${settings.localRepository}" property="localRepositoryURL" />
+                        <makeurl file="${project.build.outputDirectory}" property="outputDirectoryURL" />
+                        <makeurl file="${project.build.testOutputDirectory}" property="testOutputDirectoryURL" />
+                        <copy todir="${project.build.testOutputDirectory}" overwrite="true">
+                           <fileset dir="${project.basedir}/src/test/resources/">
+                              <include name="test.policy" />
+                           </fileset>
+                           <filterset>
+                              <filter token="MAVEN_REPO" value="${localRepositoryURL}" />
+                              <filter token="MAIN_CLASSES" value="${outputDirectoryURL}" />
+                              <filter token="TEST_CLASSES" value="${testOutputDirectoryURL}" />
+                           </filterset>
+                        </copy>
+                     </tasks>                     
+                  </configuration>
+                  <goals>
+                     <goal>run</goal>
+                  </goals>
+               </execution>
+            </executions>
+            <dependencies>
+               <dependency>
+                  <groupId>ant</groupId>
+                  <artifactId>ant-optional</artifactId>
+                  <version>1.5.3-1</version>
+               </dependency>
+            </dependencies>
+         </plugin>
+     </plugins>      
    </build>
 </project>

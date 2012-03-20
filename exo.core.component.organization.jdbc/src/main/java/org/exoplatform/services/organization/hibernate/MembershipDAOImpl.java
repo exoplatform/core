@@ -19,18 +19,24 @@
 package org.exoplatform.services.organization.hibernate;
 
 import org.exoplatform.commons.utils.IdentifierUtil;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.ListenerStack;
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
+import org.exoplatform.services.organization.MembershipEventListenerHandler;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.impl.MembershipImpl;
+import org.exoplatform.services.security.PermissionConstants;
 import org.hibernate.Session;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -40,12 +46,15 @@ import javax.naming.InvalidNameException;
  * Created by The eXo Platform SAS Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
  * Author : Tuan Nguyen tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:51:21 PM
  */
-public class MembershipDAOImpl implements MembershipHandler
+public class MembershipDAOImpl implements MembershipHandler, MembershipEventListenerHandler
 {
 
    private static final String queryFindMembershipByUserGroupAndType =
       "from m in class org.exoplatform.services.organization.impl.MembershipImpl " + "where m.userName = ? "
          + "  and m.groupId = ? " + "  and m.membershipType = ? ";
+
+   private static final String queryFindMembershipByType =
+      "from m in class org.exoplatform.services.organization.impl.MembershipImpl " + "where m.membershipType = ? ";
 
    private static final String queryFindMembershipsByUserAndGroup =
       "from m in class org.exoplatform.services.organization.impl.MembershipImpl " + "where m.userName = ? "
@@ -64,44 +73,98 @@ public class MembershipDAOImpl implements MembershipHandler
 
    private List listeners_;
 
-   public MembershipDAOImpl(HibernateService service)
+   /**
+    * Organization service.
+    */
+   protected final OrganizationService orgService;
+
+   public MembershipDAOImpl(HibernateService service, OrganizationService orgService)
    {
-      service_ = service;
-      listeners_ = new ListenerStack(5);
+      this.service_ = service;
+      this.orgService = orgService;
+      this.listeners_ = new ListenerStack(5);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void addMembershipEventListener(MembershipEventListener listener)
    {
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners_.add(listener);
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   public void removeMembershipEventListener(MembershipEventListener listener)
+   {
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
+      listeners_.remove(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
    final public Membership createMembershipInstance()
    {
       return new MembershipImpl();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void createMembership(Membership m, boolean broadcast) throws Exception
    {
+      if (orgService.getMembershipTypeHandler().findMembershipType(m.getMembershipType()) == null)
+      {
+         throw new InvalidNameException("Can not create membership record " + m.getId() + ", because membership"
+            + "type " + m.getMembershipType() + " does not exist.");
+      }
+      
+      if (orgService.getGroupHandler().findGroupById(m.getGroupId()) == null)
+      {
+         throw new InvalidNameException("Can not create membership record " + m.getId() + ", because group "
+            + m.getGroupId() + " does not exist.");
+      }
+
+      if (orgService.getUserHandler().findUserByName(m.getUserName()) == null)
+      {
+         throw new InvalidNameException("Can not create membership record " + m.getId() + ", because user "
+            + m.getGroupId() + " does not exist.");
+      }
+
+      // check if we already have membership record
+      if (findMembershipByUserGroupAndType(m.getUserName(), m.getGroupId(), m.getMembershipType()) != null)
+      {
+         return;
+      }
+
       if (broadcast)
+      {
          preSave(m, true);
+      }
+
       Session session = service_.openSession();
-      session.save(IdentifierUtil.generateUUID(m), m);
-      if (broadcast)
-         postSave(m, true);
+      session.save(m);
       session.flush();
+
+      if (broadcast)
+      {
+         postSave(m, true);
+      }
    }
 
-   // static void createMembershipEntries(Collection c, Session session) throws
-   // Exception {
-   // Iterator i = c.iterator() ;
-   // while(i.hasNext()) {
-   // Membership impl = (Membership) i.next() ;
-   // session.save(impl, impl.getId());
-   // }
-   // }
-
+   /**
+    * {@inheritDoc}
+    */
    public void linkMembership(User user, Group g, MembershipType mt, boolean broadcast) throws Exception
    {
+      if (user == null)
+      {
+         throw new InvalidNameException("Can not create membership record because user is null");
+      }
+
       if (g == null)
       {
          throw new InvalidNameException("Can not create membership record for " + user.getUserName()
@@ -115,38 +178,33 @@ public class MembershipDAOImpl implements MembershipHandler
       }
 
       MembershipImpl membership = new MembershipImpl();
-      // User user
-      // =(User)service_.findExactOne(session,UserHandlerImpl.queryFindUserByName,
-      // userName);
       membership.setUserName(user.getUserName());
       membership.setMembershipType(mt.getName());
       membership.setGroupId(g.getId());
-      if (membership.getId() != null)
-         throw new Exception(" Membership id isn't null!");
-      if (findMembershipByUserGroupAndType(user.getUserName(), g.getId(), mt.getName()) != null)
-         return;
-      String id = IdentifierUtil.generateUUID(membership);
-      if (broadcast)
-         preSave(membership, true);
-      membership.setId(id);
-      Session session = service_.openSession();
-      session.save(membership);
-      if (broadcast)
-         postSave(membership, true);
-      session.flush();
+      membership.setId(IdentifierUtil.generateUUID(membership));
+      createMembership(membership, broadcast);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void saveMembership(Membership m, boolean broadcast) throws Exception
    {
       if (broadcast)
          preSave(m, false);
+
       Session session = service_.openSession();
       session.update(m);
+      session.flush();
+
       if (broadcast)
          postSave(m, false);
-      session.flush();
+
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Membership removeMembership(String id, boolean broadcast) throws Exception
    {
       Session session = service_.openSession();
@@ -156,15 +214,19 @@ public class MembershipDAOImpl implements MembershipHandler
       {
          if (broadcast)
             preDelete(m);
-         session = service_.openSession();
+
          session.delete(m);
+         session.flush();
+
          if (broadcast)
             postDelete(m);
-         session.flush();
       }
       return m;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection removeMembershipByUser(String username, boolean broadcast) throws Exception
    {
       Collection collection = findMembershipsByUser(username);
@@ -176,16 +238,22 @@ public class MembershipDAOImpl implements MembershipHandler
          {
             if (broadcast)
                preDelete(m);
+
             Session session = service_.openSession();
             session.delete(m);
+            session.flush();
+
             if (broadcast)
                postDelete(m);
-            session.flush();
+
          }
       }
       return collection;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Membership findMembershipByUserGroupAndType(String userName, String groupId, String type) throws Exception
    {
       Session session = service_.openSession();
@@ -209,6 +277,9 @@ public class MembershipDAOImpl implements MembershipHandler
       }
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection findMembershipsByUserAndGroup(String userName, String groupId) throws Exception
    {
       Session session = service_.openSession();
@@ -219,6 +290,9 @@ public class MembershipDAOImpl implements MembershipHandler
       return memberships;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection findMembershipsByUser(String userName) throws Exception
    {
       Session session = service_.openSession();
@@ -240,11 +314,23 @@ public class MembershipDAOImpl implements MembershipHandler
          session.delete(entries.get(i));
    }
 
+   static void removeMembershipEntriesOfMembershipType(MembershipType mt, Session session) throws Exception
+   {
+      List<?> entries = session.createQuery(queryFindMembershipByType).setString(0, mt.getName()).list();
+      for (int i = 0; i < entries.size(); i++)
+      {
+         session.delete(entries.get(i));
+      }
+   }
+
    Collection findMembershipsByUser(String userName, Session session) throws Exception
    {
       return session.createQuery(queryFindMembershipsByUser).setString(0, userName).list();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Collection findMembershipsByGroup(Group group) throws Exception
    {
       Session session = service_.openSession();
@@ -252,6 +338,25 @@ public class MembershipDAOImpl implements MembershipHandler
       return memberships;
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   public ListAccess<Membership> findAllMembershipsByGroup(Group group) throws Exception
+   {
+      String findQuery =
+         "select m from m in class org.exoplatform.services.organization.impl.MembershipImpl where m.groupId = '"
+            + group.getId() + "'";
+
+      String countQuery =
+         "select count(m) from m in class org.exoplatform.services.organization.impl.MembershipImpl where m.groupId = '"
+            + group.getId() + "'";
+
+      return new HibernateListAccess<Membership>(service_, findQuery, countQuery);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
    public Collection findMembershipsByGroupId(String groupId) throws Exception
    {
       Session session = service_.openSession();
@@ -261,13 +366,16 @@ public class MembershipDAOImpl implements MembershipHandler
       return memberships;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Membership findMembership(String id) throws Exception
    {
       Session session = service_.openSession();
       List memberships = session.createQuery(queryFindMembership).setString(0, id).list();
       if (memberships.size() == 0)
       {
-         return null;
+         throw new Exception("No membership with id: " + id + "found.");
       }
       else if (memberships.size() == 1)
       {
@@ -275,7 +383,7 @@ public class MembershipDAOImpl implements MembershipHandler
       }
       else
       {
-         throw new Exception("Expect 0 or 1 membership but found" + memberships.size());
+         throw new Exception("Found more than 1 membership: " + memberships.size());
       }
       // Membership membership =
       // (Membership) session.createQuery(queryFindMembership).setString(0,
@@ -317,5 +425,13 @@ public class MembershipDAOImpl implements MembershipHandler
          MembershipEventListener listener = (MembershipEventListener)listeners_.get(i);
          listener.postDelete(membership);
       }
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public List<MembershipEventListener> getMembershipListeners()
+   {
+      return Collections.unmodifiableList(listeners_);
    }
 }

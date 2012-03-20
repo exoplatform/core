@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.organization.impl;
 
+import org.exoplatform.services.organization.ExtendedCloneable;
 import org.exoplatform.services.organization.UserProfile;
 
 import java.util.HashMap;
@@ -27,7 +28,7 @@ import java.util.Map;
  * Created by The eXo Platform SAS Author : Mestrallet Benjamin
  * benjmestrallet@users.sourceforge.net Date: Aug 21, 2003 Time: 3:22:54 PM
  */
-public class UserProfileImpl implements UserProfile
+public class UserProfileImpl implements UserProfile, ExtendedCloneable
 {
    private String userName;
 
@@ -35,6 +36,7 @@ public class UserProfileImpl implements UserProfile
 
    public UserProfileImpl()
    {
+      attributes = new HashMap<String, String>();
    }
 
    public UserProfileImpl(String userName)
@@ -84,5 +86,24 @@ public class UserProfileImpl implements UserProfile
    public Map getAttributeMap()
    {
       return attributes;
+   }
+
+   /**
+    * {@inheritDoc}
+    **/
+   public UserProfileImpl clone()
+   {
+      UserProfileImpl upi;
+      try
+      {
+         upi = (UserProfileImpl)super.clone();
+         upi.attributes = new HashMap<String, String>(attributes);
+      }
+      catch (CloneNotSupportedException e)
+      {
+         return this;
+      }
+
+      return upi;
    }
 }

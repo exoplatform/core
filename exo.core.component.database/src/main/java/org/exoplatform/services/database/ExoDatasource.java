@@ -18,10 +18,15 @@
  */
 package org.exoplatform.services.database;
 
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.database.table.IDGenerator;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
+import java.security.PrivilegedExceptionAction;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
@@ -34,6 +39,11 @@ import javax.sql.DataSource;
  */
 public class ExoDatasource
 {
+
+   /**
+    * Logger.
+    */
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.database.ExoDatasource");
 
    final public static int STANDARD_DB_TYPE = 0;
 
@@ -49,7 +59,6 @@ public class ExoDatasource
 
    final public static int SQL_SERVER_TYPE = 6;
 
-   // TODO need remove
    static int totalGetConnect = 0;
 
    // static int totalCommit = 0;
@@ -84,15 +93,23 @@ public class ExoDatasource
     * @param ds
     * @throws Exception
     */
-   public ExoDatasource(DataSource ds) throws Exception
+   public ExoDatasource(final DataSource ds) throws Exception
    {
       xaDatasource_ = ds;
-      DatabaseMetaData metaData = ds.getConnection().getMetaData();
+      DatabaseMetaData metaData =
+         SecurityHelper.doPrivilegedSQLExceptionAction(new PrivilegedExceptionAction<DatabaseMetaData>()
+         {
+            public DatabaseMetaData run() throws SQLException
+            {
+               return ds.getConnection().getMetaData();
+            }
+         });
+      
       databaseName_ = metaData.getDatabaseProductName();
       databaseVersion_ = metaData.getDatabaseProductVersion();
 
       String dbname = databaseName_.toLowerCase();
-      System.out.println("\n\n\n\n------->DB Name: " + dbname + "\n\n\n\n");
+      LOG.info("\n\n\n\n------->DB Name: " + dbname + "\n\n\n\n");
       if (dbname.indexOf("oracle") >= 0)
       {
          dbType_ = ORACLE_DB_TYPE;

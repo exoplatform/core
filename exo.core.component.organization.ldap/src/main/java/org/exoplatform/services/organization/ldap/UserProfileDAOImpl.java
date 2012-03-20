@@ -18,17 +18,22 @@
  */
 package org.exoplatform.services.organization.ldap;
 
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.organization.CacheHandler;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserProfileEventListener;
+import org.exoplatform.services.organization.UserProfileEventListenerHandler;
 import org.exoplatform.services.organization.UserProfileHandler;
 import org.exoplatform.services.organization.impl.UserProfileData;
 import org.exoplatform.services.organization.impl.UserProfileImpl;
+import org.exoplatform.services.security.PermissionConstants;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.naming.NameNotFoundException;
@@ -40,11 +45,12 @@ import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
+
 /**
  * Created by The eXo Platform SAS Author : Tuan Nguyen
  * tuan08@users.sourceforge.net Oct 14, 2005. @version andrew00x $
  */
-public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler
+public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, UserProfileEventListenerHandler
 {
 
    /**
@@ -59,9 +65,10 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler
     */
    private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.ldap.UserProfileDAOImpl");
 
-   public UserProfileDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService) throws Exception
+   public UserProfileDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler)
+      throws Exception
    {
-      super(ldapAttrMapping, ldapService);
+      super(ldapAttrMapping, ldapService, cacheHandler);
       this.listeners = new ArrayList<UserProfileEventListener>(3);
    }
 
@@ -105,10 +112,7 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
@@ -151,16 +155,13 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
       catch (InvalidAttributeValueException invalid)
       {
-         invalid.printStackTrace();
+         LOG.error(invalid.getLocalizedMessage(), invalid);
       }
       finally
       {
@@ -189,17 +190,14 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
       catch (NameNotFoundException e)
       {
          if (LOG.isDebugEnabled())
-            e.printStackTrace();
+            LOG.debug(e.getLocalizedMessage(), e);
          return null;
       }
       finally
@@ -227,17 +225,14 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler
             }
             catch (NamingException e)
             {
-               if (isConnectionError(e) && err < getMaxConnectionError())
-                  ctx = ldapService.getLdapContext(true);
-               else
-                  throw e;
+               ctx = reloadCtx(ctx, err, e);
             }
          }
       }
       catch (NameNotFoundException e)
       {
          if (LOG.isDebugEnabled())
-            e.printStackTrace();
+            LOG.debug(e.getLocalizedMessage(), e);
          return null;
       }
       finally
@@ -261,7 +256,25 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler
     */
    public void addUserProfileEventListener(UserProfileEventListener listener)
    {
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
       listeners.add(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public void removeUserProfileEventListener(UserProfileEventListener listener)
+   {
+      SecurityHelper.validateSecurityPermission(PermissionConstants.MANAGE_LISTENERS);
+      listeners.remove(listener);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public List<UserProfileEventListener> getUserProfileListeners()
+   {
+      return Collections.unmodifiableList(listeners);
    }
 
 }

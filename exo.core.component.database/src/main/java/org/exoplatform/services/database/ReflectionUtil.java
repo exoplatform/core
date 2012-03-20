@@ -18,6 +18,9 @@
  */
 package org.exoplatform.services.database;
 
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -29,6 +32,8 @@ import java.util.List;
  */
 public class ReflectionUtil
 {
+
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.database.ReflectionUtil");
 
    public final static void setValue(Object bean, Field field, Object value) throws Exception
    {
@@ -68,6 +73,10 @@ public class ReflectionUtil
       }
       catch (Exception e)
       {
+         if (LOG.isTraceEnabled())
+         {
+            LOG.trace("An exception occurred: " + e.getMessage());
+         }
       }
       return null;
    }

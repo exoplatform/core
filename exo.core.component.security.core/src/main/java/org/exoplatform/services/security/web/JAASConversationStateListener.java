@@ -26,12 +26,20 @@ import org.exoplatform.services.security.StateKey;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
+ * @deprecated Since use tomcat as default web-container do need use this
+ *             listener any more. In tomcat 6.0.21 and later logout already
+ *             implemented in
+ *             <strong>org.apache.catalina.realm.GenericPrincipal</strong>.
+ *             Detains described <a
+ *             href="https://issues.apache.org/bugzilla/show_bug.cgi?id=39231"
+ *             >here</a> . Should use {@link ConversationStateListener} instead.
  */
 public class JAASConversationStateListener extends ConversationStateListener
 {
@@ -54,8 +62,8 @@ public class JAASConversationStateListener extends ConversationStateListener
 
          if (conversationState != null)
          {
-            if (log.isDebugEnabled())
-               log.debug("Remove conversation state " + httpSession.getId());
+            if (LOG.isDebugEnabled())
+               LOG.debug("Remove conversation state " + httpSession.getId());
             if (conversationState.getAttribute(ConversationState.SUBJECT) != null)
             {
                Subject subject = (Subject)conversationState.getAttribute(ConversationState.SUBJECT);
@@ -67,14 +75,20 @@ public class JAASConversationStateListener extends ConversationStateListener
             }
             else
             {
-               log.warn("Subject was not found in ConversationState attributes.");
+               if (LOG.isDebugEnabled())
+               {
+                  LOG.warn("Subject was not found in ConversationState attributes.");
+               }
             }
          }
-
       }
-      catch (Exception e)
+      catch (LoginException e)
       {
-         log.error("Can't remove conversation state " + httpSession.getId());
+         LOG.error("Can't remove conversation state " + httpSession.getId());
+      }
+      catch (SecurityException e)
+      {
+         LOG.error("Can't remove conversation state " + httpSession.getId());
       }
    }
 

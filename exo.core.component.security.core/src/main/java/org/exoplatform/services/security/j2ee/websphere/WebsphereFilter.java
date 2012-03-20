@@ -48,7 +48,7 @@ public class WebsphereFilter implements Filter
    /**
     * Exo logger.
     */
-   private Log log = ExoLogger.getLogger("exo.core.component.security.core.WebsphereFilter");
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.security.core.WebsphereFilter");
 
    /**
     * First ltpa cookie token name.
@@ -108,16 +108,16 @@ public class WebsphereFilter implements Filter
       {
          for (Cookie cook : cooks)
          {
-            if (log.isDebugEnabled())
-               log.debug("WebsphereFilter.removeLtpaTokenCookie() cook.getName() = " + cook.getName());
+            if (LOG.isDebugEnabled())
+               LOG.debug("WebsphereFilter.removeLtpaTokenCookie() cook.getName() = " + cook.getName());
             if (cook != null
                && (cookieName.equalsIgnoreCase(cook.getName()) || cookieName2.equalsIgnoreCase(cook.getName())))
             {
                cook.setMaxAge(0);
                cook.setPath("/");
                res.addCookie(cook);
-               if (log.isDebugEnabled())
-                  log.debug("WebsphereFilter.removeLtpaTokenCookie() REMOVED LtpaToken = ");
+               if (LOG.isDebugEnabled())
+                  LOG.debug("WebsphereFilter.removeLtpaTokenCookie() REMOVED LtpaToken = ");
             }
          }
       }

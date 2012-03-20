@@ -93,7 +93,7 @@ class JarJarExpressionTransformer extends ClassCodeExpressionTransformer
 
       if (ss != null)
       {
-         System.out.println(s + " -> " + ss);
+         System.out.println(s + " -> " + ss); //NOSONAR
          return createExpr(ss);
       }
 
