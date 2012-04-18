@@ -130,10 +130,10 @@ public class TestUserProfileHandler extends AbstractOrganizationServiceTest
       {
          up = upHandler.createUserProfileInstance(newUserName);
          upHandler.saveUserProfile(up, true);
+         fail("Exception should be thrown");
       }
       catch (Exception e)
       {
-         fail("Exception should not be thrown");
       }
    }
 

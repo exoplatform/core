@@ -88,13 +88,25 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
    {
       createUser(userName);
       createGroup("/organization", groupName1, "label", "desc");
-      createGroup("/organization/" + groupName1, groupName1, "label", "desc");
+      createGroup("/organization/" + groupName1, groupName2, "label", "desc");
       
       createMembership(newUserName, groupName2, membershipType);
       assertEquals("We expect to find single membership for user " + newUserName, 1,
          mHandler.findMembershipsByUser(newUserName).size());
 
+      // can not remove group till children exist
+      try
+      {
+         gHandler.removeGroup(gHandler.findGroupById("/organization/group1"), true);
+         fail("");
+      }
+      catch (Exception e)
+      {
+      }
+
+      gHandler.removeGroup(gHandler.findGroupById("/organization/group1/group2"), true);
       Group group = gHandler.removeGroup(gHandler.findGroupById("/organization/group1"), true);
+
       assertNull(gHandler.findGroupById("/organization/group1"));
       assertNull(gHandler.findGroupById("/organization/group1/group2"));
 
@@ -116,6 +128,7 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
       createGroup(null, groupName1, "label", "desc");
       createGroup("/" + groupName1, groupName2, "label", "desc");
 
+      gHandler.removeGroup(gHandler.findGroupById("/" + groupName1 + "/" + groupName2), true);
       gHandler.removeGroup(gHandler.findGroupById("/" + groupName1), true);
       assertNull(gHandler.findGroupById("/" + groupName1));
       assertNull(gHandler.findGroupById("/" + groupName1 + "/" + groupName2));
@@ -155,6 +168,7 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
    {
       Group group = gHandler.createGroupInstance();
       group.setGroupName(groupName1);
+      group.setLabel("label");
       gHandler.createGroup(group, true);
 
       assertNotNull(gHandler.findGroupById("/" + groupName1));

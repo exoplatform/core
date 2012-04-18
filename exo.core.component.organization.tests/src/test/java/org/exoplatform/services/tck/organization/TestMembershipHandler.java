@@ -109,6 +109,7 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       // try to find for non-existing group
       g = gHandler.createGroupInstance();
       g.setGroupName(groupName1);
+      g.setLabel("label");
       gHandler.addChild(null, g, false);
       assertEquals(g.getId(), gHandler.findGroupById("/" + groupName1).getId());
       g = gHandler.removeGroup(g, false);
@@ -157,6 +158,7 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       // try to find for non-existing group
       g = gHandler.createGroupInstance();
       g.setGroupName(groupName1);
+      g.setLabel("label");
       gHandler.addChild(null, g, false);
       assertEquals(g.getId(), gHandler.findGroupById("/" + groupName1).getId());
       g = gHandler.removeGroup(g, false);
