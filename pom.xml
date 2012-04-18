@@ -43,6 +43,8 @@
 
       <!-- Plugins updates -->
       <version.source.plugin>2.1.2</version.source.plugin>
+      <version.release.plugin>2.2.1</version.release.plugin>
+      <version.buildnumber.plugin>1.0</version.buildnumber.plugin>
    </properties>
 
    <scm>
