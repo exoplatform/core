@@ -40,6 +40,9 @@
       <version.assembly.plugin>2.2.1</version.assembly.plugin>
       <org.exoplatform.framework.junit.version>1.2.1-GA</org.exoplatform.framework.junit.version>
       <org.exoplatform.kernel.version>2.2.13-GA-SNAPSHOT</org.exoplatform.kernel.version>
+
+      <version.release.plugin>2.2.1</version.release.plugin>
+      <version.buildnumber.plugin>1.0</version.buildnumber.plugin>
    </properties>
 
    <scm>
