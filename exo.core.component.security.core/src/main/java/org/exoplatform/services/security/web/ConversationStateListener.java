@@ -19,7 +19,9 @@
 package org.exoplatform.services.security.web;
 
 import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.RootContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationRegistry;
@@ -77,7 +79,18 @@ public class ConversationStateListener implements HttpSessionListener
     */
    protected ExoContainer getContainer(ServletContext sctx)
    {
-      return PortalContainer.getInstance(sctx);
+      ExoContainer container = ExoContainerContext.getCurrentContainer();
+      if (container instanceof RootContainer)
+      {
+         // The top container is a RootContainer, thus we assume that we are in a portal mode
+         container = PortalContainer.getCurrentInstance(sctx);
+         if (container == null)
+         {
+            container = ExoContainerContext.getTopContainer();
+         }
+      }
+      // The container is a PortalContainer or a StandaloneContainer
+      return container;
    }
 
 }
