@@ -397,11 +397,11 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
     */
    public void testFindUsersByGroupId() throws Exception
    {
-      ListAccess<User> usersListAccess = uHandler.findUsersByGroupId("/platform/users");
+      ListAccess<User> users = uHandler.findUsersByGroupId("/platform/users");
 
-      assertEquals(usersListAccess.getSize(), 4);
+      assertEquals(users.getSize(), 4);
 
-      for (User u : usersListAccess.load(0, usersListAccess.getSize()))
+      for (User u : users.load(0, users.getSize()))
       {
          User currentUrer = uHandler.findUserByName(u.getUserName());
          assertNotNull(currentUrer);
@@ -422,6 +422,44 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       catch (Exception e)
       {
          fail("Exception should not be thrown");
+      }
+
+      User[] allPage = users.load(0, 4);
+      User[] page1 = users.load(0, 2);
+      User[] page2 = users.load(2, 2);
+
+      assertEquals(allPage[0].getUserName(), page1[0].getUserName());
+      assertEquals(allPage[1].getUserName(), page1[1].getUserName());
+      assertEquals(allPage[2].getUserName(), page2[0].getUserName());
+      assertEquals(allPage[3].getUserName(), page2[1].getUserName());
+
+      try
+      {
+         users.load(0, 0);
+      }
+      catch (Exception e)
+      {
+         fail("Exception is not expected");
+      }
+
+      // try to load more than exist
+      try
+      {
+         users.load(0, 5);
+         fail("Exception is expected");
+      }
+      catch (Exception e)
+      {
+      }
+
+      // try to load more than exist
+      try
+      {
+         users.load(1, 4);
+         fail("Exception is expected");
+      }
+      catch (Exception e)
+      {
       }
    }
 
