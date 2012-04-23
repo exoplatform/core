@@ -46,8 +46,8 @@
    </properties>
 
    <scm>
-      <connection>scm:git:ssh://github.com/exodev/core.git</connection>
-      <developerConnection>scm:git:ssh://github.com/exodev/core.git</developerConnection>
+      <connection>scm:git:git://github.com/exoplatform/core.git</connection>
+      <developerConnection>scm:git:git@github.com/exoplatform/core.git</developerConnection>
       <url>http://fisheye.jboss.org/browse/exo-jcr/core</url>
    </scm>
 
