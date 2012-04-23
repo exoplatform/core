@@ -80,6 +80,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
    public void testFindUsersByQuery() throws Exception
    {
       createUser("tolik");
+      uHandler.authenticate("tolik", "pwd");
 
       Query query = new Query();
       query.setEmail("email@test");
@@ -166,6 +167,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
    public void testFindUsers() throws Exception
    {
       createUser("tolik");
+      uHandler.authenticate("tolik", "pwd");
 
       Query query = new Query();
       query.setEmail("email@test");
