@@ -40,12 +40,12 @@ function getModule(params) {
     addDependency(new Project("asm", "asm", "jar", "3.1")).
     addDependency(new Project("com.drewnoakes", "metadata-extractor", "jar", "2.4.0-beta-1")).
     addDependency(new Project("html-parser", "html-parser", "jar", "1.6")).
-    addDependency(new Project("org.apache.poi", "poi", "jar", "3.6")).
-    addDependency(new Project("org.apache.poi", "poi-scratchpad", "jar", "3.6")).
-    addDependency(new Project("org.apache.poi", "poi-ooxml", "jar", "3.6")).
-    addDependency(new Project("org.apache.poi", "poi-ooxml-schemas", "jar", "3.6")).    
-    addDependency(new Project("org.apache.tika", "tika-core", "jar", "0.7")).    
-    addDependency(new Project("org.apache.tika", "tika-parsers", "jar", "0.7")).    
+    addDependency(new Project("org.apache.poi", "poi", "jar", "3.8")).
+    addDependency(new Project("org.apache.poi", "poi-scratchpad", "jar", "3.8")).
+    addDependency(new Project("org.apache.poi", "poi-ooxml", "jar", "3.8")).
+    addDependency(new Project("org.apache.poi", "poi-ooxml-schemas", "jar", "3.8")).    
+    addDependency(new Project("org.apache.tika", "tika-core", "jar", "1.1")).    
+    addDependency(new Project("org.apache.tika", "tika-parsers", "jar", "1.1")).    
     addDependency(new Project("org.apache.xmlbeans", "xmlbeans", "jar", "2.3.0"));
     
   module.component.organization = 

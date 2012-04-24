@@ -332,8 +332,8 @@ public class TikaDocumentReader implements AdvancedDocumentReader
                   convertProperty(metadata, props, DCMetaData.CREATOR,
                      new String[]{MSOffice.AUTHOR, DublinCore.CREATOR});
                   // different parsers return date in different formats, so keep it as String
-                  convertProperty(metadata, props, DCMetaData.DATE, new String[]{DublinCore.DATE, MSOffice.LAST_SAVED,
-                     MSOffice.CREATION_DATE});
+                  convertProperty(metadata, props, DCMetaData.DATE, new String[]{DublinCore.DATE.getName(),
+                     MSOffice.LAST_SAVED.getName(), MSOffice.CREATION_DATE.getName()});
                   convertProperty(metadata, props, DCMetaData.DESCRIPTION, new String[]{DublinCore.DESCRIPTION,
                      MSOffice.COMMENTS});
                   convertProperty(metadata, props, DCMetaData.FORMAT, DublinCore.FORMAT);

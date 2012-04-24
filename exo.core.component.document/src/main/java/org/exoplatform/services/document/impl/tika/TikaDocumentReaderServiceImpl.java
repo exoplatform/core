@@ -93,7 +93,7 @@ public class TikaDocumentReaderServiceImpl extends DocumentReaderServiceImpl
          // tika-config may contain really big amount of mimetypes, but used only few,
          // so to avoid load in memory many copies of DocumentReader, we will register it
          // only if someone need it
-         Parser tikaParser = conf.getParser(mimeType);
+         Parser tikaParser = conf.getParser();
          if (tikaParser != null)
          {
             synchronized (this)
