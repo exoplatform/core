@@ -99,9 +99,14 @@ public class SimpleLdapUserListAccess extends LdapListAccess<User>
          constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
          results = ctx.search(searchBase, filter, constraints);
-
-         for (int p = 0, counter = 0; results.hasMoreElements() && counter < length; p++)
+         for (int p = 0, counter = 0; counter < length; p++)
          {
+            if (!results.hasMoreElements())
+            {
+               throw new IllegalArgumentException(
+                  "Illegal index or length: sum of the index and the length cannot be greater than the list size");
+            }
+
             SearchResult result = results.next();
 
             if (p >= index)
@@ -109,9 +114,7 @@ public class SimpleLdapUserListAccess extends LdapListAccess<User>
                User user = ldapAttrMapping.attributesToUser(result.getAttributes());
                users[counter++] = user;
             }
-
          }
-
       }
       finally
       {

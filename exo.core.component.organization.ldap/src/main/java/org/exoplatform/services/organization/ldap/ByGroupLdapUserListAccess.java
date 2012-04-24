@@ -98,8 +98,14 @@ public class ByGroupLdapUserListAccess extends LdapListAccess<User>
          int p = 0;
          // Retrieval before get requested range.
          // Range can be filed from one or few memberships
-         while (results.hasMoreElements() && counter < length)
+         while (counter < length)
          {
+            if (!results.hasMoreElements())
+            {
+               throw new IllegalArgumentException(
+                  "Illegal index or length: sum of the index and the length cannot be greater than the list size");
+            }
+
             SearchResult result = results.next();
             Attributes attrs = result.getAttributes();
 
