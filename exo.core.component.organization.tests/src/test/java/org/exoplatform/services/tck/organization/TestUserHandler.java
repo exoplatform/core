@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.tck.organization;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.organization.Query;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
@@ -80,6 +81,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
    public void testFindUsersByQuery() throws Exception
    {
       createUser("tolik");
+      uHandler.authenticate("tolik", "pwd");
 
       Query query = new Query();
       query.setEmail("email@test");
@@ -156,7 +158,55 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
          query.setToLoginDate(calc.getTime());
          query.setUserName("tolik");
          assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
+      }
 
+      createUser("rolik");
+      createUser("bolik");
+      createUser("volik");
+
+      query = new Query();
+      query.setUserName("olik");
+
+      ListAccess<User> users = uHandler.findUsersByQuery(query);
+
+      assertEquals(users.getSize(), 4);
+
+      User[] allPage = users.load(0, 4);
+      User[] page1 = users.load(0, 2);
+      User[] page2 = users.load(2, 2);
+
+      assertEquals(allPage[0].getUserName(), page1[0].getUserName());
+      assertEquals(allPage[1].getUserName(), page1[1].getUserName());
+      assertEquals(allPage[2].getUserName(), page2[0].getUserName());
+      assertEquals(allPage[3].getUserName(), page2[1].getUserName());
+
+      try
+      {
+         users.load(0, 0);
+      }
+      catch (Exception e)
+      {
+         fail("Exception is not expected");
+      }
+
+      // try to load more than exist
+      try
+      {
+         users.load(0, 5);
+         fail("Exception is expected");
+      }
+      catch (Exception e)
+      {
+      }
+
+      // try to load more than exist
+      try
+      {
+         users.load(1, 4);
+         fail("Exception is expected");
+      }
+      catch (Exception e)
+      {
       }
    }
 
@@ -166,48 +216,49 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
    public void testFindUsers() throws Exception
    {
       createUser("tolik");
+      uHandler.authenticate("tolik", "pwd");
 
       Query query = new Query();
       query.setEmail("email@test");
 
       // try to find user by email
-      assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
+      assertEquals(uHandler.findUsers(query).getAll().size(), 1);
 
       // try to find user by name with mask
       query = new Query();
       query.setUserName("*tolik*");
-      assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
+      assertEquals(uHandler.findUsers(query).getAll().size(), 1);
 
       // try to find user by name with mask
       query = new Query();
       query.setUserName("tol*");
-      assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
+      assertEquals(uHandler.findUsers(query).getAll().size(), 1);
 
       // try to find user by name with mask
       query = new Query();
       query.setUserName("*lik");
-      assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
+      assertEquals(uHandler.findUsers(query).getAll().size(), 1);
 
       // try to find user by name explicitly
       query = new Query();
       query.setUserName("tolik");
-      assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
+      assertEquals(uHandler.findUsers(query).getAll().size(), 1);
 
       // try to find user by name explicitly, case sensitive search
       query = new Query();
       query.setUserName("Tolik");
-      assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
+      assertEquals(uHandler.findUsers(query).getAll().size(), 1);
 
       // try to find user by part of name without mask
       query = new Query();
       query.setUserName("tol");
-      assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
+      assertEquals(uHandler.findUsers(query).getAll().size(), 1);
 
       // try to find user by fist and last names, case sensitive search
       query = new Query();
       query.setFirstName("fiRst");
       query.setLastName("lasT");
-      assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
+      assertEquals(uHandler.findUsers(query).getAll().size(), 1);
 
       String skipDateTests = System.getProperty("orgservice.test.configuration.skipDateTests");
       if (!"true".equals(skipDateTests))
@@ -219,21 +270,21 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
          query = new Query();
          query.setFromLoginDate(calc.getTime());
          query.setUserName("tolik");
-         assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
+         assertEquals(uHandler.findUsers(query).getAll().size(), 1);
 
          calc = Calendar.getInstance();
          calc.set(Calendar.YEAR, calc.get(Calendar.YEAR) + 1);
          
          query = new Query();
          query.setFromLoginDate(calc.getTime());
-         assertEquals(uHandler.findUsersByQuery(query).getSize(), 0);
+         assertEquals(uHandler.findUsers(query).getAll().size(), 0);
 
          calc = Calendar.getInstance();
          calc.set(Calendar.YEAR, calc.get(Calendar.YEAR) - 1);
 
          query = new Query();
          query.setToLoginDate(calc.getTime());
-         assertEquals(uHandler.findUsersByQuery(query).getSize(), 0);
+         assertEquals(uHandler.findUsers(query).getAll().size(), 0);
 
          calc = Calendar.getInstance();
          calc.set(Calendar.YEAR, calc.get(Calendar.YEAR) + 1);
@@ -241,7 +292,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
          query = new Query();
          query.setToLoginDate(calc.getTime());
          query.setUserName("tolik");
-         assertEquals(uHandler.findUsersByQuery(query).getSize(), 1);
+         assertEquals(uHandler.findUsers(query).getAll().size(), 1);
       }
 
    }
@@ -259,7 +310,47 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
     */
    public void testFindAllUsers() throws Exception
    {
-      assertEquals(uHandler.findAllUsers().getSize(), 4);
+      ListAccess<User> users = uHandler.findAllUsers();
+
+      assertEquals(users.getSize(), 4);
+
+      User[] allPage = users.load(0, 4);
+      User[] page1 = users.load(0, 2);
+      User[] page2 = users.load(2, 2);
+
+      assertEquals(allPage[0].getUserName(), page1[0].getUserName());
+      assertEquals(allPage[1].getUserName(), page1[1].getUserName());
+      assertEquals(allPage[2].getUserName(), page2[0].getUserName());
+      assertEquals(allPage[3].getUserName(), page2[1].getUserName());
+
+      try
+      {
+         users.load(0, 0);
+      }
+      catch (Exception e)
+      {
+         fail("Exception is not expected");
+      }
+
+      // try to load more than exist
+      try
+      {
+         users.load(0, 5);
+         fail("Exception is expected");
+      }
+      catch (Exception e)
+      {
+      }
+
+      // try to load more than exist
+      try
+      {
+         users.load(1, 4);
+         fail("Exception is expected");
+      }
+      catch (Exception e)
+      {
+      }
    }
 
    /**
