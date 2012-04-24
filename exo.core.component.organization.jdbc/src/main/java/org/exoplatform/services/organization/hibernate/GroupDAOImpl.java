@@ -53,6 +53,9 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
    public static final String queryFindGroupByParent =
       "from g in class org.exoplatform.services.organization.impl.GroupImpl " + "where g.parentId = ? ";
 
+   public static final String queryFindCountGroupByParent = "select count(*)"
+      + "from g in class org.exoplatform.services.organization.impl.GroupImpl where g.parentId = ? ";
+
    private static final String queryFindRootGroups =
       "from g in class org.exoplatform.services.organization.impl.GroupImpl " + "where g.parentId is null";
 
@@ -171,6 +174,15 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
          postSave(group, false);
    }
 
+   private boolean hasChildrenGroups(Group parent) throws Exception
+   {
+      Session session = service_.openSession();
+      long countChildrenGroup =
+         (Long)session.createQuery(queryFindCountGroupByParent).setString(0, parent.getId()).list().get(0);
+
+      return countChildrenGroup > 0;
+   }
+
    /**
     * {@inheritDoc}
     */
@@ -186,10 +198,12 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
             + "record, because group does not exist.");
       }
 
+      if (hasChildrenGroups(group))
+      {
+         throw new IllegalStateException("Group " + group.getGroupName() + " has at least one child group");
+      }
       session.delete(group);
-      List entries = session.createQuery(queryFindGroupByParent).setString(0, group.getId()).list();
-      for (int i = 0; i < entries.size(); i++)
-         removeGroup((Group)entries.get(i), broadcast);
+
       MembershipDAOImpl.removeMembershipEntriesOfGroup(group, session);
       session.flush();
 

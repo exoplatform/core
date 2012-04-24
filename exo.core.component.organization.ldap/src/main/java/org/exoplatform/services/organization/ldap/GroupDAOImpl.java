@@ -239,6 +239,66 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
       }
    }
 
+   private boolean hasChildrenGroups(Group parent) throws Exception
+   {
+      String groupsBaseDN = ldapAttrMapping.groupsURL;
+      StringBuffer buffer = new StringBuffer();
+
+      if (parent != null)
+      {
+         String[] dnParts = parent.getId().split("/");
+         for (int x = (dnParts.length - 1); x > 0; x--)
+         {
+            buffer.append(ldapAttrMapping.groupDNKey + "=" + dnParts[x] + ", ");
+         }
+      }
+      buffer.append(groupsBaseDN);
+
+      LdapContext ctx = ldapService.getLdapContext();
+      String searchBase = buffer.toString();
+      String filter = ldapAttrMapping.groupObjectClassFilter;
+      SearchControls constraints = new SearchControls();
+      constraints.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+      try
+      {
+         NamingEnumeration<SearchResult> results = null;
+         for (int err = 0;; err++)
+         {
+            try
+            {
+               try
+               {
+                  results = ctx.search(searchBase, filter, constraints);
+               }
+               catch (NamingException e1)
+               {
+                  // if connection error let process it in common way
+                  if (isConnectionError(e1))
+                     throw e1;
+                  if (LOG.isDebugEnabled())
+                     LOG.debug("Failed to get groups from parent " + parent.getId() + ". ", e1);
+                  return false;
+               }
+
+               return results.hasMoreElements();
+            }
+            catch (NamingException e2)
+            {
+               ctx = reloadCtx(ctx, err, e2);
+            }
+            finally
+            {
+               if (results != null)
+                  results.close();
+            }
+         }
+      }
+      finally
+      {
+         ldapService.release(ctx);
+      }
+   }
+
    /**
     * {@inheritDoc}
     */
@@ -249,6 +309,7 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
       SearchControls constraints = new SearchControls();
       constraints.setSearchScope(SearchControls.ONELEVEL_SCOPE);
       LdapContext ctx = ldapService.getLdapContext();
+
       try
       {
          NamingEnumeration<SearchResult> results = null;
@@ -281,6 +342,11 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
                   if (LOG.isDebugEnabled())
                      LOG.debug("Nothing for removing, group " + group);
                   return group;
+               }
+
+               if (hasChildrenGroups(group))
+               {
+                  throw new IllegalStateException("Group " + group.getGroupName() + " has at least one child group");
                }
 
                if (broadcast)
@@ -605,7 +671,7 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
                   if (name.size() > 0)
                   {
                      Name entryName = parser.parse(name.get(0));
-                     String groupDN = entryName + "," + searchBase;
+                     String groupDN = entryName + "," + groupsBaseDN;
                      Group group = this.buildGroup(groupDN, sr.getAttributes());
                      if (group != null)
                         addGroup(groups, group);

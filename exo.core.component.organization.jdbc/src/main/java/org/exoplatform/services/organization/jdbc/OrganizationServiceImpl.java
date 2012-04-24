@@ -46,7 +46,7 @@ public class OrganizationServiceImpl extends BaseOrganizationService
       membershipTypeDAO_ = new MembershipTypeDAOImpl(listenerService, datasource, new MembershipTypeMapper());
 
       membershipDAO_ = new MembershipDAOImpl(listenerService, datasource, new MembershipMapper(), this);
-      userProfileDAO_ = new UserProfileDAOImpl(listenerService, datasource, new UserProfileMapper());
+      userProfileDAO_ = new UserProfileDAOImpl(listenerService, datasource, new UserProfileMapper(), userDAO_);
 
       DBTableManager dbManager = datasource.getDBTableManager();
       if (!dbManager.hasTable(UserImpl.class))

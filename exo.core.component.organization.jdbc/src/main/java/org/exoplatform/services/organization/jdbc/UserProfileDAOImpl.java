@@ -25,6 +25,8 @@ import org.exoplatform.services.database.StandardSQLDAO;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserProfileEventListener;
 import org.exoplatform.services.organization.UserProfileHandler;
@@ -32,6 +34,8 @@ import org.exoplatform.services.organization.UserProfileHandler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import javax.naming.InvalidNameException;
 
 /**
  * Created by The eXo Platform SAS Apr 7, 2007
@@ -43,10 +47,14 @@ public class UserProfileDAOImpl extends StandardSQLDAO<UserProfileData> implemen
 
    protected ListenerService listenerService_;
 
-   public UserProfileDAOImpl(ListenerService lService, ExoDatasource datasource, DBObjectMapper<UserProfileData> mapper)
+   private UserHandler userDAO;
+
+   public UserProfileDAOImpl(ListenerService lService, ExoDatasource datasource,
+      DBObjectMapper<UserProfileData> mapper, UserHandler userDAO)
    {
       super(datasource, mapper, UserProfileData.class);
       listenerService_ = lService;
+      this.userDAO = userDAO;
    }
 
    // This method should have a parameter, such as userName
@@ -105,10 +113,18 @@ public class UserProfileDAOImpl extends StandardSQLDAO<UserProfileData> implemen
 
    public void saveUserProfile(UserProfile profile, boolean broadcast) throws Exception
    {
-      UserProfileData userImpl = findUserProfileDataByName(profile.getUserName());
+      String userName = profile.getUserName();
+
+      UserProfileData userImpl = findUserProfileDataByName(userName);
+      User user = userDAO.findUserByName(userName);
+      if (user == null)
+      {
+         throw new InvalidNameException("User " + userName + " not exists");
+      }
+
       if (userImpl == null)
       {
-         userImpl = new UserProfileData(profile.getUserName());
+         userImpl = new UserProfileData(userName);
          userImpl.setUserProfile(profile);
          if (broadcast)
             listenerService_.broadcast("organization.userProfile.preCreate", this, userImpl);

@@ -22,6 +22,8 @@ import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.database.HibernateService;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserProfileEventListener;
 import org.exoplatform.services.organization.UserProfileEventListenerHandler;
@@ -35,6 +37,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import javax.naming.InvalidNameException;
 
 /**
  * Created by The eXo Platform SAS Author : Mestrallet Benjamin
@@ -57,11 +61,14 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
 
    private List<UserProfileEventListener> listeners_;
 
-   public UserProfileDAOImpl(HibernateService service, CacheService cservice) throws Exception
+   private UserHandler userDAO;
+
+   public UserProfileDAOImpl(HibernateService service, CacheService cservice, UserHandler userDAO) throws Exception
    {
       service_ = service;
       cache_ = cservice.getCacheInstance(getClass().getName());
       listeners_ = new ArrayList<UserProfileEventListener>(3);
+      this.userDAO = userDAO;
    }
 
    /**
@@ -103,9 +110,16 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
     */
    public void saveUserProfile(UserProfile profile, boolean broadcast) throws Exception
    {
+      String userName = profile.getUserName();
       Session session = service_.openSession();
-      UserProfileData upd =
-         (UserProfileData)service_.findOne(session, queryFindUserProfileByName, profile.getUserName());
+      UserProfileData upd = (UserProfileData)service_.findOne(session, queryFindUserProfileByName, userName);
+
+      User user = userDAO.findUserByName(userName);
+      if (user == null)
+      {
+         throw new InvalidNameException("User " + userName + " not exists");
+      }
+
       if (upd == null)
       {
          upd = new UserProfileData();
@@ -113,9 +127,9 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
          if (broadcast)
             preSave(profile, true);
 
-         session.save(profile.getUserName(), upd);
+         session.save(userName, upd);
          session.flush();
-         cache_.put(profile.getUserName(), profile);
+         cache_.put(userName, profile);
 
          if (broadcast)
             postSave(profile, true);
@@ -128,7 +142,7 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
 
          session.update(upd);
          session.flush();
-         cache_.put(profile.getUserName(), profile);
+         cache_.put(userName, profile);
 
          if (broadcast)
             postSave(profile, false);

@@ -224,6 +224,18 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
          listenerService_.broadcast(GroupHandler.POST_UPDATE_GROUP_EVENT, this, groupImpl);
    }
 
+   private boolean hasChildrenGroups(Group parent) throws Exception
+   {
+      String parentId = parent == null ? "/" : parent.getId();
+
+      DBObjectQuery<GroupImpl> query = new DBObjectQuery<GroupImpl>(GroupImpl.class);
+      query.addSelectCount("PARENT_ID");
+      query.addEQ("PARENT_ID", parentId);
+      DBPageList<GroupImpl> pageList = new DBPageList<GroupImpl>(20, this, query);
+
+      return pageList.getTo() > 0;
+   }
+
    public Group removeGroup(Group group, boolean broadcast) throws Exception
    {
       if (findGroupById(group.getId()) == null)
@@ -233,6 +245,12 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
       }
 
       GroupImpl groupImpl = (GroupImpl)group;
+
+      if (hasChildrenGroups(group))
+      {
+         throw new IllegalStateException("Group " + group.getGroupName() + " has at least one child group");
+      }
+
       if (broadcast)
          listenerService_.broadcast(GroupHandler.PRE_DELETE_GROUP_EVENT, this, groupImpl);
       super.remove(groupImpl);
