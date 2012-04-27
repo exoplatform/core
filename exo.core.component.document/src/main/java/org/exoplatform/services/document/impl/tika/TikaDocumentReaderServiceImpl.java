@@ -94,30 +94,24 @@ public class TikaDocumentReaderServiceImpl extends DocumentReaderServiceImpl
          // so to avoid load in memory many copies of DocumentReader, we will register it
          // only if someone need it
          Parser tikaParser = conf.getParser();
-         if (tikaParser != null)
-         {
-            synchronized (this)
-            {
-               // Check if the reader has been registered since the thread is blocked
-               reader = readers_.get(mimeType);
-               if (reader != null)
-               {
-                  return reader;
-               }
 
-               reader = new TikaDocumentReader(tikaParser, mimeType);
-               // Initialize the map with the existing values 
-               Map<String, DocumentReader> tmpReaders = new HashMap<String, DocumentReader>(readers_);
-               // Register new document reader 
-               tmpReaders.put(mimeType, reader);
-               // Update the map of readers 
-               readers_ = tmpReaders;
+         synchronized (this)
+         {
+            // Check if the reader has been registered since the thread is blocked
+            reader = readers_.get(mimeType);
+            if (reader != null)
+            {
                return reader;
             }
-         }
-         else
-         {
-            throw new HandlerNotFoundException("No appropriate properties extractor for " + mimeType);
+
+            reader = new TikaDocumentReader(tikaParser, mimeType);
+            // Initialize the map with the existing values 
+            Map<String, DocumentReader> tmpReaders = new HashMap<String, DocumentReader>(readers_);
+            // Register new document reader 
+            tmpReaders.put(mimeType, reader);
+            // Update the map of readers 
+            readers_ = tmpReaders;
+            return reader;
          }
       }
    }

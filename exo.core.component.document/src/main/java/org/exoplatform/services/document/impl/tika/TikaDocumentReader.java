@@ -20,6 +20,7 @@ import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.DublinCore;
 import org.apache.tika.metadata.MSOffice;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.Property;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.ParsingReader;
@@ -332,8 +333,8 @@ public class TikaDocumentReader implements AdvancedDocumentReader
                   convertProperty(metadata, props, DCMetaData.CREATOR,
                      new String[]{MSOffice.AUTHOR, DublinCore.CREATOR});
                   // different parsers return date in different formats, so keep it as String
-                  convertProperty(metadata, props, DCMetaData.DATE, new String[]{DublinCore.DATE.getName(),
-                     MSOffice.LAST_SAVED.getName(), MSOffice.CREATION_DATE.getName()});
+                  convertProperty(metadata, props, DCMetaData.DATE, new Property[]{DublinCore.DATE,
+                     MSOffice.LAST_SAVED, MSOffice.CREATION_DATE});
                   convertProperty(metadata, props, DCMetaData.DESCRIPTION, new String[]{DublinCore.DESCRIPTION,
                      MSOffice.COMMENTS});
                   convertProperty(metadata, props, DCMetaData.FORMAT, DublinCore.FORMAT);
@@ -408,6 +409,24 @@ public class TikaDocumentReader implements AdvancedDocumentReader
          String value = (String)metadata.get(propertyName);
          if (value != null)
          {
+            props.put(jcrDCProp, value);
+            return;
+         }
+      }
+   }
+
+   private void convertProperty(Metadata metadata, Properties props, QName jcrDCProp, Property[] tikaProperty)
+   {
+      for (Property property : tikaProperty)
+      {
+         String value = (String)metadata.get(property);
+         if (value != null)
+         {
+            if (property.equals(DublinCore.DATE) || property.equals(MSOffice.LAST_SAVED)
+               || property.equals(MSOffice.CREATION_DATE))
+            {
+               value = metadata.getDate(property).toString();
+            }
             props.put(jcrDCProp, value);
             return;
          }
