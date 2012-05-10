@@ -103,4 +103,9 @@ public class Query implements Serializable
    {
       to_ = d;
    }
+
+   public boolean isEmpty()
+   {
+      return email_ == null && fname_ == null && from_ == null && lname_ == null && to_ == null && userName_ == null;
+   }
 }
