@@ -38,8 +38,9 @@ function getModule(params) {
 
   module.component.documents =
     new Project("org.exoplatform.core", "exo.core.component.document", "jar", module.version).
-    addDependency(new Project("org.apache.pdfbox", "pdfbox", "jar", "1.1.0")).
-    addDependency(new Project("org.apache.pdfbox", "jempbox", "jar", "1.1.0")).
+    addDependency(new Project("org.apache.pdfbox", "pdfbox", "jar", "1.1.0-eXo01")).
+    addDependency(new Project("org.apache.pdfbox", "fontbox", "jar", "1.1.0-eXo01")).
+    addDependency(new Project("org.apache.pdfbox", "jempbox", "jar", "1.1.0-eXo01")).
     addDependency(new Project("com.lowagie", "itext", "jar", "2.1.0")).
     addDependency(new Project("bouncycastle", "bcmail-jdk14", "jar", "136")).
     addDependency(new Project("bouncycastle", "bcprov-jdk14", "jar", "136")).
