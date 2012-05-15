@@ -40,7 +40,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.PrivilegedExceptionAction;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Properties;
+import java.util.TimeZone;
 
 /**
  * Created by The eXo Platform SAS .
@@ -224,6 +228,10 @@ public class POIPropertiesReader
       CoreProperties coreProperties = extractor.getCoreProperties();
 
       Nullable<String> lastModifiedBy = coreProperties.getUnderlyingProperties().getLastModifiedByProperty();
+
+      SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+      df.setTimeZone(TimeZone.getDefault());
+
       if (lastModifiedBy != null && lastModifiedBy.getValue() != null && lastModifiedBy.getValue().length() > 0)
       {
          props.put(DCMetaData.CONTRIBUTOR, lastModifiedBy.getValue());
@@ -234,7 +242,15 @@ public class POIPropertiesReader
       }
       if (coreProperties.getCreated() != null)
       {
-         props.put(DCMetaData.DATE, coreProperties.getCreated());
+         try
+         {
+            Date d = df.parse(coreProperties.getUnderlyingProperties().getCreatedPropertyString());
+            props.put(DCMetaData.DATE, d);
+         }
+         catch (ParseException e)
+         {
+            throw new DocumentReadException("Incorrect creation date: " + e.getMessage());
+         }
       }
       if (coreProperties.getCreator() != null && coreProperties.getCreator().length() > 0)
       {
@@ -246,7 +262,15 @@ public class POIPropertiesReader
       }
       if (coreProperties.getModified() != null)
       {
-         props.put(DCMetaData.DATE, coreProperties.getModified());
+         try
+         {
+            Date d = df.parse(coreProperties.getUnderlyingProperties().getModifiedPropertyString());
+            props.put(DCMetaData.DATE, d);
+         }
+         catch (ParseException e)
+         {
+            throw new DocumentReadException("Incorrect modification date: " + e.getMessage());
+         }
       }
       if (coreProperties.getSubject() != null && coreProperties.getSubject().length() > 0)
       {

@@ -95,16 +95,6 @@ public class TestMimetypes extends BaseStandaloneTest
       {
          fail(e.getMessage());
       }
-
-      try
-      {
-         drs.getDocumentReader("uncknown/mimetype");
-         fail("HandlerNotFoundException must be thrown");
-      }
-      catch (HandlerNotFoundException e)
-      {
-         //OK
-      }
    }
 
    /**

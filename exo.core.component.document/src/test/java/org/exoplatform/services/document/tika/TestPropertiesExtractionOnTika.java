@@ -251,11 +251,11 @@ public class TestPropertiesExtractionOnTika extends BaseStandaloneTest
          Properties etalon = new Properties();
          Calendar date = Calendar.getInstance();
          date.setTimeInMillis(0);
-         date.set(2010, 7, 31, 14, 13, 23);
+         date.set(2010, 8, 3, 14, 37, 59);
 
          etalon.put(DCMetaData.TITLE, "test-Title");
          etalon.put(DCMetaData.LANGUAGE, "ru-RU");
-         etalon.put(DCMetaData.DATE, "2010-09-03T14:37:59.10");
+         etalon.put(DCMetaData.DATE, date.getTime().toString());
          etalon.put(DCMetaData.SUBJECT, "test-Subject");
          etalon.put(DCMetaData.CREATOR, "Sergiy Karpenko");
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
