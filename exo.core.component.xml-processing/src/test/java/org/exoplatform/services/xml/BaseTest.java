@@ -21,8 +21,6 @@ package org.exoplatform.services.xml;
 import junit.framework.TestCase;
 
 import org.exoplatform.container.StandaloneContainer;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
 import org.exoplatform.services.xml.resolving.XMLResolvingService;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -42,8 +40,6 @@ public abstract class BaseTest extends TestCase
    private final String DATE_PATTERN = "yy-MM-DD_HH-mm-ss";
 
    private DateFormat dateFormat;
-
-   protected Log log = ExoLogger.getLogger("exo.core.component.xml-processing.BaseTest");
 
    protected String getTimeStamp()
    {
@@ -80,13 +76,10 @@ public abstract class BaseTest extends TestCase
 
       assertNotNull("resolvingService.getEntityResolver()", resolvingService.getEntityResolver());
 
-      log.info("resolvingService class is " + resolvingService.getClass().getName());
-
       InputSource src =
          resolvingService.getEntityResolver().resolveEntity("-//W3C//DTD XHTML 1.0 Transitional//EN",
             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd");
 
-      log.info(src.getSystemId());
       assertNotNull("Not resolved InputSource entity", src);
 
       xmlReader.setFeature("http://xml.org/sax/features/validation", true); // validation

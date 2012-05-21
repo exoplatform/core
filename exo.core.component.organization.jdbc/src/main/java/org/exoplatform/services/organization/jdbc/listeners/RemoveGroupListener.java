@@ -48,7 +48,6 @@ public class RemoveGroupListener extends Listener<GroupDAOImpl, Group>
    @SuppressWarnings("unchecked")
    public void onEvent(Event<GroupDAOImpl, Group> event) throws Exception
    {
-      LOG.info("Remove all Child of Group: " + event.getData().getId());
       GroupHandler membershipHanler = service_.getGroupHandler();
       List<Group> children = (List<Group>)membershipHanler.findGroups(event.getData());
       for (Group child : children)

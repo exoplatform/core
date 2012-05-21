@@ -109,7 +109,7 @@ public class ExoDatasource
       databaseVersion_ = metaData.getDatabaseProductVersion();
 
       String dbname = databaseName_.toLowerCase();
-      LOG.info("\n\n\n\n------->DB Name: " + dbname + "\n\n\n\n");
+      LOG.debug("DB Name: " + dbname);
       if (dbname.indexOf("oracle") >= 0)
       {
          dbType_ = ORACLE_DB_TYPE;

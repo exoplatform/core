@@ -44,7 +44,6 @@ public class RemoveUserProfileListener extends Listener<UserDAOImpl, User>
 
    public void onEvent(Event<UserDAOImpl, User> event) throws Exception
    {
-      LOG.info("Delete User Profile: " + event.getData().getUserName());
       service_.getUserProfileHandler().removeUserProfile(event.getData().getUserName(), true);
    }
 }

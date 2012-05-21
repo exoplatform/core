@@ -275,7 +275,6 @@ public class TestPropertiesExtractionOnTika extends BaseStandaloneTest
       while (it.hasNext())
       {
          Map.Entry entry = (Map.Entry)it.next();
-         System.out.println(" " + entry.getKey() + " -> [" + entry.getValue() + "]");
       }
    }
 
@@ -289,8 +288,6 @@ public class TestPropertiesExtractionOnTika extends BaseStandaloneTest
          assertNotNull(prop.getKey() + " property not founded. ", tval);
          assertEquals(prop.getKey() + " property value is incorrect", prop.getValue(), tval);
       }
-      //TODO When all troubles with metadata will be fixed - properties count must be checked too.
-      //assertEquals("size is incorrect", etalon.size(), testedProps.size());
    }
 
 }

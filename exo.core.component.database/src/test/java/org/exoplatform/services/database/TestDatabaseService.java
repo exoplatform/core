@@ -18,12 +18,13 @@
  */
 package org.exoplatform.services.database;
 
+import junit.framework.TestCase;
+
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.database.impl.XAPoolTxSupportDatabaseService;
 import org.exoplatform.services.database.table.ExoLongID;
 import org.exoplatform.services.database.table.IDGenerator;
 import org.exoplatform.services.transaction.TransactionService;
-import org.exoplatform.test.BasicTestCase;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -38,7 +39,7 @@ import javax.transaction.UserTransaction;
  * @since: 0.0
  * @email: tuan08@yahoo.com
  */
-public class TestDatabaseService extends BasicTestCase
+public class TestDatabaseService extends TestCase
 {
 
    public void testDatabaseService() throws Exception
@@ -77,7 +78,6 @@ public class TestDatabaseService extends BasicTestCase
       }
       catch (Exception ex)
       {
-         System.err.println("ERROR: " + ex.getMessage());
          utx.rollback();
       }
       // tm.rollback() ;
@@ -89,60 +89,33 @@ public class TestDatabaseService extends BasicTestCase
       {
          fail("Should not have any data in the test table");
       }
-      else
-      {
-         System.err.println("Transaction work ok");
-      }
    }
 
    private void assertDBTableManager(DatabaseService service) throws Exception
    {
-      //    System.err.println("\n\n===>ASERT DBTableManager\n");
       ExoDatasource datasource = service.getDatasource();
       DBTableManager dbManager = datasource.getDBTableManager();
       assertEquals(dbManager.hasTable(Mock.class), false);
       dbManager.createTable(Mock.class, true);
 
-      // Test meta data here
-      // ResultSetMetaData metaData = datasource.g
-
       assertEquals(dbManager.hasTable(Mock.class), true);
       dbManager.dropTable(Mock.class);
 
       assertEquals(dbManager.hasTable(Mock.class), false);
-
-      // Test metadata here
-
-      //    Connection conn = service.getConnection();
-      //    Statement s = conn.createStatement();
-      //    Table table = TestTable.class.getAnnotation(Table.class);
-      //    ResultSet rs = s.executeQuery("SELECT * FROM " + table.name());
-      //    ResultSetMetaData metaData = rs.getMetaData();
-      //    for (int i = 1; i <= metaData.getColumnCount(); i++) {
-      //      System.out.println("Information about column " + metaData.getColumnName(i) + ":\n" + "type: "
-      //          + metaData.getColumnTypeName(i) + ", is nullable: " + metaData.isNullable(i) + "\n");
-      //    }
-
-      //    System.err.println("\n\n<===ASSERT DBTableManager\n");
    }
 
    private void assertIDGenerator(DatabaseService service) throws Exception
    {
       ExoDatasource datasource = service.getDatasource();
-      // DBTableManager dbManager = datasource.getDBTableManager() ;
       IDGenerator idGenerator = new IDGenerator(datasource);
 
-      // idGenerator.restartTracker();
       for (int i = 0; i < 10; i++)
       {
-         System.out.println("\n=================> IDGenerator " + i + " : "
-            + idGenerator.generateLongId(ExoLongID.class));
-         // if (i == 5) idGenerator.restartTracker();
+         idGenerator.generateLongId(ExoLongID.class);
       }
 
       idGenerator.restartTracker();
-      System.out
-         .println("\n=================> IDGenerator " + 10 + " : " + idGenerator.generateLongId(ExoLongID.class));
+      idGenerator.generateLongId(ExoLongID.class);
    }
 
 }

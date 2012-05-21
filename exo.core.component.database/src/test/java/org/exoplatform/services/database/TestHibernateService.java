@@ -18,8 +18,9 @@
  */
 package org.exoplatform.services.database;
 
+import junit.framework.TestCase;
+
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.test.BasicTestCase;
 
 /*
  * Thu, May 15, 2003 @   
@@ -28,7 +29,7 @@ import org.exoplatform.test.BasicTestCase;
  * @since: 0.0
  * @email: tuan08@yahoo.com
  */
-public class TestHibernateService extends BasicTestCase
+public class TestHibernateService extends TestCase
 {
    HibernateService hservice_;
 

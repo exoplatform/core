@@ -103,7 +103,7 @@ public class StandardSQLTableManager extends DBTableManager
       Connection conn = exoDatasource.getConnection();
       conn.setAutoCommit(false);
       Statement statement = conn.createStatement();
-      LOG.info("QUERY: \n  " + builder + "\n");
+      LOG.debug("QUERY: \n  " + builder + "\n");
       if (dropIfExist && hasTable(type))
          statement.execute("DROP TABLE IF EXISTS " + table.name());
       statement.execute(builder.toString());

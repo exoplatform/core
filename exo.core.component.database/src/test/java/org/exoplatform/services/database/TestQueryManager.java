@@ -18,13 +18,13 @@
  */
 package org.exoplatform.services.database;
 
-import org.exoplatform.test.BasicTestCase;
+import junit.framework.TestCase;
 
 /**
  * Created by The eXo Platform SAS Author : Nhu Dinh Thuan
  * nhudinhthuan@exoplatform.com Mar 30, 2007
  */
-public class TestQueryManager extends BasicTestCase
+public class TestQueryManager extends TestCase
 {
 
    QueryBuilder manager_;
@@ -44,26 +44,7 @@ public class TestQueryManager extends BasicTestCase
       String template = "select name from $table where id = $id and name like '&yahoo'";
       String[][] parameters = {{"table", "student"}, {"id", "12345"}};
       String pamameterSql = manager_.mapDataToSql(template, parameters);
-
-      /*
-       * String [] array = {"table", "student"}; String arraySql =
-       * manager_.mapDataToSql(template, array); array = new String[]{"id",
-       * "12345"}; arraySql = manager_.mapDataToSql(arraySql, array);
-       * assertEquals(pamameterSql, arraySql); Map<String, String> map = new
-       * HashMap<String, String>(); map.put("table", "student"); map.put("id",
-       * "12345"); String mapSql = manager_.mapDataToSql(template, map);
-       * assertEquals(mapSql, arraySql); String beanSql =
-       * manager_.mapDataToSql(template, new Table()); assertEquals(beanSql,
-       * arraySql);
-       */
-
-      System.out.println("\n\n\n " + pamameterSql + "\n\n");
    }
-
-   // private class Table {
-   // private String table = "student";
-   // private String id = "12345";
-   // }
 
    static public class Student
    {

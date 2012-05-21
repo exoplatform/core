@@ -16,9 +16,10 @@
  */
 package org.exoplatform.services.document.test;
 
+import junit.framework.TestCase;
+
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.test.BasicTestCase;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,7 +34,7 @@ import java.io.InputStream;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
  * @version $Id: BaseStandaloneTest.java 111 2008-11-11 11:11:11Z serg $
  */
-public class BaseStandaloneTest extends BasicTestCase
+public class BaseStandaloneTest extends TestCase
 {
 
    public PortalContainer pcontainer;
@@ -42,7 +43,6 @@ public class BaseStandaloneTest extends BasicTestCase
 
    public void setUp() throws Exception
    {
-      super.setUp();
       pcontainer = PortalContainer.getInstance();
    }
 
