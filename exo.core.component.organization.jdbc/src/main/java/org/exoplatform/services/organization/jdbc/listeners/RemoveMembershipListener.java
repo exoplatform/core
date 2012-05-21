@@ -59,11 +59,23 @@ public class RemoveMembershipListener extends Listener<Object, Object>
       if (target instanceof User)
       {
          User user = (User)target;
+
+         if (LOG.isDebugEnabled())
+         {
+            LOG.debug("Remove all Membership by User: " + user.getUserName());
+         }
+
          membershipHanler.removeMembershipByUser(user.getUserName(), true);
       }
       else if (target instanceof Group)
       {
          Group group = (Group)target;
+
+         if (LOG.isDebugEnabled())
+         {
+            LOG.debug("Remove all Membership by Group: " + group.getGroupName());
+         }
+
          List<Membership> members = (List<Membership>)membershipHanler.findMembershipsByGroup(group);
          for (Membership member : members)
          {
