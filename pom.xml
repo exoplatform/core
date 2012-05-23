@@ -39,7 +39,7 @@
       <exo.product.specification>2.3</exo.product.specification>
       <version.assembly.plugin>2.2.1</version.assembly.plugin>
       <org.exoplatform.framework.junit.version>1.2.1-GA</org.exoplatform.framework.junit.version>
-      <org.exoplatform.kernel.version>2.2.13-GA-SNAPSHOT</org.exoplatform.kernel.version>
+      <org.exoplatform.kernel.version>2.2.13-GA</org.exoplatform.kernel.version>
 
       <version.release.plugin>2.2.1</version.release.plugin>
       <version.buildnumber.plugin>1.0</version.buildnumber.plugin>
@@ -47,7 +47,7 @@
 
    <scm>
       <connection>scm:git:git://github.com/exoplatform/core.git</connection>
-      <developerConnection>scm:git:git@github.com/exoplatform/core.git</developerConnection>
+      <developerConnection>scm:git:git@github.com:exoplatform/core.git</developerConnection>
       <url>http://fisheye.jboss.org/browse/exo-jcr/core</url>
    </scm>
 
