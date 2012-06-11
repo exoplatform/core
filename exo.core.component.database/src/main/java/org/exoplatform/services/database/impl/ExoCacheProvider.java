@@ -63,7 +63,7 @@ public class ExoCacheProvider implements CacheProvider
       catch (Exception ex)
       {
          LOG.error(ex.getLocalizedMessage(), ex);
-         throw new CacheException("Cannot instanstiate cache provider");
+         throw new CacheException("Cannot instanstiate cache provider", ex);
       }
    }
 

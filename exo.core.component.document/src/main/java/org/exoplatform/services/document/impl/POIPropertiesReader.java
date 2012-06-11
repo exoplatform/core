@@ -249,7 +249,7 @@ public class POIPropertiesReader
          }
          catch (ParseException e)
          {
-            throw new DocumentReadException("Incorrect creation date: " + e.getMessage());
+            throw new DocumentReadException("Incorrect creation date: " + e.getMessage(), e);
          }
       }
       if (coreProperties.getCreator() != null && coreProperties.getCreator().length() > 0)
@@ -269,7 +269,7 @@ public class POIPropertiesReader
          }
          catch (ParseException e)
          {
-            throw new DocumentReadException("Incorrect modification date: " + e.getMessage());
+            throw new DocumentReadException("Incorrect modification date: " + e.getMessage(), e);
          }
       }
       if (coreProperties.getSubject() != null && coreProperties.getSubject().length() > 0)

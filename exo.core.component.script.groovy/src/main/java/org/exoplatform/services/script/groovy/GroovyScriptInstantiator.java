@@ -200,7 +200,7 @@ public class GroovyScriptInstantiator
          Throwable cause = pae.getCause();
          if (cause instanceof CompilationFailedException)
          {
-            throw new IOException("Error occurs when parse stream, compiler error:\n " + cause.getMessage());
+            throw new IOException("Error occurs when parse stream, compiler error:\n " + cause.getMessage(), cause);
          }
          else if (cause instanceof RuntimeException)
          {

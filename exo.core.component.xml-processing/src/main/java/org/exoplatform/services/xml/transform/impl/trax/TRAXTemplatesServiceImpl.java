@@ -98,11 +98,11 @@ public class TRAXTemplatesServiceImpl implements TRAXTemplatesService, Startable
       }
       catch (NotSupportedIOTypeException e)
       {
-         throw new IllegalArgumentException("Source has unsupported context." + e);
+         throw new IllegalArgumentException("Source has unsupported context." + e, e);
       }
       catch (TransformerException e)
       {
-         throw new IllegalArgumentException("Can't get templates from source." + e);
+         throw new IllegalArgumentException("Can't get templates from source." + e, e);
       }
    }
 
