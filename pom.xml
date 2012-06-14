@@ -62,7 +62,6 @@
       <module>exo.core.component.xml-processing</module>
       <module>exo.core.component.script.groovy</module>
       <module>exo.core.component.web.css</module>
-      <module>packaging/module</module>
    </modules>
 
    <dependencyManagement>
