@@ -38,7 +38,7 @@ public class DialectDetecter
     * http://svn.jboss.org/repos/hibernate/core/trunk/core/src/main/java/org/hibernate/
     * dialect/resolver/StandardDialectResolver.java 
     * 
-    * @param jdbcConn Connection 
+    * @param metaData {@link DatabaseMetaData} 
     * @return String
     * @throws SQLException if error occurs
     */
