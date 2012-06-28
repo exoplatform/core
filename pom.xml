@@ -46,7 +46,7 @@
 
    <scm>
       <connection>scm:git:git://github.com/exoplatform/core.git</connection>
-      <developerConnection>scm:git:git@github.com/exoplatform/core.git</developerConnection>
+      <developerConnection>scm:git:git@github.com:exoplatform/core.git</developerConnection>
       <url>https://fisheye.exoplatform.org/browse/core-dev</url>
    </scm>
 
