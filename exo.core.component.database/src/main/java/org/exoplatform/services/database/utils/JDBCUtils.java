@@ -18,13 +18,17 @@
  */
 package org.exoplatform.services.database.utils;
 
+import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
+import java.security.PrivilegedExceptionAction;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import javax.sql.DataSource;
 
 /**
  * This class provides JDBC tools
@@ -177,6 +181,100 @@ public class JDBCUtils
       else
       {
          return resource.split(SQL_DELIMITER);
+      }
+   }
+
+   /**
+    * Returns appropriate blob type field for specific database. 
+    */
+   public static String getAppropriateBlobType(DataSource dataSource) throws SQLException
+   {
+      String dialect = resolveDialect(dataSource);
+
+      if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_HSQLDB))
+      {
+         return "VARBINARY(65535)";
+      }
+      else if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_MYSQL)
+         || dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_MYSQL_UTF8)
+         || dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_MYSQL_MYISAM)
+         || dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_MYSQL_MYISAM_UTF8))
+      {
+         return "LONGBLOB";
+      }
+      else if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_PGSQL))
+      {
+         return "bytea";
+      }
+      else if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_MSSQL))
+      {
+         return "VARBINARY(MAX)";
+      }
+      else if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_SYBASE))
+      {
+         return "IMAGE";
+      }
+      else if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_INGRES))
+      {
+         return "long byte";
+      }
+
+      return "BLOB";
+   }
+
+   /**
+    * Returns appropriate timestamp type field for specific database. 
+    */
+   public static String getAppropriateTimestamp(DataSource dataSource) throws SQLException
+   {
+      String dialect = resolveDialect(dataSource);
+
+      if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_ORACLE)
+         || dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_ORACLEOCI))
+      {
+         return "NUMBER(19, 0)";
+      }
+      
+      return "BIGINT";
+   }
+
+   /**
+    * Returns appropriate char type field for specific database. 
+    */
+   public static String getAppropriateCharType(DataSource dataSource) throws SQLException
+   {
+      String dialect = resolveDialect(dataSource);
+
+      if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_ORACLE)
+         || dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_ORACLEOCI))
+      {
+         // Oracle suggests the use VARCHAR2 instead of VARCHAR while declaring data type.
+         return "VARCHAR2(512)";
+      }
+
+      return "VARCHAR(512)";
+   }
+
+   /**
+    * Returns dialect one of dialect {@link DialectConstants} based on {@link DataSource} name.  
+    */
+   public static String resolveDialect(final DataSource dataSource) throws SQLException
+   {
+      Connection jdbcConn = SecurityHelper.doPrivilegedSQLExceptionAction(new PrivilegedExceptionAction<Connection>()
+      {
+         public Connection run() throws Exception
+         {
+            return dataSource.getConnection();
+         }
+      });
+
+      try
+      {
+         return DialectDetecter.detect(jdbcConn.getMetaData());
+      }
+      finally
+      {
+         freeResources(null, null, jdbcConn);
       }
    }
 
