@@ -18,6 +18,9 @@
  */
 package org.exoplatform.services.security;
 
+import org.exoplatform.container.component.ThreadContext;
+import org.exoplatform.container.component.ThreadContextHolder;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
@@ -29,7 +32,7 @@ import java.util.Set;
  * @version $Id: $
  */
 
-public class ConversationState
+public class ConversationState implements ThreadContextHolder
 {
 
    /**
@@ -125,6 +128,14 @@ public class ConversationState
    {
       checkPermissions();
       this.attributes.remove(name);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public ThreadContext getThreadContext()
+   {
+      return new ThreadContext(current);
    }
 
    /**
