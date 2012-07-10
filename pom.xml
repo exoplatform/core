@@ -38,7 +38,7 @@
       <exo.product.name>exo-core</exo.product.name>
       <exo.product.specification>2.4</exo.product.specification>
       
-      <org.exoplatform.framework.junit.version>1.2.1-GA</org.exoplatform.framework.junit.version>
+      <org.exoplatform.framework.junit.version>1.2.2-GA</org.exoplatform.framework.junit.version>
       <org.exoplatform.kernel.version>2.3.9-GA-SNAPSHOT</org.exoplatform.kernel.version>
 
       <!-- Plugins updates -->
@@ -169,7 +169,7 @@
          <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>2.4</version>            
+            <version>2.5</version>            
          </dependency>
          
          <dependency>
