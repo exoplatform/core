@@ -45,7 +45,6 @@ public class TestMembershipTypeEventListener extends AbstractOrganizationService
          List<MembershipTypeEventListener> list =
             ((MembershipTypeEventListenerHandler)mtHandler).getMembershipTypeListeners();
 
-         assertEquals(1, list.size());
          try
          {
             list.clear();
@@ -63,6 +62,14 @@ public class TestMembershipTypeEventListener extends AbstractOrganizationService
    public void testMembershipTypeEventListener() throws Exception
    {
       TesterMembershipTypeEventListener testListener = new TesterMembershipTypeEventListener();
+      int currentSize = 1;
+      if (mtHandler instanceof MembershipTypeEventListenerHandler)
+      {
+         List<MembershipTypeEventListener> list =
+            ((MembershipTypeEventListenerHandler)mtHandler).getMembershipTypeListeners();
+
+         currentSize = list.size();
+      }
       mtHandler.addMembershipTypeEventListener(testListener);
 
       if (mtHandler instanceof MembershipTypeEventListenerHandler)
@@ -70,7 +77,7 @@ public class TestMembershipTypeEventListener extends AbstractOrganizationService
          List<MembershipTypeEventListener> list =
             ((MembershipTypeEventListenerHandler)mtHandler).getMembershipTypeListeners();
 
-         assertEquals(2, list.size());
+         assertEquals(currentSize + 1, list.size());
       }
 
       // Create new membership type. In preSave event there is not recored in db.
