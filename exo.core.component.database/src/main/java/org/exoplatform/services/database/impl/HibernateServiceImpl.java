@@ -36,25 +36,18 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.resolver.DialectFactory;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.security.PrivilegedAction;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
-
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
 
 /**
  * Created by The eXo Platform SAS .
@@ -83,12 +76,11 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
    {
       threadLocal_ = new ThreadLocal<Session>();
       PropertiesParam param = initParams.getPropertiesParam("hibernate.properties");
-      final HibernateSettingsFactory settingsFactory = new HibernateSettingsFactory(new ExoCacheProvider(cacheService));
       conf_ = SecurityHelper.doPrivilegedAction(new PrivilegedAction<HibernateConfigurationImpl>()
       {
          public HibernateConfigurationImpl run()
          {
-            return new HibernateConfigurationImpl(settingsFactory);
+            return new HibernateConfigurationImpl();
          }
       });
       Iterator properties = param.getPropertyIterator();
@@ -127,103 +119,6 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
          conf_.setProperty("hibernate.connection.url", connectionURL);
       }
 
-      // Auto-detect dialect if "hibernate.dialect" is set as AUTO or is not set.
-
-      String dialect = conf_.getProperty("hibernate.dialect");
-
-      if (dialect == null || dialect.equalsIgnoreCase(AUTO_DIALECT))
-      {
-         // detect dialect and replace parameter
-         Connection connection = null;
-
-         try
-         {
-            // check is there is data source
-            String dataSourceName = conf_.getProperty("hibernate.connection.datasource");
-            if (dataSourceName != null)
-            {
-               //detect dialect by data source
-               DataSource dataSource;
-               try
-               {
-                  dataSource = (DataSource)new InitialContext().lookup(dataSourceName);
-                  if (dataSource == null)
-                  {
-                     log_.error("DataSource is configured but not finded.", new Exception());
-                  }
-                  else
-                  {
-                     connection = dataSource.getConnection();
-
-                     Dialect d = DialectFactory.buildDialect(new Properties(), connection);
-                     conf_.setProperty("hibernate.dialect", d.getClass().getName());
-                  }
-               }
-               catch (NamingException e)
-               {
-                  log_.error(e.getMessage(), e);
-               }
-            }
-            else
-            {
-               String url = conf_.getProperty("hibernate.connection.url");
-               if (url != null)
-               {
-                  //detect dialect by url               
-                  try
-                  {
-                     //load driver class
-                     Class.forName(conf_.getProperty("hibernate.connection.driver_class")).newInstance();
-                  }
-                  catch (InstantiationException e)
-                  {
-                     log_.error(e.getMessage(), e);
-                  }
-                  catch (IllegalAccessException e)
-                  {
-                     log_.error(e.getMessage(), e);
-                  }
-                  catch (ClassNotFoundException e)
-                  {
-                     log_.error(e.getMessage(), e);
-                  }
-
-                  String dbUserName = conf_.getProperty("hibernate.connection.username");
-                  String dbPassword = conf_.getProperty("hibernate.connection.password");
-
-                  connection =
-                     dbUserName != null ? DriverManager.getConnection(url, dbUserName, dbPassword) : DriverManager
-                        .getConnection(url);
-
-                  Dialect d = DialectFactory.buildDialect(new Properties(), connection);
-                  conf_.setProperty("hibernate.dialect", d.getClass().getName());
-               }
-               else
-               {
-                  Exception e = new Exception("Any data source is not configured!");
-                  log_.error(e.getMessage(), e);
-               }
-            }
-         }
-         catch (SQLException e)
-         {
-            log_.error(e.getMessage(), e);
-         }
-         finally
-         {
-            if (connection != null)
-            {
-               try
-               {
-                  connection.close();
-               }
-               catch (SQLException e)
-               {
-                  log_.error(e.getMessage(), e);
-               }
-            }
-         }
-      }
    }
 
    public void addPlugin(ComponentPlugin plugin)
@@ -300,6 +195,10 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
             public SessionFactory run()
             {
                SessionFactory factory = conf_.buildSessionFactory();
+
+               // We need to update dialect into conf_ object as it's needed for SchemaUpdate execution
+               updateDialectInConfiguration(factory);
+
                new SchemaUpdate(conf_).execute(false, true);
                return factory;
             }
@@ -314,7 +213,9 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
       if (currentSession == null)
       {
          if (log_.isDebugEnabled())
+         {
             log_.debug("open new hibernate session in openSession()");
+         }
          currentSession = getSessionFactory().openSession();
          threadLocal_.set(currentSession);
       }
@@ -336,7 +237,9 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
    public void closeSession(Session session)
    {
       if (session == null)
+      {
          return;
+      }
       try
       {
          session.close();
@@ -356,7 +259,9 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
    {
       Session s = threadLocal_.get();
       if (s != null)
+      {
          s.close();
+      }
       threadLocal_.set(null);
    }
 
@@ -481,5 +386,25 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
    public void endRequest(ExoContainer container)
    {
       closeSession();
+   }
+
+   protected void updateDialectInConfiguration(SessionFactory sessionFactory) throws RuntimeException
+   {
+      try
+      {
+         // Reflection is needed because name of SessionFactoryImpl class differs between Hibernate3 and Hibernate4
+         Method getDialectMethod = sessionFactory.getClass().getMethod("getDialect");
+         Dialect dialect = (Dialect)getDialectMethod.invoke(sessionFactory);
+         String dialectClassName = dialect.getClass().getName();
+         if (log_.isDebugEnabled())
+         {
+            log_.debug("update dialect " + dialectClassName + " in Hibernate configuration");
+         }
+         conf_.setProperty(Environment.DIALECT, dialectClassName);
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
    }
 }
