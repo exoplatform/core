@@ -20,6 +20,7 @@ package org.exoplatform.services.database.impl;
 
 import org.hibernate.HibernateException;
 import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.cfg.SettingsFactory;
 
 /**
  * Created by The eXo Platform SAS .
@@ -35,8 +36,8 @@ public class HibernateConfigurationImpl extends AnnotationConfiguration
 
    private static final long serialVersionUID = -6929418313712034365L;
 
-   public HibernateConfigurationImpl(HibernateSettingsFactory settingsFactory) throws HibernateException
+   public HibernateConfigurationImpl() throws HibernateException
    {
-      super(settingsFactory);
+      super();
    }
 }
