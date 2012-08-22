@@ -18,6 +18,11 @@
  */
 package org.exoplatform.services.security.web;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionListener;
+
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
@@ -27,11 +32,6 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationRegistry;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.StateKey;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionEvent;
-import javax.servlet.http.HttpSessionListener;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -61,25 +61,27 @@ public class ConversationStateListener implements HttpSessionListener
       HttpSession httpSession = event.getSession();
       StateKey stateKey = new HttpSessionStateKey(httpSession);
 
-      ConversationRegistry conversationRegistry =
-         (ConversationRegistry)getContainer(httpSession.getServletContext()).getComponentInstanceOfType(
-            ConversationRegistry.class);
+      ExoContainer container = getContainerIfPresent(httpSession.getServletContext());
+      if (container != null)
+      {
+         ConversationRegistry conversationRegistry =
+            (ConversationRegistry)container.getComponentInstanceOfType(ConversationRegistry.class);
 
-      ConversationState conversationState = conversationRegistry.unregister(stateKey);
+         ConversationState conversationState = conversationRegistry.unregister(stateKey);
 
-      if (conversationState != null)
-         if (LOG.isDebugEnabled())
-            LOG.debug("Remove conversation state " + httpSession.getId());
-
+         if (conversationState != null)
+            if (LOG.isDebugEnabled())
+               LOG.debug("Remove conversation state " + httpSession.getId());
+      }
    }
 
    /**
     * @param sctx {@link ServletContext}
     * @return actual ExoContainer instance
     */
-   protected ExoContainer getContainer(ServletContext sctx)
+   protected ExoContainer getContainerIfPresent(ServletContext sctx)
    {
-      ExoContainer container = ExoContainerContext.getCurrentContainer();
+      ExoContainer container = ExoContainerContext.getCurrentContainerIfPresent();
       if (container instanceof RootContainer)
       {
          // The top container is a RootContainer, thus we assume that we are in a portal mode

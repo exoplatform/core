@@ -18,17 +18,17 @@
  */
 package org.exoplatform.services.security.web;
 
-import org.exoplatform.container.ExoContainer;
-import org.exoplatform.container.PortalContainer;
-import org.exoplatform.services.security.ConversationRegistry;
-import org.exoplatform.services.security.ConversationState;
-import org.exoplatform.services.security.StateKey;
-
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
+
+import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.PortalContainer;
+import org.exoplatform.services.security.ConversationRegistry;
+import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.security.StateKey;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -54,30 +54,33 @@ public class JAASConversationStateListener extends ConversationStateListener
       StateKey stateKey = new HttpSessionStateKey(httpSession);
       try
       {
-         ExoContainer container = getContainer(httpSession.getServletContext());
-         ConversationRegistry conversationRegistry =
-            (ConversationRegistry)container.getComponentInstanceOfType(ConversationRegistry.class);
-
-         ConversationState conversationState = conversationRegistry.unregister(stateKey);
-
-         if (conversationState != null)
+         ExoContainer container = getContainerIfPresent(httpSession.getServletContext());
+         if (container != null)
          {
-            if (LOG.isDebugEnabled())
-               LOG.debug("Remove conversation state " + httpSession.getId());
-            if (conversationState.getAttribute(ConversationState.SUBJECT) != null)
-            {
-               Subject subject = (Subject)conversationState.getAttribute(ConversationState.SUBJECT);
-               String realmName =
-                  container instanceof PortalContainer ? ((PortalContainer)container).getRealmName()
-                     : PortalContainer.DEFAULT_REALM_NAME;
-               LoginContext ctx = new LoginContext(realmName, subject);
-               ctx.logout();
-            }
-            else
+            ConversationRegistry conversationRegistry =
+               (ConversationRegistry)container.getComponentInstanceOfType(ConversationRegistry.class);
+
+            ConversationState conversationState = conversationRegistry.unregister(stateKey);
+
+            if (conversationState != null)
             {
                if (LOG.isDebugEnabled())
+                  LOG.debug("Remove conversation state " + httpSession.getId());
+               if (conversationState.getAttribute(ConversationState.SUBJECT) != null)
                {
-                  LOG.warn("Subject was not found in ConversationState attributes.");
+                  Subject subject = (Subject)conversationState.getAttribute(ConversationState.SUBJECT);
+                  String realmName =
+                     container instanceof PortalContainer ? ((PortalContainer)container).getRealmName()
+                        : PortalContainer.DEFAULT_REALM_NAME;
+                  LoginContext ctx = new LoginContext(realmName, subject);
+                  ctx.logout();
+               }
+               else
+               {
+                  if (LOG.isDebugEnabled())
+                  {
+                     LOG.warn("Subject was not found in ConversationState attributes.");
+                  }
                }
             }
          }
