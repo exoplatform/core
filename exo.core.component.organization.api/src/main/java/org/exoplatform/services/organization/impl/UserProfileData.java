@@ -22,21 +22,31 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 
 import org.exoplatform.commons.utils.SecurityHelper;
+import org.hibernate.annotations.Type;
 
 import java.security.PrivilegedAction;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 /**
- * Created by The eXo Platform SAS . Author : Tuan Nguyen
- * tuan08@users.sourceforge.net Date: Jun 14, 2003 Time: 1:12:22 PM
- * 
- * @hibernate.class table="EXO_USER_PROFILE"
+ * Created by The eXo Platform SAS .
+ * Author : Tuan Nguyen tuan08@users.sourceforge.net
+ * Date: Jun 14, 2003 Time: 1:12:22 PM
  */
+@Entity
+@Table(name = "EXO_USER_PROFILE")
 public class UserProfileData
 {
    static transient private XStream xstream_;
 
+   @Id
    private String userName;
 
+   @Column(length = 65536)
+   @Type(type = "org.exoplatform.services.database.impl.TextClobType")
    private String profile;
 
    public UserProfileData()
@@ -52,9 +62,6 @@ public class UserProfileData
       this.profile = b.toString();
    }
 
-   /**
-    * @hibernate.id generator-class="assigned"
-    **/
    public String getUserName()
    {
       return userName;
@@ -65,10 +72,6 @@ public class UserProfileData
       this.userName = s;
    }
 
-   /**
-    * @hibernate.property length="65535"
-    *                     type="org.exoplatform.services.database.impl.TextClobType"
-    **/
    public String getProfile()
    {
       return profile;

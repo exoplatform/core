@@ -28,17 +28,17 @@
    <external-component-plugins>
       <target-component>org.exoplatform.services.database.HibernateService</target-component>
       <component-plugin>
-         <name>add.hibernate.mapping</name>
+         <name>add.hibernate.annotations</name>
          <set-method>addPlugin</set-method>
          <type>org.exoplatform.services.database.impl.AddHibernateMappingPlugin</type>
          <init-params>
             <values-param>
-               <name>hibernate.mapping</name>
-               <value>org/exoplatform/services/organization/impl/UserImpl.hbm.xml</value>
-               <value>org/exoplatform/services/organization/impl/MembershipImpl.hbm.xml</value>
-               <value>org/exoplatform/services/organization/impl/GroupImpl.hbm.xml</value>
-               <value>org/exoplatform/services/organization/impl/MembershipTypeImpl.hbm.xml</value>
-               <value>org/exoplatform/services/organization/impl/UserProfileData.hbm.xml</value>
+               <name>hibernate.annotations</name>
+               <value>org.exoplatform.services.organization.impl.UserImpl</value>
+               <value>org.exoplatform.services.organization.impl.MembershipImpl</value>
+               <value>org.exoplatform.services.organization.impl.GroupImpl</value>
+               <value>org.exoplatform.services.organization.impl.MembershipTypeImpl</value>
+               <value>org.exoplatform.services.organization.impl.UserProfileData</value>
             </values-param>
          </init-params>
       </component-plugin>

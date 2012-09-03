@@ -23,23 +23,34 @@ import org.exoplatform.services.organization.MembershipType;
 
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 /**
- * Created by The eXo Platform SAS . Author : Tuan Nguyen
- * tuan08@users.sourceforge.net Date: Jun 14, 2003 Time: 1:12:22 PM
- * 
- * @hibernate.class table="EXO_MEMBERSHIP_TYPE"
+ * Created by The eXo Platform SAS .
+ * Author : Tuan Nguyen tuan08@users.sourceforge.net
+ * Date: Jun 14, 2003 Time: 1:12:22 PM
  */
+@Entity
+@Table(name = "EXO_MEMBERSHIP_TYPE")
 public class MembershipTypeImpl implements MembershipType, ExtendedCloneable
 {
 
+   @Id
    private String name;
 
+   @Column
    private String description;
 
+   @Column
    private String owner;
 
+   @Column
    private Date createdDate;
 
+   @Column
    private Date modifiedDate;
 
    public MembershipTypeImpl()
@@ -53,9 +64,6 @@ public class MembershipTypeImpl implements MembershipType, ExtendedCloneable
       this.description = desc;
    }
 
-   /**
-    * @hibernate.id generator-class="assigned"
-    **/
    public String getName()
    {
       return name;
@@ -66,9 +74,6 @@ public class MembershipTypeImpl implements MembershipType, ExtendedCloneable
       name = s;
    }
 
-   /**
-    * @hibernate.property
-    **/
    public String getDescription()
    {
       return description;
@@ -79,9 +84,6 @@ public class MembershipTypeImpl implements MembershipType, ExtendedCloneable
       description = s;
    }
 
-   /**
-    * @hibernate.property
-    **/
    public String getOwner()
    {
       return owner;
@@ -92,9 +94,6 @@ public class MembershipTypeImpl implements MembershipType, ExtendedCloneable
       owner = s;
    }
 
-   /**
-    * @hibernate.property
-    **/
    public Date getCreatedDate()
    {
       return createdDate;
@@ -105,9 +104,6 @@ public class MembershipTypeImpl implements MembershipType, ExtendedCloneable
       createdDate = d;
    }
 
-   /**
-    * @hibernate.property
-    **/
    public Date getModifiedDate()
    {
       return modifiedDate;

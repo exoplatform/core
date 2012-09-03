@@ -21,27 +21,32 @@ package org.exoplatform.services.organization.impl;
 import org.exoplatform.services.organization.ExtendedCloneable;
 import org.exoplatform.services.organization.Membership;
 
-/**
- * @hibernate.class table="EXO_MEMBERSHIP"
- */
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "EXO_MEMBERSHIP")
 public class MembershipImpl implements Membership, ExtendedCloneable
 {
 
+   @Id
    private String id = null;
 
+   @Column
    private String membershipType = "member";
 
+   @Column
    private String userName = null;
 
+   @Column
    private String groupId = null;
 
    public MembershipImpl()
    {
    }
 
-   /**
-    * @hibernate.id generator-class="assigned" unsaved-value="null"
-    ***/
    public String getId()
    {
       return id;
@@ -49,14 +54,9 @@ public class MembershipImpl implements Membership, ExtendedCloneable
 
    public void setId(String id)
    {
-      // new Exception("MODIFY MEMBERSHIP ID , old id: " + this.id + " new id : "
-      // +id).printStackTrace() ;
       this.id = id;
    }
 
-   /**
-    * @hibernate.property
-    **/
    public String getMembershipType()
    {
       return membershipType;
@@ -67,9 +67,6 @@ public class MembershipImpl implements Membership, ExtendedCloneable
       this.membershipType = type;
    }
 
-   /**
-    * @hibernate.property
-    **/
    public String getUserName()
    {
       return userName;
@@ -80,9 +77,6 @@ public class MembershipImpl implements Membership, ExtendedCloneable
       this.userName = user;
    }
 
-   /**
-    * @hibernate.property
-    **/
    public String getGroupId()
    {
       return groupId;
