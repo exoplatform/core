@@ -126,7 +126,7 @@ public class TestStandardLDAPAPI extends BasicTestCase
       // case
       matchAttrs.put(new BasicAttribute("sn", "sn1"));
       matchAttrs.put(new BasicAttribute("telephonenumber", "0989654990"));
-      NamingEnumeration results = ctx.search(DEVELOPER_UNIT_DN, matchAttrs);
+      NamingEnumeration<?> results = ctx.search(DEVELOPER_UNIT_DN, matchAttrs);
       while (results.hasMore())
       {
          SearchResult sr = (SearchResult)results.next();

@@ -34,7 +34,7 @@ import java.util.Collection;
 public class CacheableUserProfileHandlerImpl implements UserProfileHandler
 {
 
-   private final ExoCache userProfileCache;
+   private final ExoCache<String, UserProfile> userProfileCache;
 
    private final UserProfileHandler userProfileHandler;
 
@@ -104,7 +104,7 @@ public class CacheableUserProfileHandlerImpl implements UserProfileHandler
    /**
     * {@inheritDoc}
     */
-   public Collection findUserProfiles() throws Exception
+   public Collection<UserProfile> findUserProfiles() throws Exception
    {
       Collection<UserProfile> userProfiles = userProfileHandler.findUserProfiles();
       for (UserProfile userProfile : userProfiles)

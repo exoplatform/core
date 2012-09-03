@@ -79,7 +79,7 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
 
    private boolean checkExistDatabase(OrganizationService service) throws Exception
    {
-      PageList users = service.getUserHandler().getUserPageList(10);
+      PageList<?> users = service.getUserHandler().getUserPageList(10);
       if (users != null && users.getAvailable() > 0)
          return true;
       return false;
@@ -88,7 +88,7 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
    private void createGroups(OrganizationService orgService) throws Exception
    {
       printInfo("  Init  Group Data");
-      List groups = config_.getGroup();
+      List<?> groups = config_.getGroup();
       for (int i = 0; i < groups.size(); i++)
       {
          OrganizationConfig.Group data = (OrganizationConfig.Group)groups.get(i);
@@ -126,7 +126,7 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
    private void createMembershipTypes(OrganizationService service) throws Exception
    {
       printInfo("  Init  Membership Type  Data");
-      List types = config_.getMembershipType();
+      List<?> types = config_.getMembershipType();
       for (int i = 0; i < types.size(); i++)
       {
          OrganizationConfig.MembershipType data = (OrganizationConfig.MembershipType)types.get(i);
@@ -148,7 +148,7 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
    private void createUsers(OrganizationService service) throws Exception
    {
       printInfo("  Init  User  Data");
-      List<OrganizationConfig.User> users = config_.getUser();
+      List<?> users = config_.getUser();
       MembershipHandler mhandler = service.getMembershipHandler();
       for (int i = 0; i < users.size(); i++)
       {

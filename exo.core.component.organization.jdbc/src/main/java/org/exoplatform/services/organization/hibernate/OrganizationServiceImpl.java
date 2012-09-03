@@ -24,15 +24,17 @@ import org.exoplatform.services.organization.BaseOrganizationService;
 import org.picocontainer.Startable;
 
 /**
- * Created by The eXo Platform SAS Author : Mestrallet Benjamin
- * benjmestrallet@users.sourceforge.net Author : Tuan Nguyen
- * tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:51:21 PM
+ * Created by The eXo Platform SAS
+ * Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
+ * Author : Tuan Nguyen tuan08@users.sourceforge.net
+ * Date: Aug 22, 2003 Time: 4:51:21 PM
  */
 public class OrganizationServiceImpl extends BaseOrganizationService implements Startable
 {
 
    public OrganizationServiceImpl(HibernateService hservice, CacheService cservice) throws Exception
    {
+
       userDAO_ = new UserDAOImpl(hservice, cservice, this);
       userProfileDAO_ = new UserProfileDAOImpl(hservice, cservice, userDAO_);
       groupDAO_ = new GroupDAOImpl(hservice);

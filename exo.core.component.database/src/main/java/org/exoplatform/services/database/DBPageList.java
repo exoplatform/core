@@ -32,8 +32,8 @@ import java.util.List;
 import javax.sql.rowset.CachedRowSet;
 
 /**
- * Created by The eXo Platform SAS Author : Nhu Dinh Thuan
- * nhudinhthuan@exoplatform.com Mar 30, 2007
+ * Created by The eXo Platform SAS
+ * Author : Nhu Dinh Thuan nhudinhthuan@exoplatform.com Mar 30, 2007
  */
 public class DBPageList<T extends DBObject> extends PageList
 {
@@ -82,16 +82,19 @@ public class DBPageList<T extends DBObject> extends PageList
       {
          super.setAvailablePage(((Long)retObj).intValue());
       }
-      // super.setAvailablePage(counter.intValue());
    }
 
    protected void populateCurrentPage(int currentPage) throws Exception
    {
       this.currentPage_ = currentPage;
       if (currentListPage_ != null)
+      {
          currentListPage_.clear();
+      }
       else
+      {
          currentListPage_ = new ArrayList<T>();
+      }
       loadPageList(this, query_);
    }
 

@@ -21,11 +21,12 @@ package org.exoplatform.services.organization;
 import org.exoplatform.container.component.ComponentPlugin;
 
 /**
- * Created by The eXo Platform SAS Author : Mestrallet Benjamin
- * benjmestrallet@users.sourceforge.net Author : Tuan Nguyen
- * tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:46:04 PM Concept: The
- * eXo platform organization has 5 main components: user , user profile, group,
- * membership type and memebership.
+ * Created by The eXo Platform SAS
+ * Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
+ * Author : Tuan Nguyen tuan08@users.sourceforge.net
+ * Date: Aug 22, 2003 Time: 4:46:04 PM
+ * Concept: The eXo platform organization has 5 main components: user , user profile, group,
+ * membership type and membership.
  * 
  * <pre>
  * |-----------------|    |---------------|  |---------------|    |---------------|
@@ -54,8 +55,8 @@ import org.exoplatform.container.component.ComponentPlugin;
  * The user component contain and manage the basic information of an user such
  * the username , password, first name, last name, email.. The user profile
  * component contain and manage the extra user information such the user
- * personal information, businese information.. The third party developers can
- * also add the information of an user for thier application use. The group
+ * personal information, business information.. The third party developers can
+ * also add the information of an user for their application use. The group
  * component contains and manage a tree of the groups. The membership type
  * contains and manage a list of the predefined membership The membership
  * component contains and manage the relation of the user , group and membership
@@ -65,13 +66,13 @@ import org.exoplatform.container.component.ComponentPlugin;
  * interface of the organization service. From this interface, the developer can
  * access the sub interface UserHandler to manage the user, UserProfile handler
  * to manage the user profile, GroupHandler to manage the group and the
- * MembershipHandler to manage the user group and memberhip relation.
+ * MembershipHandler to manage the user group and membership relation.
  */
 public interface OrganizationService
 {
    /**
     * This method return an UserHandler object that use to manage the user
-    * opeation such create, update , detele , find user.
+    * operation such create, update , delete , find user.
     * 
     * @see UserHandler
     **/

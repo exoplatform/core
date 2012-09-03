@@ -21,10 +21,10 @@ package org.exoplatform.services.database;
 import org.exoplatform.services.listener.Event;
 
 /**
- * Created by The eXo Platform SAS Author : Nhu Dinh Thuan
- * nhudinhthuan@exoplatform.com Apr 6, 2007
+ * Created by The eXo Platform SAS
+ * Author : Nhu Dinh Thuan nhudinhthuan@exoplatform.com Apr 6, 2007
  */
-public class DBObjectEvent<E extends DAO, T extends DBObject> extends Event<E, T>
+public class DBObjectEvent<E extends DAO<?>, T extends DBObject> extends Event<E, T>
 {
 
    public DBObjectEvent(String name, E e, T t)

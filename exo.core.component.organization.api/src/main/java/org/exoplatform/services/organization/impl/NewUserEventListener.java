@@ -90,7 +90,7 @@ public class NewUserEventListener extends UserEventListener
 
    private void createDefaultUserMemberships(User user, OrganizationService service) throws Exception
    {
-      List groups = config_.getGroup();
+      List<?> groups = config_.getGroup();
       if (groups.size() == 0)
          return;
       for (int i = 0; i < groups.size(); i++)

@@ -33,9 +33,9 @@ public class UserBackupData
 
    private UserProfileImpl userProfile;
 
-   private Collection memberships;
+   private Collection<?> memberships;
 
-   public UserBackupData(UserImpl u, UserProfileImpl up, Collection mbs)
+   public UserBackupData(UserImpl u, UserProfileImpl up, Collection<?> mbs)
    {
       user = u;
       userProfile = up;
@@ -52,7 +52,7 @@ public class UserBackupData
       return userProfile;
    }
 
-   public Collection getMemberships()
+   public Collection<?> getMemberships()
    {
       return memberships;
    }

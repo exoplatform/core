@@ -28,45 +28,45 @@ import java.util.List;
  */
 public class OrganizationConfig
 {
-   private List membershipType;
+   private List<?> membershipType;
 
-   private List group;
+   private List<?> group;
 
-   private List user;
+   private List<?> user;
 
    public OrganizationConfig()
    {
-      membershipType = new ArrayList(5);
-      group = new ArrayList(5);
-      user = new ArrayList(5);
+      membershipType = new ArrayList<Object>(5);
+      group = new ArrayList<Object>(5);
+      user = new ArrayList<Object>(5);
    }
 
-   public List getGroup()
+   public List<?> getGroup()
    {
       return group;
    }
 
-   public void setGroup(List group)
+   public void setGroup(List<?> group)
    {
       this.group = group;
    }
 
-   public List getMembershipType()
+   public List<?> getMembershipType()
    {
       return membershipType;
    }
 
-   public void setMembershipType(List membershipType)
+   public void setMembershipType(List<?> membershipType)
    {
       this.membershipType = membershipType;
    }
 
-   public List getUser()
+   public List<?> getUser()
    {
       return user;
    }
 
-   public void setUser(List user)
+   public void setUser(List<?> user)
    {
       this.user = user;
    }

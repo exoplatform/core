@@ -52,7 +52,7 @@ public class DBObjectQuery<T extends DBObject>
       selectParameter_ = new ArrayList<Parameter>(10);
    }
 
-   public DBObjectQuery addEQ(String field, Object value)
+   public DBObjectQuery<T> addEQ(String field, Object value)
    {
       if (value == null)
          return this;
@@ -60,7 +60,7 @@ public class DBObjectQuery<T extends DBObject>
       return this;
    }
 
-   public DBObjectQuery addGT(String field, Object value)
+   public DBObjectQuery<T> addGT(String field, Object value)
    {
       if (value == null)
          return this;
@@ -68,7 +68,7 @@ public class DBObjectQuery<T extends DBObject>
       return this;
    }
 
-   public DBObjectQuery addLT(String field, Object value)
+   public DBObjectQuery<T> addLT(String field, Object value)
    {
       if (value == null)
          return this;
@@ -76,7 +76,7 @@ public class DBObjectQuery<T extends DBObject>
       return this;
    }
 
-   public DBObjectQuery addLIKE(String field, String value)
+   public DBObjectQuery<T> addLIKE(String field, String value)
    {
       if (value == null || value.length() < 1)
          return this;
@@ -84,19 +84,19 @@ public class DBObjectQuery<T extends DBObject>
       return this;
    }
 
-   public DBObjectQuery addSUM(String field)
+   public DBObjectQuery<T> addSUM(String field)
    {
       selectParameter_.add(new Parameter("SUM", field));
       return this;
    }
 
-   public DBObjectQuery addSelect(String field, String value)
+   public DBObjectQuery<T> addSelect(String field, String value)
    {
       selectParameter_.add(new Parameter(field, " AS ", value));
       return this;
    }
 
-   public DBObjectQuery addSelect(String... fields)
+   public DBObjectQuery<T> addSelect(String... fields)
    {
       for (String field : fields)
       {
@@ -105,39 +105,39 @@ public class DBObjectQuery<T extends DBObject>
       return this;
    }
 
-   public DBObjectQuery addSelect(String field)
+   public DBObjectQuery<T> addSelect(String field)
    {
       selectParameter_.add(new Parameter(field, null, null));
       return this;
    }
 
-   public DBObjectQuery addSelectCount(String type)
+   public DBObjectQuery<T> addSelectCount(String type)
    {
       selectParameter_.add(new Parameter("countselect", type));
       return this;
    }
 
-   public DBObjectQuery addSelectMaxMin(String op, String field)
+   public DBObjectQuery<T> addSelectMaxMin(String op, String field)
    {
       selectParameter_.add(new Parameter(op, field));
+      return this;
+   }
+
+   public DBObjectQuery<T> setAscOrderBy(String field)
+   {
+      orderBy_ = " ORDER BY " + field + " ASC";
+      return this;
+   }
+
+   public DBObjectQuery<T> setDescOrderBy(String field)
+   {
+      orderBy_ = " ORDER BY " + field + " DESC";
       return this;
    }
 
    public DBObjectQuery setGroupBy(String field)
    {
       groupBy_ = " GROUP BY " + field;
-      return this;
-   }
-
-   public DBObjectQuery setAscOrderBy(String field)
-   {
-      orderBy_ = " ORDER BY " + field + " ASC";
-      return this;
-   }
-
-   public DBObjectQuery setDescOrderBy(String field)
-   {
-      orderBy_ = " ORDER BY " + field + " DESC";
       return this;
    }
 

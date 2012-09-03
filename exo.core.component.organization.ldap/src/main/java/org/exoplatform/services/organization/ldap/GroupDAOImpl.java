@@ -168,7 +168,6 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
                {
                   postSave(group, true);
                }
-               
 
                return;
             }
@@ -378,8 +377,7 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
-   public Collection findGroupByMembership(String userName, String membershipType) throws Exception
+   public Collection<Group> findGroupByMembership(String userName, String membershipType) throws Exception
    {
       List<Group> groups = new ArrayList<Group>();
       LdapContext ctx = ldapService.getLdapContext();
@@ -453,7 +451,7 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
       {
          return group;
       }
-      
+
       String parentId = null;
       StringBuffer buffer = new StringBuffer();
       String[] groupIdParts = groupId.split("/");
@@ -551,8 +549,7 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
-   public Collection getAllGroups() throws Exception
+   public Collection<Group> getAllGroups() throws Exception
    {
       List<Group> groups = new ArrayList<Group>();
 
@@ -620,8 +617,7 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
-   public Collection findGroups(Group parent) throws Exception
+   public Collection<Group> findGroups(Group parent) throws Exception
    {
       List<Group> groups = new ArrayList<Group>();
       String groupsBaseDN = ldapAttrMapping.groupsURL;
@@ -699,8 +695,7 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
-   public Collection findGroupsOfUser(String userName) throws Exception
+   public Collection<Group> findGroupsOfUser(String userName) throws Exception
    {
       List<Group> groups = new ArrayList<Group>();
 
@@ -739,11 +734,11 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
                   String membershipDN = entryName + "," + ldapAttrMapping.groupsURL;
                   uniqueGroupsDN.add(this.getGroupDNFromMembershipDN(membershipDN));
                }
-               for(String groupDN : uniqueGroupsDN)
+               for (String groupDN : uniqueGroupsDN)
                {
-                    Group group = this.getGroupByDN(ctx, groupDN);
-                    if (group != null)
-                        addGroup(groups, group);
+                  Group group = this.getGroupByDN(ctx, groupDN);
+                  if (group != null)
+                     addGroup(groups, group);
                }
                if (LOG.isDebugEnabled())
                {

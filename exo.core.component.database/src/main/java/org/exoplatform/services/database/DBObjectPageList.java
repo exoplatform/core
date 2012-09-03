@@ -32,7 +32,7 @@ import java.util.Map.Entry;
  * @since Oct 21, 2004
  * @version $Id: DBObjectPageList.java 5332 2006-04-29 18:32:44Z geaz $
  */
-public class DBObjectPageList extends PageList
+public class DBObjectPageList extends PageList<Object>
 {
 
    private String findQuery_;
@@ -43,14 +43,14 @@ public class DBObjectPageList extends PageList
 
    private Map<String, Object> binding = new HashMap<String, Object>();
 
-   public DBObjectPageList(HibernateService service, Class objectType) throws Exception
+   public DBObjectPageList(HibernateService service, Class<?> objectType) throws Exception
    {
       super(20);
       service_ = service;
       findQuery_ = "from o in class " + objectType.getName();
       countQuery_ = "select count(o) from " + objectType.getName() + " o";
       Session session = service_.openSession();
-      List l = session.createQuery(countQuery_).list();
+      List<?> l = session.createQuery(countQuery_).list();
       Number count = (Number)l.get(0);
       setAvailablePage(count.intValue());
    }
@@ -68,7 +68,7 @@ public class DBObjectPageList extends PageList
       Query countQuery = session.createQuery(countQuery_);
       bindFields(countQuery);
 
-      List l = countQuery.list();
+      List<?> l = countQuery.list();
 
       Number count = (Number)l.get(0);
       setAvailablePage(count.intValue());
@@ -81,13 +81,12 @@ public class DBObjectPageList extends PageList
       findQuery_ = query;
       countQuery_ = countQuery;
       Session session = service_.openSession();
-      List l = session.createQuery(countQuery_).list();
+      List<?> l = session.createQuery(countQuery_).list();
       Number count = (Number)l.get(0);
       setAvailablePage(count.intValue());
    }
 
    @Override
-   @SuppressWarnings("unused")
    protected void populateCurrentPage(int page) throws Exception
    {
       Session session = service_.openSession();

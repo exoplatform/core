@@ -19,18 +19,19 @@
 package org.exoplatform.services.database;
 
 /**
- * Created by The eXo Platform SAS Author : Tuan Nguyen
- * tuan08@users.sourceforge.net Apr 4, 2006 The DBTableManager is an interface
+ * Created by The eXo Platform SAS
+ * Author : Tuan Nguyen tuan08@users.sourceforge.net Apr 4, 2006
+ * The DBTableManager is an interface
  * to help the developer to check if a table is existed or not and create/drop a
  * table. We can implement more one more DBTableManager according to the
- * database type and versio
+ * database type and version.
  */
 abstract public class DBTableManager
 {
    /**
     * This method should: 1. Extract the table information such table name and
     * table fields from the class T, the information are annotated in the class T
-    * 2. Generate the sql statement and create the table
+    * 2. Generate the SQL statement and create the table
     * 
     * @param <T>
     * @param type
@@ -41,7 +42,7 @@ abstract public class DBTableManager
 
    /**
     * This method should: 1. Extract the table information from the class T, the
-    * information are annotated in the class T 2. Generate the sql statement and
+    * information are annotated in the class T 2. Generate the SQL statement and
     * drop the table
     * 
     * @param <T>

@@ -66,9 +66,9 @@ public interface GroupHandler
     * @param parent The parent group of the new group. use 'null' if you want to
     *          create the group at the root level.
     * @param child The group that you want to create.
-    * @param broadcast Broacast the new group event to all the registered
+    * @param broadcast Broadcast the new group event to all the registered
     *          listener if broadcast is true
-    * @throws Exception An exception is throwed if the method fail to persist the
+    * @throws Exception An exception is thrown if the method fail to persist the
     *           new group or there is already one child group with the same group
     *           name in the database or any registered listener fail to handle
     *           the event.
@@ -85,7 +85,7 @@ public interface GroupHandler
     * @param group The group object with the updated information.
     * @param broadcast Broadcast the event to all the registered listener if the
     *          broadcast value is true
-    * @throws Exception An exception is thorwed if the method cannot access the
+    * @throws Exception An exception is thrown if the method cannot access the
     *           database or any listener fail to handle the event
     */
    public void saveGroup(Group group, boolean broadcast) throws Exception;
@@ -96,12 +96,12 @@ public interface GroupHandler
     * exception
     * 
     * @param group The group to be removed. The group parameter should be
-    *          obtained form the findGroupId(..) method. When the groupn is
+    *          obtained form the findGroupId(..) method. When the group is
     *          removed, the memberships of the group should be removed as well.
     * @param broadcast Broadcast the event to the registered listener if the
     *          broadcast value is 'true'
     * @return Return the removed group.
-    * @throws Exception An exception is throwed if the method fail to remove the
+    * @throws Exception An exception is thrown if the method fail to remove the
     *           group from the database, the group is not existed in the
     *           database, or any listener fail to handle the event.
     */
@@ -116,7 +116,7 @@ public interface GroupHandler
     *          one or more membership in a group, this parameter is necessary. If
     *          the membershipType is null, it should mean any membership type.
     * @return A collection of the found groups
-    * @throws Exception An exception is throwed if the method cannot access the
+    * @throws Exception An exception is thrown if the method cannot access the
     *           database.
     */
    public Collection findGroupByMembership(String userName, String membershipType) throws Exception;
@@ -126,7 +126,7 @@ public interface GroupHandler
     * 
     * @param groupId the id of the group that you want to search for
     * @return null if no record matched the group id or the found group
-    * @throws Exception An exception is throwed if the method cannot access the
+    * @throws Exception An exception is thrown if the method cannot access the
     *           database or more than one group is found.
     */
    public Group findGroupById(String groupId) throws Exception;
@@ -137,7 +137,7 @@ public interface GroupHandler
     * @param parent The group that you want to search. Use null if you want to
     *          search from the root.
     * @return A collection of the children group
-    * @throws Exception An exception is throwed is the method cannot access the
+    * @throws Exception An exception is thrown is the method cannot access the
     *           database
     */
    public Collection findGroups(Group parent) throws Exception;
@@ -149,7 +149,7 @@ public interface GroupHandler
     * @param user The username of the user
     * @return A collection of the found group. The return collection cannot be
     *         null, but it can be empty if no group is found.
-    * @throws Exception An exception is throwed if the method cannot access the
+    * @throws Exception An exception is thrown if the method cannot access the
     *           database.
     */
    public Collection findGroupsOfUser(String user) throws Exception;

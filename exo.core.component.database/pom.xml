@@ -82,17 +82,6 @@
          </exclusions> 
       </dependency>
       <dependency>
-         <groupId>org.hibernate</groupId>
-         <artifactId>hibernate-annotations</artifactId>
-         <exclusions>
-            <exclusion>
-               <groupId>org.slf4j</groupId>
-               <artifactId>slf4j-api</artifactId>
-            </exclusion>
-         </exclusions> 
-      </dependency>
-      
-      <dependency>
          <groupId>commons-dbcp</groupId>
          <artifactId>commons-dbcp</artifactId>
          <exclusions>
@@ -106,7 +95,6 @@
          <groupId>commons-pool</groupId>
          <artifactId>commons-pool</artifactId>
       </dependency>
-
       <dependency>
          <groupId>xml-apis</groupId>
          <artifactId>xml-apis</artifactId>

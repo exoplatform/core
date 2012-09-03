@@ -38,9 +38,9 @@ import java.util.List;
 public class CacheableUserHandlerImpl implements UserHandler
 {
 
-   private final ExoCache userCache;
+   private final ExoCache<String, User> userCache;
 
-   private final ExoCache userProfileCache;
+   private final ExoCache<?, ?> userProfileCache;
 
    private final ExoCache membershipCache;
 
@@ -156,21 +156,24 @@ public class CacheableUserHandlerImpl implements UserHandler
    /**
     * {@inheritDoc}
     */
-   public ListAccess<User> findUsersByGroupId(String groupId) throws Exception {
+   public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
+   {
       return userHandler.findUsersByGroupId(groupId);
    }
 
    /**
     * {@inheritDoc}
     */
-   public ListAccess<User> findAllUsers() throws Exception {
+   public ListAccess<User> findAllUsers() throws Exception
+   {
       return userHandler.findAllUsers();
    }
 
    /**
     * {@inheritDoc}
     */
-   public ListAccess<User> findUsersByQuery(Query query) throws Exception {
+   public ListAccess<User> findUsersByQuery(Query query) throws Exception
+   {
       return userHandler.findUsersByQuery(query);
    }
 

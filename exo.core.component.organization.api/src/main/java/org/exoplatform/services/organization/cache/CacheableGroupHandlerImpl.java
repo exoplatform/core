@@ -36,7 +36,7 @@ import java.util.List;
 public class CacheableGroupHandlerImpl implements GroupHandler
 {
 
-   private final ExoCache groupCache;
+   private final ExoCache<String, Object> groupCache;
 
    private final ExoCache membershipCache;
 

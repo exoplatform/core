@@ -25,6 +25,7 @@ import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.User;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 /**
@@ -38,7 +39,7 @@ import java.util.Collection;
 public class CacheableMembershipHandlerImpl implements MembershipHandler
 {
 
-   private final ExoCache membershipCache;
+   private final ExoCache<Serializable, Membership> membershipCache;
 
    private final MembershipHandler membershipHandler;
 
@@ -132,7 +133,7 @@ public class CacheableMembershipHandlerImpl implements MembershipHandler
    /**
     * {@inheritDoc}
     */
-   public Collection findMembershipsByGroup(Group group) throws Exception
+   public Collection<Membership> findMembershipsByGroup(Group group) throws Exception
    {
       Collection<Membership> memberships = membershipHandler.findMembershipsByGroup(group);
       for (Membership membership : memberships)
@@ -152,7 +153,7 @@ public class CacheableMembershipHandlerImpl implements MembershipHandler
    /**
     * {@inheritDoc}
     */
-   public Collection findMembershipsByUser(String userName) throws Exception
+   public Collection<Membership> findMembershipsByUser(String userName) throws Exception
    {
       Collection<Membership> memberships = membershipHandler.findMembershipsByUser(userName);
       for (Membership membership : memberships)
@@ -167,7 +168,7 @@ public class CacheableMembershipHandlerImpl implements MembershipHandler
    /**
     * {@inheritDoc}
     */
-   public Collection findMembershipsByUserAndGroup(String userName, String groupId) throws Exception
+   public Collection<Membership> findMembershipsByUserAndGroup(String userName, String groupId) throws Exception
    {
       Collection<Membership> memberships = membershipHandler.findMembershipsByUserAndGroup(userName, groupId);
       for (Membership membership : memberships)
@@ -205,7 +206,7 @@ public class CacheableMembershipHandlerImpl implements MembershipHandler
    /**
     * {@inheritDoc}
     */
-   public Collection removeMembershipByUser(String username, boolean broadcast) throws Exception
+   public Collection<Membership> removeMembershipByUser(String username, boolean broadcast) throws Exception
    {
       Collection<Membership> memberships = membershipHandler.removeMembershipByUser(username, broadcast);
 

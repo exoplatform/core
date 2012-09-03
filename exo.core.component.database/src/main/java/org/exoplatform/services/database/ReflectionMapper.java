@@ -39,8 +39,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Created by The eXo Platform SAS Author : Nhu Dinh Thuan
- * nhudinhthuan@exoplatform.com Apr 2, 2007
+ * Created by The eXo Platform SAS
+ * Author: Nhu Dinh Thuan nhudinhthuan@exoplatform.com Apr 2, 2007
  */
 public class ReflectionMapper<T extends DBObject> implements DBObjectMapper<T>
 {
@@ -62,7 +62,7 @@ public class ReflectionMapper<T extends DBObject> implements DBObjectMapper<T>
       return parameters;
    }
 
-   private void getParameters(Object bean, Class clazz, Map<String, String> map) throws Exception
+   private void getParameters(Object bean, Class<?> clazz, Map<String, String> map) throws Exception
    {
       Field[] fields = clazz.getDeclaredFields();
       for (int i = 0; i < fields.length; i++)
@@ -82,7 +82,7 @@ public class ReflectionMapper<T extends DBObject> implements DBObjectMapper<T>
       }
       if (clazz == DBObject.class)
          return;
-      Class superClazz = clazz.getSuperclass();
+      Class<?> superClazz = clazz.getSuperclass();
       getParameters(superClazz.cast(bean), superClazz, map);
    }
 
@@ -126,7 +126,7 @@ public class ReflectionMapper<T extends DBObject> implements DBObjectMapper<T>
       }
    }
 
-   private Field getField(Class clazz, String name) throws Exception
+   private Field getField(Class<?> clazz, String name) throws Exception
    {
       Field field = clazz.getDeclaredField(name);
       if (field != null)

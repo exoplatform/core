@@ -300,8 +300,7 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
-   public Collection findMembershipTypes() throws Exception
+   public Collection<MembershipType> findMembershipTypes() throws Exception
    {
       Collection<MembershipType> memberships = new ArrayList<MembershipType>();
       String filter = ldapAttrMapping.membershipTypeNameAttr + "=*";

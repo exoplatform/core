@@ -21,8 +21,8 @@ package org.exoplatform.services.database;
 import org.exoplatform.services.database.annotation.TableField;
 
 /**
- * Created by The eXo Platform SAS Author : Le Bien Thuy
- * lebienthuy@exoplatform.com Apr 4, 2006
+ * Created by The eXo Platform SAS
+ * Author : Le Bien Thuy lebienthuy@exoplatform.com Apr 4, 2006
  */
 public class OracleTableManager extends StandardSQLTableManager
 {

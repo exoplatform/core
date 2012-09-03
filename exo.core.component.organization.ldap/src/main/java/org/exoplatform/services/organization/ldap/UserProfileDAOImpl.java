@@ -244,8 +244,7 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
-   public Collection findUserProfiles() throws Exception
+   public Collection<?> findUserProfiles() throws Exception
    {
       // currently profile stored in database
       return null;

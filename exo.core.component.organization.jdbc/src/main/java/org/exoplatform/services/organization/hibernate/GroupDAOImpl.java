@@ -38,36 +38,37 @@ import java.util.List;
 import javax.naming.InvalidNameException;
 
 /**
- * Created by The eXo Platform SAS Author : Mestrallet Benjamin
- * benjmestrallet@users.sourceforge.net Author : Tuan Nguyen
- * tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:51:21 PM
+ * Created by The eXo Platform SAS
+ * Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
+ * Author : Tuan Nguyen tuan08@users.sourceforge.net
+ * Date: Aug 22, 2003 Time: 4:51:21 PM
  */
 public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
 {
    public static final String queryFindGroupByName =
-      "from g in class org.exoplatform.services.organization.impl.GroupImpl " + "where g.groupName = ? ";
+      "from g in class org.exoplatform.services.organization.impl.GroupImpl where g.groupName = :id ";
 
    public static final String queryFindGroupById =
-      "from g in class org.exoplatform.services.organization.impl.GroupImpl " + "where g.id = ? ";
+      "from g in class org.exoplatform.services.organization.impl.GroupImpl where g.id = :id ";
 
    public static final String queryFindGroupByParent =
-      "from g in class org.exoplatform.services.organization.impl.GroupImpl " + "where g.parentId = ? ";
+      "from g in class org.exoplatform.services.organization.impl.GroupImpl where g.parentId = :parentid ";
 
    public static final String queryFindCountGroupByParent = "select count(*)"
-      + "from g in class org.exoplatform.services.organization.impl.GroupImpl where g.parentId = ? ";
+      + "from g in class org.exoplatform.services.organization.impl.GroupImpl where g.parentId = :parentid ";
 
    private static final String queryFindRootGroups =
-      "from g in class org.exoplatform.services.organization.impl.GroupImpl " + "where g.parentId is null";
+      "from g in class org.exoplatform.services.organization.impl.GroupImpl where g.parentId is null";
 
-   private static final String queryFindGroupsOfUser =
-      "select distinct g " + "from g in class org.exoplatform.services.organization.impl.GroupImpl, "
-         + "     m in class org.exoplatform.services.organization.impl.MembershipImpl " + "where m.groupId = g.id "
-         + "  and m.userName = ?";
+   private static final String queryFindGroupsOfUser = "select distinct g "
+      + "from g in class org.exoplatform.services.organization.impl.GroupImpl, "
+      + "     m in class org.exoplatform.services.organization.impl.MembershipImpl "
+      + "where m.groupId = g.id and m.userName = :username";
 
-   private static final String queryFindGroupByMembership =
-      "select g " + "from m in class org.exoplatform.services.organization.impl.MembershipImpl, "
-         + "     g in class org.exoplatform.services.organization.impl.GroupImpl " + "where m.groupId = g.id "
-         + "  and m.userName = ? " + "  and m.membershipType = ? ";
+   private static final String queryFindGroupByMembership = "select g "
+      + "from m in class org.exoplatform.services.organization.impl.MembershipImpl, "
+      + "     g in class org.exoplatform.services.organization.impl.GroupImpl "
+      + "where m.groupId = g.id and m.userName = :username and m.membershipType = :membershiptype ";
 
    private static final String queryGetAllGroups =
       "from g in class org.exoplatform.services.organization.impl.GroupImpl";
@@ -157,7 +158,7 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
       if (broadcast)
          postSave(child, true);
    }
-   
+
    /**
     * {@inheritDoc}
     */
@@ -178,7 +179,7 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
    {
       Session session = service_.openSession();
       long countChildrenGroup =
-         (Long)session.createQuery(queryFindCountGroupByParent).setString(0, parent.getId()).list().get(0);
+         (Long)session.createQuery(queryFindCountGroupByParent).setString("parentid", parent.getId()).list().get(0);
 
       return countChildrenGroup > 0;
    }
@@ -216,11 +217,13 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
    /**
     * {@inheritDoc}
     */
-   public Collection findGroupByMembership(String userName, String membershipType) throws Exception
+   public Collection<?> findGroupByMembership(String userName, String membershipType) throws Exception
    {
       Session session = service_.openSession();
-      Query q = session.createQuery(queryFindGroupByMembership).setString(0, userName).setString(1, membershipType);
-      List groups = q.list();
+      Query q =
+         session.createQuery(queryFindGroupByMembership).setString("username", userName)
+            .setString("membershiptype", membershipType);
+      List<?> groups = q.list();
       return groups;
    }
 
@@ -247,37 +250,32 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
    /**
     * {@inheritDoc}
     */
-   public Collection findGroups(Group parent) throws Exception
+   public Collection<?> findGroups(Group parent) throws Exception
    {
       Session session = service_.openSession();
       if (parent == null)
          return session.createQuery(queryFindRootGroups).list();
-      // return session.find( queryFindRootGroups );
-      // }
-      // return session.find( queryFindGroupByParent, parent.getId(),
-      // Hibernate.STRING );
-      return session.createQuery(queryFindGroupByParent).setString(0, parent.getId()).list();
+      return session.createQuery(queryFindGroupByParent).setString("parentid", parent.getId()).list();
 
    }
 
    /**
     * {@inheritDoc}
     */
-   public Collection findGroupsOfUser(String user) throws Exception
+   public Collection<?> findGroupsOfUser(String user) throws Exception
    {
       Session session = service_.openSession();
-      // return session.find( queryFindGroupsOfUser, user, Hibernate.STRING );
-      return session.createQuery(queryFindGroupsOfUser).setString(0, user).list();
+      return session.createQuery(queryFindGroupsOfUser).setString("username", user).list();
    }
 
    /**
     * {@inheritDoc}
     */
-   public Collection getAllGroups() throws Exception
+   public Collection<?> getAllGroups() throws Exception
    {
       Session session = service_.openSession();
       Query q = session.createQuery(queryGetAllGroups);
-      List groups = q.list();
+      List<?> groups = q.list();
       return groups;
    }
 

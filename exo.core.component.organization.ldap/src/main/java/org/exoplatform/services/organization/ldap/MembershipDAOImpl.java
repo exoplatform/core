@@ -70,7 +70,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
     * See {@link MembershipEventListener}.
     */
    protected List<MembershipEventListener> listeners;
-   
+
    /**
     * Organization service;
     */
@@ -125,7 +125,6 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
    public void createMembership(Membership m, boolean broadcast) throws Exception
    {
       LdapContext ctx = ldapService.getLdapContext();
@@ -134,7 +133,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
          if (service.getMembershipTypeHandler().findMembershipType(m.getMembershipType()) == null)
          {
             throw new InvalidNameException("Can not create membership record " + m.getId()
-                     + " because membership type " + m.getMembershipType() + " is not exists.");
+               + " because membership type " + m.getMembershipType() + " is not exists.");
          }
 
          for (int err = 0;; err++)
@@ -169,7 +168,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
                }
 
                // if contains membership
-               List members = getAttributes(attrs, ldapAttrMapping.membershipTypeMemberValue);
+               List<?> members = getAttributes(attrs, ldapAttrMapping.membershipTypeMemberValue);
                if (members.contains(userDN))
                   return;
 
@@ -220,7 +219,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
          throw new InvalidNameException("Can not create membership record for " + user.getUserName()
             + " because membership type is null");
       }
-      
+
       createMembership(createMembershipObject(user.getUserName(), group.getId(), mt.getName()), broadcast);
    }
 
@@ -313,8 +312,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
-   public Collection removeMembershipByUser(String username, boolean broadcast) throws Exception
+   public Collection<Membership> removeMembershipByUser(String username, boolean broadcast) throws Exception
    {
       ArrayList<Membership> memberships = new ArrayList<Membership>();
       LdapContext ctx = ldapService.getLdapContext();
@@ -449,7 +447,6 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
                   results.close();
                }
 
-
                if (membership != null)
                {
                   cacheHandler.put(cacheHandler.getMembershipKey(membership), membership, CacheType.MEMBERSHIP);
@@ -471,8 +468,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
-   public Collection findMembershipsByUserAndGroup(String userName, String groupId) throws Exception
+   public Collection<Membership> findMembershipsByUserAndGroup(String userName, String groupId) throws Exception
    {
       ArrayList<Membership> memberships = new ArrayList<Membership>();
       LdapContext ctx = ldapService.getLdapContext();
@@ -592,8 +588,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
-   public Collection findMembershipsByUser(String userName) throws Exception
+   public Collection<Membership> findMembershipsByUser(String userName) throws Exception
    {
       ArrayList<Membership> memberships = new ArrayList<Membership>();
       String mbfilter = membershipClassFilter();
@@ -661,8 +656,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
-   public Collection findMembershipsByGroup(Group group) throws Exception
+   public Collection<Membership> findMembershipsByGroup(Group group) throws Exception
    {
       ArrayList<Membership> memberships = new ArrayList<Membership>();
       LdapContext ctx = ldapService.getLdapContext();

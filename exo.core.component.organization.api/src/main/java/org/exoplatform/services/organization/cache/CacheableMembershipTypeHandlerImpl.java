@@ -36,7 +36,7 @@ import java.util.List;
 public class CacheableMembershipTypeHandlerImpl implements MembershipTypeHandler
 {
 
-   private final ExoCache membershipTypeCache;
+   private final ExoCache<String, MembershipType> membershipTypeCache;
 
    private final ExoCache membershipCache;
 
@@ -96,7 +96,7 @@ public class CacheableMembershipTypeHandlerImpl implements MembershipTypeHandler
    /**
     * {@inheritDoc}
     */
-   public Collection findMembershipTypes() throws Exception
+   public Collection<MembershipType> findMembershipTypes() throws Exception
    {
 
       Collection<MembershipType> membershipTypes = membershipTypeHandler.findMembershipTypes();

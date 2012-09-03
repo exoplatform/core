@@ -78,7 +78,7 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
          throw new InvalidNameException("Can not create membership record " + membership.getId()
             + " because membership type " + membership.getMembershipType() + " not exists.");
       }
-      
+
       if (service.getGroupHandler().findGroupById(membership.getGroupId()) == null)
       {
          throw new InvalidNameException("Can not create membership record " + membership.getId() + ", because group "
@@ -188,7 +188,7 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
    /**
     * {@inheritDoc}
     */
-   public Collection findMembershipsByGroup(Group group) throws Exception
+   public Collection<?> findMembershipsByGroup(Group group) throws Exception
    {
       if (group == null)
          return null;
@@ -218,7 +218,7 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
    /**
     * {@inheritDoc}
     */
-   public Collection findMembershipsByUser(String userName) throws Exception
+   public Collection<?> findMembershipsByUser(String userName) throws Exception
    {
       if (userName == null)
          return null;
@@ -234,7 +234,7 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
    /**
     * {@inheritDoc}
     */
-   public Collection findMembershipsByUserAndGroup(String userName, String groupId) throws Exception
+   public Collection<?> findMembershipsByUserAndGroup(String userName, String groupId) throws Exception
    {
       if (userName == null || groupId == null)
          return null;
@@ -279,7 +279,7 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
     * {@inheritDoc}
     */
    @SuppressWarnings("unchecked")
-   public Collection removeMembershipByUser(String username, boolean broadcast) throws Exception
+   public Collection<?> removeMembershipByUser(String username, boolean broadcast) throws Exception
    {
       // DBObjectQuery<MembershipImpl> query = new
       // DBObjectQuery<MembershipImpl>(MembershipImpl.class);
@@ -295,7 +295,7 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
    /**
     * {@inheritDoc}
     */
-   public Collection removeMemberships(DBObjectQuery<MembershipImpl> query, boolean broadcast) throws Exception
+   public Collection<?> removeMemberships(DBObjectQuery<MembershipImpl> query, boolean broadcast) throws Exception
    {
       DBPageList<MembershipImpl> pageList = new DBPageList<MembershipImpl>(20, this, query);
       List<MembershipImpl> list = pageList.getAll();
@@ -324,7 +324,6 @@ public class MembershipDAOImpl extends StandardSQLDAO<MembershipImpl> implements
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
    public void addMembershipEventListener(MembershipEventListener listener)
    {
       throw new UnsupportedOperationException("This method is not supported anymore, please use the new api");

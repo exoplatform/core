@@ -63,8 +63,7 @@ public class ADGroupDAOImpl extends GroupDAOImpl
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
-   public Collection findGroupByMembership(String userName, String membershipType) throws Exception
+   public Collection<Group> findGroupByMembership(String userName, String membershipType) throws Exception
    {
       return findGroups(userName, membershipType);
    }
@@ -72,8 +71,7 @@ public class ADGroupDAOImpl extends GroupDAOImpl
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
-   public Collection findGroupsOfUser(String userName) throws Exception
+   public Collection<Group> findGroupsOfUser(String userName) throws Exception
    {
       return findGroups(userName, null);
    }
@@ -84,8 +82,7 @@ public class ADGroupDAOImpl extends GroupDAOImpl
     * @return collection of groups
     * @throws Exception if any errors occurs
     */
-   @SuppressWarnings("unchecked")
-   private Collection findGroups(String userName, String type) throws Exception
+   private Collection<Group> findGroups(String userName, String type) throws Exception
    {
       LdapContext ctx = ldapService.getLdapContext();
       List<Group> groups = new ArrayList<Group>();

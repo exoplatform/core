@@ -35,7 +35,7 @@ public class ObjectQuery
 
    private static SimpleDateFormat ft_ = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
-   private Class type_;
+   private Class<?> type_;
 
    private String orderBy_;
 
@@ -45,7 +45,7 @@ public class ObjectQuery
 
    private List<Parameter> selectParameter_;
 
-   public ObjectQuery(Class type)
+   public ObjectQuery(Class<?> type)
    {
       type_ = type;
       parameters_ = new ArrayList<Parameter>(3);

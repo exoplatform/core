@@ -32,8 +32,8 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Created by The eXo Platform SAS Author : Tuan Nguyen
- * tuan08@users.sourceforge.net Apr 4, 2006
+ * Created by The eXo Platform SAS
+ * Author : Tuan Nguyen tuan08@users.sourceforge.net Apr 4, 2006
  */
 public class IDGenerator extends DAO<ExoLongID>
 {
@@ -119,7 +119,6 @@ public class IDGenerator extends DAO<ExoLongID>
       }
    }
 
-   @SuppressWarnings("unused")
    static public class ExoLongIDMapper implements DBObjectMapper<ExoLongID>
    {
 
@@ -146,7 +145,6 @@ public class IDGenerator extends DAO<ExoLongID>
       return new ExoLongID();
    }
 
-   @SuppressWarnings("unused")
    public ExoLongID load(long id) throws Exception
    {
       return null;
@@ -157,33 +155,27 @@ public class IDGenerator extends DAO<ExoLongID>
       return null;
    }
 
-   @SuppressWarnings("unused")
    public ExoLongID remove(long id) throws Exception
    {
       return null;
    }
 
-   @SuppressWarnings("unused")
    public void remove(ExoLongID bean) throws Exception
    {
    }
 
-   @SuppressWarnings("unused")
    public void save(ExoLongID bean) throws Exception
    {
    }
 
-   @SuppressWarnings("unused")
    public void save(List<ExoLongID> beans) throws Exception
    {
    }
 
-   @SuppressWarnings("unused")
    public void update(ExoLongID bean) throws Exception
    {
    }
 
-   @SuppressWarnings("unused")
    public void update(List<ExoLongID> beans) throws Exception
    {
    }

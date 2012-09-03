@@ -132,13 +132,13 @@ public class TestNovellLDAPAPI extends BasicTestCase
 
    private void printLDAPAttributeSet(LDAPAttributeSet attrs)
    {
-      Iterator allAttributes = attrs.iterator();
+      Iterator<?> allAttributes = attrs.iterator();
       while (allAttributes.hasNext())
       {
          LDAPAttribute attribute = (LDAPAttribute)allAttributes.next();
          String attributeName = attribute.getName();
          System.out.print("\n    " + attributeName + ": ");
-         Enumeration allValues = attribute.getStringValues();
+         Enumeration<?> allValues = attribute.getStringValues();
          if (allValues != null)
          {
             System.out.print("[");

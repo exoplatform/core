@@ -21,9 +21,10 @@ package org.exoplatform.services.organization;
 import java.util.Date;
 
 /**
- * Created by The eXo Platform SAS Author : Mestrallet Benjamin
- * benjmestrallet@users.sourceforge.net Date: Aug 21, 2003 Time: 3:22:54 PM This
- * is the interface for a User data model. The OrganizationService implementor
+ * Created by The eXo Platform SAS
+ * Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
+ * Date: Aug 21, 2003 Time: 3:22:54 PM
+ * This is the interface for a User data model. The OrganizationService implementor
  * can use the different strategy to implement this class, he can use the native
  * field for each get method or use a Map to hold the user data. Note that after
  * each set method is called. The developer need to call
@@ -82,7 +83,7 @@ public interface User
    public void setLastName(String s);
 
    /**
-    * @return return the full name of the user. The full name shoul have the
+    * @return return the full name of the user. The full name should have the
     *         format: first name, last name by default
     * @deprecated This method call getDiplayName
     */
