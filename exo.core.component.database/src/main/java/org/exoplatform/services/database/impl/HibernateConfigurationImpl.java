@@ -19,24 +19,35 @@
 package org.exoplatform.services.database.impl;
 
 import org.hibernate.HibernateException;
-import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
+import org.hibernate.service.ServiceRegistryBuilder;
 
 /**
  * Created by The eXo Platform SAS .
  * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady
- *         Azarenkov</a>
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: HibernateConfigurationImpl.java 5332 2006-04-29 18:32:44Z geaz
  *          $ Hibernate's Configuration. One per 'properties-param' entry in
  *          container configuration
  */
-public class HibernateConfigurationImpl extends AnnotationConfiguration
+public class HibernateConfigurationImpl extends Configuration
 {
 
    private static final long serialVersionUID = -6929418313712034365L;
 
-   public HibernateConfigurationImpl(HibernateSettingsFactory settingsFactory) throws HibernateException
+   public HibernateConfigurationImpl() throws HibernateException
    {
-      super(settingsFactory);
+      super();
+   }
+
+   public SessionFactory buildSessionFactory() throws HibernateException
+   {
+
+      ServiceRegistry servReg = new ServiceRegistryBuilder().applySettings(getProperties()).buildServiceRegistry();
+      SessionFactory sessionFactory = buildSessionFactory(servReg);
+
+      return sessionFactory;
    }
 }
