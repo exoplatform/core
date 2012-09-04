@@ -52,9 +52,34 @@ public class ExoCacheRegionFactory implements RegionFactory
    private CacheService cacheService;
 
    /**
-    * Maximum count of items stored in the cache.
+    * Maximum count of items stored in the cache by default.
     */
    private int MAX_CACHE_SIZE = 5000;
+
+   /**
+    * Maximum count of items stored in the query cache.
+    */
+   private int QUERY_CACHE_SIZE = 5000;
+
+   /**
+    * Maximum count of items stored in the entity cache.
+    */
+   private int ENTITY_CACHE_SIZE = 5000;
+
+   /**
+    * Maximum count of items stored in the collection cache.
+    */
+   private int COLLECTION_CACHE_SIZE = 5000;
+
+   /**
+    * Maximum count of items stored in the naturalId cache.
+    */
+   private int NATURALID_CACHE_SIZE = 5000;
+
+   /**
+    * Maximum count of items stored in the timestamps cache.
+    */
+   private int TIMESTAMPS_CACHE_SIZE = 32000;
 
    public ExoCacheRegionFactory()
    {
@@ -67,10 +92,23 @@ public class ExoCacheRegionFactory implements RegionFactory
     */
    public void start(Settings settings, Properties properties) throws CacheException
    {
-      if (properties.containsKey("exocache.config.maxsize"))
-      {
-         MAX_CACHE_SIZE = Integer.parseInt(properties.get("exocache.config.maxsize").toString());
-      }
+
+      MAX_CACHE_SIZE =
+         properties.containsKey("exocache.cache.maxsize") ? Integer.parseInt(properties.get("exocache.cache.maxsize")
+            .toString()) : MAX_CACHE_SIZE;
+      QUERY_CACHE_SIZE =
+         properties.containsKey("exocache.query.cache.size") ? Integer.parseInt(properties.get(
+            "exocache.query.cache.size").toString()) : MAX_CACHE_SIZE;
+      ENTITY_CACHE_SIZE =
+         properties.containsKey("exocache.entity.cache.size") ? Integer.parseInt(properties.get(
+            "exocache.entity.cache.size").toString()) : MAX_CACHE_SIZE;
+      COLLECTION_CACHE_SIZE =
+         properties.containsKey("exocache.collection.cache.size") ? Integer.parseInt(properties.get(
+            "exocache.collection.cache.size").toString()) : MAX_CACHE_SIZE;
+      NATURALID_CACHE_SIZE =
+         properties.containsKey("exocache.naturalid.cache.size") ? Integer.parseInt(properties.get(
+            "exocache.naturalid.cache.size").toString()) : MAX_CACHE_SIZE;
+      TIMESTAMPS_CACHE_SIZE = (QUERY_CACHE_SIZE + ENTITY_CACHE_SIZE + COLLECTION_CACHE_SIZE + NATURALID_CACHE_SIZE) * 2;
    }
 
    /**
@@ -111,7 +149,7 @@ public class ExoCacheRegionFactory implements RegionFactory
       throws CacheException
    {
       ExoCache<Serializable, Object> cache = cacheService.getCacheInstance(regionName);
-      cache.setMaxSize(MAX_CACHE_SIZE);
+      cache.setMaxSize(ENTITY_CACHE_SIZE);
       return new ExoCacheEntityRegion(cache, metadata);
    }
 
@@ -122,7 +160,7 @@ public class ExoCacheRegionFactory implements RegionFactory
       throws CacheException
    {
       ExoCache<Serializable, Object> cache = cacheService.getCacheInstance(regionName);
-      cache.setMaxSize(MAX_CACHE_SIZE);
+      cache.setMaxSize(NATURALID_CACHE_SIZE);
       return new ExoCacheNaturalIdRegion(cache, metadata);
    }
 
@@ -133,7 +171,7 @@ public class ExoCacheRegionFactory implements RegionFactory
       throws CacheException
    {
       ExoCache<Serializable, Object> cache = cacheService.getCacheInstance(regionName);
-      cache.setMaxSize(MAX_CACHE_SIZE);
+      cache.setMaxSize(COLLECTION_CACHE_SIZE);
       return new ExoCacheCollectionRegion(cache, metadata);
    }
 
@@ -143,7 +181,7 @@ public class ExoCacheRegionFactory implements RegionFactory
    public QueryResultsRegion buildQueryResultsRegion(String regionName, Properties properties) throws CacheException
    {
       ExoCache<Serializable, Object> cache = cacheService.getCacheInstance(regionName);
-      cache.setMaxSize(MAX_CACHE_SIZE);
+      cache.setMaxSize(QUERY_CACHE_SIZE);
       return new ExoCacheQueryResultsRegion(cache);
    }
 
@@ -153,7 +191,7 @@ public class ExoCacheRegionFactory implements RegionFactory
    public TimestampsRegion buildTimestampsRegion(String regionName, Properties properties) throws CacheException
    {
       ExoCache<Serializable, Object> cache = cacheService.getCacheInstance(regionName);
-      cache.setMaxSize(MAX_CACHE_SIZE);
+      cache.setMaxSize(TIMESTAMPS_CACHE_SIZE);
       return new ExoCacheTimestampsRegion(cache);
    }
 }
