@@ -69,7 +69,7 @@ public class DummyOrganizationService extends BaseOrganizationService
    public static final String GROUPNAME_ADMINISTRATORS = "administrators";
 
    public static final String GROUPID_ADMINISTRATORS = "/platform/administrators";
-   
+
    public DummyOrganizationService()
    {
       this.userDAO_ = new UserHandlerImpl();
@@ -108,7 +108,7 @@ public class DummyOrganizationService extends BaseOrganizationService
          return null;
       }
 
-      public Collection findMembershipsByGroup(Group group) throws Exception
+      public Collection<?> findMembershipsByGroup(Group group) throws Exception
       {
          return null;
       }
@@ -118,9 +118,9 @@ public class DummyOrganizationService extends BaseOrganizationService
          return null;
       }
 
-      public Collection findMembershipsByUser(String userName) throws Exception
+      public Collection<MembershipImpl> findMembershipsByUser(String userName) throws Exception
       {
-         Collection memberships = new ArrayList();
+         Collection<MembershipImpl> memberships = new ArrayList<MembershipImpl>();
          if ("root".equals(userName) || "john".equals(userName) || "admin".equals(userName))
          {
             MembershipImpl admin = new MembershipImpl();
@@ -139,7 +139,7 @@ public class DummyOrganizationService extends BaseOrganizationService
          return memberships;
       }
 
-      public Collection findMembershipsByUserAndGroup(String userName, String groupId) throws Exception
+      public Collection<?> findMembershipsByUserAndGroup(String userName, String groupId) throws Exception
       {
          return null;
       }
@@ -153,7 +153,7 @@ public class DummyOrganizationService extends BaseOrganizationService
          return null;
       }
 
-      public Collection removeMembershipByUser(String username, boolean broadcast) throws Exception
+      public Collection<?> removeMembershipByUser(String username, boolean broadcast) throws Exception
       {
          return null;
       }
@@ -274,7 +274,8 @@ public class DummyOrganizationService extends BaseOrganizationService
          return users;
       }
 
-      public ListAccess<User> findUsersByGroupId(String groupId) throws Exception {
+      public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
+      {
          LazyListImpl users = new LazyListImpl();
          if (groupId.equals(GROUPID_USERS))
          {
@@ -386,7 +387,7 @@ public class DummyOrganizationService extends BaseOrganizationService
          return null;
       }
 
-      public Collection findGroupByMembership(String userName, String membershipType) throws Exception
+      public Collection<?> findGroupByMembership(String userName, String membershipType) throws Exception
       {
          return null;
       }
@@ -407,7 +408,7 @@ public class DummyOrganizationService extends BaseOrganizationService
          }
       }
 
-      public Collection findGroups(Group parent) throws Exception
+      public Collection<Group> findGroups(Group parent) throws Exception
       {
          if (parent.getId().equals(GROUPID_PLATFORM))
          {
@@ -428,7 +429,7 @@ public class DummyOrganizationService extends BaseOrganizationService
       {
       }
 
-      public Collection getAllGroups()
+      public Collection<Group> getAllGroups()
       {
          List<Group> groups = new ArrayList<Group>();
          groups.add(new DummyGroup("", GROUPID_PLATFORM, GROUPNAME_PLATFORM));
@@ -437,7 +438,7 @@ public class DummyOrganizationService extends BaseOrganizationService
          return groups;
       }
 
-      public Collection findGroupsOfUser(String user) throws Exception
+      public Collection<Group> findGroupsOfUser(String user) throws Exception
       {
          List<Group> groups = new ArrayList<Group>(1);
          if (user.startsWith("exo") || user.equals("demo") || user.equals("mary") || user.equals("marry")
@@ -471,7 +472,7 @@ public class DummyOrganizationService extends BaseOrganizationService
          this.name = name;
          this.id = id;
          this.parentId = parentId;
-         
+
          this.desc = "group " + id;
          this.label = name;
       }
@@ -560,9 +561,9 @@ public class DummyOrganizationService extends BaseOrganizationService
          return createUserProfileInstance(userName);
       }
 
-      public Collection findUserProfiles() throws Exception
+      public Collection<?> findUserProfiles() throws Exception
       {
-         return new ArrayList();
+         return new ArrayList<Object>();
       }
 
       public UserProfile removeUserProfile(String userName, boolean broadcast) throws Exception

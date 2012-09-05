@@ -30,30 +30,30 @@ import java.util.List;
 public class NewUserConfig
 {
 
-   private List role;
+   private List<?> role;
 
-   private List group;
+   private List<?> group;
 
-   private HashSet ignoredUser;
+   private HashSet<String> ignoredUser;
 
    public NewUserConfig()
    {
-      role = new ArrayList(3);
-      group = new ArrayList(3);
-      ignoredUser = new HashSet();
+      role = new ArrayList<Object>(3);
+      group = new ArrayList<Object>(3);
+      ignoredUser = new HashSet<String>();
    }
 
-   public List getRole()
+   public List<?> getRole()
    {
       return role;
    }
 
-   public List getGroup()
+   public List<?> getGroup()
    {
       return group;
    }
 
-   public HashSet getIgnoredUser()
+   public HashSet<String> getIgnoredUser()
    {
       return ignoredUser;
    }

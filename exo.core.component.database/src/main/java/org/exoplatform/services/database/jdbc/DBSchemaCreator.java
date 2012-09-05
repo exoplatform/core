@@ -39,8 +39,7 @@ import javax.sql.DataSource;
 /**
  * Created by The eXo Platform SAS .
  * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady
- *         Azarenkov</a>
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: DBSchemaCreator.java 13053 2007-03-01 06:44:00Z tuan08 $
  */
 
@@ -54,7 +53,6 @@ public class DBSchemaCreator
 
    private List<CreateDBSchemaPlugin> createDBSchemaPlugins = new ArrayList<CreateDBSchemaPlugin>();
 
-   @SuppressWarnings("unused")
    public DBSchemaCreator(InitialContextInitializer contextInit)
    {
       pattern = Pattern.compile(SQL_ALREADYEXISTS, Pattern.CASE_INSENSITIVE);
@@ -110,7 +108,7 @@ public class DBSchemaCreator
       catch (SQLException e)
       {
          LOG.error("Could not create db schema of DataSource: '" + dsName + "'. Reason: " + e.getMessage() + "; "
-                  + JDBCUtils.getFullMessage(e) + ". Last command: " + sql, e);
+            + JDBCUtils.getFullMessage(e) + ". Last command: " + sql, e);
       }
       finally
       {
@@ -140,13 +138,12 @@ public class DBSchemaCreator
       }
    }
 
-   @SuppressWarnings("unused")
    public ComponentPlugin removePlugin(String name)
    {
       return null;
    }
 
-   public Collection getPlugins()
+   public Collection<CreateDBSchemaPlugin> getPlugins()
    {
       return createDBSchemaPlugins;
    }

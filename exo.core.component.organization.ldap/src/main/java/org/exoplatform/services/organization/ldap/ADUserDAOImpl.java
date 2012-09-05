@@ -20,8 +20,8 @@ package org.exoplatform.services.organization.ldap;
 
 import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.organization.CacheHandler;
-import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.CacheHandler.CacheType;
+import org.exoplatform.services.organization.User;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -33,8 +33,8 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
 /**
- * Created by The eXo Platform SAS . Author : James Chamberlain
- * james.chamberlain@gmail.com
+ * Created by The eXo Platform SAS .
+ * Author : James Chamberlain james.chamberlain@gmail.com
  */
 
 public class ADUserDAOImpl extends UserDAOImpl
@@ -82,8 +82,8 @@ public class ADUserDAOImpl extends UserDAOImpl
    {
       String userDN = ldapAttrMapping.userDNKey + "=" + user.getUserName() + "," + ldapAttrMapping.userURL;
       Attributes attrs = ldapAttrMapping.userToAttributes(user);
-      attrs.put("userAccountControl", Integer.toString(UF_NORMAL_ACCOUNT + UF_PASSWD_NOTREQD + UF_PASSWORD_EXPIRED
-         + UF_ACCOUNTDISABLE));
+      attrs.put("userAccountControl",
+         Integer.toString(UF_NORMAL_ACCOUNT + UF_PASSWD_NOTREQD + UF_PASSWORD_EXPIRED + UF_ACCOUNTDISABLE));
       attrs.remove(ldapAttrMapping.userPassword);
       LdapContext ctx = ldapService.getLdapContext();
       try

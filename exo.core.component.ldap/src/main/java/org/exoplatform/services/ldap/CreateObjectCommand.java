@@ -44,13 +44,13 @@ public class CreateObjectCommand extends BaseComponentPlugin
    public CreateObjectCommand(InitParams params)
    {
       objectsToCreate = new HashMap<String, Attributes>();
-      Iterator i = params.getPropertiesParamIterator();
+      Iterator<?> i = params.getPropertiesParamIterator();
       while (i.hasNext())
       {
          PropertiesParam param = (PropertiesParam)i.next();
          Map<String, String> prop = param.getProperties();
          BasicAttributes attrs = new BasicAttributes();
-         Iterator entries = prop.entrySet().iterator();
+         Iterator<?> entries = prop.entrySet().iterator();
          while (entries.hasNext())
          {
             Map.Entry entry = (Map.Entry)entries.next();

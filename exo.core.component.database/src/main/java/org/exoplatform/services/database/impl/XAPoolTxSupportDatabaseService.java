@@ -36,8 +36,8 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 /**
- * Created by The eXo Platform SAS Author : Tuan Nguyen
- * tuan08@users.sourceforge.net Apr 4, 2006
+ * Created by The eXo Platform SAS
+ * Author : Tuan Nguyen tuan08@users.sourceforge.net Apr 4, 2006
  */
 public class XAPoolTxSupportDatabaseService implements DatabaseService
 {
@@ -51,7 +51,7 @@ public class XAPoolTxSupportDatabaseService implements DatabaseService
    {
       datasources_ = new HashMap<String, ExoDatasource>(5);
       txService_ = txService;
-      Iterator i = params.getPropertiesParamIterator();
+      Iterator<?> i = params.getPropertiesParamIterator();
       while (i.hasNext())
       {
          PropertiesParam param = (PropertiesParam)i.next();
@@ -108,8 +108,6 @@ public class XAPoolTxSupportDatabaseService implements DatabaseService
       ds.setUrl(props.get("connection.url"));
       ds.setUser(props.get("connection.login"));
       ds.setPassword(props.get("connection.password"));
-      // ds.setMinCon(Integer.parseInt(props.get("connection.min-size"))) ;
-      // ds.setMaxCon(Integer.parseInt(props.get("connection.max-size"))) ;
       ds.setTransactionManager(txService_.getTransactionManager());
 
       StandardXAPoolDataSource pool = new StandardXAPoolDataSource(3);

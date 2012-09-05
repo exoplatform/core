@@ -25,8 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by The eXo Platform SAS Author : Mestrallet Benjamin
- * benjmestrallet@users.sourceforge.net Date: Aug 21, 2003 Time: 3:22:54 PM
+ * Created by The eXo Platform SAS
+ * Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
+ * Date: Aug 21, 2003 Time: 3:22:54 PM
  */
 public class UserProfileImpl implements UserProfile, ExtendedCloneable
 {

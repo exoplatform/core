@@ -111,8 +111,7 @@ public class HibernateListAccess<E> implements ListAccess<E>
     * @param binding
     *          Binded fields
     */
-   public HibernateListAccess(HibernateService service, String findQuery, String countQuery,
-      Map<String, Object> binding)
+   public HibernateListAccess(HibernateService service, String findQuery, String countQuery, Map<String, Object> binding)
    {
       this.service = service;
       this.findQuery = findQuery;
@@ -137,7 +136,7 @@ public class HibernateListAccess<E> implements ListAccess<E>
 
       bindFields(query);
 
-      List l = query.list();
+      List<?> l = query.list();
       if (!l.isEmpty())
       {
          return ((Number)l.get(0)).intValue();
@@ -149,6 +148,7 @@ public class HibernateListAccess<E> implements ListAccess<E>
    /**
     * {@inheritDoc}
     */
+   @SuppressWarnings("unchecked")
    public E[] load(int index, int length) throws Exception, IllegalArgumentException
    {
       final Session session = service.openSession();

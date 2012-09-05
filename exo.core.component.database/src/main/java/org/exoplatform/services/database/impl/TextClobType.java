@@ -19,6 +19,7 @@
 package org.exoplatform.services.database.impl;
 
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
 
 import java.io.IOException;
@@ -74,6 +75,8 @@ public class TextClobType implements UserType
 
    /**
     * {@inheritDoc}
+    *
+    * Hibernate3 compatible method's signature
     */
    public void nullSafeSet(PreparedStatement stmt, Object value, int index) throws HibernateException, SQLException
    {
@@ -86,6 +89,16 @@ public class TextClobType implements UserType
          final String str = value instanceof String ? (String)value : value.toString();
          stmt.setCharacterStream(index, new StringReader(str), str.length());
       }
+   }
+
+   /**
+    * {@inheritDoc}
+    *
+    * Hibernate4 compatible method's signature
+    */
+   public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor session) throws HibernateException, SQLException
+   {
+      nullSafeSet(st, value, index);
    }
 
    /**
@@ -177,7 +190,9 @@ public class TextClobType implements UserType
 
    /**
     * Impl copied from net.sf.hibernate.type.TextType Generated 10:08:31 AM May
-    * 21, 2004
+    * 21, 2004.
+    *
+    * Hibernate3 compatible method's signature
     * 
     * @param rs
     * @param names
@@ -232,6 +247,16 @@ public class TextClobType implements UserType
 
       // Return StringBuffer content as a large String
       return sb.toString();
+   }
+
+   /**
+    * Hibernate4 compatible method's signature
+    *
+    * @see #nullSafeGet(java.sql.ResultSet, String[], Object)
+    */
+   public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session, Object owner) throws HibernateException, SQLException
+   {
+      return nullSafeGet(rs, names, owner);
    }
 
    // Hibernate3 methods !

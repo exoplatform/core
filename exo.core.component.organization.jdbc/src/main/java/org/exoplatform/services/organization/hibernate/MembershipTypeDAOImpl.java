@@ -37,14 +37,15 @@ import java.util.List;
 import javax.naming.InvalidNameException;
 
 /**
- * Created by The eXo Platform SAS Author : Mestrallet Benjamin
- * benjmestrallet@users.sourceforge.net Author : Tuan Nguyen
- * tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:51:21 PM
+ * Created by The eXo Platform SAS
+ * Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
+ * Author : Tuan Nguyen tuan08@users.sourceforge.net
+ * Date: Aug 22, 2003 Time: 4:51:21 PM
  */
 public class MembershipTypeDAOImpl implements MembershipTypeHandler, MembershipTypeEventListenerHandler
 {
    private static final String queryFindMembershipType =
-      "from m in class org.exoplatform.services.organization.impl.MembershipTypeImpl " + "where m.name = ? ";
+      "from m in class org.exoplatform.services.organization.impl.MembershipTypeImpl " + "where m.name = :id ";
 
    private static final String queryFindAllMembershipType =
       "from m in class org.exoplatform.services.organization.impl.MembershipTypeImpl";
@@ -53,7 +54,7 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler, MembershipT
     * The list of listeners to broadcast the events.
     */
    protected final List<MembershipTypeEventListener> listeners = new ArrayList<MembershipTypeEventListener>();
-   
+
    private HibernateService service_;
 
    public MembershipTypeDAOImpl(HibernateService service)
@@ -94,7 +95,7 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler, MembershipT
       Session session = service_.openSession();
       Date now = new Date();
       mt.setModifiedDate(now);
-      
+
       if (broadcast)
       {
          preSave(mt, false);
@@ -102,12 +103,12 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler, MembershipT
 
       session.update(mt);
       session.flush();
-      
+
       if (broadcast)
       {
          postSave(mt, false);
       }
-      
+
       return mt;
    }
 
@@ -146,7 +147,7 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler, MembershipT
       return mt;
    }
 
-   public Collection findMembershipTypes() throws Exception
+   public Collection<?> findMembershipTypes() throws Exception
    {
       Session session = service_.openSession();
       return session.createQuery(queryFindAllMembershipType).list();

@@ -31,10 +31,11 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 /**
- * Created by The eXo Platform SAS Author : Tuan Nguyen
- * tuan08@users.sourceforge.net Apr 4, 2006 This class is a wrapper class for
- * the java.sql.Datasource class. In additional to the java.sql.Datasource
- * method such getConnection().. The ExoDatasource provice 2 other methods:
+ * Created by The eXo Platform SAS
+ * Author : Tuan Nguyen tuan08@users.sourceforge.net Apr 4, 2006
+ * This class is a wrapper class for the java.sql.Datasource class.
+ * In additional to the java.sql.Datasourcemethod such getConnection().
+ * The ExoDatasource provides 2 other methods:
  * DBTableManager getDBTableManager and IDGenerator getIDGenerator()
  */
 public class ExoDatasource
@@ -61,8 +62,6 @@ public class ExoDatasource
 
    static int totalGetConnect = 0;
 
-   // static int totalCommit = 0;
-   // static int totalCloseConnect = 0;
    final public static int MSSQL_DB_TYPE = 6;
 
    final public static int SYSBASE_DB_TYPE = 7;
@@ -86,9 +85,10 @@ public class ExoDatasource
    Connection conn;
 
    /**
-    * The constructor should: 1. Keep track of the datasource object 2. Create
-    * the DBTableManager object base on the datasource information such database
-    * type , version 3. Create an IDGenerator for the datasource
+    * The constructor should:
+    * 1. Keep track of the datasource object
+    * 2. Create the DBTableManager object base on the datasource information such database type, version
+    * 3. Create an IDGenerator for the datasource
     * 
     * @param ds
     * @throws Exception
@@ -104,7 +104,7 @@ public class ExoDatasource
                return ds.getConnection().getMetaData();
             }
          });
-      
+
       databaseName_ = metaData.getDatabaseProductName();
       databaseVersion_ = metaData.getDatabaseProductVersion();
 
@@ -176,11 +176,7 @@ public class ExoDatasource
     */
    public void closeConnection(Connection conn) throws Exception
    {
-      // long startGet = System.currentTimeMillis();
       conn.close();
-      // totalCloseConnect += System.currentTimeMillis() - startGet;
-      // System.out.println(" \n\n\n == > total time to Close connection "+
-      // totalCloseConnect+"\n\n");
    }
 
    /**
@@ -192,12 +188,8 @@ public class ExoDatasource
     */
    public void commit(Connection conn) throws Exception
    {
-      // long startGet = System.currentTimeMillis();
       conn.setAutoCommit(false);
       conn.commit();
-      // totalCommit += System.currentTimeMillis() - startGet;
-      //System.out.println(" \n\n\n == > total time to Commit "+totalCommit+"\n\n"
-      // );
    }
 
    /**
@@ -213,7 +205,7 @@ public class ExoDatasource
    }
 
    /**
-    * This mthod should return the IDGenerator object, the developer can use the
+    * This method should return the IDGenerator object, the developer can use the
     * id generator to generate an unique long id for an db object
     * 
     * @return

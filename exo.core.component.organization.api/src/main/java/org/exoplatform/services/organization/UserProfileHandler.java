@@ -25,20 +25,20 @@ import java.util.Collection;
  * tuan08@users.sourceforge.net Oct 13, 2005 This interface is acted as a sub
  * interface of the organization service. It is used to manage the the
  * UserProfile record, the extra information of an user such address, phone...
- * The interface shoudl allow the developer create , delete and update a
+ * The interface should allow the developer create , delete and update a
  * UserProfile. and broadcast the event to the user profile event listeners.
  */
 public interface UserProfileHandler
 {
    /**
     * @return return a new UserProfile implementation instance. This instance is
-    *         not persited yet
+    *         not persisted yet
     */
    public UserProfile createUserProfileInstance();
 
    /**
     * @return return a new UserProfile implementation instance. This instance is
-    *         not persited yet
+    *         not persisted yet
     * @param userName The user profile record with the username
     */
    public UserProfile createUserProfileInstance(String userName);

@@ -111,6 +111,7 @@ public class DummyLDAPServiceImpl implements LDAPService
       env.put(Context.SECURITY_AUTHENTICATION, "simple");
       env.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.jndi.ServerContextFactory");
    }
+
    @Override
    public LdapContext getLdapContext() throws NamingException
    {
@@ -223,7 +224,7 @@ public class DummyLDAPServiceImpl implements LDAPService
 
    protected void setContexts(String user, String passwd) throws NamingException
    {
-      Hashtable env = new Hashtable(configuration.toJndiEnvironment());
+      Hashtable<String, String> env = new Hashtable<String, String>(configuration.toJndiEnvironment());
       env.put(Context.SECURITY_PRINCIPAL, user);
       env.put(Context.SECURITY_CREDENTIALS, passwd);
       env.put(Context.SECURITY_AUTHENTICATION, "simple");
@@ -231,9 +232,9 @@ public class DummyLDAPServiceImpl implements LDAPService
       setContexts(env);
    }
 
-   protected void setContexts(Hashtable env) throws NamingException
+   protected void setContexts(Hashtable<String, String> env) throws NamingException
    {
-      Hashtable envFinal = new Hashtable(env);
+      Hashtable<String, String> envFinal = new Hashtable<String, String>(env);
       envFinal.put(Context.PROVIDER_URL, "ou=system");
       sysRoot = new InitialLdapContext(envFinal, null);
 

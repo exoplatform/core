@@ -94,48 +94,5 @@ public class TestDAO extends TestCase
 
    private void queries(DatabaseService service) throws Exception
    {
-      // ExoLongIDDAO exoLongIDDAO = new ExoLongIDDAO(service.getDatasource());
-      // assertEquals(sql,
-      // "INSERT INTO ExoLongId(id, name, start) VALUES(34, ?, ?)");
-      // System.out.println("\n=========> sql: " + sql +"\n");
-      //    
-      // sql = exoLongIDDAO.getRemoveQuery(ExoLongID.class, 34L);
-      // assertEquals(sql, "DELETE FROM ExoLongId WHERE id = '34'");
-      // sql = exoLongIDDAO.getUpdateQuery(ExoLongID.class, 34L);
-      // assertEquals(sql,
-      // "UPDATE ExoLongId SET name = ?, start = ? WHERE id = 34");
-      //  
-      // Table table = TestTable.class.getAnnotation(Table.class) ;
-      // String sql = exoLongIDDAO.getInsertQuery(ExoLongID.class, 34L);
-      //    
-      // Connection conn = service.getConnection() ;
-      // PreparedStatement ps = conn.prepareStatement(sql) ;
-      //   
-      // ps.setString(1, "This is name");
-      // ps.setLong(2, 55L);
-      // ps.executeUpdate();
-      // System.out.println(printQueryResult(service));
-      //    
-      // try {
-      // ps.setString(1, "This is name");
-      // ps.setLong(2, 55L);
-      // ps.executeUpdate();
-      // } catch (SQLException ex) {
-      // System.err.println("\n==================> Error in insert: " +
-      // ex.getMessage() + "\n\n");
-      // }
-      //    
-      // String updateSQL = exoLongIDDAO.getUpdateQuery(ExoLongID.class, 34L);
-      // ps = conn.prepareStatement(updateSQL) ;
-      // ps.setString(1, "This is updated name");
-      // ps.setLong(2, 56L);
-      // ps.executeUpdate();
-      // System.out.println("After update: " + printQueryResult(service));
-      //    
-      // sql = exoLongIDDAO.getRemoveQuery(ExoLongID.class, 34L);
-      // ps = conn.prepareStatement(sql) ;
-      // // ps.setLong(1, 34L);
-      // ps.executeUpdate();
-      // System.out.println("After delete: " + printQueryResult(service));
    }
 }

@@ -25,10 +25,11 @@ import org.exoplatform.services.listener.Listener;
  * Created by The eXo Platform SAS Author : Le Bien Thuy lebienthuy@gmail.com
  * Jun 28, 2007
  */
-public class UserListener extends Listener
+public class UserListener extends Listener<Object, Object>
 {
 
    @Override
+   @SuppressWarnings("rawtypes")
    public void onEvent(Event arg0) throws Exception
    {
 

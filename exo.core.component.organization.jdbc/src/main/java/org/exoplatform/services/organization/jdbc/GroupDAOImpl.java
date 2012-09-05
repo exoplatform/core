@@ -143,7 +143,7 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
    }
 
    @SuppressWarnings("unchecked")
-   public Collection findGroupByMembership(String userName, String membershipType) throws Exception
+   public Collection<Group> findGroupByMembership(String userName, String membershipType) throws Exception
    {
 
       if (userName == null || membershipType == null)
@@ -164,7 +164,7 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
       return groups;
    }
 
-   public Collection findGroups(Group parent) throws Exception
+   public Collection<GroupImpl> findGroups(Group parent) throws Exception
    {
       String parentId = "/";
       if (parent != null)
@@ -181,7 +181,7 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
    }
 
    @SuppressWarnings("unchecked")
-   public Collection findGroupsOfUser(String user) throws Exception
+   public Collection<Group> findGroupsOfUser(String user) throws Exception
    {
       MembershipHandler membershipHandler = orgService.getMembershipHandler();
       List<Membership> members = (List<Membership>)membershipHandler.findMembershipsByUser(user);
@@ -207,7 +207,7 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
       return false;
    }
 
-   public Collection getAllGroups() throws Exception
+   public Collection<GroupImpl> getAllGroups() throws Exception
    {
       DBObjectQuery<GroupImpl> query = new DBObjectQuery<GroupImpl>(GroupImpl.class);
       DBPageList<GroupImpl> pageList = new DBPageList<GroupImpl>(20, this, query);
@@ -259,12 +259,10 @@ public class GroupDAOImpl extends StandardSQLDAO<GroupImpl> implements GroupHand
       return group;
    }
 
-   @SuppressWarnings("unused")
    public void addGroupEventListener(GroupEventListener listener)
    {
    }
 
-   @SuppressWarnings("unused")
    public void removeGroupEventListener(GroupEventListener listener)
    {
    }

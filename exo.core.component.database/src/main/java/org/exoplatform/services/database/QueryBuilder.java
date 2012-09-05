@@ -26,8 +26,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 /**
- * Created by The eXo Platform SAS Author : Nhu Dinh Thuan
- * nhudinhthuan@exoplatform.com Mar 30, 2007
+ * Created by The eXo Platform SAS
+ * Author : Nhu Dinh Thuan nhudinhthuan@exoplatform.com Mar 30, 2007
  */
 public class QueryBuilder
 {
@@ -143,9 +143,7 @@ public class QueryBuilder
 
       for (int i = 0; i < fields.length; i++)
       {
-         // TableField field = fields[i] ;
          query.append("?");
-         // if(i == field.length() - 1) query.append(", ") ;
          if (i != fields.length - 1)
             query.append(", ");
          else
@@ -162,7 +160,7 @@ public class QueryBuilder
       return builder.toString();
    }
 
-   public <T extends DAO> String getQuery(Class<T> clazz, String name) throws Exception
+   public <T extends DAO<?>> String getQuery(Class<T> clazz, String name) throws Exception
    {
       Query query = clazz.getAnnotation(Query.class);
       String value = null;
@@ -277,32 +275,6 @@ public class QueryBuilder
       }
       return start;
    }
-
-   /*
-    * will support if(object instanceof String[]) { start = replace(template,
-    * builder, (String[])object, name, start, i); } else if(object instanceof
-    * String [][]) { start = replace(template, builder, (String [][])object,
-    * name, start, i); } else if(object instanceof Map) { start =
-    * replace(template, builder, Map.class.cast(object), name, start, i); } else
-    * { } private int replace(String template, StringBuilder builder, String []
-    * params, String name, int start, int current) throws Exception {
-    * if(params.length != 2) throw new Exception("Parameter is incorrect!");
-    * if(!params[0].equals(name)) return start;
-    * builder.append(template.subSequence(start, current)).append(params[1]);
-    * return current + 1 + name.length(); } private int replace(String template,
-    * StringBuilder builder, Map map, String name, int start, int current) throws
-    * Exception { if(!map.containsKey(name)) return start; Object value =
-    * map.get(name); if(value == null) value = new String();
-    * builder.append(template.subSequence(start,
-    * current)).append(value.toString()); return current + 1 + name.length(); }
-    * private int replace(String template, StringBuilder builder, Object object,
-    * String name, int start, int current) throws Exception { Field field = null;
-    * try { field = object.getClass().getDeclaredField(name); } catch (Exception
-    * e) { } if(field == null) return start; Object value =
-    * ReflectionUtil.getValue(object, field); if(value == null) value = new
-    * String(); builder.append(template.subSequence(start,
-    * current)).append(value); return current + 1 + name.length(); }
-    */
 
    public String encode(CharSequence seq)
    {

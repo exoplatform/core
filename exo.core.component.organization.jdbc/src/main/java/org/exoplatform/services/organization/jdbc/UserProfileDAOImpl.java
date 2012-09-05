@@ -85,7 +85,7 @@ public class UserProfileDAOImpl extends StandardSQLDAO<UserProfileData> implemen
       return loadUnique(query.toQuery());
    }
 
-   public Collection findUserProfiles() throws Exception
+   public Collection<UserProfile> findUserProfiles() throws Exception
    {
       List<UserProfileData> allProfileData = new ArrayList<UserProfileData>();
       DBObjectQuery<UserProfileData> query = new DBObjectQuery<UserProfileData>(UserProfileData.class);

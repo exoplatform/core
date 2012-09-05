@@ -50,7 +50,7 @@ public class DBCreatorTest extends TestCase
    public void testConf() throws Exception
    {
       //    DBSchemaCreator dbcreator = (DBSchemaCreator) container.getComponentInstanceOfType(DBSchemaCreator.class);
-      List plugins = (List)dbcreator.getPlugins();
+      List<?> plugins = (List<?>)dbcreator.getPlugins();
       assertFalse(plugins.isEmpty());
 
       assertTrue(plugins.get(0) instanceof CreateDBSchemaPlugin);

@@ -31,9 +31,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * Created by The eXo Platform SAS Author : Mestrallet Benjamin
- * benjmestrallet@users.sourceforge.net Author : Tuan Nguyen
- * tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:51:21 PM
+ * Created by The eXo Platform SAS
+ * Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
+ * Author : Tuan Nguyen tuan08@users.sourceforge.net
+ * Date: Aug 22, 2003 Time: 4:51:21 PM
  */
 public class OrganizationServiceImpl extends BaseOrganizationService
 {

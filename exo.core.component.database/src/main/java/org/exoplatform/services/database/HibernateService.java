@@ -26,8 +26,9 @@ import java.io.Serializable;
 import java.util.Collection;
 
 /**
- * Created by The eXo Platform SAS . Author : Tuan Nguyen
- * tuan08@users.sourceforge.net Date: Jun 14, 2003 Time: 1:12:22 PM
+ * Created by The eXo Platform SAS
+ * Author : Tuan Nguyen tuan08@users.sourceforge.net
+ * Date: Jun 14, 2003 Time: 1:12:22 PM
  */
 public interface HibernateService
 {
@@ -46,11 +47,11 @@ public interface HibernateService
 
    public Object findOne(Session session, String query, String id) throws Exception;
 
-   public Collection findAll(Session session, String query) throws Exception;
+   public Collection<?> findAll(Session session, String query) throws Exception;
 
    public Object findExactOne(Session session, String query, String id) throws Exception;
 
-   public Object findOne(Class clazz, java.io.Serializable id) throws Exception;
+   public Object findOne(Class<?> clazz, java.io.Serializable id) throws Exception;
 
    public Object findOne(ObjectQuery q) throws Exception;
 
@@ -62,7 +63,7 @@ public interface HibernateService
 
    public Object remove(Object obj) throws Exception;
 
-   public Object remove(Class clazz, Serializable id) throws Exception;
+   public Object remove(Class<?> clazz, Serializable id) throws Exception;
 
-   public Object remove(Session session, Class clazz, Serializable id) throws Exception;
+   public Object remove(Session session, Class<?> clazz, Serializable id) throws Exception;
 }

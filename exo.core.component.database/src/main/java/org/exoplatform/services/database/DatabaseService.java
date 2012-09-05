@@ -23,9 +23,10 @@ import org.exoplatform.services.transaction.TransactionService;
 import java.sql.Connection;
 
 /**
- * Created by The eXo Platform SAS Author : Tuan Nguyen
- * tuan08@users.sourceforge.net Apr 4, 2006 This service should provide a single
- * interface to access the diffent datasource.
+ * Created by The eXo Platform SAS
+ * Author : Tuan Nguyen tuan08@users.sourceforge.net Apr 4, 2006
+ * This service should provide a single
+ * interface to access the different datasource.
  */
 public interface DatabaseService
 {

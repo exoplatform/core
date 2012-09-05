@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by The eXo Platform SAS Author : Nhu Dinh Thuan
- * nhudinhthuan@exoplatform.com Mar 29, 2007
+ * Created by The eXo Platform SAS
+ * Author : Nhu Dinh Thuan nhudinhthuan@exoplatform.com Mar 29, 2007
  */
 public class ReflectionUtil
 {
@@ -37,7 +37,7 @@ public class ReflectionUtil
 
    public final static void setValue(Object bean, Field field, Object value) throws Exception
    {
-      Class clazz = bean.getClass();
+      Class<? extends Object> clazz = bean.getClass();
       Method method = getMethod("set", field, clazz);
       if (method != null)
          method.invoke(bean, new Object[]{value});
@@ -50,7 +50,7 @@ public class ReflectionUtil
 
    public final static Object getValue(Object bean, Field field) throws Exception
    {
-      Class clazz = bean.getClass();
+      Class<? extends Object> clazz = bean.getClass();
       Method method = getMethod("get", field, clazz);
       if (method != null)
          return method.invoke(bean, new Object[]{});
@@ -61,7 +61,7 @@ public class ReflectionUtil
       return field.get(bean);
    }
 
-   public final static Method getMethod(String prefix, Field field, Class clazz) throws Exception
+   public final static Method getMethod(String prefix, Field field, Class<? extends Object> clazz) throws Exception
    {
       StringBuilder name = new StringBuilder(field.getName());
       name.setCharAt(0, Character.toUpperCase(name.charAt(0)));
@@ -81,7 +81,7 @@ public class ReflectionUtil
       return null;
    }
 
-   public final static List<Method> getMethod(Class clazz, String name) throws Exception
+   public final static List<Method> getMethod(Class<?> clazz, String name) throws Exception
    {
       Method[] methods = clazz.getDeclaredMethods();
       List<Method> list = new ArrayList<Method>();

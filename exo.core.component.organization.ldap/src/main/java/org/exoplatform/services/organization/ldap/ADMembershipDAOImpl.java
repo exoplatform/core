@@ -65,7 +65,6 @@ public class ADMembershipDAOImpl extends MembershipDAOImpl
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
    @Override
    public Membership findMembershipByUserGroupAndType(String userName, String groupId, String type) throws Exception
    {
@@ -84,7 +83,7 @@ public class ADMembershipDAOImpl extends MembershipDAOImpl
          {
             try
             {
-               Collection memberships = findMemberships(ctx, userName, groupDN, type);
+               Collection<Membership> memberships = findMemberships(ctx, userName, groupDN, type);
                if (memberships.size() > 0)
                {
                   membership = (MembershipImpl)memberships.iterator().next();
@@ -108,9 +107,8 @@ public class ADMembershipDAOImpl extends MembershipDAOImpl
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
    @Override
-   public Collection findMembershipsByUser(String userName) throws Exception
+   public Collection<Membership> findMembershipsByUser(String userName) throws Exception
    {
       LdapContext ctx = ldapService.getLdapContext(true);
       try
@@ -136,9 +134,8 @@ public class ADMembershipDAOImpl extends MembershipDAOImpl
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
    @Override
-   public Collection findMembershipsByUserAndGroup(String userName, String groupId) throws Exception
+   public Collection<Membership> findMembershipsByUserAndGroup(String userName, String groupId) throws Exception
    {
       String groupDN = getGroupDNFromGroupId(groupId);
       LdapContext ctx = ldapService.getLdapContext(true);
@@ -171,8 +168,8 @@ public class ADMembershipDAOImpl extends MembershipDAOImpl
     *         be empty
     * @throws Exception if any errors occurs
     */
-   @SuppressWarnings("unchecked")
-   private Collection findMemberships(LdapContext ctx, String userName, String groupId, String type) throws Exception
+   private Collection<Membership> findMemberships(LdapContext ctx, String userName, String groupId, String type)
+      throws Exception
    {
       Collection<Membership> list = new ArrayList<Membership>();
       String userDN = getDNFromUsername(ctx, userName);

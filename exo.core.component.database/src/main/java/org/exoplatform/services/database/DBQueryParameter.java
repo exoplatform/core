@@ -21,8 +21,8 @@ package org.exoplatform.services.database;
 import java.util.Comparator;
 
 /**
- * Created by The eXo Platform SAS Author : Nhu Dinh Thuan
- * nhudinhthuan@exoplatform.com Apr 2, 2007
+ * Created by The eXo Platform SAS
+ * Author : Nhu Dinh Thuan nhudinhthuan@exoplatform.com Apr 2, 2007
  */
 public class DBQueryParameter
 {

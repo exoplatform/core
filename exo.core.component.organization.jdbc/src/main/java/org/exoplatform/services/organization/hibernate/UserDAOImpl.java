@@ -44,17 +44,19 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by The eXo Platform SAS Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
- * Author : Tuan Nguyen tuan08@users.sourceforge.net Date: Aug 22, 2003 Time: 4:51:21 PM
+ * Created by The eXo Platform SAS
+ * Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
+ * Author : Tuan Nguyen tuan08@users.sourceforge.net
+ * Date: Aug 22, 2003 Time: 4:51:21 PM
  */
 public class UserDAOImpl implements UserHandler, UserEventListenerHandler, ExtendedUserHandler
 {
    public static final String queryFindUserByName =
-      "from u in class org.exoplatform.services.organization.impl.UserImpl " + "where u.userName = ?";
+      "from org.exoplatform.services.organization.impl.UserImpl where userName = :id";
 
    private HibernateService service_;
 
-   private ExoCache cache_;
+   private ExoCache<String, User> cache_;
 
    private List<UserEventListener> listeners_ = new ArrayList<UserEventListener>(3);
 
@@ -67,7 +69,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
       this.orgService = orgService;
    }
 
-   final public List getUserEventListeners()
+   final public List<UserEventListener> getUserEventListeners()
    {
       return listeners_;
    }
@@ -228,7 +230,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
       {
          return false;
       }
-      
+
       boolean authenticated;
       if (pe == null)
       {
@@ -310,17 +312,18 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
    /**
     * {@inheritDoc}
     */
-   public Collection findUsersByGroupAndRole(String groupName, String role) throws Exception
+   public Collection<?> findUsersByGroupAndRole(String groupName, String role) throws Exception
    {
       String queryFindUsersByGroupAndRole =
          "select u " + "from u in class org.exoplatform.services.organization.impl.UserImpl, "
             + "     m in class org.exoplatform.services.organization.impl.MembershipImpl, "
             + "     g in class org.exoplatform.services.organization.impl.GroupImpl " + "where m.user = u "
-            + "  and m.group = g " + "  and g.groupName = ? " + "  and m.role = ? ";
+            + "  and m.group = g " + "  and g.groupName = :groupname " + "  and m.role = :role ";
       Session session = service_.openSession();
-      org.hibernate.Query q =
-         session.createQuery(queryFindUsersByGroupAndRole).setString(0, groupName).setString(1, role);
-      List users = q.list();
+      org.hibernate.Query query = session.createQuery(queryFindUsersByGroupAndRole);
+      query.setParameter("groupname", groupName);
+      query.setParameter("role", role);
+      List<?> users = query.list();
       return users;
    }
 

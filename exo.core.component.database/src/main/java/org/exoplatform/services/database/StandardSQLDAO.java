@@ -23,8 +23,8 @@ import org.exoplatform.commons.utils.PageList;
 import java.util.List;
 
 /**
- * Created by The eXo Platform SAS Author : Tuan Nguyen
- * tuan08@users.sourceforge.net Apr 4, 2006
+ * Created by The eXo Platform SAS
+ * Author : Tuan Nguyen tuan08@users.sourceforge.net Apr 4, 2006
  */
 public class StandardSQLDAO<T extends DBObject> extends DAO<T>
 {
@@ -62,7 +62,6 @@ public class StandardSQLDAO<T extends DBObject> extends DAO<T>
       return new DBPageList<T>(20, this, query, queryCounter.toString());
    }
 
-   @SuppressWarnings("unchecked")
    public void update(List<T> list) throws Exception
    {
       if (list == null)
@@ -89,7 +88,6 @@ public class StandardSQLDAO<T extends DBObject> extends DAO<T>
       execute(query, bean);
    }
 
-   @SuppressWarnings("unchecked")
    public void save(List<T> list) throws Exception
    {
       if (list == null)
@@ -131,17 +129,6 @@ public class StandardSQLDAO<T extends DBObject> extends DAO<T>
    {
       execute(eXoDS_.getQueryBuilder().createRemoveQuery(type_, bean.getDBObjectId()), (T)null);
    }
-
-   // protected void invokeEvent(String prefix, String action, T bean) throws
-   // Exception {
-   // Table table = bean.getClass().getAnnotation(Table.class);
-   // StringBuilder builder = new
-   // StringBuilder(prefix).append('.').append(action)
-   // .append('.').append(table.name());
-   // DBObjectEvent<StandardSQLDAO, T> event = new DBObjectEvent<StandardSQLDAO,
-   // T>(builder.toString(), this, bean);
-   // listenerService_.broadcast(event);
-   // }
 
    public Class<T> getType()
    {

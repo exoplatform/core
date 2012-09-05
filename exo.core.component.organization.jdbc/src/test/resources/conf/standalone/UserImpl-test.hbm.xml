@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping
+>
+    <class
+        name="org.exoplatform.services.organization.impl.UserImpl"
+        table="EXO_USER"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="java.lang.String"
+            unsaved-value="null"
+        >
+            <generator class="assigned">
+              <!--
+                  To add non XDoclet generator parameters, create a file named
+                  hibernate-generator-params-UserImpl.xml
+                  containing the additional parameters and place it in your merge dir.
+              -->
+            </generator>
+        </id>
+
+        <property
+            name="displayName"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="displayName"
+        />
+
+        <property
+            name="userName"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="userName"
+        />
+
+        <property
+            name="password"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="password"
+        />
+
+        <property
+            name="firstName"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="firstName"
+        />
+
+        <property
+            name="lastName"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="lastName"
+        />
+
+        <property
+            name="email"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="email"
+        />
+
+        <property
+            name="createdDate"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            column="createdDate"
+        />
+
+        <property
+            name="lastLoginTime"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            column="lastLoginTime"
+        />
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-UserImpl.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+
+    </class>
+
+</hibernate-mapping>

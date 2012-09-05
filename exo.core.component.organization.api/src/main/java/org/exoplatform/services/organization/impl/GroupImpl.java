@@ -18,8 +18,7 @@
  */
 /**
  * Created by The eXo Platform SAS        .
- * Author : Mestrallet Benjamin
- *          benjmestrallet@users.sourceforge.net
+ * Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
  * Date: Oct 6, 2003
  * Time: 5:04:37 PM
  */
@@ -28,20 +27,29 @@ package org.exoplatform.services.organization.impl;
 import org.exoplatform.services.organization.ExtendedCloneable;
 import org.exoplatform.services.organization.Group;
 
-/**
- * @hibernate.class table="EXO_GROUP"
- */
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "EXO_GROUP")
 public class GroupImpl implements Group, ExtendedCloneable
 {
 
+   @Id
    private String id;
 
+   @Column
    private String parentId;
 
+   @Column
    private String groupName;
 
+   @Column
    private String label;
 
+   @Column(name = "description")
    private String desc;
 
    public GroupImpl()
@@ -54,9 +62,6 @@ public class GroupImpl implements Group, ExtendedCloneable
       groupName = name;
    }
 
-   /**
-    * @hibernate.id generator-class="assigned" unsaved-value="null"
-    ***/
    public String getId()
    {
       return id;
@@ -67,9 +72,6 @@ public class GroupImpl implements Group, ExtendedCloneable
       this.id = id;
    }
 
-   /**
-    * @hibernate.property
-    **/
    public String getParentId()
    {
       return parentId;
@@ -80,9 +82,6 @@ public class GroupImpl implements Group, ExtendedCloneable
       this.parentId = parentId;
    }
 
-   /**
-    * @hibernate.property
-    **/
    public String getGroupName()
    {
       return groupName;
@@ -93,9 +92,6 @@ public class GroupImpl implements Group, ExtendedCloneable
       this.groupName = name;
    }
 
-   /**
-    * @hibernate.property
-    **/
    public String getLabel()
    {
       return label;
@@ -106,9 +102,6 @@ public class GroupImpl implements Group, ExtendedCloneable
       label = s;
    }
 
-   /**
-    * @hibernate.property
-    **/
    public String getDescription()
    {
       return desc;
@@ -118,28 +111,6 @@ public class GroupImpl implements Group, ExtendedCloneable
    {
       desc = s;
    }
-
-   /**
-    * @hibernate.many-to-one 
-    *                        class="org.exoplatform.services.organization.impl.GroupImpl"
-    *                        column="parent" name="parent"
-    */
-   /*
-    * public Group getParent() { return parent; } public void setParent(Group
-    * parent) { this.parent = parent; }
-    */
-
-   /**
-    * @hibernate.set name="children" cascade="all" lazy="true"
-    * @hibernate.collection-key column="parent"
-    * @hibernate.collection-one-to-many 
-    *                                   class="org.exoplatform.services.organization.impl.GroupImpl"
-    */
-   /*
-    * public Collection getChildren() { return children; } public void
-    * setChildren(Collection children) { this.children = children; } public void
-    * addChild(GroupImpl c) { c.setParent(this); children.add(c); }
-    */
 
    public String toString()
    {

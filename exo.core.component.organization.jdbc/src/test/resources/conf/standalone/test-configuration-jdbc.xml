@@ -53,11 +53,6 @@
       </properties-param>
     </init-params>
   </component>
-  
-   <!--component>
-      <key>org.exoplatform.services.database.impl.ExoCacheProvider</key>
-      <type>org.exoplatform.services.database.impl.ExoCacheProvider</type>
-   </component-->
 
    <component>
       <key>org.exoplatform.services.organization.OrganizationService</key>

@@ -54,7 +54,7 @@ public class LDAPUserPageList extends PageList
    private LDAPService ldapService;
 
    private LDAPAttributeMapping ldapAttrMapping;
-   
+
    private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.ldap.LDAPUserPageList");
 
    static boolean SEARCH_CONTROL = Control.NONCRITICAL;
@@ -88,7 +88,7 @@ public class LDAPUserPageList extends PageList
     * {@inheritDoc}
     */
    @Override
-  protected void populateCurrentPage(int page) throws Exception
+   protected void populateCurrentPage(int page) throws Exception
    {
       List<User> users = new ArrayList<User>();
       PagedResultsControl prc = new PagedResultsControl(getPageSize(), Control.NONCRITICAL);
@@ -132,8 +132,7 @@ public class LDAPUserPageList extends PageList
                            cookie = ((PagedResultsResponseControl)responseControls[z]).getCookie();
                      }
                   }
-                  ctx
-                     .setRequestControls(new Control[]{new PagedResultsControl(getPageSize(), cookie, Control.CRITICAL)});
+                  ctx.setRequestControls(new Control[]{new PagedResultsControl(getPageSize(), cookie, Control.CRITICAL)});
                }
                while (cookie != null);
                this.currentListPage_ = users;
@@ -171,8 +170,7 @@ public class LDAPUserPageList extends PageList
     * {@inheritDoc}
     */
    @Override
-  @SuppressWarnings("unchecked")
-   public List getAll() throws Exception
+   public List<User> getAll() throws Exception
    {
       LdapContext ctx = ldapService.getLdapContext();
       List<User> users = new ArrayList<User>();

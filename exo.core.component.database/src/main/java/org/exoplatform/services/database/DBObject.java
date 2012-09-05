@@ -19,8 +19,8 @@
 package org.exoplatform.services.database;
 
 /**
- * Created by The eXo Platform SAS Author : Tuan Nguyen
- * tuan.nguyen@exoplatform.com Mar 15, 2007
+ * Created by The eXo Platform SAS
+ * Author : Tuan Nguyen tuan.nguyen@exoplatform.com Mar 15, 2007
  */
 abstract public class DBObject
 {

@@ -50,16 +50,14 @@
          <artifactId>exo.core.component.security.core</artifactId>
       </dependency>
       <dependency>
-         <groupId>xdoclet</groupId>
-         <artifactId>xdoclet-hibernate-module</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>xdoclet</groupId>
-         <artifactId>xdoclet-xdoclet-module</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>xdoclet</groupId>
-         <artifactId>xjavadoc</artifactId>
+         <groupId>org.hibernate</groupId>
+         <artifactId>hibernate-core</artifactId>
+         <exclusions>
+            <exclusion>
+               <groupId>org.slf4j</groupId>
+               <artifactId>slf4j-api</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
       <dependency>
          <groupId>xstream</groupId>
@@ -100,27 +98,6 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>
-               <execution>
-                  <phase>compile</phase>
-                  <configuration>
-                     <target>
-                        <taskdef name="hibernatedoclet" classname="xdoclet.modules.hibernate.HibernateDocletTask" classpathref="maven.dependency.classpath" />
-                        <hibernatedoclet destdir="${basedir}/target/classes" excludedtags="@version,@author,@todo" mergedir="target/classes" force="true" verbose="false">
-                           <fileset dir="${basedir}/src/main/java">
-                              <include name="org/exoplatform/services/organization/impl/UserImpl.java" />
-                              <include name="org/exoplatform/services/organization/impl/MembershipImpl.java" />
-                              <include name="org/exoplatform/services/organization/impl/GroupImpl.java" />
-                              <include name="org/exoplatform/services/organization/impl/MembershipTypeImpl.java" />
-                              <include name="org/exoplatform/services/organization/impl/UserProfileData.java" />
-                           </fileset>
-                           <hibernate version="3.0" />
-                        </hibernatedoclet>
-                     </target>
-                  </configuration>
-                  <goals>
-                     <goal>run</goal>
-                  </goals>
-               </execution>
                <execution>
                   <id>prepare-test-policy</id>
                   <phase>process-test-resources</phase>

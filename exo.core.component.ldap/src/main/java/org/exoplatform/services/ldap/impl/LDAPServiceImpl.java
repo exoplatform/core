@@ -49,8 +49,9 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 /**
- * Created by The eXo Platform SAS . Author : James Chamberlain
- * james@echamberlains.com Date: 11/2/2005
+ * Created by The eXo Platform SAS .
+ * Author : James Chamberlain james@echamberlains.com
+ * Date: 11/2/2005
  */
 public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
 {
@@ -94,7 +95,7 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
          PrivilegedSystemHelper.setProperty("com.sun.jndi.ldap.connect.pool.timeout",
             Integer.toString(config.getTimeout()));
       }
-      
+
       if (config.getMinConnection() > 0)
       {
          PrivilegedSystemHelper.setProperty("com.sun.jndi.ldap.connect.pool.initsize",

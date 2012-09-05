@@ -23,30 +23,44 @@ import org.exoplatform.services.organization.User;
 
 import java.util.Date;
 
-/**
- * @hibernate.class table="EXO_USER"
- */
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "EXO_USER")
 public class UserImpl implements User, ExtendedCloneable
 {
 
+   @Id
    private String id = null;
 
+   @Column
    private String userName = null;
 
-   private transient String password = null;
+   @Column
+   private String password = null;
 
+   @Column
    private String firstName = null;
 
+   @Column
    private String lastName = null;
 
+   @Column
    private String email = null;
 
+   @Column
    private Date createdDate;
 
+   @Column
    private Date lastLoginTime;
 
+   @Column
    private String organizationId = null;
 
+   @Column
    private String displayName = null;
 
    public UserImpl()
@@ -58,9 +72,6 @@ public class UserImpl implements User, ExtendedCloneable
       this.userName = username;
    }
 
-   /**
-    * @hibernate.property
-    */
    public String getDisplayName()
    {
       return displayName != null ? displayName : getFirstName() + " " + getLastName();
@@ -71,9 +82,6 @@ public class UserImpl implements User, ExtendedCloneable
       this.displayName = displayName;
    }
 
-   /**
-    * @hibernate.id generator-class="assigned" unsaved-value="null"
-    */
    public String getId()
    {
       return id;
@@ -84,9 +92,6 @@ public class UserImpl implements User, ExtendedCloneable
       this.id = id;
    }
 
-   /**
-    * @hibernate.property
-    */
    public String getUserName()
    {
       return userName;
@@ -97,9 +102,6 @@ public class UserImpl implements User, ExtendedCloneable
       this.userName = name;
    }
 
-   /**
-    * @hibernate.property
-    */
    public String getPassword()
    {
       return password;
@@ -110,9 +112,6 @@ public class UserImpl implements User, ExtendedCloneable
       this.password = password;
    }
 
-   /**
-    * @hibernate.property
-    */
    public String getFirstName()
    {
       return firstName;
@@ -123,9 +122,6 @@ public class UserImpl implements User, ExtendedCloneable
       this.firstName = firstName;
    }
 
-   /**
-    * @hibernate.property
-    */
    public String getLastName()
    {
       return lastName;
@@ -136,9 +132,6 @@ public class UserImpl implements User, ExtendedCloneable
       this.lastName = lastName;
    }
 
-   /**
-    * @hibernate.property
-    */
    public String getEmail()
    {
       return email;
@@ -160,9 +153,6 @@ public class UserImpl implements User, ExtendedCloneable
       setDisplayName(fullName);
    }
 
-   /**
-    * @hibernate.property
-    */
    public Date getCreatedDate()
    {
       return createdDate;
@@ -173,9 +163,6 @@ public class UserImpl implements User, ExtendedCloneable
       createdDate = t;
    }
 
-   /**
-    * @hibernate.property
-    */
    public Date getLastLoginTime()
    {
       return lastLoginTime;

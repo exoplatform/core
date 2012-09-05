@@ -145,7 +145,7 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
     */
    public ListAccess<User> findUsersByQuery(Query orgQuery) throws Exception
    {
-      DBObjectQuery dbQuery = new DBObjectQuery<UserImpl>(UserImpl.class);
+      DBObjectQuery<UserImpl> dbQuery = new DBObjectQuery<UserImpl>(UserImpl.class);
       if (orgQuery.getUserName() != null)
       {
          dbQuery.addLIKE("UPPER(USER_NAME)", addAsterisk(orgQuery.getUserName().toUpperCase()));
@@ -183,10 +183,9 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
          return new LazyListImpl();
       }
 
-      @SuppressWarnings("unchecked")
       List<Membership> members = (List<Membership>)membershipHandler.findMembershipsByGroup(group);
 
-      DBObjectQuery dbQuery = new DBObjectQuery<UserImpl>(UserImpl.class);
+      DBObjectQuery<UserImpl> dbQuery = new DBObjectQuery<UserImpl>(UserImpl.class);
       for (Membership member : members)
       {
          dbQuery.addEQ("USER_NAME", member.getUserName());
@@ -202,7 +201,7 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
 
    public ListAccess<User> findAllUsers() throws Exception
    {
-      DBObjectQuery dbQuery = new DBObjectQuery<UserImpl>(UserImpl.class);
+      DBObjectQuery<UserImpl> dbQuery = new DBObjectQuery<UserImpl>(UserImpl.class);
       return new JDBCListAccess<User>(this, dbQuery.toQuery(), dbQuery.toCountQuery());
    }
 
@@ -229,12 +228,10 @@ public class UserDAOImpl extends StandardSQLDAO<UserImpl> implements UserHandler
          listenerService_.broadcast(UserHandler.POST_UPDATE_USER_EVENT, this, userImpl);
    }
 
-   @SuppressWarnings("unused")
    public void addUserEventListener(UserEventListener listener)
    {
    }
 
-   @SuppressWarnings("unused")
    public void removeUserEventListener(UserEventListener listener)
    {
    }

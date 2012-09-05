@@ -130,7 +130,6 @@ public class UserImpl extends DBObject implements User
       return getDisplayName();
    }
 
-   @SuppressWarnings("unused")
    public void setFullName(String s)
    {
       setDisplayName(s);
