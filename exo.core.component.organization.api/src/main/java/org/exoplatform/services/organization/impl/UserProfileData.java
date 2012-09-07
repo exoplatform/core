@@ -22,6 +22,8 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 
 import org.exoplatform.commons.utils.SecurityHelper;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 
 import java.security.PrivilegedAction;
@@ -37,6 +39,7 @@ import javax.persistence.Table;
  * Date: Jun 14, 2003 Time: 1:12:22 PM
  */
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "EXO_USER_PROFILE")
 public class UserProfileData
 {

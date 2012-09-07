@@ -20,6 +20,8 @@ package org.exoplatform.services.organization.impl;
 
 import org.exoplatform.services.organization.ExtendedCloneable;
 import org.exoplatform.services.organization.User;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import java.util.Date;
 
@@ -29,6 +31,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "EXO_USER")
 public class UserImpl implements User, ExtendedCloneable
 {

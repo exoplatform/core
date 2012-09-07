@@ -19,7 +19,6 @@
 package org.exoplatform.services.database.impl.regions;
 
 import org.exoplatform.services.cache.ExoCache;
-import org.exoplatform.services.database.impl.strategies.ExoCacheCollectionRegionReadOnlyAccessStrategy;
 import org.exoplatform.services.database.impl.strategies.ExoCacheCollectionRegionReadWriteAccessStrategy;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.spi.CacheDataDescription;
@@ -50,9 +49,6 @@ public class ExoCacheCollectionRegion extends ExoCacheTransactionalDataRegion im
       {
          case READ_WRITE :
             return new ExoCacheCollectionRegionReadWriteAccessStrategy(this);
-         case READ_ONLY :
-            return new ExoCacheCollectionRegionReadOnlyAccessStrategy(this);
-
          default :
             throw new IllegalArgumentException("Unrecognized access strategy type [" + accessType + "]");
       }

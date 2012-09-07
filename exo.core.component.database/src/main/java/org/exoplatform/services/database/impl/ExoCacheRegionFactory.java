@@ -51,11 +51,6 @@ public class ExoCacheRegionFactory implements RegionFactory
 
    private CacheService cacheService;
 
-   /**
-    * Maximum count of items stored in the cache.
-    */
-   private static final int MAX_CACHE_SIZE = 5000;
-
    public ExoCacheRegionFactory()
    {
       ExoContainer container = ExoContainerContext.getCurrentContainer();
@@ -107,7 +102,6 @@ public class ExoCacheRegionFactory implements RegionFactory
       throws CacheException
    {
       ExoCache<Serializable, Object> cache = cacheService.getCacheInstance(regionName);
-      cache.setMaxSize(MAX_CACHE_SIZE);
       return new ExoCacheEntityRegion(cache, metadata);
    }
 
@@ -118,7 +112,6 @@ public class ExoCacheRegionFactory implements RegionFactory
       throws CacheException
    {
       ExoCache<Serializable, Object> cache = cacheService.getCacheInstance(regionName);
-      cache.setMaxSize(MAX_CACHE_SIZE);
       return new ExoCacheNaturalIdRegion(cache, metadata);
    }
 
@@ -129,7 +122,6 @@ public class ExoCacheRegionFactory implements RegionFactory
       throws CacheException
    {
       ExoCache<Serializable, Object> cache = cacheService.getCacheInstance(regionName);
-      cache.setMaxSize(MAX_CACHE_SIZE);
       return new ExoCacheCollectionRegion(cache, metadata);
    }
 
@@ -139,7 +131,6 @@ public class ExoCacheRegionFactory implements RegionFactory
    public QueryResultsRegion buildQueryResultsRegion(String regionName, Properties properties) throws CacheException
    {
       ExoCache<Serializable, Object> cache = cacheService.getCacheInstance(regionName);
-      cache.setMaxSize(MAX_CACHE_SIZE);
       return new ExoCacheQueryResultsRegion(cache);
    }
 
@@ -149,7 +140,6 @@ public class ExoCacheRegionFactory implements RegionFactory
    public TimestampsRegion buildTimestampsRegion(String regionName, Properties properties) throws CacheException
    {
       ExoCache<Serializable, Object> cache = cacheService.getCacheInstance(regionName);
-      cache.setMaxSize(MAX_CACHE_SIZE);
       return new ExoCacheTimestampsRegion(cache);
    }
 }

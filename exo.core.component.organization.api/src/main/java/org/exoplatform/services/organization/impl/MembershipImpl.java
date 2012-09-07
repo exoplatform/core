@@ -20,6 +20,8 @@ package org.exoplatform.services.organization.impl;
 
 import org.exoplatform.services.organization.ExtendedCloneable;
 import org.exoplatform.services.organization.Membership;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,6 +29,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "EXO_MEMBERSHIP")
 public class MembershipImpl implements Membership, ExtendedCloneable
 {
