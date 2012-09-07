@@ -54,7 +54,7 @@ public class ExoCacheRegionFactory implements RegionFactory
    /**
     * Maximum count of items stored in the cache.
     */
-   private int MAX_CACHE_SIZE = 5000;
+   private static final int MAX_CACHE_SIZE = 5000;
 
    public ExoCacheRegionFactory()
    {
@@ -67,10 +67,6 @@ public class ExoCacheRegionFactory implements RegionFactory
     */
    public void start(Settings settings, Properties properties) throws CacheException
    {
-      if (properties.containsKey("exocache.config.maxsize"))
-      {
-         MAX_CACHE_SIZE = Integer.parseInt(properties.get("exocache.config.maxsize").toString());
-      }
    }
 
    /**
