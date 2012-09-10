@@ -101,7 +101,8 @@ public class ExoCacheRegionFactory implements RegionFactory
    public EntityRegion buildEntityRegion(String regionName, Properties properties, CacheDataDescription metadata)
       throws CacheException
    {
-      ExoCache<Serializable, Object> cache = cacheService.getCacheInstance(regionName);
+      ExoCache<Serializable, Object> cache =
+         cacheService.getCacheInstance("ExoCacheRegionFactory-Entity-" + regionName);
       return new ExoCacheEntityRegion(cache, metadata);
    }
 
@@ -111,7 +112,8 @@ public class ExoCacheRegionFactory implements RegionFactory
    public NaturalIdRegion buildNaturalIdRegion(String regionName, Properties properties, CacheDataDescription metadata)
       throws CacheException
    {
-      ExoCache<Serializable, Object> cache = cacheService.getCacheInstance(regionName);
+      ExoCache<Serializable, Object> cache =
+         cacheService.getCacheInstance("ExoCacheRegionFactory-NaturalId-" + regionName);
       return new ExoCacheNaturalIdRegion(cache, metadata);
    }
 
@@ -121,7 +123,8 @@ public class ExoCacheRegionFactory implements RegionFactory
    public CollectionRegion buildCollectionRegion(String regionName, Properties properties, CacheDataDescription metadata)
       throws CacheException
    {
-      ExoCache<Serializable, Object> cache = cacheService.getCacheInstance(regionName);
+      ExoCache<Serializable, Object> cache =
+         cacheService.getCacheInstance("ExoCacheRegionFactory-Collection-" + regionName);
       return new ExoCacheCollectionRegion(cache, metadata);
    }
 
@@ -130,7 +133,8 @@ public class ExoCacheRegionFactory implements RegionFactory
     */
    public QueryResultsRegion buildQueryResultsRegion(String regionName, Properties properties) throws CacheException
    {
-      ExoCache<Serializable, Object> cache = cacheService.getCacheInstance(regionName);
+      ExoCache<Serializable, Object> cache =
+         cacheService.getCacheInstance("ExoCacheRegionFactory-QueryResults-" + regionName);
       return new ExoCacheQueryResultsRegion(cache);
    }
 
@@ -139,7 +143,8 @@ public class ExoCacheRegionFactory implements RegionFactory
     */
    public TimestampsRegion buildTimestampsRegion(String regionName, Properties properties) throws CacheException
    {
-      ExoCache<Serializable, Object> cache = cacheService.getCacheInstance(regionName);
+      ExoCache<Serializable, Object> cache =
+         cacheService.getCacheInstance("ExoCacheRegionFactory-Timestamps-" + regionName);
       return new ExoCacheTimestampsRegion(cache);
    }
 }
