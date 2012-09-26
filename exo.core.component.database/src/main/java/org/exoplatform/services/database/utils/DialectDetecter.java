@@ -70,7 +70,11 @@ public class DialectDetecter
 
       if ("PostgreSQL".equals(databaseName))
       {
-         return DialectConstants.DB_DIALECT_PGSQL;
+         int majorVersion = metaData.getDatabaseMajorVersion();
+         int minorVersion = metaData.getDatabaseMinorVersion();
+
+         return (majorVersion > 9 || (majorVersion == 9 && minorVersion >= 1)) ? DialectConstants.DB_DIALECT_PGSQL_SCS
+            : DialectConstants.DB_DIALECT_PGSQL;
       }
 
       if ("Apache Derby".equals(databaseName))

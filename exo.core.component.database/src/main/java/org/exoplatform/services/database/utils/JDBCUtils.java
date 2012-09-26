@@ -202,7 +202,8 @@ public class JDBCUtils
       {
          return "LONGBLOB";
       }
-      else if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_PGSQL))
+      else if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_PGSQL)
+         || dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_PGSQL_SCS))
       {
          return "bytea";
       }
