@@ -52,7 +52,7 @@ public class DialectConstants
    /**
     * DB_DIALECT_PGSQL_SCS.
     */
-   public final static String DB_DIALECT_PGSQL_SCS = "PgSQL-SCS".intern();
+   public final static String DB_DIALECT_PGSQL_SCS = "PgSQL-SCS";
 
    /**
     * DB_DIALECT_MYSQL.
