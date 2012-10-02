@@ -348,6 +348,14 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
    private void removeMembership(LdapContext ctx, String name) throws NamingException
    {
       NamingEnumeration<SearchResult> results = null;
+
+      // need to escape '*' symbol since it is a special symbol for organization service
+      // and LDAP protocol, but has different meanings
+      if ("*".equals(name))
+      {
+         name = "\\2a";
+      }
+
       try
       {
          SearchControls constraints = new SearchControls();
