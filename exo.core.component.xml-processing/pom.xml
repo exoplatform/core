@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
     Copyright (C) 2009 eXo Platform SAS.
@@ -18,6 +19,7 @@
     02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
 -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
@@ -27,7 +29,7 @@
    </parent>
    <artifactId>exo.core.component.xml-processing</artifactId>
    <name>eXo Core :: Component :: XML Processing Service</name>
-   <description>eXo XML Processing Services</description>
+   <description>Implementation of XML Processing Service of Exoplatform SAS 'eXo Core' project.</description>
    <dependencies>
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
