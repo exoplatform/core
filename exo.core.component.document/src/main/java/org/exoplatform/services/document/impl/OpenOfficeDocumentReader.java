@@ -279,6 +279,10 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
          if (rawName.startsWith("text:"))
          {
             appendChar = true;
+            if (content.length() > 0)
+            {
+               content.append(" ");
+            }
          }
       }
 
@@ -287,7 +291,7 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
       {
          if (appendChar)
          {
-            content.append(ch, start, length).append(" ");
+            content.append(ch, start, length);
          }
       }
 
