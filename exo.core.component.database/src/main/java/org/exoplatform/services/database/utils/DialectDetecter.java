@@ -104,7 +104,15 @@ public class DialectDetecter
 
       if (databaseName.startsWith("DB2/"))
       {
-         return DialectConstants.DB_DIALECT_DB2;
+         int majorVersion = metaData.getDatabaseMajorVersion();
+         int minorVersion = metaData.getDatabaseMinorVersion();
+
+         String value = metaData.getDatabaseProductVersion();
+         int maintenanceVersion = Integer.parseInt(value.substring(value.length() - 1));
+
+         return (majorVersion > 9 || (majorVersion == 9 && minorVersion >= 7) || (majorVersion == 9
+            && minorVersion == 7 && maintenanceVersion >= 2)) ? DialectConstants.DB_DIALECT_DB2_MYS
+            : DialectConstants.DB_DIALECT_DB2;
       }
 
       if ("Oracle".equals(databaseName))
