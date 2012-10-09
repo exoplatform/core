@@ -18,7 +18,6 @@ function getModule(params) {
     new Project("org.exoplatform.core", "exo.core.component.database", "jar", module.version) .
     addDependency(new Project("org.hibernate", "hibernate-core", "jar", "4.1.6.Final")).
     addDependency(new Project("org.hibernate", "hibernate-c3p0", "jar", "4.1.6.Final")).
-    addDependency(new Project("org.hibernate", "ejb3-persistence", "jar", "1.0.2.GA")).
     addDependency(new Project("org.javassist", "javassist", "jar", "3.15.0-GA")).
     addDependency(new Project("org.antlr", "antlr-runtime", "jar", "3.2")).
     addDependency(new Project("javax.transaction", "jta", "jar", "1.1")).
@@ -30,18 +29,10 @@ function getModule(params) {
     addDependency(new Project("org.apache.pdfbox", "pdfbox", "jar", "1.6.0")).
     addDependency(new Project("org.apache.pdfbox", "fontbox", "jar", "1.6.0")).
     addDependency(new Project("org.apache.pdfbox", "jempbox", "jar", "1.6.0")).    
-    addDependency(new Project("org.bouncycastle", "bcmail-jdk15", "jar", "1.45")).
-    addDependency(new Project("org.bouncycastle", "bcprov-jdk15", "jar", "1.45")).
-    addDependency(new Project("org.apache.commons", "commons-compress", "jar", "1.3")).
     addDependency(new Project("org.apache.geronimo.specs", "geronimo-stax-api_1.0_spec", "jar", "1.0.1")).
-    addDependency(new Project("org.ccil.cowan.tagsoup", "tagsoup", "jar", "1.2.1")).
-    addDependency(new Project("asm", "asm", "jar", "3.1")).
-    addDependency(new Project("com.drewnoakes", "metadata-extractor", "jar", "2.4.0-beta-1")).
-    addDependency(new Project("html-parser", "html-parser", "jar", "1.6")).
     addDependency(new Project("org.apache.poi", "poi", "jar", "3.8")).
     addDependency(new Project("org.apache.poi", "poi-scratchpad", "jar", "3.8")).
     addDependency(new Project("org.apache.poi", "poi-ooxml", "jar", "3.8")).
-    addDependency(new Project("org.apache.poi", "poi-ooxml-schemas", "jar", "3.8")).    
     addDependency(new Project("org.apache.tika", "tika-core", "jar", "1.1")).    
     addDependency(new Project("org.apache.tika", "tika-parsers", "jar", "1.1")).    
     addDependency(new Project("org.apache.xmlbeans", "xmlbeans", "jar", "2.3.0"));
