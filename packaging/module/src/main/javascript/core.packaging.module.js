@@ -17,12 +17,10 @@ function getModule(params) {
   module.component.database = 
     new Project("org.exoplatform.core", "exo.core.component.database", "jar", module.version) .
     addDependency(new Project("org.hibernate", "hibernate-core", "jar", "4.1.6.Final")).
-    addDependency(new Project("org.hibernate", "hibernate-annotations", "jar", "3.4.0.GA")).
-    addDependency(new Project("org.hibernate", "hibernate-commons-annotations", "jar", "4.0.1.Final")).
+    addDependency(new Project("org.hibernate", "hibernate-c3p0", "jar", "4.1.6.Final")).
     addDependency(new Project("org.hibernate", "ejb3-persistence", "jar", "1.0.2.GA")).
     addDependency(new Project("org.javassist", "javassist", "jar", "3.15.0-GA")).
-    addDependency(new Project("c3p0", "c3p0", "jar", "0.9.1.1")).
-    addDependency(new Project("antlr", "antlr", "jar", "2.7.7")).
+    addDependency(new Project("org.antlr", "antlr-runtime", "jar", "3.2")).
     addDependency(new Project("javax.transaction", "jta", "jar", "1.1")).
     addDependency(new Project("org.hsqldb", "hsqldb", "jar", "2.0.0")).
     addDependency(new Project("javax.resource", "connector-api", "jar", "1.5"));
