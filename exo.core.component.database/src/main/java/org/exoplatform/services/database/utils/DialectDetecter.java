@@ -138,7 +138,7 @@ public class DialectDetecter
       int majorVersion = metaData.getDatabaseMajorVersion();
       int minorVersion = metaData.getDatabaseMinorVersion();
 
-      if (majorVersion > 9 || (majorVersion == 9 && minorVersion >= 7))
+      if (majorVersion > 9 || (majorVersion == 9 && minorVersion > 7))
       {
          return DialectConstants.DB_DIALECT_DB2_MYS;
       }
