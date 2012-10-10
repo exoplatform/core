@@ -113,7 +113,7 @@ public class DialectDetecter
 
       if (databaseName.startsWith("DB2/"))
       {
-         return detectDB2Dialec(metaData);
+         return detectDB2Dialect(metaData);
       }
 
       if ("Oracle".equals(databaseName))
@@ -127,7 +127,7 @@ public class DialectDetecter
    /**
     * Detects DB2 dialect.
     */
-   private static String detectDB2Dialec(final DatabaseMetaData metaData) throws SQLException
+   private static String detectDB2Dialect(final DatabaseMetaData metaData) throws SQLException
    {
       if (LOG.isDebugEnabled())
       {
@@ -138,21 +138,78 @@ public class DialectDetecter
       int majorVersion = metaData.getDatabaseMajorVersion();
       int minorVersion = metaData.getDatabaseMinorVersion();
 
-      if (majorVersion > 9 || (majorVersion == 9 && minorVersion > 7))
+      if (majorVersion > 9)
       {
+         if (LOG.isDebugEnabled())
+         {
+            LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2_MYS
+               + " will be used as the major version is greater than 9.");
+         }
+
          return DialectConstants.DB_DIALECT_DB2_MYS;
       }
+      else if (majorVersion == 9 && minorVersion > 7)
+      {
+         if (LOG.isDebugEnabled())
+         {
+            if (LOG.isDebugEnabled())
+            {
+               LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2_MYS
+                  + " will be used as the major version is 9 and the minor version is greater than 7.");
+            }
+         }
 
-      try
-      {
-         return getDB2MaintenanceVersion(metaData) >= 2 ? DialectConstants.DB_DIALECT_DB2_MYS
-            : DialectConstants.DB_DIALECT_DB2;
+         return DialectConstants.DB_DIALECT_DB2_MYS;
       }
-      catch (SQLException e)
+      else if (majorVersion == 9 && minorVersion == 7)
       {
-         LOG.error("Error checking product version.", e);
-         return DialectConstants.DB_DIALECT_DB2;
+         try
+         {
+            int maintenanceVersion = getDB2MaintenanceVersion(metaData);
+
+            if (maintenanceVersion >= 2)
+            {
+               if (LOG.isDebugEnabled())
+               {
+                  LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2_MYS
+                     + " will be used as the major version is 9, the minor version is 7 and the maintenance version"
+                     + " is greater or equals to 2, knowing that the extracted value is " + maintenanceVersion + ".");
+               }
+
+               return DialectConstants.DB_DIALECT_DB2_MYS;
+            }
+
+            if (LOG.isDebugEnabled())
+            {
+               LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2
+                  + " will be used as the major version is 9, the minor version is 7 and the maintenance version"
+                  + " is lower than 2, knowing that the extracted value is " + maintenanceVersion + ".");
+            }
+
+            return DialectConstants.DB_DIALECT_DB2;
+         }
+         catch (SQLException e)
+         {
+            LOG.error("Error checking product version.", e);
+
+            if (LOG.isDebugEnabled())
+            {
+               LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2
+                  + " will be used as the major version is 9, the minor version is 7 and"
+                  + " determination the maintenance version failed");
+            }
+
+            return DialectConstants.DB_DIALECT_DB2;
+         }
       }
+
+      if (LOG.isDebugEnabled())
+      {
+         LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2
+            + " will be used as the major version is lower than 9 or the minor version is lower than 7");
+      }
+
+      return DialectConstants.DB_DIALECT_DB2;
    }
 
    /**
