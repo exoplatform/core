@@ -27,62 +27,62 @@ public class DialectConstants
    /**
     * DB_DIALECT_AUTO.
     */
-   public final static String DB_DIALECT_AUTO = "Auto".intern();
+   public final static String DB_DIALECT_AUTO = "AUTO";
 
    /**
     * DB_DIALECT_GENERIC.
     */
-   public final static String DB_DIALECT_GENERIC = "Generic".intern();
+   public final static String DB_DIALECT_GENERIC = "GENERIC";
 
    /**
     * DB_DIALECT_ORACLE.
     */
-   public final static String DB_DIALECT_ORACLE = "Oracle".intern();
+   public final static String DB_DIALECT_ORACLE = "ORACLE";
 
    /**
     * DB_DIALECT_ORACLEOCI.
     */
-   public final static String DB_DIALECT_ORACLEOCI = "Oracle-OCI".intern();
+   public final static String DB_DIALECT_ORACLEOCI = "ORACLE-OCI";
 
    /**
     * DB_DIALECT_PGSQL.
     */
-   public final static String DB_DIALECT_PGSQL = "PgSQL".intern();
+   public final static String DB_DIALECT_PGSQL = "PGSLQ";
 
    /**
     * DB_DIALECT_PGSQL_SCS.
     */
-   public final static String DB_DIALECT_PGSQL_SCS = "PgSQL-SCS";
+   public final static String DB_DIALECT_PGSQL_SCS = "PGSLQ-SCS";
 
    /**
     * DB_DIALECT_MYSQL.
     */
-   public final static String DB_DIALECT_MYSQL = "MySQL".intern();
+   public final static String DB_DIALECT_MYSQL = "MYSQL";
 
    /**
     * DB_DIALECT_MYSQL_UTF8.
     */
-   public final static String DB_DIALECT_MYSQL_UTF8 = "MySQL-UTF8".intern();
+   public final static String DB_DIALECT_MYSQL_UTF8 = "MYSQL-UTF8";
 
    /**
     * DB_DIALECT_MYSQL_MYISAM.
     */
-   public final static String DB_DIALECT_MYSQL_MYISAM = "MySQL-MyISAM".intern();
+   public final static String DB_DIALECT_MYSQL_MYISAM = "MYSQL-MyISAM";
 
    /**
     * DB_DIALECT_MYSQL_MYISAM_UTF8.
     */
-   public final static String DB_DIALECT_MYSQL_MYISAM_UTF8 = "MySQL-MyISAM-UTF8".intern();
+   public final static String DB_DIALECT_MYSQL_MYISAM_UTF8 = "MYSQL-MyISAM-UTF8";
 
    /**
     * DB_DIALECT_HSQLDB.
     */
-   public final static String DB_DIALECT_HSQLDB = "HSQLDB".intern();
+   public final static String DB_DIALECT_HSQLDB = "HSQLDB";
 
    /**
     * DB_DIALECT_DB2.
     */
-   public final static String DB_DIALECT_DB2 = "DB2".intern();
+   public final static String DB_DIALECT_DB2 = "DB2";
 
    /**
     * DB_DIALECT_DB2-MYS.
@@ -92,32 +92,32 @@ public class DialectConstants
    /**
     * DB_DIALECT_DB2V8.
     */
-   public final static String DB_DIALECT_DB2V8 = "DB2V8".intern();
+   public final static String DB_DIALECT_DB2V8 = "DB2V8";
 
    /**
     * DB_DIALECT_MSSQL.
     */
-   public final static String DB_DIALECT_MSSQL = "MSSQL".intern();
+   public final static String DB_DIALECT_MSSQL = "MSSQL";
 
    /**
     * DB_DIALECT_SYBASE.
     */
-   public final static String DB_DIALECT_SYBASE = "Sybase".intern();
+   public final static String DB_DIALECT_SYBASE = "SYBASE";
 
    /**
     * DB_DIALECT_DERBY.
     */
-   public final static String DB_DIALECT_DERBY = "Derby".intern();
+   public final static String DB_DIALECT_DERBY = "DERBY";
 
    /**
     * DB_DIALECT_INGRES.
     */
-   public final static String DB_DIALECT_INGRES = "Ingres".intern();
+   public final static String DB_DIALECT_INGRES = "INGRES";
 
    /**
     * DB_DIALECT_H2.
     */
-   public final static String DB_DIALECT_H2 = "H2".intern();
+   public final static String DB_DIALECT_H2 = "H2";
 
    /**
     * DB_DIALECTS.

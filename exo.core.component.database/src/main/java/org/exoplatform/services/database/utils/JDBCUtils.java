@@ -204,31 +204,27 @@ public class JDBCUtils
    {
       String dialect = resolveDialect(dataSource);
 
-      if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_HSQLDB))
+      if (dialect.startsWith(DialectConstants.DB_DIALECT_HSQLDB))
       {
          return "VARBINARY(65535)";
       }
-      else if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_MYSQL)
-         || dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_MYSQL_UTF8)
-         || dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_MYSQL_MYISAM)
-         || dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_MYSQL_MYISAM_UTF8))
+      else if (dialect.startsWith(DialectConstants.DB_DIALECT_MYSQL))
       {
          return "LONGBLOB";
       }
-      else if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_PGSQL)
-         || dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_PGSQL_SCS))
+      else if (dialect.startsWith(DialectConstants.DB_DIALECT_PGSQL))
       {
          return "bytea";
       }
-      else if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_MSSQL))
+      else if (dialect.startsWith(DialectConstants.DB_DIALECT_MSSQL))
       {
          return "VARBINARY(MAX)";
       }
-      else if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_SYBASE))
+      else if (dialect.startsWith(DialectConstants.DB_DIALECT_SYBASE))
       {
          return "IMAGE";
       }
-      else if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_INGRES))
+      else if (dialect.startsWith(DialectConstants.DB_DIALECT_INGRES))
       {
          return "long byte";
       }
@@ -243,8 +239,7 @@ public class JDBCUtils
    {
       String dialect = resolveDialect(dataSource);
 
-      if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_ORACLE)
-         || dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_ORACLEOCI))
+      if (dialect.startsWith(DialectConstants.DB_DIALECT_ORACLE))
       {
          return "NUMBER(19, 0)";
       }
@@ -259,8 +254,7 @@ public class JDBCUtils
    {
       String dialect = resolveDialect(dataSource);
 
-      if (dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_ORACLE)
-         || dialect.equalsIgnoreCase(DialectConstants.DB_DIALECT_ORACLEOCI))
+      if (dialect.startsWith(DialectConstants.DB_DIALECT_ORACLE))
       {
          // Oracle suggests the use VARCHAR2 instead of VARCHAR while declaring data type.
          return "VARCHAR2(512)";
