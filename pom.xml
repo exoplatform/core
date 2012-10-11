@@ -223,6 +223,21 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>4.1.6.Final</version>
+
+             <exclusions> 
+               <exclusion>
+                  <groupId>org.slf4j</groupId>
+                  <artifactId>slf4j-api</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>org.jboss.spec.javax.transaction</groupId>
+                  <artifactId>jboss-transaction-api_1.1_spec</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>org.jboss.logging</groupId>
+                  <artifactId>jboss-logging</artifactId>
+               </exclusion>
+            </exclusions>
          </dependency>
 
         <dependency>
@@ -343,6 +358,16 @@
            <groupId>org.apache.tika</groupId>
            <artifactId>tika-parsers</artifactId>
            <version>1.1</version>
+           <exclusions>
+              <exclusion>
+                 <groupId>javassist</groupId>
+                 <artifactId>javassist</artifactId>
+              </exclusion>
+              <exclusion>
+                 <groupId>org.apache.geronimo.specs</groupId>
+                 <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+              </exclusion>
+           </exclusions>
         </dependency>
 
         <dependency>
@@ -350,6 +375,13 @@
            <artifactId>xmlbeans</artifactId>
            <version>2.3.0</version>
            <scope>compile</scope>
+
+           <exclusions>
+              <exclusion>
+                 <groupId>stax</groupId>
+                 <artifactId>stax-api</artifactId>
+              </exclusion>
+           </exclusions>
         </dependency>
         <dependency>
            <groupId>xml-apis</groupId>
