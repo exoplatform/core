@@ -138,7 +138,17 @@ public class DialectDetecter
       int majorVersion = metaData.getDatabaseMajorVersion();
       int minorVersion = metaData.getDatabaseMinorVersion();
 
-      if (majorVersion > 9)
+      if (majorVersion < 9)
+      {
+         if (LOG.isDebugEnabled())
+         {
+            LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2V8
+               + " will be used as the major version is lower than 9.");
+         }
+
+         return DialectConstants.DB_DIALECT_DB2V8;
+      }
+      else if (majorVersion > 9)
       {
          if (LOG.isDebugEnabled())
          {
@@ -152,11 +162,8 @@ public class DialectDetecter
       {
          if (LOG.isDebugEnabled())
          {
-            if (LOG.isDebugEnabled())
-            {
-               LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2_MYS
-                  + " will be used as the major version is 9 and the minor version is greater than 7.");
-            }
+            LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2_MYS
+               + " will be used as the major version is 9 and the minor version is greater than 7.");
          }
 
          return DialectConstants.DB_DIALECT_DB2_MYS;
@@ -178,15 +185,17 @@ public class DialectDetecter
 
                return DialectConstants.DB_DIALECT_DB2_MYS;
             }
-
-            if (LOG.isDebugEnabled())
+            else
             {
-               LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2
-                  + " will be used as the major version is 9, the minor version is 7 and the maintenance version"
-                  + " is lower than 2, knowing that the extracted value is " + maintenanceVersion + ".");
-            }
+               if (LOG.isDebugEnabled())
+               {
+                  LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2
+                     + " will be used as the major version is 9, the minor version is 7 and the maintenance version"
+                     + " is lower than 2, knowing that the extracted value is " + maintenanceVersion + ".");
+               }
 
-            return DialectConstants.DB_DIALECT_DB2;
+               return DialectConstants.DB_DIALECT_DB2;
+            }
          }
          catch (SQLException e)
          {
@@ -202,14 +211,16 @@ public class DialectDetecter
             return DialectConstants.DB_DIALECT_DB2;
          }
       }
-
-      if (LOG.isDebugEnabled())
+      else
       {
-         LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2
-            + " will be used as the major version is lower than 9 or the minor version is lower than 7");
-      }
+         if (LOG.isDebugEnabled())
+         {
+            LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2
+               + " will be used as the major version is 9 and the minor version is lower than 7");
+         }
 
-      return DialectConstants.DB_DIALECT_DB2;
+         return DialectConstants.DB_DIALECT_DB2;
+      }
    }
 
    /**
