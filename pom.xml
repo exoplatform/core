@@ -233,10 +233,6 @@
                   <groupId>org.jboss.spec.javax.transaction</groupId>
                   <artifactId>jboss-transaction-api_1.1_spec</artifactId>
                </exclusion>
-               <exclusion>
-                  <groupId>org.jboss.logging</groupId>
-                  <artifactId>jboss-logging</artifactId>
-               </exclusion>
             </exclusions>
          </dependency>
 
