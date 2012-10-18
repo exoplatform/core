@@ -96,7 +96,8 @@ public class TextClobType implements UserType
     *
     * Hibernate4 compatible method's signature
     */
-   public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor session) throws HibernateException, SQLException
+   public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor session)
+      throws HibernateException, SQLException
    {
       nullSafeSet(st, value, index);
    }
@@ -254,7 +255,8 @@ public class TextClobType implements UserType
     *
     * @see #nullSafeGet(java.sql.ResultSet, String[], Object)
     */
-   public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session, Object owner) throws HibernateException, SQLException
+   public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session, Object owner)
+      throws HibernateException, SQLException
    {
       return nullSafeGet(rs, names, owner);
    }
