@@ -91,7 +91,11 @@ public class JDBCUtils
          {
             query = "SELECT count(*) from (SELECT 1 FROM " + tableName + " FETCH FIRST 1 ROWS ONLY) T";
          }
-         else if (dialect.startsWith(DialectConstants.DB_DIALECT_MSSQL) || dialect.startsWith(DialectConstants.DB_DIALECT_SYBASE))
+         else if (dialect.startsWith(DialectConstants.DB_DIALECT_MSSQL))
+         {
+            query = "SELECT count(*) from (SELECT TOP (1) 1 FROM " + tableName + ") T";
+         }
+         else if (dialect.startsWith(DialectConstants.DB_DIALECT_SYBASE))
          {
             query = "SELECT count(*) from (SELECT TOP 1 1 FROM " + tableName + ") T";
          }
