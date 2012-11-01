@@ -42,7 +42,7 @@
       <exo.product.name>exo-core</exo.product.name>
       <exo.product.specification>2.5</exo.product.specification>
       
-      <org.exoplatform.kernel.version>2.4.0-GA-SNAPSHOT</org.exoplatform.kernel.version>
+      <org.exoplatform.kernel.version>2.4.0-CR2</org.exoplatform.kernel.version>
 
       <!-- Plugins updates -->
       <version.source.plugin>2.1.2</version.source.plugin>
