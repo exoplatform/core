@@ -47,12 +47,12 @@ public class DialectConstants
    /**
     * DB_DIALECT_PGSQL.
     */
-   public final static String DB_DIALECT_PGSQL = "PGSLQ";
+   public final static String DB_DIALECT_PGSQL = "PGSQL";
 
    /**
     * DB_DIALECT_PGSQL_SCS.
     */
-   public final static String DB_DIALECT_PGSQL_SCS = "PGSLQ-SCS";
+   public final static String DB_DIALECT_PGSQL_SCS = "PGSQL-SCS";
 
    /**
     * DB_DIALECT_MYSQL.
