@@ -93,7 +93,7 @@ public class JDBCUtils
          }
          else if (dialect.startsWith(DialectConstants.DB_DIALECT_MSSQL))
          {
-            query = "SELECT count(*) from (SELECT TOP (1) 1 FROM " + tableName + ") T";
+            query = "SELECT count(*) from (SELECT TOP (1) 1 as C FROM " + tableName + ") T";
          }
          else if (dialect.startsWith(DialectConstants.DB_DIALECT_SYBASE))
          {
