@@ -125,7 +125,10 @@ public class DBPageList<T extends DBObject> extends PageList
       }
       finally
       {
-         dao_.getExoDatasource().closeConnection(connection);
+         if (connection != null)
+         {
+            dao_.getExoDatasource().closeConnection(connection);            
+         }
       }
    }
 
@@ -152,7 +155,10 @@ public class DBPageList<T extends DBObject> extends PageList
       }
       finally
       {
-         dao_.getExoDatasource().closeConnection(connection);
+         if (connection != null)
+         {
+            dao_.getExoDatasource().closeConnection(connection);            
+         }
       }
    }
 

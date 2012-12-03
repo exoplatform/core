@@ -113,14 +113,16 @@ public class TidyTransformerImpl extends TransformerBase implements HTMLTransfor
 
       try
       {
-         LOG.debug(" input available bytes " + input.available());
+         if (LOG.isDebugEnabled())
+         {
+            LOG.debug(" input available bytes " + input.available());
+         }
          if (input.available() == 0)
             return;
       }
       catch (IOException ex)
       {
          LOG.error("Error on read Source", ex);
-         new TransformerException("Error on read source", ex);
       }
 
       // OutputStream output = null;

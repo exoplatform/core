@@ -33,8 +33,6 @@ import java.util.Map;
 public class ObjectQuery
 {
 
-   private static SimpleDateFormat ft_ = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-
    private Class<?> type_;
 
    private String orderBy_;
@@ -161,7 +159,8 @@ public class ObjectQuery
             }
             else if (p.value_ instanceof Date)
             {
-               String value = ft_.format((Date)p.value_);
+               SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+               String value = ft.format((Date)p.value_);
                b.append(" o.").append(p.field_).append(p.op_).append("'").append(value).append("'");
             }
             else
@@ -205,7 +204,8 @@ public class ObjectQuery
             }
             else if (p.value_ instanceof Date)
             {
-               String value = ft_.format((Date)p.value_);
+               SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+               String value = ft.format((Date)p.value_);
                b.append(" o.").append(p.field_).append(p.op_).append("'").append(value).append("'");
             }
             else
@@ -301,7 +301,8 @@ public class ObjectQuery
             }
             else if (p.value_ instanceof Date)
             {
-               String value = ft_.format((Date)p.value_);
+               SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+               String value = ft.format((Date)p.value_);
                b.append(" o.").append(p.field_).append(p.op_).append("'").append(value).append("'");
             }
             else if (p.op_.equals("MAX") || p.op_.equals("MIN"))
@@ -346,7 +347,8 @@ public class ObjectQuery
             }
             else if (p.value_ instanceof Date)
             {
-               String value = ft_.format((Date)p.value_);
+               SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+               String value = ft.format((Date)p.value_);
                b.append(" o.").append(p.field_).append(p.op_).append("'").append(value).append("'");
             }
             else
@@ -388,7 +390,8 @@ public class ObjectQuery
             }
             else if (p.value_ instanceof Date)
             {
-               String value = ft_.format((Date)p.value_);
+               SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+               String value = ft.format((Date)p.value_);
                b.append(" o.").append(p.field_).append(p.op_).append("'").append(value).append("'");
             }
             else

@@ -18,7 +18,7 @@
  */
 package org.exoplatform.services.tck.organization;
 
-import org.exoplatform.container.StandaloneContainer;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
@@ -32,7 +32,7 @@ public class TestGroupListener extends GroupEventListener
 
    public void preSave(Group group, boolean isNew) throws Exception
    {
-      RequestLifeCycle.begin(StandaloneContainer.getInstance());
+      RequestLifeCycle.begin(ExoContainerContext.getCurrentContainer());
       RequestLifeCycle.end();
    }
 }

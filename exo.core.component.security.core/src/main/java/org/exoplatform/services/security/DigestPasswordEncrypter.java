@@ -105,11 +105,9 @@ public class DigestPasswordEncrypter implements PasswordEncrypter
       }
       catch (NoSuchAlgorithmException e)
       {
-         if (LOG.isTraceEnabled())
-         {
-            LOG.trace("An exception occurred: " + e.getMessage());
-         }
+         throw new RuntimeException("Could not find any MessageDigestSpi implementation for MD5.", e);
       }
+
       // calculate MD5 hash of A1 string
       String a1 = username + ":" + realm + ":" + new String(plainPassword);
       md.update(a1.getBytes());

@@ -57,10 +57,7 @@ public class ConditionalSelectorObject extends SimpleSelectorObject implements C
          ConditionalSelectorObject thatConditional = (ConditionalSelectorObject)that;
          if (simple == null)
          {
-            if (thatConditional.simple != null)
-            {
-               return false;
-            }
+            return thatConditional.simple == null;
          }
          return simple.equals(thatConditional.simple) && condition.equals(thatConditional.condition);
       }

@@ -85,7 +85,11 @@ public class UserProfileData extends DBObject
    public void setUserProfile(org.exoplatform.services.organization.UserProfile up)
    {
       if (up == null)
+      {
          profile = "";
+         userName = null;
+         return;
+      }
       UserProfileImpl impl = (UserProfileImpl)up;
       userName = up.getUserName();
       XStream xstream = getXStream();

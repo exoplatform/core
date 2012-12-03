@@ -471,11 +471,11 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
             {
                Attributes attrs = ctx.getAttributes(groupDN);
                group = ldapAttrMapping.attributesToGroup(attrs);
-               ((GroupImpl)group).setId(groupId);
-               ((GroupImpl)group).setParentId(parentId);
 
                if (group != null)
                {
+                  ((GroupImpl)group).setId(groupId);
+                  ((GroupImpl)group).setParentId(parentId);
                   cacheHandler.put(groupId, group, CacheType.GROUP);
                }
                return group;
@@ -529,11 +529,11 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
       {
          Attributes attrs = ctx.getAttributes(groupDN);
          group = ldapAttrMapping.attributesToGroup(attrs);
-         ((GroupImpl)group).setId(groupId);
-         ((GroupImpl)group).setParentId(parentId);
 
          if (group != null)
          {
+            ((GroupImpl)group).setId(groupId);
+            ((GroupImpl)group).setParentId(parentId);
             cacheHandler.put(groupId, group, CacheType.GROUP);
          }
          return group;

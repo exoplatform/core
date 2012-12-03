@@ -47,14 +47,14 @@ public class ImageProcessingServiceImpl implements ImageProcessingService
          factor = scaleVerticalFactor;
          newWidth = (int)Math.round(img.getWidth() * factor);
          newHeight = (int)Math.round(img.getHeight() * factor);
-         topX = (int)Math.round((newWidth - chosenWidth) / 2);
+         topX = (newWidth - chosenWidth) / 2;
       }
       else
       {
          factor = scaleHorizontalFactor;
          newWidth = (int)Math.round(img.getWidth() * factor);
          newHeight = (int)Math.round(img.getHeight() * factor);
-         topY = (int)Math.round((newHeight - chosenHeight) / 2);
+         topY = (newHeight - chosenHeight) / 2;
       }
 
       // Scale the image: BufferedImage needed for "subImaging"
@@ -137,7 +137,7 @@ public class ImageProcessingServiceImpl implements ImageProcessingService
       int offset = 0;
       if (newDim >= oldDim)
       {
-         offset = Math.round((newDim - oldDim) / 2);
+         offset = (newDim - oldDim) / 2;
       }
       return offset;
    }

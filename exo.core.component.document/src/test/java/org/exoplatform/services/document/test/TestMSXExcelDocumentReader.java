@@ -35,8 +35,6 @@ import java.util.Calendar;
 public class TestMSXExcelDocumentReader extends BaseStandaloneTest
 {
 
-   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
-
    DocumentReaderServiceImpl service;
 
    @Override
@@ -121,8 +119,9 @@ public class TestMSXExcelDocumentReader extends BaseStandaloneTest
       Calendar date = Calendar.getInstance();
       date.setTimeInMillis(0);
       date.set(year, month - 1, day, 0, 0, 0);
-
-      return (DATE_FORMAT.format(date.getTime()));
+      
+      SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+      return (dateFormat.format(date.getTime()));
    }
 
 }
