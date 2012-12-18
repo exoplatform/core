@@ -38,35 +38,22 @@
    <dependencies>
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
-         <artifactId>exo.kernel.component.common</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.exoplatform.kernel</groupId>
-         <artifactId>exo.kernel.component.cache</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.exoplatform.kernel</groupId>
-         <artifactId>exo.kernel.commons</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.exoplatform.kernel</groupId>
          <artifactId>exo.kernel.commons.test</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.exoplatform.kernel</groupId>
-         <artifactId>exo.kernel.container</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>com.thoughtworks.xstream</groupId>
-         <artifactId>xstream</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>picocontainer</groupId>
-         <artifactId>picocontainer</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.hibernate</groupId>
          <artifactId>hibernate-core</artifactId>
+         <exclusions>
+            <exclusion>
+               <groupId>org.slf4j</groupId>
+               <artifactId>slf4j-api</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.jboss.spec.javax.transaction</groupId>
+               <artifactId>jboss-transaction-api_1.1_spec</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.exoplatform.core</groupId>
@@ -75,6 +62,7 @@
       <dependency>
           <groupId>org.hibernate</groupId>
           <artifactId>hibernate-c3p0</artifactId>
+          <scope>runtime</scope>
       </dependency>
       <dependency>
          <groupId>org.exoplatform.core</groupId>
@@ -83,6 +71,7 @@
       <dependency>
          <groupId>org.hsqldb</groupId>
          <artifactId>hsqldb</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>javax.resource</groupId>
@@ -92,15 +81,33 @@
       <dependency>
          <groupId>org.javassist</groupId>
          <artifactId>javassist</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.ow2.jotm</groupId>
+         <artifactId>jotm-core</artifactId>
          <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.exoplatform.core</groupId>
-         <artifactId>exo.core.component.security.core</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>commons-pool</groupId>
-         <artifactId>commons-pool</artifactId>
+         <exclusions>
+            <exclusion>
+               <groupId>javax.resource</groupId>
+               <artifactId>connector</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>log4j</groupId>
+               <artifactId>log4j</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>javax.servlet</groupId>
+               <artifactId>servlet-api</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>commons-logging</groupId>
+               <artifactId>commons-logging-api</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>commons-logging</groupId>
+               <artifactId>commons-logging</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
    </dependencies>
    

@@ -39,7 +39,12 @@
       <!-- We don't want to compile them here -->
       <maven.test.skip>true</maven.test.skip>
    </properties>
-   
+   <dependencies>     
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+   </dependencies>   
    <build>
       <plugins>
          <!--

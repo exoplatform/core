@@ -43,6 +43,7 @@
       <exo.product.specification>2.5</exo.product.specification>
       
       <org.exoplatform.kernel.version>2.4.1-GA-SNAPSHOT</org.exoplatform.kernel.version>
+      <org.exoplatform.framework.junit.version>1.2.3-GA</org.exoplatform.framework.junit.version>
 
       <!-- Plugins updates -->
       <version.source.plugin>2.1.2</version.source.plugin>
@@ -66,12 +67,16 @@
       <module>exo.core.component.xml-processing</module>
       <module>exo.core.component.script.groovy</module>
       <module>exo.core.component.web.css</module>
-      <module>packaging/module</module>
    </modules>
 
    <dependencyManagement>
       <dependencies>
-      
+         <dependency>
+            <groupId>org.exoplatform.tool</groupId>
+            <artifactId>exo.tool.framework.junit</artifactId>
+            <version>${org.exoplatform.framework.junit.version}</version>
+         </dependency>
+          
          <dependency>
             <groupId>org.exoplatform.kernel</groupId>
             <artifactId>exo.kernel.commons</artifactId>
@@ -82,8 +87,7 @@
             <groupId>org.exoplatform.kernel</groupId>
             <artifactId>exo.kernel.commons.test</artifactId>
             <version>${org.exoplatform.kernel.version}</version>
-            <scope>test</scope>
-         </dependency>  
+         </dependency>
          
          <dependency>
             <groupId>org.exoplatform.kernel</groupId>
@@ -132,7 +136,6 @@
             <artifactId>exo.core.component.organization.tests</artifactId>
             <version>${project.version}</version>
             <classifier>test-sources</classifier>
-            <scope>test</scope>
          </dependency>
          
          <dependency>
@@ -140,11 +143,16 @@
             <artifactId>exo.core.component.security.core</artifactId>
             <version>${project.version}</version>
          </dependency>
-	 
+        
+         <dependency>
+            <groupId>org.ow2.jotm</groupId>
+            <artifactId>jotm-core</artifactId>
+            <version>2.1.9</version>
+         </dependency>
+    
          <dependency>
            <groupId>org.jboss.security</groupId>
            <artifactId>jbosssx</artifactId>
-           <scope>provided</scope>
            <version>2.0.4</version>
          </dependency>
          
@@ -152,7 +160,6 @@
            <groupId>org.eclipse.jetty.aggregate</groupId>
            <artifactId>jetty-plus</artifactId>
            <version>7.1.5.v20100705</version>
-           <scope>provided</scope>
          </dependency>
 
          <dependency>
@@ -162,50 +169,27 @@
          </dependency>
 
          <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>            
-         </dependency>
-         
-         <dependency>
-            <groupId>javax.transaction</groupId>
-            <artifactId>jta</artifactId>
-            <version>1.1</version>            
-         </dependency>
-
-         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.6.1</version>
-            <scope>test</scope>
-         </dependency>
-
-         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.6.1</version>
-            <scope>test</scope>
          </dependency>
    
          <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-server-unit</artifactId>
             <version>1.0.2</version>
-            <scope>test</scope>
          </dependency>
          
          <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>3.15.0-GA</version>
-            <scope>test</scope>
          </dependency>
          
          <dependency>
             <artifactId>hsqldb</artifactId>
             <groupId>org.hsqldb</groupId>
             <version>2.0.0</version>
-            <scope>test</scope>
          </dependency>
       
          <dependency>
@@ -224,17 +208,6 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>4.1.6.Final</version>
-
-             <exclusions> 
-               <exclusion>
-                  <groupId>org.slf4j</groupId>
-                  <artifactId>slf4j-api</artifactId>
-               </exclusion>
-               <exclusion>
-                  <groupId>org.jboss.spec.javax.transaction</groupId>
-                  <artifactId>jboss-transaction-api_1.1_spec</artifactId>
-               </exclusion>
-            </exclusions>
          </dependency>
 
         <dependency>
@@ -247,12 +220,6 @@
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
             <version>1.3.1</version>
-         </dependency>
-      
-         <dependency>
-            <groupId>picocontainer</groupId>
-            <artifactId>picocontainer</artifactId>
-            <version>1.1</version>            
          </dependency>
          
          <dependency>
@@ -270,13 +237,6 @@
             <groupId>org.htmlparser</groupId>
             <artifactId>htmlparser</artifactId>
             <version>1.6</version>
-            <scope>compile</scope>
-            <exclusions>
-               <exclusion>
-                  <groupId>com.sun</groupId>
-                  <artifactId>tools</artifactId>
-               </exclusion>
-            </exclusions>
          </dependency>
 
          <dependency>
@@ -331,12 +291,6 @@
            <groupId>commons-dbcp</groupId>
            <artifactId>commons-dbcp</artifactId>
            <version>1.2.2</version>
-           <exclusions>
-              <exclusion>
-                 <groupId>commons-pool</groupId>
-                 <artifactId>commons-pool</artifactId>
-              </exclusion>
-           </exclusions>
         </dependency>
 
         <dependency>
@@ -355,63 +309,40 @@
            <groupId>org.apache.tika</groupId>
            <artifactId>tika-parsers</artifactId>
            <version>1.1</version>
-           <exclusions>
-              <exclusion>
-                 <groupId>javassist</groupId>
-                 <artifactId>javassist</artifactId>
-              </exclusion>
-              <exclusion>
-                 <groupId>org.apache.geronimo.specs</groupId>
-                 <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-              </exclusion>
-           </exclusions>
         </dependency>
 
         <dependency>
            <groupId>org.apache.xmlbeans</groupId>
            <artifactId>xmlbeans</artifactId>
            <version>2.3.0</version>
-           <scope>compile</scope>
-
-           <exclusions>
-              <exclusion>
-                 <groupId>stax</groupId>
-                 <artifactId>stax-api</artifactId>
-              </exclusion>
-           </exclusions>
         </dependency>
         <dependency>
            <groupId>xml-apis</groupId>
            <artifactId>xml-apis</artifactId>
            <version>1.0.b2</version>
-           <scope>compile</scope>
         </dependency>
         <dependency>
            <groupId>org.apache.pdfbox</groupId>
            <artifactId>jempbox</artifactId>
            <version>1.6.0</version>
-           <scope>compile</scope>
         </dependency>
 
         <dependency>
            <groupId>org.ow2.spec.ee</groupId>
            <artifactId>ow2-jta-1.1-spec</artifactId>
            <version>1.0-M1</version>
-           <scope>compile</scope>
         </dependency>
 
         <dependency>
            <artifactId>commons-io</artifactId>
            <groupId>commons-io</groupId>
            <version>2.1</version>
-           <scope>test</scope>
         </dependency>
 
         <dependency>
            <groupId>org.jboss.logging</groupId>
            <artifactId>jboss-logging</artifactId>
            <version>3.1.0.GA</version>
-           <scope>test</scope>
         </dependency>
       </dependencies>
    </dependencyManagement>

@@ -37,20 +37,18 @@
 
    <dependencies>
       <dependency>
+         <groupId>org.exoplatform.tool</groupId>
+         <artifactId>exo.tool.framework.junit</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
          <groupId>org.exoplatform.kernel</groupId>
          <artifactId>exo.kernel.component.common</artifactId>
       </dependency>
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
-         <artifactId>exo.kernel.commons</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.exoplatform.kernel</groupId>
-         <artifactId>exo.kernel.container</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.exoplatform.kernel</groupId>
          <artifactId>exo.kernel.commons.test</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>com.novell.ldap</groupId>
