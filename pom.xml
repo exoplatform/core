@@ -43,6 +43,7 @@
       <exo.product.specification>2.6</exo.product.specification>
       
       <org.exoplatform.kernel.version>2.5.0-Alpha1-SNAPSHOT</org.exoplatform.kernel.version>
+      <org.exoplatform.framework.junit.version>1.2.3-GA</org.exoplatform.framework.junit.version>
 
       <!-- Plugins updates -->
       <version.source.plugin>2.1.2</version.source.plugin>
@@ -207,16 +208,6 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>4.1.6.Final</version>
-             <exclusions> 
-               <exclusion>
-                  <groupId>org.slf4j</groupId>
-                  <artifactId>slf4j-api</artifactId>
-               </exclusion>
-               <exclusion>
-                  <groupId>org.jboss.spec.javax.transaction</groupId>
-                  <artifactId>jboss-transaction-api_1.1_spec</artifactId>
-               </exclusion>
-            </exclusions>
          </dependency>
 
         <dependency>
