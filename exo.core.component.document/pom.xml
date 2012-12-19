@@ -139,7 +139,15 @@
                <groupId>org.apache.poi</groupId>
                <artifactId>poi-ooxml</artifactId>
             </exclusion>
+            <exclusion>
+               <groupId>jdom</groupId>
+               <artifactId>jdom</artifactId>
+            </exclusion>
          </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>org.jdom</groupId>
+         <artifactId>jdom</artifactId>
       </dependency>
 
       <dependency>
