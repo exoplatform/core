@@ -45,6 +45,8 @@
       <mime>application/vnd.ms-powerpoint</mime>
       <mime>application/vnd.visio</mime>
       <mime>application/vnd.ms-outlook</mime>
+      <mime>application/x-visio</mime>
+      <mime>application/vnd.visio</mime>
     </parser>
 
     <parser name="parse-ooxml" class="org.apache.tika.parser.microsoft.ooxml.OOXMLParser">

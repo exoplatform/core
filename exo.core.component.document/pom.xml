@@ -204,6 +204,7 @@
                <include>**/*.ppsx</include>
                <include>**/*.ppsm</include>
                <include>**/*.potm</include>
+               <include>**/*.vsd</include>
             </includes>
          </testResource>
       </testResources>
