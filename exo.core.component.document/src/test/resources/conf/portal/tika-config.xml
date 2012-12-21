@@ -46,7 +46,7 @@
       <mime>application/vnd.visio</mime>
       <mime>application/vnd.ms-outlook</mime>
       <mime>application/x-visio</mime>
-      <mime> application/visio</mime>
+      <mime>application/visio</mime>
       <mime>application/vsd</mime>
       <mime>application/x-vsd</mime>
     </parser>
