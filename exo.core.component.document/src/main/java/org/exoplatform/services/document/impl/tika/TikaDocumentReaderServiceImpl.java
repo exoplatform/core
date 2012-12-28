@@ -87,12 +87,7 @@ public class TikaDocumentReaderServiceImpl extends DocumentReaderServiceImpl imp
       {
          conf = TikaConfig.getDefaultConfig();
       }
-      int poolSize = Runtime.getRuntime().availableProcessors();
-      if (params != null && params.getValueParam(CONTENT_EXTRACTOR_POOL_SIZE) != null)
-      {
-         poolSize = Integer.parseInt(params.getValueParam(CONTENT_EXTRACTOR_POOL_SIZE).getValue());
-      }
-      contentExtractor = Executors.newFixedThreadPool(poolSize, new TikaDocumentReaderThreadFactory());
+      contentExtractor = Executors.newCachedThreadPool(new TikaDocumentReaderThreadFactory());
    }
 
    /**
