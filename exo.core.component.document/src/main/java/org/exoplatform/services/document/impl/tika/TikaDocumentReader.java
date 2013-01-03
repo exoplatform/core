@@ -43,7 +43,6 @@ import java.io.Reader;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Properties;
-import java.util.concurrent.Executor;
 
 /**
  * Created by The eXo Platform SAS.
@@ -66,14 +65,11 @@ public class TikaDocumentReader implements AdvancedDocumentReader
    private final String mimeType;
 
    private final Parser parser;
-   
-   private final Executor executor;
 
-   public TikaDocumentReader(Parser tikaParser, String mimeType, Executor executor) throws HandlerNotFoundException
+   public TikaDocumentReader(Parser tikaParser, String mimeType) throws HandlerNotFoundException
    {
       this.parser = tikaParser;
       this.mimeType = mimeType;
-      this.executor = executor;
    }
 
    public Reader getContentAsReader(final InputStream is, final String encoding) throws IOException,
@@ -91,7 +87,7 @@ public class TikaDocumentReader implements AdvancedDocumentReader
                metadata.set(Metadata.CONTENT_ENCODING, encoding);
                ParseContext context = new ParseContext();
                context.set(Parser.class, parser);
-               return new ParsingReader(parser, is, metadata, context, executor);
+               return new ParsingReader(parser, is, metadata, context);
             }
          });
       }
@@ -126,7 +122,7 @@ public class TikaDocumentReader implements AdvancedDocumentReader
                metadata.set(Metadata.CONTENT_TYPE, mimeType);
                ParseContext context = new ParseContext();
                context.set(Parser.class, parser);
-               return new ParsingReader(parser, is, metadata, context, executor);
+               return new ParsingReader(parser, is, metadata, context);
             }
          });
       }

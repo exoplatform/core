@@ -24,17 +24,11 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.document.DocumentReader;
 import org.exoplatform.services.document.HandlerNotFoundException;
 import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
-import org.picocontainer.Startable;
 
 import java.io.InputStream;
-import java.io.Reader;
 import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -44,24 +38,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
  * @version $Id: TikaDocumentReaderServiceImpl.java 111 2008-11-11 11:11:11Z serg $
  */
-public class TikaDocumentReaderServiceImpl extends DocumentReaderServiceImpl implements Startable
+public class TikaDocumentReaderServiceImpl extends DocumentReaderServiceImpl
 {
-   /**
-    * The name of the value parameter in which we specify the tika configuration
-    */
    public static final String TIKA_CONFIG_PATH = "tika-configuration";
-   
-   /**
-    * The name of the value parameter in which we specify the total amount of threads
-    * to use to pipe the output of the parsers into a {@link Reader}  
-    */
-   public static final String CONTENT_EXTRACTOR_POOL_SIZE = "content-extractor-pool-size";
 
-   /**
-    * The executor used to pipe the output of the parsers into a {@link Reader}  
-    */
-   private final ExecutorService contentExtractor; 
-   
    /**
     * Tika configuration - configured from tika-conf.xml, otherwise default used.
     */
@@ -87,12 +67,6 @@ public class TikaDocumentReaderServiceImpl extends DocumentReaderServiceImpl imp
       {
          conf = TikaConfig.getDefaultConfig();
       }
-      int poolSize = Runtime.getRuntime().availableProcessors();
-      if (params != null && params.getValueParam(CONTENT_EXTRACTOR_POOL_SIZE) != null)
-      {
-         poolSize = Integer.parseInt(params.getValueParam(CONTENT_EXTRACTOR_POOL_SIZE).getValue());
-      }
-      contentExtractor = Executors.newFixedThreadPool(poolSize, new TikaDocumentReaderThreadFactory());
    }
 
    /**
@@ -130,7 +104,7 @@ public class TikaDocumentReaderServiceImpl extends DocumentReaderServiceImpl imp
                return reader;
             }
 
-            reader = new TikaDocumentReader(tikaParser, mimeType, contentExtractor);
+            reader = new TikaDocumentReader(tikaParser, mimeType);
             // Initialize the map with the existing values 
             Map<String, DocumentReader> tmpReaders = new HashMap<String, DocumentReader>(readers_);
             // Register new document reader 
@@ -139,52 +113,6 @@ public class TikaDocumentReaderServiceImpl extends DocumentReaderServiceImpl imp
             readers_ = tmpReaders;
             return reader;
          }
-      }
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   public void start()
-   {      
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   public void stop()
-   {
-      contentExtractor.shutdown();
-   }
-   
-   private static class TikaDocumentReaderThreadFactory implements ThreadFactory
-   {
-      static final AtomicInteger poolNumber = new AtomicInteger(1);
-
-      final ThreadGroup group;
-
-      final AtomicInteger threadNumber = new AtomicInteger(1);
-
-      final String namePrefix;
-
-      TikaDocumentReaderThreadFactory()
-      {
-         SecurityManager s = System.getSecurityManager();
-         group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-         namePrefix = "content-extractor-" + poolNumber.getAndIncrement() + "-thread-";
-      }
-
-      /**
-       * {@inheritDoc}
-       */
-      public Thread newThread(Runnable r)
-      {
-         Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
-         if (t.isDaemon())
-            t.setDaemon(false);
-         if (t.getPriority() != Thread.NORM_PRIORITY)
-            t.setPriority(Thread.NORM_PRIORITY);
-         return t;
       }
    }
 }
