@@ -90,6 +90,7 @@
       <mime>application/x-javascript</mime>
       <mime>application/javascript</mime>
       <mime>text/javascript</mime>
+      <mime>text/css</mime>
     </parser>
 
     <parser name="parse-openoffice" class="org.apache.tika.parser.opendocument.OpenOfficeParser">
