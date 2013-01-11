@@ -25,7 +25,7 @@ import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.ParsingReader;
 import org.apache.tika.sax.BodyContentHandler;
-import org.apache.tika.sax.WriteOutContentHandler;
+import org.xml.sax.helpers.DefaultHandler;
 import org.exoplatform.commons.utils.QName;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.AdvancedDocumentReader;
@@ -56,12 +56,6 @@ public class TikaDocumentReader implements AdvancedDocumentReader
 {
 
    private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.TikaDocumentReader");
-
-   /**
-    * Since Tika can not extract metadata without extracting document content,
-    * so reed content is limited to 10 Kb.
-    */
-   private final int MAX_READED_SIZE = 10 * 1024;
 
    private final String mimeType;
 
@@ -313,7 +307,7 @@ public class TikaDocumentReader implements AdvancedDocumentReader
                   Metadata metadata = new Metadata();
                   metadata.set(Metadata.CONTENT_TYPE, mimeType);
 
-                  ContentHandler handler = new WriteOutContentHandler(MAX_READED_SIZE);
+                  ContentHandler handler = new DefaultHandler();
                   ParseContext context = new ParseContext();
                   context.set(Parser.class, parser);
                   try

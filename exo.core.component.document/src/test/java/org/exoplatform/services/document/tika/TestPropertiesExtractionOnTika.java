@@ -70,6 +70,20 @@ public class TestPropertiesExtractionOnTika extends BaseStandaloneTest
    //         is.close();
    //      }
    //   }
+   public void testCSSDocumentReaderService() throws Exception
+   {
+       InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/test.css");
+       try
+       {
+       Properties props = service.getDocumentReader("text/css").getProperties(is);
+       evalProps(new Properties(), props);
+
+       }
+       finally
+       {
+           is.close();
+       }
+   }
 
    public void testPDFDocumentReaderServiceXMPMetadataTikasFile() throws Exception
    {
