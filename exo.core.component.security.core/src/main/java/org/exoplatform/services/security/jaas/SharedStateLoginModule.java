@@ -81,6 +81,7 @@ public final class SharedStateLoginModule extends AbstractLoginModule
       {
          LoginException le = new LoginException(e.getMessage());
          le.initCause(e);
+         LOG.info(le.getMessage());
          throw le;
       }
    }
