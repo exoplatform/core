@@ -130,7 +130,11 @@ public class DefaultLoginModule extends AbstractLoginModule
       {
          if (LOG.isDebugEnabled())
          {
-            LOG.debug(e.getMessage());
+            LOG.debug(e.getMessage(), e);
+         }
+         else if (LOG.isWarnEnabled())
+         {
+            LOG.warn(e.getMessage());
          }
 
          throw new LoginException(e.getMessage());
