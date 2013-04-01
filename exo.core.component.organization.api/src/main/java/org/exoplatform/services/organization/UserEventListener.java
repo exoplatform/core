@@ -53,6 +53,7 @@ import org.exoplatform.container.component.BaseComponentPlugin;
  *  [...]
  * /configuration&gt;
  * </pre>
+ * @LevelAPI Platform
  */
 public class UserEventListener extends BaseComponentPlugin
 {
@@ -61,6 +62,7 @@ public class UserEventListener extends BaseComponentPlugin
     * 
     * @param user The user to be saved
     * @param isNew if the user is a new record in the database or not
+    * @LevelAPI Platform
     * @throws Exception The developer can decide to throw an exception or not. If
     *           the listener throw an exception, the organization service should
     *           not save/update the user to the database
@@ -74,6 +76,7 @@ public class UserEventListener extends BaseComponentPlugin
     * 
     * @param user The user instance has been saved.
     * @param isNew if the user is a new record in the database or not
+    * @LevelAPI Platform
     * @throws Exception The developer can decide to throw the exception or not.
     *           If the method throw an exception. The organization service should
     *           role back the data to the state before the method
@@ -87,6 +90,7 @@ public class UserEventListener extends BaseComponentPlugin
     * This method is called before an user should be deleted
     * 
     * @param user the user to be delete
+    * @LevelAPI Platform
     * @throws Exception The developer can decide to throw the exception or not.
     *           If the method throw an exception. The organization service should
     *           not remove the user record from the database.
@@ -100,6 +104,7 @@ public class UserEventListener extends BaseComponentPlugin
     * database but not commited yet.
     * 
     * @param user The user instance which has been removed from the database.
+    * @LevelAPI Platform
     * @throws Exception The developer can decide to throw the exception or not.
     *           If the method throw the exception, the organization service
     *           should role back the database to the state before the method

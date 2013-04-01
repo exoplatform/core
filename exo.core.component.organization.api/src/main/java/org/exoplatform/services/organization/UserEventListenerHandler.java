@@ -24,6 +24,7 @@ import java.util.List;
  * @author <a href="anatoliy.bazko@exoplatform.org">Anatoliy Bazko</a>
  * @version $Id: UserEventListenerHandler.java 111 2010-11-11 11:11:11Z tolusha
  *          $
+ * @LevelAPI Platform
  */
 public interface UserEventListenerHandler {
 
@@ -32,6 +33,7 @@ public interface UserEventListenerHandler {
    * modification outside of UserHandler.
    * 
    * @return list of UserEventListener
+   * @LevelAPI Platform
    */
   public List<UserEventListener> getUserListeners();
 

@@ -30,6 +30,7 @@ import java.util.Date;
  * each set method is called. The developer need to call
  * 
  * @see UserHandler saveUser(..) to persist the change
+ * @LevelAPI Platform
  */
 public interface User
 {
@@ -39,6 +40,7 @@ public interface User
     * username
     * 
     * @return
+    * @LevelAPI Platform
     */
    public String getUserName();
 
@@ -52,6 +54,7 @@ public interface User
 
    /**
     * @return This method return the password of the user account
+    * @LevelAPI Platform
     */
    public String getPassword();
 
@@ -59,26 +62,31 @@ public interface User
     * This method is used to change the user account password.
     * 
     * @param s
+    * @LevelAPI Platform
     */
    public void setPassword(String s);
 
    /**
     * @return This method return the first name of the user
+    * @LevelAPI Platform
     */
    public String getFirstName();
 
    /**
     * @param s the new first name
+    * @LevelAPI Platform
     */
    public void setFirstName(String s);
 
    /**
     * @return The last name of the user
+    * @LevelAPI Platform
     */
    public String getLastName();
 
    /**
     * @param s The new last name of the user
+    * @LevelAPI Platform
     */
    public void setLastName(String s);
 
@@ -97,16 +105,19 @@ public interface User
 
    /**
     * @return The email address of the user
+    * @LevelAPI Platform
     */
    public String getEmail();
 
    /**
     * @param s The new user email address
+    * @LevelAPI Platform
     */
    public void setEmail(String s);
 
    /**
     * @return The date that the user register or create the account
+    * @LevelAPI Platform
     */
    public Date getCreatedDate();
 
@@ -118,6 +129,7 @@ public interface User
 
    /**
     * @return Return the last time that the user access the account
+    * @LevelAPI Platform
     */
    public Date getLastLoginTime();
 
@@ -129,22 +141,26 @@ public interface User
 
    /**
     * @return return the display name
+    * @LevelAPI Platform
     */
    public String getDisplayName();
 
    /**
     * @param displayName The name that should show in the display name
+    * @LevelAPI Platform
     */
    public void setDisplayName(String displayName);
 
    /**
     * @return the id of organization the user belongs to or null if not
     *         applicable
+    * @LevelAPI Platform
     */
    String getOrganizationId();
 
    /**
     * sets the prganizationId
+    * @LevelAPI Platform
     */
    void setOrganizationId(String organizationId);
 }

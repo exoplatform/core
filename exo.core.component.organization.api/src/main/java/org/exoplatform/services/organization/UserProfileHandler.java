@@ -27,12 +27,14 @@ import java.util.Collection;
  * UserProfile record, the extra information of an user such address, phone...
  * The interface should allow the developer create , delete and update a
  * UserProfile. and broadcast the event to the user profile event listeners.
+ * @LevelAPI Platform
  */
 public interface UserProfileHandler
 {
    /**
     * @return return a new UserProfile implementation instance. This instance is
     *         not persisted yet
+    * @LevelAPI Platform
     */
    public UserProfile createUserProfileInstance();
 
@@ -40,6 +42,7 @@ public interface UserProfileHandler
     * @return return a new UserProfile implementation instance. This instance is
     *         not persisted yet
     * @param userName The user profile record with the username
+    * @LevelAPI Platform
     */
    public UserProfile createUserProfileInstance(String userName);
 
@@ -51,6 +54,7 @@ public interface UserProfileHandler
     * 
     * @param profile the profile instance to persist.
     * @param broadcast broadcast the event to the listener if broadcast is true
+    * @LevelAPI Platform
     * @throws Exception throw exception if the method fail to access the database
     *           or any listener fail to handle the event.
     */
@@ -65,6 +69,7 @@ public interface UserProfileHandler
     *          from the database
     * @param broadcast Broadcast the event the listeners if broadcast is true.
     * @return The UserProfile instance that has been removed.
+    * @LevelAPI Platform
     * @throws Exception Throw exception if the method fail to remove the record
     *           or any listener fail to handle the event
     */
@@ -77,6 +82,7 @@ public interface UserProfileHandler
     * @param userName
     * @return return null if no record match the userName. return an UserProfile
     *         instance if a record match the username.
+    * @LevelAPI Platform
     * @throws Exception Throw Exception if the method fail to access the database
     *           or find more than one record that match the username.
     * @see UserProfile
@@ -87,6 +93,7 @@ public interface UserProfileHandler
     * Find and return all the UserProfile record in the database
     * 
     * @return
+    * @LevelAPI Platform
     * @throws Exception Throw exception if the method fail to access the database
     */
    public Collection findUserProfiles() throws Exception;
@@ -96,6 +103,7 @@ public interface UserProfileHandler
     * can use this method to register a listener to catch those events
     * 
     * @param listener The listener instance
+    * @LevelAPI Platform
     * @see UserProfileEventListener
     */
    public void addUserProfileEventListener(UserProfileEventListener listener);
@@ -104,6 +112,7 @@ public interface UserProfileHandler
     * This method is used to unregister listener.
     * 
     * @param listener The listener instance
+    * @LevelAPI Platform
     * @see UserProfileEventListener
     */
    public void removeUserProfileEventListener(UserProfileEventListener listener);

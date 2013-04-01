@@ -47,8 +47,15 @@ package org.exoplatform.services.organization;
  *  [...]
  * /configuration&gt;
  * </pre>
+ * @LevelAPI Platform
  */
 public interface OrganizationServiceInitializer
 {
+   /**
+    *  Initialize the  organization service data.
+    *
+    * @param service
+    * @LevelAPI Platform
+    */
    public void init(OrganizationService service) throws Exception;
 }

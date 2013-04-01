@@ -28,57 +28,68 @@ import java.util.Date;
  * MembershipTypeHandler.saveMembershipType(..) or
  * 
  * @see MembershipTypeHandler.createMembershipType(..) to persist the change
+ * @LevelAPI Platform
  */
 public interface MembershipType
 {
    /**
     * @return the name name of the membership type. The name of the membershipt
     *         type should be unique in the membership type database.
+    * @LevelAPI Platform
     */
    public String getName();
 
    /**
-    * @param s The name of the membership type 
+    * @param s The name of the membership type
+    * @LevelAPI Platform
     */
    public void setName(String s);
 
    /**
     * @return The description of the membership type
+    * @LevelAPI Platform
     */
    public String getDescription();
 
    /**
     * @param s The new description of the membership type
+    * @LevelAPI Platform
     */
    public void setDescription(String s);
 
    /**
     * @return The owner of the membership
+    * @LevelAPI Platform
     */
    public String getOwner();
 
    /**
     * @param s The new owner of the membership
+    * @LevelAPI Platform
     */
    public void setOwner(String s);
 
    /**
     * @return The date that the membership type is saved to the database
+    * @LevelAPI Platform
     */
    public Date getCreatedDate();
 
    /**
-    * @param d the created date 
+    * @param d the created date
+    * @LevelAPI Platform
     */
    public void setCreatedDate(Date d);
 
    /**
     * @return The last time that an user modify the data of the membership type.
+    * @LevelAPI Platform
     */
    public Date getModifiedDate();
 
    /**
-    * @param d the modified date 
+    * @param d the modified date
+    * @LevelAPI Platform
     */
    public void setModifiedDate(Date d);
 }

@@ -26,6 +26,7 @@ import java.util.Set;
  * 
  * @author Gennady Azarenkov
  * @version $Id:$
+ * @LevelAPI Platform
  */
 
 public interface RolesExtractor
@@ -36,8 +37,9 @@ public interface RolesExtractor
     * parameters may be null
     * 
     * @param userId
-    * @param groups
+    * @param memberships
     * @return
+    * @LevelAPI Platform
     */
    Set<String> extractRoles(String userId, Set<MembershipEntry> memberships);
 }

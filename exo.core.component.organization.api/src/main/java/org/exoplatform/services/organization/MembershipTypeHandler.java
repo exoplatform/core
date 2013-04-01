@@ -31,6 +31,7 @@ import java.util.Collection;
  * type and delete the membership type event. Each event should have 2 phases: pre event and post
  * event. The method createMembershipType(..) , saveMembershipType(..) and removeMembershipType
  * broadcast the event at each phase so the listeners can handle the event properly
+ * @LevelAPI Platform
  */
 public interface MembershipTypeHandler
 {
@@ -40,6 +41,7 @@ public interface MembershipTypeHandler
 
    /**
     * @return a new object instance that implement the MembershipType interface
+    * @LevelAPI Platform
     */
    public MembershipType createMembershipTypeInstance();
 
@@ -55,6 +57,7 @@ public interface MembershipTypeHandler
     * @return Return the MembershiptType object that contains the updated informations. Note that the
     *         return membership type cannot be the same with the mt as the method can set the created
     *         date and modified date automatically.
+    * @LevelAPI Platform
     * @throws Exception
     *           An exception is throwed if the method cannot access the database or a listener fail
     *           to handle the event
@@ -71,6 +74,7 @@ public interface MembershipTypeHandler
     * @param broadcast
     *          Broadcast the event to all the registered listener if the broadcast value is 'true'
     * @return Return the updated membership type object.
+    * @LevelAPI Platform
     * @throws Exception
     *           An exception is throwed if the method cannot access the database or any listener fail
     *           to handle the event.
@@ -85,6 +89,7 @@ public interface MembershipTypeHandler
     * @param broadcast
     *          Broadcast the event to the registered listener if the broadcast value is 'true'
     * @return The membership type object which has been removed from the database
+    * @LevelAPI Platform
     * @throws Exception
     *           An exception is throwed if the method cannot access the database or the membership
     *           type is not found in the database or any listener fail to handle the event.
@@ -97,6 +102,7 @@ public interface MembershipTypeHandler
     * @param name
     *          the name of the membership type.
     * @return null if no membership type that matched the name or the found membership type.
+    * @LevelAPI Platform
     * @throws Exception
     *           An exception is throwed if the method cannot access the database or more than one
     *           membership type is found.
@@ -108,6 +114,7 @@ public interface MembershipTypeHandler
     * 
     * @return A collection of the membership type. The collection cannot be null. If there is no
     *         membership type in the database, the collection should be empty.
+    * @LevelAPI Platform
     * @throws Exception
     *           Ususally an exception is throwed when the method cannot access the database.
     */
@@ -117,6 +124,7 @@ public interface MembershipTypeHandler
     * Use this method to register a membership type event listener.
     * 
     * @param listener the listener instance.
+    * @LevelAPI Platform
     */
    public void addMembershipTypeEventListener(MembershipTypeEventListener listener);
 
@@ -124,6 +132,7 @@ public interface MembershipTypeHandler
     * Use this method to unregister a membership type event listener.
     * 
     * @param listener the listener instance.
+    * @LevelAPI Platform
     */
    public void removeMembershipTypeEventListener(MembershipTypeEventListener listener);
 }

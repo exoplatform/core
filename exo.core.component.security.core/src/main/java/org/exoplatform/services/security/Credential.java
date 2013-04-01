@@ -26,6 +26,7 @@ import java.io.Serializable;
  * 
  * @author Gennady Azarenkov
  * @version $Id:$
+ * @LevelAPI Platform
  */
 
 public interface Credential extends Serializable

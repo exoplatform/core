@@ -26,6 +26,7 @@ import org.exoplatform.services.security.PasswordEncrypter;
  * 
  * @author Dmitry Kuleshov
  * @version $Id: $
+ * @LevelAPI Experimental
  */
 
 public interface ExtendedUserHandler
@@ -34,9 +35,12 @@ public interface ExtendedUserHandler
     * Checks if user's credentials are valid.
     * It is more flexible because Credential may contain password context
     * or some other useful data.
-    * @param credentials
+    * @param username
+    * @param password
+    * @param pe
     * @return return true if the username and the password matches 
     * the database record, else return false.
+    * @LevelAPI Experimental
     * @throws Exception throw an exception if cannot access the database
     */
    public boolean authenticate(String username, String password, PasswordEncrypter pe) throws Exception;

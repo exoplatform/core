@@ -33,6 +33,7 @@ import java.util.Map;
  * 
  * @author Dmitry Kuleshov
  * @version $Id: $
+ * @LevelAPI Provisional
  */
 
 public class DigestPasswordEncrypter implements PasswordEncrypter
@@ -75,7 +76,11 @@ public class DigestPasswordEncrypter implements PasswordEncrypter
       };
       return tmpStr.toString();
    }
-
+   /**
+    * @param  plainPassword
+    * @return encrypted password
+    * @LevelAPI Provisional
+    */
    public byte[] encrypt(byte[] plainPassword)
    {
       String nc = context.get("nc");

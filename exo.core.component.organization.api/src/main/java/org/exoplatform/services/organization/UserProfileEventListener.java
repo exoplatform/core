@@ -54,6 +54,7 @@ import org.exoplatform.container.component.BaseComponentPlugin;
  *  [...]
  * /configuration&gt;
  * </pre>
+ * @LevelAPI Platform
  */
 public class UserProfileEventListener extends BaseComponentPlugin
 {
@@ -66,6 +67,7 @@ public class UserProfileEventListener extends BaseComponentPlugin
     * @param user The user profile instance that will be saved.
     * @param isNew if there is an user profile record already in the database or
     *          not
+    * @LevelAPI Platform
     * @throws Exception The developer can decide to throw the exception or not.
     *           If he throw an exception, then the organization service should
     *           not persist the new record and the change of the user profile
@@ -84,6 +86,7 @@ public class UserProfileEventListener extends BaseComponentPlugin
     *          database. But not commited yet
     * @param isNew if there is an user profile record already in the database or
     *          not
+    * @LevelAPI Platform
     * @throws Exception The developer can decide to throw the exception or not.
     *           If he throw an exception, then the organization service should
     *           not persist the new record and the change of the user profile
@@ -100,6 +103,7 @@ public class UserProfileEventListener extends BaseComponentPlugin
     * before the user profile instance is removed from the database.
     * 
     * @param user The user to be removed
+    * @LevelAPI Platform
     * @throws Exception The developer can decide what to do in his overrided
     *           method. If the developer throw an exception. The organization
     *           service should not removed the user profile record
@@ -114,6 +118,7 @@ public class UserProfileEventListener extends BaseComponentPlugin
     * after the user profile instance is removed from the database.
     * 
     * @param user The user instance that is already removed from the database
+    * @LevelAPI Platform
     * @throws Exception The developer can decide what to do in his overrided
     *           method. If the developer throw an exception. The organization
     *           service should role back the database to the state before the

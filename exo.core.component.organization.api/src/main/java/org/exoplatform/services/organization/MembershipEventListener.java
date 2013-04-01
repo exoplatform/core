@@ -53,6 +53,7 @@ import org.exoplatform.container.component.BaseComponentPlugin;
  *  [...]
  * /configuration&gt;
  * </pre>
+ * @LevelAPI Platform
  */
 public class MembershipEventListener extends BaseComponentPlugin
 {
@@ -61,6 +62,7 @@ public class MembershipEventListener extends BaseComponentPlugin
     * 
     * @param m the membership to be saved
     * @param isNew If the membership is a new record in the database or not.
+    * @LevelAPI Platform
     * @throws Exception The developer can decide to throw the exception or not.
     *           If the method throw an exception. The organization service should
     *           not save the membership.
@@ -75,6 +77,7 @@ public class MembershipEventListener extends BaseComponentPlugin
     * 
     * @param m The mebership object
     * @param isNew The membership is a new record or not.
+    * @LevelAPI Platform
     * @throws Exception The developer can decide to throw the exception or not.
     *           If the method throw an exception. The organization service should
     *           role back the data to the state before the method
@@ -88,6 +91,7 @@ public class MembershipEventListener extends BaseComponentPlugin
     * This method is called before the membership is removed
     * 
     * @param m The membership object to be removed
+    * @LevelAPI Platform
     * @throws Exception he developer can decide to throw the exception or not. If
     *           the method throw an exception. The organization service should
     *           not remove the membership record from the database.
@@ -101,6 +105,7 @@ public class MembershipEventListener extends BaseComponentPlugin
     * database but not commited yet.
     * 
     * @param m The membership which has been removed from the database.
+    * @LevelAPI Platform
     * @throws Exception The developer can decide to throw the exception or not.
     *           If the method throw the exception, the organization service
     *           should role back the database to the state before the method

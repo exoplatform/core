@@ -23,6 +23,7 @@ package org.exoplatform.services.security;
  * 
  * @author Gennady Azarenkov
  * @version $Id:$
+ * @LevelAPI Platform
  */
 
 public final class MembershipEntry
@@ -38,6 +39,7 @@ public final class MembershipEntry
     * Constructor with undefined membership type
     * 
     * @param group
+    * @LevelAPI Platform
     */
    public MembershipEntry(String group)
    {
@@ -47,6 +49,7 @@ public final class MembershipEntry
    /**
     * @param group
     * @param membershipType
+    * @LevelAPI Platform
     */
    public MembershipEntry(String group, String membershipType)
    {
@@ -60,6 +63,7 @@ public final class MembershipEntry
 
    /**
     * @return the real membership type or "*" if not defined
+    * @LevelAPI Platform
     */
    public String getMembershipType()
    {
@@ -68,6 +72,7 @@ public final class MembershipEntry
 
    /**
     * @return the group name
+    * @LevelAPI Platform
     */
    public String getGroup()
    {

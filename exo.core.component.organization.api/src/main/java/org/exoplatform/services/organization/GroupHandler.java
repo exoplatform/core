@@ -29,6 +29,7 @@ import java.util.Collection;
  * delete group event. Each event should have 2 phases: pre event and post
  * event. The method createGroup(..) , saveGroup(..) and removeGroup broadcast
  * the event at each phase so the listeners can handle the event properly
+ * @LevelAPI Platform
  */
 public interface GroupHandler
 {
@@ -46,6 +47,7 @@ public interface GroupHandler
 
    /**
     * @return a new object instance that implement the Group interface
+    * @LevelAPI Platform
     */
    public Group createGroupInstance();
 
@@ -68,6 +70,7 @@ public interface GroupHandler
     * @param child The group that you want to create.
     * @param broadcast Broadcast the new group event to all the registered
     *          listener if broadcast is true
+    * @LevelAPI Platform
     * @throws Exception An exception is thrown if the method fail to persist the
     *           new group or there is already one child group with the same group
     *           name in the database or any registered listener fail to handle
@@ -85,6 +88,7 @@ public interface GroupHandler
     * @param group The group object with the updated information.
     * @param broadcast Broadcast the event to all the registered listener if the
     *          broadcast value is true
+    * @LevelAPI Platform
     * @throws Exception An exception is thrown if the method cannot access the
     *           database or any listener fail to handle the event
     */
@@ -101,6 +105,7 @@ public interface GroupHandler
     * @param broadcast Broadcast the event to the registered listener if the
     *          broadcast value is 'true'
     * @return Return the removed group.
+    * @LevelAPI Platform
     * @throws Exception An exception is thrown if the method fail to remove the
     *           group from the database, the group is not existed in the
     *           database, or any listener fail to handle the event.
@@ -115,6 +120,7 @@ public interface GroupHandler
     * @param membershipType The type of the membership. Since an user can have
     *          one or more membership in a group, this parameter is necessary. If
     *          the membershipType is null, it should mean any membership type.
+    * @LevelAPI Platform
     * @return A collection of the found groups
     * @throws Exception An exception is thrown if the method cannot access the
     *           database.
@@ -126,6 +132,7 @@ public interface GroupHandler
     * 
     * @param groupId the id of the group that you want to search for
     * @return null if no record matched the group id or the found group
+    * @LevelAPI Platform
     * @throws Exception An exception is thrown if the method cannot access the
     *           database or more than one group is found.
     */
@@ -137,6 +144,7 @@ public interface GroupHandler
     * @param parent The group that you want to search. Use null if you want to
     *          search from the root.
     * @return A collection of the children group
+    * @LevelAPI Platform
     * @throws Exception An exception is thrown is the method cannot access the
     *           database
     */
@@ -149,6 +157,7 @@ public interface GroupHandler
     * @param user The username of the user
     * @return A collection of the found group. The return collection cannot be
     *         null, but it can be empty if no group is found.
+    * @LevelAPI Platform
     * @throws Exception An exception is thrown if the method cannot access the
     *           database.
     */
@@ -164,6 +173,7 @@ public interface GroupHandler
     * Use this method to register a group event listener
     * 
     * @param listener the group event listener instance.
+    * @LevelAPI Platform
     */
    public void addGroupEventListener(GroupEventListener listener);
 
@@ -171,6 +181,7 @@ public interface GroupHandler
     * Use this method to unregister a group event listener
     * 
     * @param listener the group event listener instance.
+    * @LevelAPI Platform
     */
    public void removeGroupEventListener(GroupEventListener listener);
 }

@@ -29,6 +29,7 @@ import java.util.Map;
  * change the user information in the user info map, he need to call
  * 
  * @see UserProfileHandler.saveUserProfile(UserProfile) to persist the change
+ * @LevelAPI Platform
  */
 public interface UserProfile
 {
@@ -69,6 +70,7 @@ public interface UserProfile
 
    /**
     * @return the username, the identifier of an user profile instance
+    * @LevelAPI Platform
     */
    public String getUserName();
 
@@ -83,18 +85,21 @@ public interface UserProfile
    /**
     * @return The map that contains the user information. The map should only
     *         accept the java.lang.String for the key and the value.
+    * @LevelAPI Platform
     */
    public Map<String, String> getUserInfoMap();
 
    /**
     * @param map The map that contains the extra user information. The map should
     *          contains only the java.lang.String as the key and the value.
+    * @LevelAPI Platform
     */
    public void setUserInfoMap(Map<String, String> map);
 
    /**
     * @param attName The key name of an attribute in the user info map.
     * @return null if no key is matched in the user info map or a String value.
+    * @LevelAPI Platform
     */
    public String getAttribute(String attName);
 
@@ -103,6 +108,7 @@ public interface UserProfile
     * 
     * @param key The attribute name of the info
     * @param value An info of the user.
+    * @LevelAPI Platform
     */
    public void setAttribute(String key, String value);
 }

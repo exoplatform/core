@@ -53,6 +53,7 @@ import org.exoplatform.container.component.BaseComponentPlugin;
  *  [...]
  * /configuration&gt;
  * </pre>
+ * @LevelAPI Platform
  */
 public class GroupEventListener extends BaseComponentPlugin
 {
@@ -61,6 +62,7 @@ public class GroupEventListener extends BaseComponentPlugin
     * 
     * @param group The group to be saved
     * @param isNew if the group is a new record in the database or not
+    * @LevelAPI Platform
     * @throws Exception The developer can decide to throw an exception or not. If
     *           the listener throw an exception, the organization service should
     *           not save/update the group to the database
@@ -74,6 +76,7 @@ public class GroupEventListener extends BaseComponentPlugin
     * 
     * @param group The group has been saved.
     * @param isNew if the group is a new record in the database or not
+    * @LevelAPI Platform
     * @throws Exception The developer can decide to throw the exception or not.
     *           If the method throw an exception. The organization service should
     *           role back the data to the state before the method
@@ -88,6 +91,7 @@ public class GroupEventListener extends BaseComponentPlugin
     * This method is called before a group should be deleted
     * 
     * @param group the group to be delete
+    * @LevelAPI Platform
     * @throws Exception The developer can decide to throw the exception or not.
     *           If the method throw an exception. The organization service should
     *           not remove the group record from the database.
@@ -101,6 +105,7 @@ public class GroupEventListener extends BaseComponentPlugin
     * database but not commited yet.
     * 
     * @param group The group has been removed.
+    * @LevelAPI Platform
     * @throws Exception The developer can decide to throw the exception or not.
     *           If the method throw the exception, the organization service
     *           should role back the database to the state before the method
