@@ -92,8 +92,8 @@ public class ConversationState implements ThreadContextHolder
    /**
     * sets attribute.
     *
-    * @param name  HashMap key used
-    * @param value HashMap value
+    * @param name the name of the attribute to set
+    * @param value the value of the attribute to set
     */
    public void setAttribute(String name, Object value)
    {
@@ -102,8 +102,8 @@ public class ConversationState implements ThreadContextHolder
    }
 
    /**
-    * @param name  HashMap key used
-    * @return attribute  HashMap value
+    * @param name the name of the attribute to retrieve
+    * @return the value of the attribute to retrieve
     */
    public Object getAttribute(String name)
    {
@@ -123,7 +123,7 @@ public class ConversationState implements ThreadContextHolder
    /**
     * removes attribute.
     *
-    * @param name  the key of the HashMap entry to remove
+    * @param name the name of the attribute to remove
     */
    public void removeAttribute(String name)
    {

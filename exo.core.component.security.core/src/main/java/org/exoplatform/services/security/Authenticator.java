@@ -44,8 +44,8 @@ public interface Authenticator
    String validateUser(Credential[] credentials) throws LoginException, Exception;
 
    /**
-    * @param userId  the user identifier
-    * @return Identity the user identity object
+    * @param userId the user's identifier
+    * @return returns the Identity representing the user
     * @throws Exception
     */
    Identity createIdentity(String userId) throws Exception;

@@ -69,7 +69,7 @@ public interface MembershipType
    public Date getCreatedDate();
 
    /**
-    * @param d The date of creation the membership type
+    * @param d The creation date of the membership type
     */
    public void setCreatedDate(Date d);
 
@@ -79,7 +79,7 @@ public interface MembershipType
    public Date getModifiedDate();
 
    /**
-    * @param d The date of modification the membership type.
+    * @param d The modification date of the membership type
     */
    public void setModifiedDate(Date d);
 }

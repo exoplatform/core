@@ -36,7 +36,7 @@ public interface RolesExtractor
     * Extracts J2EE roles from userId and|or groups the user belongs to both
     * parameters may be null
     * 
-    * @param userId the user identifier
+    * @param userId the user's identifier
     * @param memberships the membership type
     * @return  the list of roles associated to the membership type and the user identifier
     */

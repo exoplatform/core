@@ -37,7 +37,7 @@ public interface ExtendedUserHandler
     * or some other useful data.
     * @param username  the user name
     * @param password the user password
-    * @param pe the encrypted password
+    * @param pe the algorithm to use to encrypt the password
     * @return return true if the username and the password matches 
     * the database record, else return false.
     * @throws Exception throw an exception if cannot access the database

@@ -223,7 +223,7 @@ public final class ConversationRegistry
    }
 
    /**
-    * @param userId the user identifier.
+    * @param userId the user's identifier.
     * @return list of users ConversationState.
     */
    public List<StateKey> getStateKeys(String userId)

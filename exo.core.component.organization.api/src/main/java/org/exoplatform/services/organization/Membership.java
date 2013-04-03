@@ -29,12 +29,12 @@ public interface Membership
    /**
     * the type of Membership allows distinction between 'hierarchical' and
     * 'supportive' Memberships.
-    * @return the local name of the MembershipType
+    * @return the name of the MembershipType
     */
    public String getMembershipType();
 
    /**
-    * @param type the local name of the MembershipType.
+    * @param type the name of the MembershipType.
     */
    public void setMembershipType(String type);
 
@@ -49,7 +49,7 @@ public interface Membership
    public String getGroupId();
 
    /**
-    * @return the local name of the user.
+    * @return the name of the user.
     */
    public String getUserName();
 }

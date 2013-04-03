@@ -39,14 +39,14 @@ public interface User
     * unique and the user database should not have 2 user record with the same
     * username
     * 
-    * @return the local name of the user account
+    * @return the name of the user account
     */
    public String getUserName();
 
    /**
     * This method is used to change the username
     * 
-    * @param s the local name of the user account
+    * @param s the name of the user account
     * @deprecated The third party developer should not used this method
     */
    public void setUserName(String s);
@@ -107,23 +107,23 @@ public interface User
    public void setEmail(String s);
 
    /**
-    * @return The date that the user register or create the account
+    * @return the creation date of the user account
     */
    public Date getCreatedDate();
 
    /**
-    * @param t  The date that the user register or create the account
+    * @param t the creation date of the user account
     * @deprecated The third party should not used this method.
     */
    public void setCreatedDate(Date t);
 
    /**
-    * @return Return the last time that the user access the account
+    * @return Returns the date corresponding to the last time that the user signed in to the platform
     */
    public Date getLastLoginTime();
 
    /**
-    * @param t  the last time that the user access the account
+    * @param t the date corresponding to the last time that the user signed in to the platform
     * @deprecated The third party developer should not aware of this method
     */
    public void setLastLoginTime(Date t);
@@ -139,14 +139,14 @@ public interface User
    public void setDisplayName(String displayName);
 
    /**
-    * @return the id of organization the user belongs to or null if not
+    * @return returns the id of organization to which the user belong or null if not
     *         applicable
     */
    String getOrganizationId();
 
    /**
     * sets the organizationId
-    * @param organizationId the id of organization that the user belongs
+    * @param organizationId the id of organization to which the user belong
     */
    void setOrganizationId(String organizationId);
 }

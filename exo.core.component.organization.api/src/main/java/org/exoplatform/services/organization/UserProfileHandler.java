@@ -87,7 +87,7 @@ public interface UserProfileHandler
    /**
     * Find and return all the UserProfile record in the database
     * 
-    * @return  return collection contain all the UserProfile record in the database
+    * @return  Returns a collection containing all the existing UserProfiles
     * @throws Exception Throw exception if the method fail to access the database
     */
    public Collection findUserProfiles() throws Exception;
