@@ -30,6 +30,7 @@ import org.exoplatform.commons.utils.PageList;
  * event and delete user event. Each event should have 2 phases: pre event and
  * post event. The method createUser , saveUser and removeUser broadcast the
  * event at each phase so the listeners can handle the event properly
+ * @LevelAPI Platform
  */
 public interface UserHandler
 {
@@ -58,6 +59,7 @@ public interface UserHandler
     * 
     * @param username: Username for new user instance.
     * @return
+    * @LevelAPI Platform
     */
    public User createUserInstance(String username);
 
@@ -72,6 +74,7 @@ public interface UserHandler
     *          account is created, a portal configuration should be created for
     *          the new user account at the same time. In this case the portal
     *          user event listener will be called in the createUser method.
+    * @LevelAPI Platform
     * @throws Exception: The exception can be throwed if the the UserHandler
     *           cannot persist the user object or any listeners fail to handle
     *           the user event.
@@ -85,6 +88,7 @@ public interface UserHandler
     * @param broadcast If the broadcast is true , then all the user event
     *          listener that register with the organization service will be
     *          called
+    * @LevelAPI Platform
     * @throws Exception The exception can be throwed if the the UserHandler
     *           cannot save the user object or any listeners fail to handle the
     *           user event.
@@ -101,6 +105,7 @@ public interface UserHandler
     *          broadcasted to all registered listener
     * @return return the User object after that user has beed removed from
     *         database
+    * @LevelAPI Platform
     * @throws Exception    
     */
    public User removeUser(String userName, boolean broadcast) throws Exception;
@@ -110,6 +115,7 @@ public interface UserHandler
     * @return The method return null if there no user matchs the given username.
     *         The method return an User object if an user that mathch the
     *         username.
+    * @LevelAPI Platform
     * @throws Exception The exception is throwed if the method fail to access the
     *           user database or more than one user object with the same username
     *           is found
@@ -135,6 +141,7 @@ public interface UserHandler
     *
     * @param groupId id of the group. The return users list should be in this
     *          group
+    * @LevelAPI Platform
     * @return return a page list iterator of a group of the user in the database
     * @throws Exception any exception
     */
@@ -159,6 +166,7 @@ public interface UserHandler
     * @return return a page list iterator. The page list should allow the
     *         developer get all the users or get a page of users if the return
     *         number of users is too large.
+    * @LevelAPI Platform
     * @throws Exception any exception
     */
    public ListAccess<User> findAllUsers() throws Exception;
@@ -179,6 +187,7 @@ public interface UserHandler
     *
     * @param query The query object contains the search criteria.
     * @return return the found users in a page list according to the query.
+    * @LevelAPI Platform
     * @throws Exception throw exception if the service cannot access the database
     */
    public ListAccess<User> findUsersByQuery(Query query) throws Exception;
@@ -190,6 +199,7 @@ public interface UserHandler
     * @param password
     * @return return true if the username and the password is match with an user
     *         record in the database, else return false.
+    * @LevelAPI Platform
     * @throws Exception throw an exception if cannot access the database
     */
    public boolean authenticate(String username, String password) throws Exception;
@@ -198,6 +208,7 @@ public interface UserHandler
     * This method is used to register an user event listener
     * 
     * @param listener
+    * @LevelAPI Platform
     */
    public void addUserEventListener(UserEventListener listener);
 
@@ -205,6 +216,7 @@ public interface UserHandler
     * This method is used to unregister an user event listener
     * 
     * @param listener
+    * @LevelAPI Platform
     */
    public void removeUserEventListener(UserEventListener listener);
 }

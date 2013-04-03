@@ -39,6 +39,7 @@ import org.exoplatform.container.component.BaseComponentPlugin;
  *  [...]
  * /configuration&gt;
  * </pre>
+ * @LevelAPI Platform
  */
 public class MembershipTypeEventListener extends BaseComponentPlugin
 {
@@ -47,6 +48,7 @@ public class MembershipTypeEventListener extends BaseComponentPlugin
     * 
     * @param type the membership type to be saved
     * @param isNew If the membership type is a new record in the database or not.
+    * @LevelAPI Platform
     * @throws Exception The developer can decide to throw the exception or not.
     *           If the method throw an exception. The organization service should
     *           not save the membership type.
@@ -61,6 +63,7 @@ public class MembershipTypeEventListener extends BaseComponentPlugin
     * 
     * @param type The mebership type object
     * @param isNew The membership type is a new record or not.
+    * @LevelAPI Platform
     * @throws Exception The developer can decide to throw the exception or not.
     *           If the method throw an exception. The organization service should
     *           role back the data.
@@ -73,6 +76,7 @@ public class MembershipTypeEventListener extends BaseComponentPlugin
     * This method is called before the membership type is removed
     * 
     * @param type The membership type object to be removed
+    * @LevelAPI Platform
     * @throws Exception he developer can decide to throw the exception or not. If
     *           the method throw an exception. The organization service should
     *           not remove the membership type record from the database.
@@ -86,6 +90,7 @@ public class MembershipTypeEventListener extends BaseComponentPlugin
     * database but not commited yet.
     * 
     * @param type The membership type which has been removed from the database.
+    * @LevelAPI Platform
     * @throws Exception The developer can decide to throw the exception or not.
     *           If the method throw the exception, the organization service
     *           should role back the database.

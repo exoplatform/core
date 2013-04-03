@@ -23,6 +23,7 @@ import java.util.List;
 /**
  * @author <a href="abazko@exoplatform.com">Anatoliy Bazko</a>
  * @version $Id$
+ * @LevelAPI Platform
  */
 public interface MembershipTypeEventListenerHandler
 {
@@ -32,6 +33,7 @@ public interface MembershipTypeEventListenerHandler
     * to prevent modification outside of MembershipTypeHandler.
     * 
     * @return list of MembershipTypeEventListener
+    * @LevelAPI Platform
     */
    public List<MembershipTypeEventListener> getMembershipTypeListeners();
 }

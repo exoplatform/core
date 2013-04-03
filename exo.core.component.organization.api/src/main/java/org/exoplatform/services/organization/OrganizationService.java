@@ -67,6 +67,7 @@ import org.exoplatform.container.component.ComponentPlugin;
  * access the sub interface UserHandler to manage the user, UserProfile handler
  * to manage the user profile, GroupHandler to manage the group and the
  * MembershipHandler to manage the user group and membership relation.
+ * @LevelAPI Platform
  */
 public interface OrganizationService
 {
@@ -75,6 +76,8 @@ public interface OrganizationService
     * operation such create, update , delete , find user.
     * 
     * @see UserHandler
+    * @return a UserHandler
+    * @LevelAPI Platform
     **/
    public UserHandler getUserHandler();
 
@@ -82,24 +85,28 @@ public interface OrganizationService
     * @return a UserProfileHandler object that use to manage the information of
     *         the user
     * @see UserProfileHandler
+    * @LevelAPI Platform
     */
    public UserProfileHandler getUserProfileHandler();
 
    /**
     * @return return an GroupHandler implementation instance.
     * @see GroupHandler
+    * @LevelAPI Platform
     */
    public GroupHandler getGroupHandler();
 
    /**
     * @return return a MembershipTypeHandler implementation instance
     * @see MembershipTypeHandler
+    * @LevelAPI Platform
     */
    public MembershipTypeHandler getMembershipTypeHandler();
 
    /**
     * @return return a MembershipHandler implementation instance
     * @see MembershipHandler
+    * @LevelAPI Platform
     */
    public MembershipHandler getMembershipHandler();
 
@@ -110,6 +117,7 @@ public interface OrganizationService
     * 
     * @see GroupEventListener or @see MembershipEventListener.
     * @param listener A customized listener instance
+    * @LevelAPI Platform
     * @throws Exception
     */
    public void addListenerPlugin(ComponentPlugin listener) throws Exception;

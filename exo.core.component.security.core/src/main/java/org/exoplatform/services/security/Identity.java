@@ -34,6 +34,7 @@ import javax.security.auth.Subject;
  *
  * @author Gennady Azarenkov
  * @version $Id: $
+ * @LevelAPI Platform
  */
 
 public class Identity
@@ -64,6 +65,7 @@ public class Identity
 
    /**
     * @param userId the iser's identifier.
+    * @LevelAPI Platform
     */
    public Identity(String userId)
    {
@@ -73,6 +75,7 @@ public class Identity
    /**
     * @param userId the user's identifier.
     * @param memberships the memberships.
+    * @LevelAPI Platform
     */
    public Identity(String userId, Collection<MembershipEntry> memberships)
    {
@@ -83,6 +86,7 @@ public class Identity
     * @param userId the user's identifier.
     * @param memberships the memberships.
     * @param roles the user's roles.
+    * @LevelAPI Platform
     */
    public Identity(String userId, Collection<MembershipEntry> memberships, Collection<String> roles)
    {
@@ -96,6 +100,7 @@ public class Identity
 
    /**
     * @return user name.
+    * @LevelAPI Platform
     */
    public String getUserId()
    {
@@ -107,6 +112,7 @@ public class Identity
     * @param membershipType the MembershipType.
     * @return true if user has given membershipType for given group, false
     *         otherwise
+    * @LevelAPI Platform
     */
    public boolean isMemberOf(String group, String membershipType)
    {
@@ -116,6 +122,7 @@ public class Identity
    /**
     * @param me the MembershipEntry.
     * @return true if user has given MembershipEntry, false otherwise.
+    * @LevelAPI Platform
     */
    public boolean isMemberOf(MembershipEntry me)
    {
@@ -128,6 +135,7 @@ public class Identity
     * @param group the group.
     * @return true if user has any membershipType for given group, false
     *         otherwise.
+    * @LevelAPI Platform
     */
    public boolean isMemberOf(String group)
    {
@@ -136,6 +144,7 @@ public class Identity
 
    /**
     * @return set of groups to which this user belongs to.
+    * @LevelAPI Platform
     */
    public Set<String> getGroups()
    {
@@ -159,6 +168,7 @@ public class Identity
 
    /**
     * @return user's memberships.
+    * @LevelAPI Platform
     */
    public Collection<MembershipEntry> getMemberships()
    {
@@ -169,6 +179,7 @@ public class Identity
     * Sets the roles for J2EE environment using.
     *
     * @param roles the roles.
+    * @LevelAPI Platform
     */
    public void setRoles(Collection<String> roles)
    {
@@ -178,6 +189,7 @@ public class Identity
 
    /**
     * @return roles users'roles.
+    * @LevelAPI Platform
     */
    public Collection<String> getRoles()
    {

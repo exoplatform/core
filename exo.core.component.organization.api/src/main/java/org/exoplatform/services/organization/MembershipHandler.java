@@ -32,6 +32,7 @@ import java.util.Collection;
  * type event. Each event should have 2 phases: pre event and post event. The
  * method linkMembership(..) and removeMembership(..) broadcast the event at
  * each phase so the listeners can handle the event properly
+ *  @LevelAPI Platform
  */
 public interface MembershipHandler
 {
@@ -57,6 +58,7 @@ public interface MembershipHandler
     * @param m The MembershipType of the membership
     * @param broadcast Broadcast the event if the value of the broadcast is
     *          'true'
+    * @LevelAPI Platform
     * @throws Exception An exception is thrown if the method is fail to access
     *           the database, membership type not existed or any listener fail to handle the event.
     */
@@ -70,6 +72,7 @@ public interface MembershipHandler
     * @param broadcast Broadcast the event to the registered listeners if the
     *          broadcast event is 'true'
     * @return The membership object which has been removed from the database
+    * @LevelAPI Platform
     * @throws Exception An exception is throwed if the method cannot access the
     *           database or any listener fail to handle the event.
     */
@@ -82,6 +85,7 @@ public interface MembershipHandler
     * @param broadcast Broadcast the event to the registered listeners if the
     *          broadcast event is 'true'
     * @return The membership object which has been removed from the database
+    * @LevelAPI Platfor
     * @throws Exception An exception is throwed if the method cannot access the
     *           database or any listener fail to handle the event.
     */
@@ -92,6 +96,7 @@ public interface MembershipHandler
     * 
     * @param id The id of the mebership
     * @return Return The membership object that matched the id
+    * @LevelAPI Platform
     * @throws Exception An exception is throwed if the method fail to access the
     *           database or no membership is found.
     */
@@ -105,6 +110,7 @@ public interface MembershipHandler
     * @param groupId The group identifier
     * @param type The membership type
     * @return Null if no such memberhsip record or a membership object.
+    * @LevelAPI Platform
     * @throws Exception Usually an exception is thrown if the method cannot
     *           access the database
     */
@@ -118,6 +124,7 @@ public interface MembershipHandler
     * @return A collection of the membership of an user in a group. The
     *         collection cannot be null and the collection should be empty is no
     *         membership is found
+    * @LevelAPI Platform
     * @throws Exception Usually an exception is thrown if the method cannot
     *           access the database.
     */
@@ -129,6 +136,7 @@ public interface MembershipHandler
     * @param userName
     * @return A collection of the memebership. The collection cannot be null and
     *         if no membership is found , the collection should be empty
+    * @LevelAPI Platform
     * @throws Exception Usually an exception is throwed if the method cannot
     *           access the database.
     */
@@ -142,6 +150,7 @@ public interface MembershipHandler
     * @param group
     * @return A collection of the memberships. The collection cannot be none and
     *         empty if no membership is found.
+    * @LevelAPI Platform
     * @throws Exception
     * @deprecated This method should no be called, use {@link MembershipHandler#findAllMembershipsByGroup(Group)}
     *             instead
@@ -155,6 +164,7 @@ public interface MembershipHandler
     * 
     * @param group
     * @return the list of the memberships
+    * @LevelAPI Platform
     * @throws Exception
     */
    public ListAccess<Membership> findAllMembershipsByGroup(Group group) throws Exception;
@@ -163,6 +173,7 @@ public interface MembershipHandler
     * Use this method to register a membership event listener.
     * 
     * @param listener the listener instance.
+    * @LevelAPI Platform
     */
    public void addMembershipEventListener(MembershipEventListener listener);
 
@@ -170,6 +181,7 @@ public interface MembershipHandler
     * Use this method to unregister a membership event listener.
     * 
     * @param listener the listener instance.
+    * @LevelAPI Platform
     */
    public void removeMembershipEventListener(MembershipEventListener listener);
 }

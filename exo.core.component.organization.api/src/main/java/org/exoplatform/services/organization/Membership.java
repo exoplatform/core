@@ -22,20 +22,39 @@ package org.exoplatform.services.organization;
  * Created by The eXo Platform SAS Author : Mestrallet Benjamin
  * benjmestrallet@users.sourceforge.net Date: Aug 21, 2003 Time: 3:22:54 PM This
  * is the interface for the membership data model.
+ * @LevelAPI Platform
  */
 public interface Membership
 {
    /**
     * the type of Membership allows distinction between 'hierarchical' and
     * 'supportive' Memberships.
+    * @return  the local name of the MembershipType
+    * @LevelAPI Platform
     */
    public String getMembershipType();
 
+   /**
+    * @param type the local name of the Membership
+    * @LevelAPI Platform
+    */
    public void setMembershipType(String type);
 
+   /**
+    * @return the id of the Membership.
+    * @LevelAPI Platform
+    */
    public String getId();
 
+   /**
+    * @return the id of the Group.
+    * @LevelAPI Platform
+    */
    public String getGroupId();
 
+   /**
+    * @return the local name of the user name.
+    * @LevelAPI Platform
+    */
    public String getUserName();
 }

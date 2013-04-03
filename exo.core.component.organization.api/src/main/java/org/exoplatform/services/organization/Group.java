@@ -24,48 +24,57 @@ package org.exoplatform.services.organization;
  * is the interface for the group data model. Note that after each set method is
  * called. The developer need to call @see GroupHandler.saveGroup(..) to persist
  * the change
+ * @LevelAPI Platform
  */
 public interface Group
 {
    /**
     * @return the id of the group. The id should have the form
     *         /ancestor/parent/groupname
+    * @LevelAPI Platform
     */
    public String getId();
 
    /**
     * @return the id of the parent group. if the parent id is null , it mean that
     *         the group is at the first level. the child of root group.
+    * @LevelAPI Platform
     */
    public String getParentId();
 
    /**
     * @return the local name of the group
+    * @LevelAPI Platform
     */
    public String getGroupName();
 
    /**
     * @param name the local name for the group
+    * @LevelAPI Platform
     */
    public void setGroupName(String name);
 
    /**
     * @return The display label of the group.
+    * @LevelAPI Platform
     */
    public String getLabel();
 
    /**
     * @param name The new label of the group
+    * @LevelAPI Platform
     */
    public void setLabel(String name);
 
    /**
     * @return The group description
+    * @LevelAPI Platform
     */
    public String getDescription();
 
    /**
     * @param desc The new description of the group
+    * @LevelAPI Platform
     */
    public void setDescription(String desc);
 }
