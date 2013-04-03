@@ -28,6 +28,7 @@ import java.util.Date;
  * MembershipTypeHandler.saveMembershipType(..) or
  * 
  * @see MembershipTypeHandler.createMembershipType(..) to persist the change
+ * @LevelAPI Platform
  */
 public interface MembershipType
 {
@@ -38,7 +39,7 @@ public interface MembershipType
    public String getName();
 
    /**
-    * @param s The name of the membership type 
+    * @param s The name of the membership type
     */
    public void setName(String s);
 
@@ -68,7 +69,7 @@ public interface MembershipType
    public Date getCreatedDate();
 
    /**
-    * @param d the created date 
+    * @param d The date of creation the membership type
     */
    public void setCreatedDate(Date d);
 
@@ -78,7 +79,7 @@ public interface MembershipType
    public Date getModifiedDate();
 
    /**
-    * @param d the modified date 
+    * @param d The date of modification the membership type.
     */
    public void setModifiedDate(Date d);
 }

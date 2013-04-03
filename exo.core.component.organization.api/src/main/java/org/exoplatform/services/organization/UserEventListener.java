@@ -53,6 +53,7 @@ import org.exoplatform.container.component.BaseComponentPlugin;
  *  [...]
  * /configuration&gt;
  * </pre>
+ * @LevelAPI Platform
  */
 public class UserEventListener extends BaseComponentPlugin
 {

@@ -39,6 +39,7 @@ import org.exoplatform.container.component.BaseComponentPlugin;
  *  [...]
  * /configuration&gt;
  * </pre>
+ * @LevelAPI Platform
  */
 public class MembershipTypeEventListener extends BaseComponentPlugin
 {

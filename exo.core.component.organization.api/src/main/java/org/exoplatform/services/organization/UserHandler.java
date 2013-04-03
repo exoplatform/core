@@ -30,6 +30,7 @@ import org.exoplatform.commons.utils.PageList;
  * event and delete user event. Each event should have 2 phases: pre event and
  * post event. The method createUser , saveUser and removeUser broadcast the
  * event at each phase so the listeners can handle the event properly
+ * @LevelAPI Platform
  */
 public interface UserHandler
 {
@@ -57,7 +58,7 @@ public interface UserHandler
     * user instance is not persisted yet
     * 
     * @param username: Username for new user instance.
-    * @return
+    * @return  the user object
     */
    public User createUserInstance(String username);
 
@@ -186,8 +187,8 @@ public interface UserHandler
    /**
     * Check if the username and the password of an user is valid.
     * 
-    * @param username
-    * @param password
+    * @param username the name of user to authenticate
+    * @param password the password of user to authenticate
     * @return return true if the username and the password is match with an user
     *         record in the database, else return false.
     * @throws Exception throw an exception if cannot access the database
@@ -197,14 +198,14 @@ public interface UserHandler
    /**
     * This method is used to register an user event listener
     * 
-    * @param listener
+    * @param listener the user event listener to register
     */
    public void addUserEventListener(UserEventListener listener);
 
    /**
     * This method is used to unregister an user event listener
     * 
-    * @param listener
+    * @param listener the user event listener to unregister
     */
    public void removeUserEventListener(UserEventListener listener);
 }

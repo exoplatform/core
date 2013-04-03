@@ -30,6 +30,7 @@ import java.util.Date;
  * each set method is called. The developer need to call
  * 
  * @see UserHandler saveUser(..) to persist the change
+ * @LevelAPI Platform
  */
 public interface User
 {
@@ -38,14 +39,14 @@ public interface User
     * unique and the user database should not have 2 user record with the same
     * username
     * 
-    * @return
+    * @return the local name of the user account
     */
    public String getUserName();
 
    /**
     * This method is used to change the username
     * 
-    * @param s
+    * @param s the local name of the user account
     * @deprecated The third party developer should not used this method
     */
    public void setUserName(String s);
@@ -58,7 +59,7 @@ public interface User
    /**
     * This method is used to change the user account password.
     * 
-    * @param s
+    * @param s  the password of the user account
     */
    public void setPassword(String s);
 
@@ -111,7 +112,7 @@ public interface User
    public Date getCreatedDate();
 
    /**
-    * @param t
+    * @param t  The date that the user register or create the account
     * @deprecated The third party should not used this method.
     */
    public void setCreatedDate(Date t);
@@ -122,7 +123,7 @@ public interface User
    public Date getLastLoginTime();
 
    /**
-    * @param t
+    * @param t  the last time that the user access the account
     * @deprecated The third party developer should not aware of this method
     */
    public void setLastLoginTime(Date t);
@@ -144,7 +145,8 @@ public interface User
    String getOrganizationId();
 
    /**
-    * sets the prganizationId
+    * sets the organizationId
+    * @param organizationId the id of organization that the user belongs
     */
    void setOrganizationId(String organizationId);
 }

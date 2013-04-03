@@ -30,6 +30,7 @@ import java.util.Set;
  *
  * @author Gennady Azarenkov
  * @version $Id: $
+ * @LevelAPI Platform
  */
 
 public class ConversationState implements ThreadContextHolder
@@ -81,7 +82,7 @@ public class ConversationState implements ThreadContextHolder
    }
 
    /**
-    * @return Identity
+    * @return Identity  the user identity object
     */
    public Identity getIdentity()
    {
@@ -91,8 +92,8 @@ public class ConversationState implements ThreadContextHolder
    /**
     * sets attribute.
     *
-    * @param key
-    * @param value
+    * @param name  HashMap key used
+    * @param value HashMap value
     */
    public void setAttribute(String name, Object value)
    {
@@ -101,8 +102,8 @@ public class ConversationState implements ThreadContextHolder
    }
 
    /**
-    * @param key
-    * @return attribute
+    * @param name  HashMap key used
+    * @return attribute  HashMap value
     */
    public Object getAttribute(String name)
    {
@@ -122,7 +123,7 @@ public class ConversationState implements ThreadContextHolder
    /**
     * removes attribute.
     *
-    * @param key
+    * @param name  the key of the HashMap entry to remove
     */
    public void removeAttribute(String name)
    {

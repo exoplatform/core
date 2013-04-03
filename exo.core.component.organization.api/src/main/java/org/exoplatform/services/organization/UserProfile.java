@@ -29,6 +29,7 @@ import java.util.Map;
  * change the user information in the user info map, he need to call
  * 
  * @see UserProfileHandler.saveUserProfile(UserProfile) to persist the change
+ * @LevelAPI Platform
  */
 public interface UserProfile
 {
