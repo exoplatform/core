@@ -31,6 +31,7 @@ import java.util.Collection;
  * type and delete the membership type event. Each event should have 2 phases: pre event and post
  * event. The method createMembershipType(..) , saveMembershipType(..) and removeMembershipType
  * broadcast the event at each phase so the listeners can handle the event properly
+ * @LevelAPI Platform
  */
 public interface MembershipTypeHandler
 {

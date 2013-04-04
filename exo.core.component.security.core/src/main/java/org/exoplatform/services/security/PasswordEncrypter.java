@@ -24,13 +24,14 @@ package org.exoplatform.services.security;
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
+ * @LevelAPI Platform
  */
 
 public interface PasswordEncrypter
 {
 
    /**
-    * @param plainPassword
+    * @param plainPassword the password to encrypt
     * @return encrypted password
     */
    byte[] encrypt(byte[] plainPassword);

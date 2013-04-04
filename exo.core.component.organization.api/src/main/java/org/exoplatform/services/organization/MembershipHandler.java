@@ -32,6 +32,7 @@ import java.util.Collection;
  * type event. Each event should have 2 phases: pre event and post event. The
  * method linkMembership(..) and removeMembership(..) broadcast the event at
  * each phase so the listeners can handle the event properly
+ *  @LevelAPI Platform
  */
 public interface MembershipHandler
 {

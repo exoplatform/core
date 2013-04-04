@@ -27,6 +27,7 @@ import java.util.Collection;
  * UserProfile record, the extra information of an user such address, phone...
  * The interface should allow the developer create , delete and update a
  * UserProfile. and broadcast the event to the user profile event listeners.
+ * @LevelAPI Platform
  */
 public interface UserProfileHandler
 {
@@ -74,7 +75,7 @@ public interface UserProfileHandler
     * This method should search for and return UserProfile record according to
     * the username
     * 
-    * @param userName
+    * @param userName the user name
     * @return return null if no record match the userName. return an UserProfile
     *         instance if a record match the username.
     * @throws Exception Throw Exception if the method fail to access the database
@@ -86,7 +87,7 @@ public interface UserProfileHandler
    /**
     * Find and return all the UserProfile record in the database
     * 
-    * @return
+    * @return  Returns a collection containing all the existing UserProfiles
     * @throws Exception Throw exception if the method fail to access the database
     */
    public Collection findUserProfiles() throws Exception;

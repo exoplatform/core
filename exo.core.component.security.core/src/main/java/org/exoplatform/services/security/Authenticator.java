@@ -27,6 +27,7 @@ import javax.security.auth.login.LoginException;
  * 
  * @author Gennady Azarenkov
  * @version $Id:$
+ * @LevelAPI Platform
  */
 
 public interface Authenticator
@@ -36,15 +37,15 @@ public interface Authenticator
     * 
     * @param credentials - list of users credentials (such as name/password, X509
     *          certificate etc)
-    * @return userId
+    * @return userId the user's identifier.
     * @throws LoginException
     * @throws Exception
     */
    String validateUser(Credential[] credentials) throws LoginException, Exception;
 
    /**
-    * @param credentials - userId.
-    * @return Identity
+    * @param userId the user's identifier
+    * @return returns the Identity representing the user
     * @throws Exception
     */
    Identity createIdentity(String userId) throws Exception;
