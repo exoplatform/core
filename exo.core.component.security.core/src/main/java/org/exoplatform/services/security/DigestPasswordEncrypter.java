@@ -33,7 +33,7 @@ import java.util.Map;
  * 
  * @author Dmitry Kuleshov
  * @version $Id: $
- * @LevelAPI Provisional
+ * @LevelAPI Experimental
  */
 
 public class DigestPasswordEncrypter implements PasswordEncrypter
