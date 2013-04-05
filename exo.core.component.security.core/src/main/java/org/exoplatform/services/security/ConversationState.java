@@ -30,7 +30,7 @@ import java.util.Set;
  *
  * @author Gennady Azarenkov
  * @version $Id: $
- * @LevelAPI Platform
+ * @LevelAPI Provisional
  */
 
 public class ConversationState implements ThreadContextHolder

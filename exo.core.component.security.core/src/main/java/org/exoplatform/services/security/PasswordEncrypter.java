@@ -24,7 +24,7 @@ package org.exoplatform.services.security;
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
- * @LevelAPI Platform
+ * @LevelAPI Provisional
  */
 
 public interface PasswordEncrypter
