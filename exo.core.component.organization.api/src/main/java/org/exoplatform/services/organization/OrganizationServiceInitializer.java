@@ -47,8 +47,14 @@ package org.exoplatform.services.organization;
  *  [...]
  * /configuration&gt;
  * </pre>
+ * @LevelAPI Platform
  */
 public interface OrganizationServiceInitializer
 {
+   /**
+    *  The Organization Service Initializer to create users, groups and membership types.
+    *
+    * @param service OrganizationService is the service that allows to access the Organization model.
+    */
    public void init(OrganizationService service) throws Exception;
 }

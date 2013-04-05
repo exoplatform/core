@@ -24,6 +24,7 @@ package org.exoplatform.services.organization;
  * is the interface for the group data model. Note that after each set method is
  * called. The developer need to call @see GroupHandler.saveGroup(..) to persist
  * the change
+ * @LevelAPI Platform
  */
 public interface Group
 {
@@ -40,12 +41,12 @@ public interface Group
    public String getParentId();
 
    /**
-    * @return the local name of the group
+    * @return the name of the group
     */
    public String getGroupName();
 
    /**
-    * @param name the local name for the group
+    * @param name the name for the group
     */
    public void setGroupName(String name);
 

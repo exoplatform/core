@@ -23,6 +23,7 @@ import java.util.List;
 /**
  * @author <a href="abazko@exoplatform.com">Anatoliy Bazko</a>
  * @version $Id$
+ * @LevelAPI Platform
  */
 public interface MembershipTypeEventListenerHandler
 {

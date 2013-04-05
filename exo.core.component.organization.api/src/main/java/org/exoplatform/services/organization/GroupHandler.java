@@ -29,6 +29,7 @@ import java.util.Collection;
  * delete group event. Each event should have 2 phases: pre event and post
  * event. The method createGroup(..) , saveGroup(..) and removeGroup broadcast
  * the event at each phase so the listeners can handle the event properly
+ * @LevelAPI Platform
  */
 public interface GroupHandler
 {
