@@ -67,6 +67,7 @@ import org.exoplatform.container.component.ComponentPlugin;
  * access the sub interface UserHandler to manage the user, UserProfile handler
  * to manage the user profile, GroupHandler to manage the group and the
  * MembershipHandler to manage the user group and membership relation.
+ * @LevelAPI Platform
  */
 public interface OrganizationService
 {
@@ -75,6 +76,7 @@ public interface OrganizationService
     * operation such create, update , delete , find user.
     * 
     * @see UserHandler
+    * @return a UserHandler object.
     **/
    public UserHandler getUserHandler();
 

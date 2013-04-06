@@ -26,6 +26,7 @@ import java.util.Set;
  * 
  * @author Gennady Azarenkov
  * @version $Id:$
+ * @LevelAPI Platform
  */
 
 public interface RolesExtractor
@@ -35,9 +36,9 @@ public interface RolesExtractor
     * Extracts J2EE roles from userId and|or groups the user belongs to both
     * parameters may be null
     * 
-    * @param userId
-    * @param groups
-    * @return
+    * @param userId the user's identifier
+    * @param memberships the membership type
+    * @return  the list of roles associated to the membership type and the user identifier
     */
    Set<String> extractRoles(String userId, Set<MembershipEntry> memberships);
 }

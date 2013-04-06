@@ -34,6 +34,7 @@ import javax.security.auth.Subject;
  *
  * @author Gennady Azarenkov
  * @version $Id: $
+ * @LevelAPI Platform
  */
 
 public class Identity
@@ -63,7 +64,7 @@ public class Identity
    private final Set<String> roles;
 
    /**
-    * @param userId the iser's identifier.
+    * @param userId the user's identifier.
     */
    public Identity(String userId)
    {
@@ -95,7 +96,7 @@ public class Identity
    }
 
    /**
-    * @return user name.
+    * @return user identifier.
     */
    public String getUserId()
    {
@@ -177,7 +178,7 @@ public class Identity
    }
 
    /**
-    * @return roles users'roles.
+    * @return roles users roles.
     */
    public Collection<String> getRoles()
    {
