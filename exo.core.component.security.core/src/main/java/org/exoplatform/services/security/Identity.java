@@ -89,7 +89,7 @@ public class Identity
    {
       this.userId = userId;
       this.memberships =
-         SecureCollections.secureSet(new HashSet<MembershipEntry>(memberships),
+         SecureCollections.secureSet(new MembershipHashSet(memberships),
             PermissionConstants.MODIFY_IDENTITY_PERMISSION);
       this.roles =
          SecureCollections.secureSet(new HashSet<String>(roles), PermissionConstants.MODIFY_IDENTITY_PERMISSION);;
@@ -219,5 +219,47 @@ public class Identity
    private boolean containsMembership(MembershipEntry checkMe)
    {
       return memberships.contains(checkMe);
+   }
+
+   /**
+    * A sub class of {@link HashSet} that will clean up its content before
+    * adding a membership with <code>*</code> as membership type to prevent
+    * bug of type COR-288.
+    * @author <a href="mailto:nfilotto@exoplatform.com">Nicolas Filotto</a>
+    * @version $Id$
+    *
+    */
+   private static class MembershipHashSet extends HashSet<MembershipEntry>
+   {
+      /**
+       * The serial version UID
+       */
+      private static final long serialVersionUID = 8990049840572010725L;
+
+      /**
+       * The default constructor
+       * @param c a collection of memberships to add
+       */
+      public MembershipHashSet(Collection<? extends MembershipEntry> c)
+      {
+         super(c);
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      @Override
+      public boolean add(MembershipEntry me)
+      {
+         if (MembershipEntry.ANY_TYPE.equals(me.getMembershipType()))
+         {
+            // We first remove the existing membership types
+            // A loop is needed since we could have several membership types
+            // for the same group
+            while (contains(me))
+               remove(me);
+         }
+         return super.add(me);
+      }
    }
 }
