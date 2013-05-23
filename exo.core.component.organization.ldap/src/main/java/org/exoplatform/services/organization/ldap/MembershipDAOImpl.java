@@ -160,7 +160,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
                {
                   if (broadcast)
                      preSave(m, true);
-                  ctx.createSubcontext(membershipDN, ldapAttrMapping.membershipToAttributes(m, userDN));
+                  ctx.createSubcontext(membershipDN, ldapAttrMapping.membershipToAttributes(m, userDN)).close();
                   if (broadcast)
                      postSave(m, true);
                   cacheHandler.put(cacheHandler.getMembershipKey(m), m, CacheType.MEMBERSHIP);

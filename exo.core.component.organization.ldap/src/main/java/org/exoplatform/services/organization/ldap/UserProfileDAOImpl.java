@@ -107,7 +107,7 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
          {
             try
             {
-               ctx.createSubcontext(profileDN, ldapAttrMapping.profileToAttributes(profile));
+               ctx.createSubcontext(profileDN, ldapAttrMapping.profileToAttributes(profile)).close();
                return;
             }
             catch (NamingException e)
@@ -142,7 +142,7 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
                }
                catch (NameNotFoundException e)
                {
-                  ctx.createSubcontext(profileDN, ldapAttrMapping.profileToAttributes(profile));
+                  ctx.createSubcontext(profileDN, ldapAttrMapping.profileToAttributes(profile)).close();
                   return;
                }
                UserProfileData upd = new UserProfileData();
