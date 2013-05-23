@@ -30,10 +30,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by The eXo Platform SAS .<br/> In-memory registry of user's sessions
+ * Created by The eXo Platform SAS<br> In-memory registry of user's sessions
  * 
  * @author Gennady Azarenkov
- * @version $Id:$
  */
 public final class ConversationRegistry
 {

@@ -21,7 +21,6 @@ package org.exoplatform.services.organization;
 import org.exoplatform.container.component.BaseComponentPlugin;
 
 /**
- * Author : Tuan Nguyen tuan08@users.sourceforge.net Wed, Feb 18, 2004 @ 21:33
  * If the other service or a third party want to customize their code to handle
  * an user event, the event can be new , update or remove. They should make a
  * class that extends from this class and register the listener with the
@@ -53,6 +52,7 @@ import org.exoplatform.container.component.BaseComponentPlugin;
  *  [...]
  * /configuration&gt;
  * </pre>
+ * @author <a href="mailto:tuan08@users.sourceforge.net">Tuan Nguyen</a>
  * @LevelAPI Platform
  */
 public class UserEventListener extends BaseComponentPlugin

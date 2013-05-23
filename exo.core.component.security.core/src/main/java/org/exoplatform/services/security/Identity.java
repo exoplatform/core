@@ -27,13 +27,12 @@ import java.util.Set;
 import javax.security.auth.Subject;
 
 /**
- * Created by The eXo Platform SAS .<br/>
+ * Created by The eXo Platform SAS <br>
  * User Session encapsulates user's principals such as name, groups along with
  * JAAS subject (useful in J2EE environment) as well as other optional
  * attributes
  *
  * @author Gennady Azarenkov
- * @version $Id: $
  * @LevelAPI Platform
  */
 

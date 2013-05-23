@@ -21,10 +21,7 @@ package org.exoplatform.services.organization;
 import org.exoplatform.container.component.ComponentPlugin;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
- * Author : Tuan Nguyen tuan08@users.sourceforge.net
- * Date: Aug 22, 2003 Time: 4:46:04 PM
+ * Created by The eXo Platform SAS<br>
  * Concept: The eXo platform organization has 5 main components: user , user profile, group,
  * membership type and membership.
  * 
@@ -67,6 +64,8 @@ import org.exoplatform.container.component.ComponentPlugin;
  * access the sub interface UserHandler to manage the user, UserProfile handler
  * to manage the user profile, GroupHandler to manage the group and the
  * MembershipHandler to manage the user group and membership relation.
+ * @author <a href="mailto:benjmestrallet@users.sourceforge.net">Mestrallet Benjamin</a>
+ * @author <a href="mailto:tuan08@users.sourceforge.net">Tuan Nguyen</a>
  * @LevelAPI Platform
  */
 public interface OrganizationService

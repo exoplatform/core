@@ -21,8 +21,7 @@ package org.exoplatform.services.organization;
 import org.exoplatform.container.component.BaseComponentPlugin;
 
 /**
- * Author : Tuan Nguyen tuan08@ms.sourceforge.net Wed, Feb 18, 2004 @ 21:33 If
- * the other service or a third party want to customize their code to handle a
+ * If the other service or a third party want to customize their code to handle a
  * membership event, the event can be new or remove. They should make a class
  * that extends from this class and register the listener with the organization
  * service. There are 2 ways to register a listener with the service. a) To do
@@ -53,6 +52,7 @@ import org.exoplatform.container.component.BaseComponentPlugin;
  *  [...]
  * /configuration&gt;
  * </pre>
+ * @author <a href="mailto:tuan08@users.sourceforge.net">Tuan Nguyen</a>
  * @LevelAPI Platform
  */
 public class MembershipEventListener extends BaseComponentPlugin

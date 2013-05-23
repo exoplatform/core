@@ -21,12 +21,14 @@ package org.exoplatform.services.organization;
 import java.util.Collection;
 
 /**
- * Created by The eXo Platform SAS Author : Tuan Nguyen
- * tuan08@users.sourceforge.net Oct 13, 2005 This interface is acted as a sub
- * interface of the organization service. It is used to manage the the
+ * Created by The eXo Platform SAS<br>
+ * This interface is acted as a sub interface of the organization service.
+ * It is used to manage the the
  * UserProfile record, the extra information of an user such address, phone...
  * The interface should allow the developer create , delete and update a
  * UserProfile. and broadcast the event to the user profile event listeners.
+ *
+ * @author <a href="mailto:tuan08@users.sourceforge.net">Tuan Nguyen</a>
  * @LevelAPI Platform
  */
 public interface UserProfileHandler
