@@ -21,7 +21,7 @@ package org.exoplatform.services.security;
 import java.io.Serializable;
 
 /**
- * Created by The eXo Platform SAS<br/>
+ * Created by The eXo Platform SAS<br>
  * Abstraction for authentication credential.
  * 
  * @author Gennady Azarenkov
