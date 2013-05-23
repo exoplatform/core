@@ -144,7 +144,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
             {
                if (broadcast)
                   preSave(user, true);
-               ctx.createSubcontext(userDN, attrs);
+               ctx.createSubcontext(userDN, attrs).close();
                if (broadcast)
                   postSave(user, true);
 
