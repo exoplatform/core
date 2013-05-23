@@ -22,8 +22,8 @@ import org.exoplatform.container.component.BaseComponentPlugin;
 
 /**
  * If the other service or a third party want to customize their code to handle a
- * MembershipType event, the event can be new , update or remove. They should make a class
- * that extends from this class and register the listener with the organization
+ * MembershipType event, the event can be new , update or remove. They should create a class that extends this class
+ * and register the listener to the organization
  * service.
  *
  * <pre>

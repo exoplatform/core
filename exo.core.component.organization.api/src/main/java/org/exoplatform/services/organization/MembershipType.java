@@ -22,9 +22,8 @@ import java.util.Date;
 
 /**
  * Created by The eXo Platform SAS<br>
- * This is the interface for the membership type data model. Note that after each set
- * method is called. The developer need to call @see
- * MembershipTypeHandler.saveMembershipType(..) or
+ * This is the interface for the membership type data model.
+ * The developer need to call @see MembershipTypeHandler.saveMembershipType(..)
  *
  * @author <a href="mailto:benjmestrallet@users.sourceforge.net">Mestrallet Benjamin</a>
  * @see MembershipTypeHandler#createMembershipType(MembershipType, boolean) to persist the change

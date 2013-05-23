@@ -23,7 +23,7 @@ import org.exoplatform.container.component.BaseComponentPlugin;
 /**
  * If the other service or a third party want to customize their code
  * to handle an user profile event, the event can be save or delete, they should
- * make a class that extends from this class and register the listener with the
+ * make a class that extends from this class and register the listener to the
  * organization service. There are 2 ways to register a listener with the
  * service. a) To do it programatically: [..] import
  * org.exoplatform.container.PortalContainer ; import
@@ -77,7 +77,7 @@ public class UserProfileEventListener extends BaseComponentPlugin
    }
 
    /**
-    * When you register the listener with the organization service. This method
+    * When you register the listener to the organization service. This method
     * should be called in the @see UserProfileHandler saveUseProfile(..) method
     * after the user profile instance is saved to the database.
     * 
@@ -96,7 +96,7 @@ public class UserProfileEventListener extends BaseComponentPlugin
    }
 
    /**
-    * When you register the listener with the organization service. This method
+    * When you register the listener to the organization service. This method
     * should be called in the @see UserProfileHandler removeUseProfile(..) method
     * before the user profile instance is removed from the database.
     * 
@@ -110,7 +110,7 @@ public class UserProfileEventListener extends BaseComponentPlugin
    }
 
    /**
-    * When you register the listener with the organization service. This method
+    * When you register the listener to the organization service. This method
     * should be called in the @see UserProfileHandler removeUseProfile(..) method
     * after the user profile instance is removed from the database.
     * 

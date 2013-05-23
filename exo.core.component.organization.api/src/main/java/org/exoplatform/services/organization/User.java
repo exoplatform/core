@@ -26,10 +26,9 @@ import java.util.Date;
  * Date: Aug 21, 2003 Time: 3:22:54 PM
  * This is the interface for a User data model. The OrganizationService implementor
  * can use the different strategy to implement this class, he can use the native
- * field for each get method or use a Map to hold the user data. Note that after
- * each set method is called. The developer need to call
- * 
- * @see UserHandler saveUser(..) to persist the change
+ * field for each get method or use a Map to hold the user data.
+ * The developer need to call @see UserHandler saveUser(..) to persist the change.
+ *
  * @LevelAPI Platform
  */
 public interface User

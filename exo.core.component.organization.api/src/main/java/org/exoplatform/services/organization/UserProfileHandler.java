@@ -22,9 +22,8 @@ import java.util.Collection;
 
 /**
  * Created by The eXo Platform SAS<br>
- * This interface is acted as a sub interface of the organization service.
- * It is used to manage the the
- * UserProfile record, the extra information of an user such address, phone...
+ * This interface is a sub part of the organization service.
+ * It is used to manage the UserProfile records, the extra information of an user such address, phone...
  * The interface should allow the developer create , delete and update a
  * UserProfile. and broadcast the event to the user profile event listeners.
  *
