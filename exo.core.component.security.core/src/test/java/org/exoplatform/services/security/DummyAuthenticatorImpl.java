@@ -73,4 +73,12 @@ public class DummyAuthenticatorImpl implements Authenticator
       throw new LoginException();
    }
 
+   /**
+    * @see org.exoplatform.services.security.Authenticator#getLastExceptionOnValidateUser()
+    */
+   public Exception getLastExceptionOnValidateUser()
+   {
+      return null;
+   }
+
 }

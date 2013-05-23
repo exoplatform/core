@@ -33,6 +33,23 @@ import java.util.List;
  */
 public class TestUserProfileHandler extends AbstractOrganizationServiceTest
 {
+   private MyUserProfileEventListener listener;
+
+   @Override
+   public void setUp() throws Exception
+   {
+      super.setUp();
+      listener = new MyUserProfileEventListener();
+      upHandler.addUserProfileEventListener(listener);
+   }
+
+   @Override
+   public void tearDown() throws Exception
+   {
+      upHandler.removeUserProfileEventListener(listener);
+      super.tearDown();
+   }
+
    /**
     * Find user profile by name.
     */
@@ -67,6 +84,30 @@ public class TestUserProfileHandler extends AbstractOrganizationServiceTest
       {
          fail("Exception should not be thrown");
       }
+
+      createUserProfile(newUserName);
+
+      assertNotNull(upHandler.findUserProfileByName(newUserName));
+
+      upHandler.removeUserProfile(newUserName, true);
+
+      assertNull(upHandler.findUserProfileByName(newUserName));
+
+      createUserProfile(newUserName);
+
+      assertNotNull(upHandler.findUserProfileByName(newUserName));
+
+      uHandler.removeUser(newUserName, false);
+
+      assertNull(upHandler.findUserProfileByName(newUserName));
+
+      // Check the listener's counters
+      assertEquals(3, listener.preSaveNew);
+      assertEquals(3, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(1, listener.preDelete);
+      assertEquals(1, listener.postDelete);
    }
 
    /**
@@ -80,7 +121,27 @@ public class TestUserProfileHandler extends AbstractOrganizationServiceTest
       createUser(newUserName);
       createUserProfile(newUserName);
 
-      assertEquals(upHandler.findUserProfiles().size(), 2);
+      assertSizeEquals(2, upHandler.findUserProfiles());
+
+      upHandler.removeUserProfile(newUserName, true);
+
+      assertSizeEquals(1, upHandler.findUserProfiles());
+
+      createUserProfile(newUserName);
+
+      assertSizeEquals(2, upHandler.findUserProfiles());
+
+      uHandler.removeUser(newUserName, false);
+
+      assertSizeEquals(1, upHandler.findUserProfiles());
+
+      // Check the listener's counters
+      assertEquals(3, listener.preSaveNew);
+      assertEquals(3, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(1, listener.preDelete);
+      assertEquals(1, listener.postDelete);
    }
 
    /**
@@ -106,6 +167,14 @@ public class TestUserProfileHandler extends AbstractOrganizationServiceTest
       {
          fail("Exception should not be thrown");
       }
+
+      // Check the listener's counters
+      assertEquals(1, listener.preSaveNew);
+      assertEquals(1, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(1, listener.preDelete);
+      assertEquals(1, listener.postDelete);
    }
 
    /**
@@ -135,6 +204,14 @@ public class TestUserProfileHandler extends AbstractOrganizationServiceTest
       catch (Exception e)
       {
       }
+
+      // Check the listener's counters
+      assertEquals(1, listener.preSaveNew);
+      assertEquals(1, listener.postSaveNew);
+      assertEquals(1, listener.preSave);
+      assertEquals(1, listener.postSave);
+      assertEquals(0, listener.preDelete);
+      assertEquals(0, listener.postDelete);
    }
 
    /**
@@ -153,6 +230,51 @@ public class TestUserProfileHandler extends AbstractOrganizationServiceTest
          catch (Exception e)
          {
          }
+      }
+   }
+
+   private static class MyUserProfileEventListener extends UserProfileEventListener
+   {
+      public int preSaveNew, postSaveNew;
+      public int preSave, postSave;
+      public int preDelete, postDelete;
+
+      @Override
+      public void preSave(UserProfile up, boolean isNew) throws Exception
+      {
+         if (up == null)
+            return;
+         if (isNew)
+            preSaveNew++;
+         else
+            preSave++;
+      }
+
+      @Override
+      public void postSave(UserProfile up, boolean isNew) throws Exception
+      {
+         if (up == null)
+            return;
+         if (isNew)
+            postSaveNew++;
+         else
+            postSave++;
+      }
+
+      @Override
+      public void preDelete(UserProfile up) throws Exception
+      {
+         if (up == null)
+            return;
+         preDelete++;
+      }
+
+      @Override
+      public void postDelete(UserProfile up) throws Exception
+      {
+         if (up == null)
+            return;
+         postDelete++;
       }
    }
 }

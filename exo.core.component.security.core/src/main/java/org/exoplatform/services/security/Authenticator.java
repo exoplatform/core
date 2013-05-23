@@ -38,16 +38,24 @@ public interface Authenticator
     * @param credentials - list of users credentials (such as name/password, X509
     *          certificate etc)
     * @return userId the user's identifier.
-    * @throws LoginException
-    * @throws Exception
+    * @throws LoginException in case the authentication fails
+    * @throws Exception if any exception occurs
     */
    String validateUser(Credential[] credentials) throws LoginException, Exception;
 
    /**
     * @param userId the user's identifier
     * @return returns the Identity representing the user
-    * @throws Exception
+    * @throws Exception if any exception occurs
     */
    Identity createIdentity(String userId) throws Exception;
 
+   /**
+    * Gives the last exception that occurs while calling {@link #validateUser(Credential[])}. This
+    * allows applications outside JAAS like UI to be able to know which exception occurs
+    * while calling {@link #validateUser(Credential[])}.
+    * @return the original Exception that occurs while calling {@link #validateUser(Credential[])} 
+    * for the very last time if an exception occurred, <code>null</code> otherwise.
+    */
+   Exception getLastExceptionOnValidateUser();
 }

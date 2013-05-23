@@ -20,6 +20,7 @@ import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
 import org.exoplatform.services.organization.GroupEventListenerHandler;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -30,6 +31,23 @@ import java.util.List;
  */
 public class TestGroupHandler extends AbstractOrganizationServiceTest
 {
+
+   private MyGroupEventListener listener;
+
+   @Override
+   public void setUp() throws Exception
+   {
+      super.setUp();
+      listener = new MyGroupEventListener();
+      gHandler.addGroupEventListener(listener);
+   }
+
+   @Override
+   public void tearDown() throws Exception
+   {
+      gHandler.removeGroupEventListener(listener);
+      super.tearDown();
+   }
 
    /**
     * Find group by id.
@@ -53,6 +71,14 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
       {
          fail("Exception should be thrown");
       }
+
+      // Check the listener's counters
+      assertEquals(0, listener.preSaveNew);
+      assertEquals(0, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(0, listener.preDelete);
+      assertEquals(0, listener.postDelete);
    }
 
    /**
@@ -60,7 +86,41 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
     */
    public void testFindGroupsByUser() throws Exception
    {
-      assertEquals(gHandler.findGroupsOfUser("john").size(), 3);
+      assertSizeEquals(3, gHandler.findGroupsOfUser("john"));
+      assertSizeEquals(0, gHandler.findGroupsOfUser("fake-user"));
+
+      createMembership(userName, groupName1, membershipType);
+
+      Collection<Group> groups;
+      assertSizeEquals(1, groups = gHandler.findGroupsOfUser(userName));
+
+      gHandler.removeGroup(groups.iterator().next(), true);
+ 
+      assertSizeEquals(0, gHandler.findGroupsOfUser(userName));
+
+      createMembership(userName + "2", groupName2, membershipType + "2");
+
+      assertSizeEquals(1, gHandler.findGroupsOfUser(userName + "2"));
+
+      mHandler.removeMembershipByUser(userName + "2", false);
+
+      assertSizeEquals(0, gHandler.findGroupsOfUser(userName + "2"));
+
+      createMembership(userName + "3", groupName2 + "3", membershipType + "3");
+
+      assertSizeEquals(1, gHandler.findGroupsOfUser(userName + "3"));
+
+      uHandler.removeUser(userName + "3", false);
+
+      assertSizeEquals(0, gHandler.findGroupsOfUser(userName + "3"));
+
+      // Check the listener's counters
+      assertEquals(3, listener.preSaveNew);
+      assertEquals(3, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(1, listener.preDelete);
+      assertEquals(1, listener.postDelete);
    }
 
    /**
@@ -68,9 +128,17 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
     */
    public void testFindGroups() throws Exception
    {
-      assertEquals(gHandler.findGroups(null).size(), 4);
-      assertEquals(gHandler.findGroups(gHandler.findGroupById("/organization/operations")).size(), 2);
-      assertEquals(gHandler.findGroups(gHandler.findGroupById("/organization/management/executive-board")).size(), 0);
+      assertSizeEquals(4, gHandler.findGroups(null));
+      assertSizeEquals(2, gHandler.findGroups(gHandler.findGroupById("/organization/operations")));
+      assertSizeEquals(0, gHandler.findGroups(gHandler.findGroupById("/organization/management/executive-board")));
+
+      // Check the listener's counters
+      assertEquals(0, listener.preSaveNew);
+      assertEquals(0, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(0, listener.preDelete);
+      assertEquals(0, listener.postDelete);
    }
 
    /**
@@ -78,7 +146,15 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
     */
    public void testGetAllGroups() throws Exception
    {
-      assertEquals(gHandler.getAllGroups().size(), 16);
+      assertSizeEquals(16, gHandler.getAllGroups());
+
+      // Check the listener's counters
+      assertEquals(0, listener.preSaveNew);
+      assertEquals(0, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(0, listener.preDelete);
+      assertEquals(0, listener.postDelete);
    }
 
    /**
@@ -132,6 +208,14 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
       gHandler.removeGroup(gHandler.findGroupById("/" + groupName1), true);
       assertNull(gHandler.findGroupById("/" + groupName1));
       assertNull(gHandler.findGroupById("/" + groupName1 + "/" + groupName2));
+
+      // Check the listener's counters
+      assertEquals(5, listener.preSaveNew);
+      assertEquals(5, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(5, listener.preDelete);
+      assertEquals(5, listener.postDelete);
    }
 
    /**
@@ -159,6 +243,14 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
       // add child group
       gHandler.addChild(parent, child, false);
       assertNotNull(gHandler.findGroupById("/" + groupName1 + "/" + groupName2));
+
+      // Check the listener's counters
+      assertEquals(2, listener.preSaveNew);
+      assertEquals(2, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(2, listener.preDelete);
+      assertEquals(2, listener.postDelete);
    }
 
    /**
@@ -189,6 +281,14 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
       // check if group has new description
       g = gHandler.findGroupById("/" + groupName1);
       assertEquals(g.getDescription(), "newDesc");
+
+      // Check the listener's counters
+      assertEquals(1, listener.preSaveNew);
+      assertEquals(1, listener.postSaveNew);
+      assertEquals(1, listener.preSave);
+      assertEquals(1, listener.postSave);
+      assertEquals(0, listener.preDelete);
+      assertEquals(0, listener.postDelete);
    }
 
    /**
@@ -207,6 +307,51 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
          catch (Exception e)
          {
          }
+      }
+   }
+
+   private static class MyGroupEventListener extends GroupEventListener
+   {
+      public int preSaveNew, postSaveNew;
+      public int preSave, postSave;
+      public int preDelete, postDelete;
+
+      @Override
+      public void preSave(Group group, boolean isNew) throws Exception
+      {
+         if (group == null)
+            return;
+         if (isNew)
+            preSaveNew++;
+         else
+            preSave++;
+      }
+
+      @Override
+      public void postSave(Group group, boolean isNew) throws Exception
+      {
+         if (group == null)
+            return;
+         if (isNew)
+            postSaveNew++;
+         else
+            postSave++;
+      }
+
+      @Override
+      public void preDelete(Group group) throws Exception
+      {
+         if (group == null)
+            return;
+         preDelete++;
+      }
+
+      @Override
+      public void postDelete(Group group) throws Exception
+      {
+         if (group == null)
+            return;
+         postDelete++;
       }
    }
 }

@@ -33,9 +33,7 @@ import javax.naming.NameClassPair;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.ModificationItem;
@@ -70,7 +68,7 @@ public class DummyLdapContext extends InitialDirContext implements LdapContext
    @Override
    public Attributes getAttributes(String name) throws NamingException
    {
-      return appRoot.getAttributes(removeExoplatformOrg(name));
+      return appRoot.getAttributes(name);
    }
 
    @Override
@@ -106,7 +104,7 @@ public class DummyLdapContext extends InitialDirContext implements LdapContext
    @Override
    public void modifyAttributes(String name, ModificationItem[] mods) throws NamingException
    {
-      appRoot.modifyAttributes(removeExoplatformOrg(name), mods);
+      appRoot.modifyAttributes(name, mods);
    }
 
    @Override
@@ -142,12 +140,7 @@ public class DummyLdapContext extends InitialDirContext implements LdapContext
    @Override
    public DirContext createSubcontext(String name, Attributes attrs) throws NamingException
    {
-      Attribute attr = new BasicAttribute("objectclass");
-      attr.add("top");
-      attr.add("organization");
-      attrs.put(attr);
-
-      return appRoot.createSubcontext(removeExoplatformOrg(name), attrs);
+      return appRoot.createSubcontext(name, attrs);
    }
 
    @Override
@@ -215,7 +208,7 @@ public class DummyLdapContext extends InitialDirContext implements LdapContext
          filter = "(" + filter + ")";
       }
 
-      return swapNameWithNameInNamespace(appRoot.search(removeExoplatformOrg(name), filter, cons));
+      return swapNameWithNameInNamespace(appRoot.search(name, filter, cons));
    }
 
    @Override
@@ -325,7 +318,7 @@ public class DummyLdapContext extends InitialDirContext implements LdapContext
    @Override
    public void destroySubcontext(String name) throws NamingException
    {
-      appRoot.destroySubcontext(removeExoplatformOrg(name));
+      appRoot.destroySubcontext(name);
    }
 
    @Override
@@ -398,6 +391,7 @@ public class DummyLdapContext extends InitialDirContext implements LdapContext
    @Override
    public void close() throws NamingException
    {
+      appRoot.close();
       initialContext.close();
    }
 
@@ -407,60 +401,37 @@ public class DummyLdapContext extends InitialDirContext implements LdapContext
       return appRoot.getNameInNamespace();
    }
 
-   @Override
    public ExtendedResponse extendedOperation(ExtendedRequest request) throws NamingException
    {
       return null;
    }
 
-   @Override
    public LdapContext newInstance(Control[] requestControls) throws NamingException
    {
       return null;
    }
 
-   @Override
    public void reconnect(Control[] connCtls) throws NamingException
    {
    }
 
-   @Override
    public Control[] getConnectControls() throws NamingException
    {
       return null;
    }
 
-   @Override
    public void setRequestControls(Control[] requestControls) throws NamingException
    {
    }
 
-   @Override
    public Control[] getRequestControls() throws NamingException
    {
       return null;
    }
 
-   @Override
    public Control[] getResponseControls() throws NamingException
    {
       return null;
-   }
-
-   /**
-    * Utility method cut off the "dc=exoplatform, dc=org" string
-    * to avoid it to be used twice
-    * @param name
-    * @return
-    */
-   private String removeExoplatformOrg(String name)
-   {
-      int i = name.toLowerCase().indexOf("dc=exoplatform,dc=org");
-      if (i > -1)
-      {
-         return name.substring(0, i);
-      }
-      return name;
    }
 
    /**
@@ -471,11 +442,11 @@ public class DummyLdapContext extends InitialDirContext implements LdapContext
     */
    private String removeGroupProtal(String name)
    {
-      name = removeExoplatformOrg(name);
       int i = name.toLowerCase().indexOf("ou=groups,ou=portal");
       if (i > -1)
       {
-         return name.substring(0, i);
+         int index = name.substring(0, i).lastIndexOf(',');
+         return name.substring(0, index > 0 ? index : i);
       }
       return name;
    }

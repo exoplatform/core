@@ -71,7 +71,7 @@ public class UserEventListener extends BaseComponentPlugin
    }
 
    /**
-    * This method is called after the user has been saved but not commited yet
+    * This method is called after the user has been saved but not committed yet
     * 
     * @param user The user instance has been saved.
     * @param isNew if the user is a new record in the database or not
@@ -98,7 +98,7 @@ public class UserEventListener extends BaseComponentPlugin
 
    /**
     * This method should be called after the user has been removed from the
-    * database but not commited yet.
+    * database but not committed yet.
     * 
     * @param user The user instance which has been removed from the database.
     * @throws Exception The developer can decide to throw the exception or not.
@@ -107,6 +107,35 @@ public class UserEventListener extends BaseComponentPlugin
     *           UserHandler.removeUser(..) is called.
     */
    public void postDelete(User user) throws Exception
+   {
+   }
+
+   /**
+    * This method is called before enabling/disabling a user. To know
+    * if the user is about to be enabled/disabled by calling {@link User#isEnabled()}
+    * on the provided user object
+    * 
+    * @param user the user to be enable/disable
+    * @throws Exception The developer can decide to throw the exception or not.
+    *           If the method throw an exception. The organization service should
+    *           not enable/disable the user.
+    */
+   public void preSetEnabled(User user) throws Exception
+   {
+   }
+
+   /**
+    * This method is called after enabling/disabling a user. To know
+    * if the user is about to be enabled/disabled by calling {@link User#isEnabled()}
+    * on the provided user object
+    * 
+    * @param user The user instance which has been enabled/disabled.
+    * @throws Exception The developer can decide to throw the exception or not.
+    *           If the method throw the exception, the organization service
+    *           should role back the database to the state before the method
+    *           {@link UserHandler#setEnabled(User, boolean, boolean)} is called.
+    */
+   public void postSetEnabled(User user) throws Exception
    {
    }
 }

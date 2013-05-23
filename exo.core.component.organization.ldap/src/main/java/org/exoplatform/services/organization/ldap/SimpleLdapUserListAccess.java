@@ -81,6 +81,8 @@ public class SimpleLdapUserListAccess extends LdapListAccess<User>
    protected User[] load(LdapContext ctx, int index, int length) throws Exception
    {
       User[] users = new User[length];
+      if (length == 0)
+         return users;
       NamingEnumeration<SearchResult> results = null;
 
       try

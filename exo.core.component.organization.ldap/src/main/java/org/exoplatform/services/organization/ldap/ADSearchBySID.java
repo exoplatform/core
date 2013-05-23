@@ -18,10 +18,12 @@
  */
 package org.exoplatform.services.organization.ldap;
 
-import org.exoplatform.services.ldap.LDAPService;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import javax.naming.CompositeName;
 import javax.naming.Name;
+import javax.naming.NameNotFoundException;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -37,28 +39,14 @@ public class ADSearchBySID
 {
 
    /**
+    * Logger. 
+    */
+   private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.ldap.ADSearchBySID");
+
+   /**
     * Mapping LDAP attributes to eXo organization service items.
     */
    protected LDAPAttributeMapping ldapAttrMapping;
-
-   /**
-    * Instead {@link #findMembershipDNBySID(byte[], String, String)} use method
-    * {@link #findMembershipDNBySID(LdapContext, byte[], String, String)}. In
-    * this case {@link LDAPService} useless in here.
-    */
-   @Deprecated
-   protected LDAPService ldapService;
-
-   /**
-    * @param ldapAttrMapping attribute mapping
-    * @param ldapService see {@link #ldapService}
-    */
-   @Deprecated
-   public ADSearchBySID(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService)
-   {
-      this.ldapAttrMapping = ldapAttrMapping;
-      this.ldapService = ldapService;
-   }
 
    /**
     * @param ldapAttrMapping mapping LDAP attributes to eXo organization service
@@ -67,33 +55,6 @@ public class ADSearchBySID
    public ADSearchBySID(LDAPAttributeMapping ldapAttrMapping)
    {
       this.ldapAttrMapping = ldapAttrMapping;
-   }
-
-   @Deprecated
-   public String findMembershipDNBySID(byte[] sid, String baseDN, String scopedRole) throws Exception
-   {
-      LdapContext ctx = ldapService.getLdapContext();
-      try
-      {
-         for (int err = 0;; err++)
-         {
-            try
-            {
-               return findMembershipDNBySID(ctx, sid, baseDN, scopedRole);
-            }
-            catch (NamingException e)
-            {
-               if (BaseDAO.isConnectionError(e) && err < BaseDAO.getMaxConnectionError())
-                  ctx = ldapService.getLdapContext();
-               else
-                  throw e;
-            }
-         }
-      }
-      finally
-      {
-         ldapService.release(ctx);
-      }
    }
 
    public String findMembershipDNBySID(LdapContext ctx, byte[] sid, String baseDN, String scopedRole)
@@ -124,6 +85,12 @@ public class ADSearchBySID
             Name entryName = parser.parse(new CompositeName(sr.getName()).get(0));
             return entryName + "," + baseDN;
          }
+         return null;
+      }
+      catch (NameNotFoundException e)
+      {
+         if (LOG.isDebugEnabled())
+            LOG.debug(e.getLocalizedMessage(), e);
          return null;
       }
       finally

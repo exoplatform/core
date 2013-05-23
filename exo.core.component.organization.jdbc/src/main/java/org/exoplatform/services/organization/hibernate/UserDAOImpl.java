@@ -25,6 +25,7 @@ import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.database.ObjectQuery;
+import org.exoplatform.services.organization.DisabledUserException;
 import org.exoplatform.services.organization.ExtendedUserHandler;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.Query;
@@ -67,11 +68,6 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
       service_ = service;
       cache_ = cservice.getCacheInstance(UserImpl.class.getName());
       this.orgService = orgService;
-   }
-
-   final public List<UserEventListener> getUserEventListeners()
-   {
-      return listeners_;
    }
 
    /**
@@ -132,6 +128,8 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
     */
    public void saveUser(User user, boolean broadcast) throws Exception
    {
+      if (user != null && !user.isEnabled())
+         throw new DisabledUserException(user.getUserName());
       if (broadcast)
          preSave(user, false);
 
@@ -161,7 +159,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
 
       session.delete(foundUser);
       ((UserProfileDAOImpl)orgService.getUserProfileHandler()).removeUserProfileEntry(userName, session);
-      MembershipDAOImpl.removeMembershipEntriesOfUser(userName, session);
+      ((MembershipDAOImpl)orgService.getMembershipHandler()).removeMembershipEntriesOfUser(userName, session);
 
       session.flush();
       cache_.remove(userName);
@@ -177,14 +175,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
     */
    public User findUserByName(String userName) throws Exception
    {
-      User user = (User)cache_.get(userName);
-      if (user != null)
-         return user;
-      Session session = service_.openSession();
-      user = findUserByName(userName, session);
-      if (user != null)
-         cache_.put(userName, user);
-      return user;
+      return findUserByName(userName, true);
    }
 
    public User findUserByName(String userName, Session session) throws Exception
@@ -206,10 +197,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
     */
    public ListAccess<User> findAllUsers() throws Exception
    {
-      String findQuery = "from o in class " + UserImpl.class.getName();
-      String countQuery = "select count(o) from " + UserImpl.class.getName() + " o";
-
-      return new HibernateListAccess<User>(service_, findQuery, countQuery);
+      return findAllUsers(true);
    }
 
    /**
@@ -225,12 +213,16 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
     */
    public boolean authenticate(String username, String password, PasswordEncrypter pe) throws Exception
    {
-      User user = findUserByName(username);
+      User user = findUserByName(username, false);
       if (user == null)
       {
          return false;
       }
 
+      if (!user.isEnabled())
+      {
+         throw new DisabledUserException(username);
+      }
       boolean authenticated;
       if (pe == null)
       {
@@ -263,25 +255,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
     */
    public ListAccess<User> findUsersByQuery(Query q) throws Exception
    {
-      ObjectQuery oq = new ObjectQuery(UserImpl.class);
-      if (q.getUserName() != null)
-      {
-         oq.addLIKE("UPPER(userName)", addAsterisk(q.getUserName().toUpperCase()));
-      }
-      if (q.getFirstName() != null)
-      {
-         oq.addLIKE("UPPER(firstName)", q.getFirstName().toUpperCase());
-      }
-      if (q.getLastName() != null)
-      {
-         oq.addLIKE("UPPER(lastName)", q.getLastName().toUpperCase());
-      }
-      oq.addLIKE("email", q.getEmail());
-      oq.addGT("lastLoginTime", q.getFromLoginDate());
-      oq.addLT("lastLoginTime", q.getToLoginDate());
-
-      return new HibernateListAccess<User>(service_, oq.getHibernateQueryWithBinding(),
-         oq.getHibernateCountQueryWithBinding(), oq.getBindingFields());
+      return findUsersByQuery(q, true);
    }
 
    /**
@@ -297,16 +271,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
     */
    public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
    {
-      String queryFindUsersInGroup =
-         "select u " + "from u in class org.exoplatform.services.organization.impl.UserImpl, "
-            + "     m in class org.exoplatform.services.organization.impl.MembershipImpl "
-            + "where m.userName = u.userName " + "     and m.groupId =  '" + groupId + "'";
-      String countUsersInGroup =
-         "select count(u) " + "from u in class org.exoplatform.services.organization.impl.UserImpl, "
-            + "     m in class org.exoplatform.services.organization.impl.MembershipImpl "
-            + "where m.userName = u.userName " + "  and m.groupId =  '" + groupId + "'";
-
-      return new HibernateListAccess<User>(service_, queryFindUsersInGroup, countUsersInGroup);
+      return findUsersByGroupId(groupId, true);
    }
 
    /**
@@ -351,6 +316,18 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
          listener.postDelete(user);
    }
 
+   private void preSetEnabled(User user) throws Exception
+   {
+      for (UserEventListener listener : listeners_)
+         listener.preSetEnabled(user);
+   }
+
+   private void postSetEnabled(User user) throws Exception
+   {
+      for (UserEventListener listener : listeners_)
+         listener.postSetEnabled(user);
+   }
+
    private String addAsterisk(String s)
    {
       StringBuffer sb = new StringBuffer(s);
@@ -373,5 +350,112 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
    public List<UserEventListener> getUserListeners()
    {
       return Collections.unmodifiableList(listeners_);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public User setEnabled(String userName, boolean enabled, boolean broadcast) throws Exception
+   {
+      Session session = service_.openSession();
+      User foundUser = findUserByName(userName, session);
+
+      if (foundUser == null || foundUser.isEnabled() == enabled)
+      {
+         return foundUser;
+      }
+      ((UserImpl)foundUser).setEnabled(enabled);
+      if (broadcast)
+         preSetEnabled(foundUser);
+
+      session.merge(foundUser);
+      session.flush();
+
+      if (broadcast)
+         postSetEnabled(foundUser);
+
+      cache_.put(foundUser.getUserName(), foundUser);
+      return foundUser;
+  }
+
+   /**
+    * {@inheritDoc}
+    */
+   public User findUserByName(String userName, boolean enabledOnly) throws Exception
+   {
+      User user = (User)cache_.get(userName);
+      if (user != null)
+         return !enabledOnly || user.isEnabled() ? user : null;
+      Session session = service_.openSession();
+      user = findUserByName(userName, session);
+      if (user != null)
+      {
+         cache_.put(userName, user);
+         return !enabledOnly || user.isEnabled() ? user : null;
+      }
+      return user;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public ListAccess<User> findUsersByGroupId(String groupId, boolean enabledOnly) throws Exception
+   {
+      String queryFindUsersInGroup =
+         "select u " + "from u in class org.exoplatform.services.organization.impl.UserImpl, "
+            + "     m in class org.exoplatform.services.organization.impl.MembershipImpl "
+            + "where m.userName = u.userName" +
+            (enabledOnly ? " and u.enabled = true" : "") +
+            " and m.groupId =  '" + groupId + "'";
+      String countUsersInGroup =
+         "select count(u) " + "from u in class org.exoplatform.services.organization.impl.UserImpl, "
+            + "     m in class org.exoplatform.services.organization.impl.MembershipImpl "
+            + "where m.userName = u.userName" +
+            (enabledOnly ? " and u.enabled = true" : "") +
+            " and m.groupId =  '" + groupId + "'";
+
+      return new HibernateListAccess<User>(service_, queryFindUsersInGroup, countUsersInGroup);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public ListAccess<User> findAllUsers(boolean enabledOnly) throws Exception
+   {
+      String findQuery = "from o in class " + UserImpl.class.getName() +
+      (enabledOnly ? " where o.enabled = true" : "");
+      String countQuery = "select count(o) from " + UserImpl.class.getName() + " o" +
+      (enabledOnly ? " where o.enabled = true" : "");
+
+      return new HibernateListAccess<User>(service_, findQuery, countQuery);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public ListAccess<User> findUsersByQuery(Query q, boolean enabledOnly) throws Exception
+   {
+      ObjectQuery oq = new ObjectQuery(UserImpl.class);
+      if (q.getUserName() != null)
+      {
+         oq.addLIKE("UPPER(userName)", addAsterisk(q.getUserName().toUpperCase()));
+      }
+      if (q.getFirstName() != null)
+      {
+         oq.addLIKE("UPPER(firstName)", q.getFirstName().toUpperCase());
+      }
+      if (q.getLastName() != null)
+      {
+         oq.addLIKE("UPPER(lastName)", q.getLastName().toUpperCase());
+      }
+      oq.addLIKE("email", q.getEmail());
+      oq.addGT("lastLoginTime", q.getFromLoginDate());
+      oq.addLT("lastLoginTime", q.getToLoginDate());
+      if (enabledOnly)
+      {
+         oq.addEQ("enabled", true);
+      }
+      return new HibernateListAccess<User>(service_, oq.getHibernateQueryWithBinding(),
+         oq.getHibernateCountQueryWithBinding(), oq.getBindingFields());
    }
 }

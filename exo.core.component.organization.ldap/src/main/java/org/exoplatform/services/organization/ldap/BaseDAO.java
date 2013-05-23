@@ -23,6 +23,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.CacheHandler;
 import org.exoplatform.services.organization.CacheHandler.CacheType;
+import org.exoplatform.services.organization.DisabledUserException;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.impl.GroupImpl;
@@ -461,7 +462,7 @@ public class BaseDAO
       NamingEnumeration<SearchResult> answer = null;
       try
       {
-         answer = findUser(ctx, username, true);
+         answer = findUser(ctx, username, true, false);
          while (answer.hasMoreElements())
          {
             return ldapAttrMapping.attributesToUser(answer.next().getAttributes());
@@ -479,17 +480,27 @@ public class BaseDAO
     * Get Object Distinguished Name from user name.
     * 
     * @param username user name
+    * @param enabledOnly indicates whether only enabled user should be returned
     * @return object Distinguished Name how it looks in directory context
     * @throws NamingException if any {@link NamingException} occurs
+    * @throws DisabledUserException in case the user account is disabled or we could not know
+    *         if it is disabled or not
     */
-   protected String getDNFromUsername(String username) throws NamingException
+   protected String getDNFromUsername(String username, boolean enabledOnly) throws NamingException, DisabledUserException
    {
       NamingEnumeration<SearchResult> answer = null;
       try
       {
-         answer = findUser(username, false);
+         answer = findUser(username, false, enabledOnly);
          if (answer.hasMoreElements())
-            return answer.next().getNameInNamespace();
+         {
+            SearchResult result = answer.next();
+            if (enabledOnly && !ldapAttrMapping.isEnabled(username, result.getAttributes()))
+            {
+               throw new DisabledUserException(username);
+            }
+            return result.getNameInNamespace();
+         }
          return null;
       }
       finally
@@ -512,7 +523,7 @@ public class BaseDAO
       NamingEnumeration<SearchResult> answer = null;
       try
       {
-         answer = findUser(ctx, username, false);
+         answer = findUser(ctx, username, false, false);
          if (answer.hasMoreElements())
             return answer.next().getNameInNamespace();
          return null;
@@ -530,10 +541,11 @@ public class BaseDAO
     * @param username user name
     * @param hasAttribute has object some external attributes to be used for
     *          searching
+    * @param enabledOnly indicates whether only enabled user should be returned
     * @return {@link NamingEnumeration} with search results
     * @throws NamingException if any {@link NamingException} occurs
     */
-   private NamingEnumeration<SearchResult> findUser(String username, boolean hasAttribute) throws NamingException
+   private NamingEnumeration<SearchResult> findUser(String username, boolean hasAttribute, boolean enabledOnly) throws NamingException
    {
       LdapContext ctx = ldapService.getLdapContext();
       try
@@ -542,7 +554,7 @@ public class BaseDAO
          {
             try
             {
-               return findUser(ctx, username, hasAttribute);
+               return findUser(ctx, username, hasAttribute, enabledOnly);
             }
             catch (NamingException e)
             {
@@ -563,21 +575,29 @@ public class BaseDAO
     * @param username user name
     * @param hasAttribute has object some external attributes to be used for
     *          searching
+    * @param enabledOnly indicates whether only enabled user should be returned
     * @return {@link NamingEnumeration} with search results
     * @throws NamingException if any {@link NamingException} occurs
     */
-   private NamingEnumeration<SearchResult> findUser(LdapContext ctx, String username, boolean hasAttribute)
+   private NamingEnumeration<SearchResult> findUser(LdapContext ctx, String username, boolean hasAttribute, boolean enabledOnly)
       throws NamingException
    {
       SearchControls constraints = new SearchControls();
       constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
       if (!hasAttribute)
       {
-         constraints.setReturningAttributes(new String[]{""});
+         if (enabledOnly && ldapAttrMapping.hasUserAccountControl())
+         {
+            constraints.setReturningAttributes(new String[]{ldapAttrMapping.userAccountControlAttr});
+         }
+         else
+         {
+            constraints.setReturningAttributes(new String[]{""});
+         }
          constraints.setDerefLinkFlag(true);
       }
       String filter =
-         "(&(" + ldapAttrMapping.userUsernameAttr + "=" + username + ")" + "(" + ldapAttrMapping.userObjectClassFilter
+         "(&(" + ldapAttrMapping.userUsernameAttr + "=" + username + ")(" + ldapAttrMapping.userObjectClassFilter
             + "))";
       return ctx.search(ldapAttrMapping.userURL, filter, constraints);
    }

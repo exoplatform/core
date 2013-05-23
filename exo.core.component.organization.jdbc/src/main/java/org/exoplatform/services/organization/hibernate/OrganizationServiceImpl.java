@@ -37,8 +37,8 @@ public class OrganizationServiceImpl extends BaseOrganizationService implements 
 
       userDAO_ = new UserDAOImpl(hservice, cservice, this);
       userProfileDAO_ = new UserProfileDAOImpl(hservice, cservice, userDAO_);
-      groupDAO_ = new GroupDAOImpl(hservice);
-      membershipTypeDAO_ = new MembershipTypeDAOImpl(hservice);
+      groupDAO_ = new GroupDAOImpl(hservice, this);
+      membershipTypeDAO_ = new MembershipTypeDAOImpl(hservice, this);
       membershipDAO_ = new MembershipDAOImpl(hservice, this);
    }
 }

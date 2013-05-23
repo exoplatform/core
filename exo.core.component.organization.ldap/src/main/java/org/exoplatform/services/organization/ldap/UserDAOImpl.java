@@ -22,8 +22,10 @@ import org.exoplatform.commons.utils.LazyPageList;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.ldap.LDAPService;
+import org.exoplatform.services.ldap.ObjectClassAttribute;
 import org.exoplatform.services.organization.CacheHandler;
 import org.exoplatform.services.organization.CacheHandler.CacheType;
+import org.exoplatform.services.organization.DisabledUserException;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.Query;
 import org.exoplatform.services.organization.User;
@@ -42,6 +44,9 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SchemaViolationException;
+import javax.naming.ldap.BasicControl;
+import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
 /**
@@ -52,32 +57,22 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
 {
 
    /**
+    * AD user's account controls attribute.
+    */
+   static final int UF_ACCOUNTDISABLE = 0x0002;
+
+   /**
     * User event listeners.
     * 
     * @see UserEventListener.
     */
-   private List<UserEventListener> listeners = new ArrayList<UserEventListener>(5);
+   private final List<UserEventListener> listeners = new ArrayList<UserEventListener>(5);
 
    /**
     * Organization service instance
     */
-   private OrganizationService os;
-   
-   /**
-    * @param ldapAttrMapping mapping LDAP attributes to eXo organization service
-    *          items (users, groups, etc)
-    * @param ldapService {@link LDAPService}
-    * @param cacheHandler 
-    *          The Cache Handler
-    * @throws Exception if any errors occurs
-    */
-   public UserDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler)
-      throws Exception
-   {
-      super(ldapAttrMapping, ldapService, cacheHandler);
-   }
-   
-   
+   private final OrganizationService os;
+
    /**
     * @param ldapAttrMapping mapping LDAP attributes to eXo organization service
     *          items (users, groups, etc)
@@ -89,7 +84,15 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
    public UserDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler,
       OrganizationService os) throws Exception
    {
-      this(ldapAttrMapping, ldapService, cacheHandler);
+      super(ldapAttrMapping, ldapService, cacheHandler);
+      if (ldapAttrMapping.userAccountControlAttr == null || ldapAttrMapping.userAccountControlAttr.isEmpty())
+      {
+         setDefaultUserAccountControlAttr(ldapAttrMapping);
+      }
+      if (ldapAttrMapping.userAccountControlFilter == null || ldapAttrMapping.userAccountControlFilter.isEmpty())
+      {
+         setDefaultUserAccountControlFilter(ldapAttrMapping);
+      }
       this.os = os;
    }
 
@@ -144,7 +147,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
             {
                if (broadcast)
                   preSave(user, true);
-               ctx.createSubcontext(userDN, attrs);
+               ctx.createSubcontext(userDN, attrs).close();
                if (broadcast)
                   postSave(user, true);
 
@@ -168,6 +171,9 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
     */
    public void saveUser(User user, boolean broadcast) throws Exception
    {
+      if (user != null && !user.isEnabled())
+         throw new DisabledUserException(user.getUserName());
+      
       LdapContext ctx = ldapService.getLdapContext();
       String userDN = null;
       User existingUser = null;
@@ -267,10 +273,8 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
                }
 
                ctx.destroySubcontext(userDN);
-               if (os != null)
-               {
-                  os.getUserProfileHandler().removeUserProfile(userName, broadcast);
-               }
+               os.getUserProfileHandler().removeUserProfile(userName, false);
+               ((MembershipDAOImpl)os.getMembershipHandler()).removeMembershipByUserDN(ctx, userName, userDN, false);
                cacheHandler.remove(userName, CacheType.USER);
                cacheHandler.remove(CacheHandler.USER_PREFIX + userName, CacheType.MEMBERSHIP);
 
@@ -298,36 +302,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
     */
    public User findUserByName(String userName) throws Exception
    {
-      User user = (User)cacheHandler.get(userName, CacheType.USER);
-      if (user != null)
-      {
-         return user;
-      }
-
-      LdapContext ctx = ldapService.getLdapContext();
-      try
-      {
-         for (int err = 0;; err++)
-         {
-            try
-            {
-               user = getUserFromUsername(ctx, userName);
-               if (user != null)
-               {
-                  cacheHandler.put(user.getUserName(), user, CacheType.USER);
-               }
-               return user;
-            }
-            catch (NamingException e)
-            {
-               ctx = reloadCtx(ctx, err, e);
-            }
-         }
-      }
-      finally
-      {
-         ldapService.release(ctx);
-      }
+      return findUserByName(userName, true);
    }
 
    public LazyPageList<User> findUsersByGroup(String groupId) throws Exception
@@ -340,9 +315,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
    */
    public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
    {
-      String searchBase = this.getGroupDNFromGroupId(groupId);
-      String filter = ldapAttrMapping.membershipObjectClassFilter;
-      return new ByGroupLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter);
+      return findUsersByGroupId(groupId, true);
    }
 
    public LazyPageList<User> getUserPageList(int pageSize) throws Exception
@@ -355,10 +328,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
    */
    public ListAccess<User> findAllUsers() throws Exception
    {
-      String searchBase = ldapAttrMapping.userURL;
-      String filter = ldapAttrMapping.userObjectClassFilter;
-
-      return new SimpleLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter);
+      return findAllUsers(true);
    }
 
    public LazyPageList<User> findUsers(Query q) throws Exception
@@ -371,44 +341,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
     */
    public ListAccess<User> findUsersByQuery(Query q) throws Exception
    {
-      String filter = null;
-      ArrayList<String> list = new ArrayList<String>();
-      if (q.getUserName() != null && q.getUserName().length() > 0)
-      {
-         list.add("(" + ldapAttrMapping.userUsernameAttr + "=" + addAsterisks(q.getUserName()) + ")");
-      }
-      if (q.getFirstName() != null && q.getFirstName().length() > 0)
-      {
-         list.add("(" + ldapAttrMapping.userFirstNameAttr + "=" + q.getFirstName() + ")");
-      }
-      if (q.getLastName() != null && q.getLastName().length() > 0)
-      {
-         list.add("(" + ldapAttrMapping.userLastNameAttr + "=" + q.getLastName() + ")");
-      }
-      if (q.getEmail() != null && q.getEmail().length() > 0)
-      {
-         list.add("(" + ldapAttrMapping.userMailAttr + "=" + q.getEmail() + ")");
-      }
-
-      if (list.size() > 0)
-      {
-         StringBuilder buffer = new StringBuilder();
-         buffer.append("(&");
-         for (int x = 0; x < list.size(); x++)
-         {
-            buffer.append(list.get(x));
-         }
-         buffer.append("(" + ldapAttrMapping.userObjectClassFilter + "))");
-         filter = buffer.toString();
-      }
-      else
-      {
-         filter = "(" + ldapAttrMapping.userObjectClassFilter + ")";
-      }
-      String searchBase = ldapAttrMapping.userURL;
-
-      //    return new LDAPUserPageList(ldapAttrMapping, ldapService, searchBase, filter, 20);
-      return new SimpleLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter);
+      return findUsersByQuery(q, true);
    }
 
    /**
@@ -436,7 +369,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
     */
    public boolean authenticate(String username, String password) throws Exception
    {
-      String userDN = getDNFromUsername(username);
+      String userDN = getDNFromUsername(username, true);
       if (userDN == null)
          return false;
       try
@@ -586,10 +519,271 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
    }
 
    /**
+    * For details see {@link UserEventListener#preSetEnabled(User)}.
+    * 
+    * @param user User
+    * @throws Exception if any errors occurs
+    */
+   protected void preSetEnabled(User user) throws Exception
+   {
+      for (UserEventListener listener : listeners)
+         listener.preSetEnabled(user);
+   }
+
+   /**
+    * For details see {@link UserEventListener#postSetEnabled(User)}.
+    * 
+    * @param user User
+    * @throws Exception if any errors occurs
+    */
+   protected void postSetEnabled(User user) throws Exception
+   {
+      for (UserEventListener listener : listeners)
+         listener.postSetEnabled(user);
+   }
+
+   /**
     * {@inheritDoc}
     */
    public List<UserEventListener> getUserListeners()
    {
       return Collections.unmodifiableList(listeners);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public User setEnabled(String userName, boolean enabled, boolean broadcast) throws Exception
+   {
+      if (!ldapAttrMapping.hasUserAccountControl())
+      {
+         throw new UnsupportedOperationException();
+      }
+
+      LdapContext ctx = ldapService.getLdapContext();
+      try
+      {
+         for (int err = 0;; err++)
+         {
+            try
+            {
+               LDAPUserImpl user = (LDAPUserImpl)getUserFromUsername(ctx, userName);
+               if (user == null || user.isEnabled() == enabled)
+               {
+                  return user;
+               }
+               String userDN = getDNFromUsername(ctx, userName);
+               if (userDN == null)
+               {
+                  return user;
+               }
+               ModificationItem[] mods = createSetEnabledModification(user.getUserAccountControl(), enabled);
+
+               user.setEnabled(enabled);
+               if (broadcast)
+               {
+                  preSetEnabled(user);
+               }
+
+               try
+               {
+                  ctx.modifyAttributes(userDN, mods);
+               }
+               catch (SchemaViolationException e)
+               {
+                  ModificationItem[] modsWithUpgrade = new ModificationItem[mods.length + 1];
+                  modsWithUpgrade[0] =
+                     new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new ObjectClassAttribute(
+                        LDAPAttributeMapping.USER_LDAP_CLASSES));
+                  System.arraycopy(mods, 0, modsWithUpgrade, 1, mods.length);
+
+                  ctx.setRequestControls(new Control[]{new BasicControl("1.3.6.1.4.1.4203.666.5.12")});
+                  try
+                  {
+                     ctx.modifyAttributes(userDN, modsWithUpgrade);
+                  }
+                  finally
+                  {
+                     ctx.setRequestControls(null);
+                  }
+               }
+
+               if (broadcast)
+               {
+                  postSetEnabled(user);
+               }
+               cacheHandler.put(user.getUserName(), user, CacheType.USER);
+               return user;
+            }  
+            catch (NamingException e)
+            {
+               ctx = reloadCtx(ctx, err, e);
+            }
+         }
+      }
+      finally
+      {
+         ldapService.release(ctx);
+      }
+   }
+
+   /**
+    * @param userAccountControl the current value of the attribute <code>userAccountControlAttr</code>
+    * @param enabled new value of the enabled flag
+    * @return an array of all the modification to apply to enable/disable the user
+    */
+   protected ModificationItem[] createSetEnabledModification(int userAccountControl, boolean enabled)
+   {
+      ModificationItem[] mods = new ModificationItem[1];
+      mods[0] =
+         new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ldapAttrMapping.userAccountControlAttr,
+            Integer.toString(enabled ? 0 : UF_ACCOUNTDISABLE)));
+      return mods;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public User findUserByName(String userName, boolean enabledOnly) throws Exception
+   {
+      User user = (User)cacheHandler.get(userName, CacheType.USER);
+      if (user != null)
+      {
+         return !enabledOnly || user.isEnabled() ? user : null;
+      }
+
+      LdapContext ctx = ldapService.getLdapContext();
+      try
+      {
+         for (int err = 0;; err++)
+         {
+            try
+            {
+               user = getUserFromUsername(ctx, userName);
+               if (user != null)
+               {
+                  cacheHandler.put(user.getUserName(), user, CacheType.USER);
+                  return !enabledOnly || user.isEnabled() ? user : null;
+               }
+               return user;
+            }
+            catch (NamingException e)
+            {
+               ctx = reloadCtx(ctx, err, e);
+            }
+         }
+      }
+      finally
+      {
+         ldapService.release(ctx);
+      }
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public ListAccess<User> findUsersByGroupId(String groupId, boolean enabledOnly) throws Exception
+   {
+      String searchBase = this.getGroupDNFromGroupId(groupId);
+      String filter = ldapAttrMapping.membershipObjectClassFilter;
+      return new ByGroupLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter, enabledOnly);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public ListAccess<User> findAllUsers(boolean enabledOnly) throws Exception
+   {
+      String searchBase = ldapAttrMapping.userURL;
+      String filter;
+      if (enabledOnly && ldapAttrMapping.hasUserAccountControl())
+      {
+         StringBuilder buffer = new StringBuilder();
+         buffer.append("(&(");
+         buffer.append(ldapAttrMapping.userObjectClassFilter);
+         buffer.append(")(");
+         buffer.append(ldapAttrMapping.userAccountControlFilter);
+         buffer.append("))");
+         filter = buffer.toString();
+      }
+      else
+      {
+         filter = ldapAttrMapping.userObjectClassFilter;
+      }
+      return new SimpleLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public ListAccess<User> findUsersByQuery(Query q, boolean enabledOnly) throws Exception
+   {
+      String filter = null;
+      ArrayList<String> list = new ArrayList<String>();
+      if (q.getUserName() != null && q.getUserName().length() > 0)
+      {
+         list.add("(" + ldapAttrMapping.userUsernameAttr + "=" + addAsterisks(q.getUserName()) + ")");
+      }
+      if (q.getFirstName() != null && q.getFirstName().length() > 0)
+      {
+         list.add("(" + ldapAttrMapping.userFirstNameAttr + "=" + q.getFirstName() + ")");
+      }
+      if (q.getLastName() != null && q.getLastName().length() > 0)
+      {
+         list.add("(" + ldapAttrMapping.userLastNameAttr + "=" + q.getLastName() + ")");
+      }
+      if (q.getEmail() != null && q.getEmail().length() > 0)
+      {
+         list.add("(" + ldapAttrMapping.userMailAttr + "=" + q.getEmail() + ")");
+      }
+      if (enabledOnly && ldapAttrMapping.hasUserAccountControl())
+      {
+         list.add("(" + ldapAttrMapping.userAccountControlFilter + ")");
+      }
+
+      if (list.size() > 0)
+      {
+         StringBuilder buffer = new StringBuilder();
+         buffer.append("(&");
+         for (int x = 0; x < list.size(); x++)
+         {
+            buffer.append(list.get(x));
+         }
+         buffer.append("(" + ldapAttrMapping.userObjectClassFilter + "))");
+         filter = buffer.toString();
+      }
+      else
+      {
+         filter = "(" + ldapAttrMapping.userObjectClassFilter + ")";
+      }
+      String searchBase = ldapAttrMapping.userURL;
+
+      //    return new LDAPUserPageList(ldapAttrMapping, ldapService, searchBase, filter, 20);
+      return new SimpleLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter);
+   }
+
+   /**
+    * Set a default value to the field {@link LDAPAttributeMapping#userAccountControlAttr}
+    * 
+    * @param ldapAttrMapping the mapping to modify
+    */
+   protected void setDefaultUserAccountControlAttr(LDAPAttributeMapping ldapAttrMapping)
+   {
+      // For performance reason, we set it to null in case it is an empty string
+      ldapAttrMapping.userAccountControlAttr = null;
+   }
+
+   /**
+    * Set a default value to the field {@link LDAPAttributeMapping#userAccountControlFilter}
+    * 
+    * @param ldapAttrMapping the mapping to modify
+    */
+   protected void setDefaultUserAccountControlFilter(LDAPAttributeMapping ldapAttrMapping)
+   {
+      if (ldapAttrMapping.hasUserAccountControl())
+      {
+         ldapAttrMapping.userAccountControlFilter =
+            "!(" + ldapAttrMapping.userAccountControlAttr + "=" + UF_ACCOUNTDISABLE + ")";
+      }
    }
 }

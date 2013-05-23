@@ -35,14 +35,10 @@ import java.util.Collection;
  */
 public interface MembershipTypeHandler
 {
-   public static String PRE_DELETE_MEMBERSHIP_TYPE_EVENT = "organization.membershipType.preDelete";
-
-   public static String POST_DELETE_MEMBERSHIP_TYPE_EVENT = "porganization.membershipType.postDelete";
-
    /**
     * @return a new object instance that implement the MembershipType interface
     */
-   public MembershipType createMembershipTypeInstance();
+   MembershipType createMembershipTypeInstance();
 
    /**
     * Use this method to persist a new membership type. The developer usually should call the method
@@ -60,7 +56,7 @@ public interface MembershipTypeHandler
     *           An exception is throwed if the method cannot access the database or a listener fail
     *           to handle the event
     */
-   public MembershipType createMembershipType(MembershipType mt, boolean broadcast) throws Exception;
+   MembershipType createMembershipType(MembershipType mt, boolean broadcast) throws Exception;
 
    /**
     * Use this method to update an existed MembershipType data. Usually the developer should call
@@ -76,7 +72,7 @@ public interface MembershipTypeHandler
     *           An exception is throwed if the method cannot access the database or any listener fail
     *           to handle the event.
     */
-   public MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception;
+   MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception;
 
    /**
     * Use this method to remove a membership type.
@@ -90,7 +86,7 @@ public interface MembershipTypeHandler
     *           An exception is throwed if the method cannot access the database or the membership
     *           type is not found in the database or any listener fail to handle the event.
     */
-   public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception;
+   MembershipType removeMembershipType(String name, boolean broadcast) throws Exception;
 
    /**
     * Use this method to search for a membership type with the specified name.
@@ -102,7 +98,7 @@ public interface MembershipTypeHandler
     *           An exception is throwed if the method cannot access the database or more than one
     *           membership type is found.
     */
-   public MembershipType findMembershipType(String name) throws Exception;
+   MembershipType findMembershipType(String name) throws Exception;
 
    /**
     * Use this method to get all the membership types in the database
@@ -112,19 +108,19 @@ public interface MembershipTypeHandler
     * @throws Exception
     *           Ususally an exception is throwed when the method cannot access the database.
     */
-   public Collection findMembershipTypes() throws Exception;
+   Collection findMembershipTypes() throws Exception;
 
    /**
     * Use this method to register a membership type event listener.
     * 
     * @param listener the listener instance.
     */
-   public void addMembershipTypeEventListener(MembershipTypeEventListener listener);
+   void addMembershipTypeEventListener(MembershipTypeEventListener listener);
 
    /**
     * Use this method to unregister a membership type event listener.
     * 
     * @param listener the listener instance.
     */
-   public void removeMembershipTypeEventListener(MembershipTypeEventListener listener);
+   void removeMembershipTypeEventListener(MembershipTypeEventListener listener);
 }

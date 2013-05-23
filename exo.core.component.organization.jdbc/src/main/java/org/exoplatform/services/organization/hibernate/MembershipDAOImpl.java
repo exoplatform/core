@@ -20,7 +20,6 @@ package org.exoplatform.services.organization.hibernate;
 
 import org.exoplatform.commons.utils.IdentifierUtil;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.commons.utils.ListenerStack;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.organization.Group;
@@ -35,6 +34,7 @@ import org.exoplatform.services.organization.impl.MembershipImpl;
 import org.exoplatform.services.security.PermissionConstants;
 import org.hibernate.Session;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -81,12 +81,11 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
     */
    protected final OrganizationService orgService;
 
-   @SuppressWarnings("unchecked")
    public MembershipDAOImpl(HibernateService service, OrganizationService orgService)
    {
       this.service_ = service;
       this.orgService = orgService;
-      this.listeners_ = new ListenerStack(5);
+      this.listeners_ = new ArrayList<MembershipEventListener>(3);
    }
 
    /**
@@ -300,21 +299,25 @@ public class MembershipDAOImpl implements MembershipHandler, MembershipEventList
       return memberships;
    }
 
-   static void removeMembershipEntriesOfUser(String userName, Session session) throws Exception
+   void removeMembershipEntriesOfUser(String userName, Session session) throws Exception
    {
       List<?> entries = session.createQuery(queryFindMembershipsByUser).setString("username", userName).list();
       for (int i = 0; i < entries.size(); i++)
+      {
          session.delete(entries.get(i));
+      }
    }
 
-   static void removeMembershipEntriesOfGroup(Group group, Session session) throws Exception
+   void removeMembershipEntriesOfGroup(Group group, Session session) throws Exception
    {
       List<?> entries = session.createQuery(queryFindMembershipsByGroup).setString("groupid", group.getId()).list();
       for (int i = 0; i < entries.size(); i++)
+      {
          session.delete(entries.get(i));
+      }
    }
 
-   static void removeMembershipEntriesOfMembershipType(MembershipType mt, Session session) throws Exception
+   void removeMembershipEntriesOfMembershipType(MembershipType mt, Session session) throws Exception
    {
       List<?> entries = session.createQuery(queryFindMembershipByType).setString("membershiptype", mt.getName()).list();
       for (int i = 0; i < entries.size(); i++)

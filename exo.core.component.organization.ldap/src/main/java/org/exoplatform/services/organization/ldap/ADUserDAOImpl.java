@@ -21,6 +21,7 @@ package org.exoplatform.services.organization.ldap;
 import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.organization.CacheHandler;
 import org.exoplatform.services.organization.CacheHandler.CacheType;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 
 import javax.naming.Context;
@@ -43,22 +44,17 @@ public class ADUserDAOImpl extends UserDAOImpl
    /**
     * AD user's account controls attribute.
     */
-   int UF_ACCOUNTDISABLE = 0x0002;
+   static final int UF_PASSWD_NOTREQD = 0x0020;
 
    /**
     * AD user's account controls attribute.
     */
-   int UF_PASSWD_NOTREQD = 0x0020;
+   static final int UF_NORMAL_ACCOUNT = 0x0200;
 
    /**
     * AD user's account controls attribute.
     */
-   int UF_NORMAL_ACCOUNT = 0x0200;
-
-   /**
-    * AD user's account controls attribute.
-    */
-   int UF_PASSWORD_EXPIRED = 0x800000;
+   static final int UF_PASSWORD_EXPIRED = 0x800000;
 
    /**
     * @param ldapAttrMapping {@link LDAPAttributeMapping}
@@ -67,10 +63,11 @@ public class ADUserDAOImpl extends UserDAOImpl
     *          The Cache Handler
     * @throws Exception if any errors occurs
     */
-   public ADUserDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler)
+   public ADUserDAOImpl(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, CacheHandler cacheHandler,
+                        OrganizationService os)
       throws Exception
    {
-      super(ldapAttrMapping, ldapService, cacheHandler);
+      super(ldapAttrMapping, ldapService, cacheHandler, os);
       LDAPUserPageList.SEARCH_CONTROL = Control.CRITICAL;
    }
 
@@ -82,7 +79,7 @@ public class ADUserDAOImpl extends UserDAOImpl
    {
       String userDN = ldapAttrMapping.userDNKey + "=" + user.getUserName() + "," + ldapAttrMapping.userURL;
       Attributes attrs = ldapAttrMapping.userToAttributes(user);
-      attrs.put("userAccountControl",
+      attrs.put(ldapAttrMapping.userAccountControlAttr,
          Integer.toString(UF_NORMAL_ACCOUNT + UF_PASSWD_NOTREQD + UF_PASSWORD_EXPIRED + UF_ACCOUNTDISABLE));
       attrs.remove(ldapAttrMapping.userPassword);
       LdapContext ctx = ldapService.getLdapContext();
@@ -95,7 +92,7 @@ public class ADUserDAOImpl extends UserDAOImpl
                if (broadcast)
                   preSave(user, true);
                // see comments about saving password below
-               ctx.createSubcontext(userDN, attrs);
+               ctx.createSubcontext(userDN, attrs).close();
                if (broadcast)
                   postSave(user, true);
 
@@ -140,7 +137,7 @@ public class ADUserDAOImpl extends UserDAOImpl
             new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ldapAttrMapping.userPassword,
                newUnicodePassword));
          mods[1] =
-            new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("userAccountControl",
+            new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ldapAttrMapping.userAccountControlAttr,
                Integer.toString(UF_NORMAL_ACCOUNT + UF_PASSWORD_EXPIRED)));
          for (int err = 0;; err++)
          {
@@ -159,5 +156,46 @@ public class ADUserDAOImpl extends UserDAOImpl
       {
          ldapService.release(ctx);
       }
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   protected ModificationItem[] createSetEnabledModification(int userAccountControl, boolean enabled)
+   {
+      int value;
+      if (enabled)
+      {
+         value = (userAccountControl | UF_NORMAL_ACCOUNT) & ~UF_ACCOUNTDISABLE;
+      }
+      else
+      {
+         value = userAccountControl | UF_PASSWD_NOTREQD | UF_ACCOUNTDISABLE;
+      }
+      ModificationItem[] mods = new ModificationItem[1];
+      mods[0] =
+         new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ldapAttrMapping.userAccountControlAttr,
+            Integer.toString(value)));
+      return mods;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   protected void setDefaultUserAccountControlAttr(LDAPAttributeMapping ldapAttrMapping)
+   {
+      ldapAttrMapping.userAccountControlAttr = "userAccountControl";
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   protected void setDefaultUserAccountControlFilter(LDAPAttributeMapping ldapAttrMapping)
+   {
+      ldapAttrMapping.userAccountControlFilter =
+         "!(" + ldapAttrMapping.userAccountControlAttr + ":1.2.840.113556.1.4.803:=" + UF_ACCOUNTDISABLE + ")";
    }
 }

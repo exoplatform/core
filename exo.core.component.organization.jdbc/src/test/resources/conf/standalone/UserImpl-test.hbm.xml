@@ -90,6 +90,14 @@
             column="lastLoginTime"
         />
 
+        <property
+            name="enabled"
+            type="boolean"
+            update="true"
+            insert="true"
+            column="enabled"
+        />
+
         <!--
             To add non XDoclet property mappings, create a file named
                 hibernate-properties-UserImpl.xml

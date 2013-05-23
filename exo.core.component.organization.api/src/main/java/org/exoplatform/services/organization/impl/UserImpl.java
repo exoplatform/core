@@ -37,22 +37,22 @@ public class UserImpl implements User, ExtendedCloneable
 {
 
    @Id
-   private String id = null;
+   private String id;
 
    @Column
-   private String userName = null;
+   private String userName;
 
    @Column
-   private String password = null;
+   private String password;
 
    @Column
-   private String firstName = null;
+   private String firstName;
 
    @Column
-   private String lastName = null;
+   private String lastName;
 
    @Column
-   private String email = null;
+   private String email;
 
    @Column
    private Date createdDate;
@@ -61,10 +61,13 @@ public class UserImpl implements User, ExtendedCloneable
    private Date lastLoginTime;
 
    @Column
-   private String organizationId = null;
+   private String organizationId;
 
    @Column
-   private String displayName = null;
+   private String displayName;
+
+   @Column
+   private Boolean enabled;
 
    public UserImpl()
    {
@@ -190,6 +193,23 @@ public class UserImpl implements User, ExtendedCloneable
    public void setOrganizationId(String organizationId)
    {
       this.organizationId = organizationId;
+   }
+
+   /**
+    * @return <code>true</code> if the user is enabled, <code>false</code> otherwise
+    */
+   public boolean isEnabled()
+   {
+      return enabled == null || enabled.booleanValue();
+   }
+
+   /**
+    * Set it to <code>true</code> or <code>null</code> to enable the user, 
+    * <code>false</code> otherwise
+    */
+   public void setEnabled(Boolean enabled)
+   {
+      this.enabled = enabled;
    }
 
    /**

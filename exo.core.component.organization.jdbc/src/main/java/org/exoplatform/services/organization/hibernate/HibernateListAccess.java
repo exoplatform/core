@@ -43,9 +43,11 @@ import org.exoplatform.services.database.HibernateService;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.type.StandardBasicTypes;
 
 import java.lang.reflect.Array;
 import java.security.PrivilegedAction;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -175,6 +177,8 @@ public class HibernateListAccess<E> implements ListAccess<E>
       // here we're creating an array of elements of class E
       // this looks complicated because we use generic class
       E[] entities = (E[])Array.newInstance(query.getReturnTypes()[0].getReturnedClass(), length);
+      if (length == 0)
+         return entities;
       Iterator<E> results = query.iterate();
 
       for (int p = 0, counter = 0; counter < length; p++)
@@ -206,7 +210,14 @@ public class HibernateListAccess<E> implements ListAccess<E>
    {
       for (Entry<String, Object> entry : binding.entrySet())
       {
-         query.setParameter(entry.getKey(), entry.getValue());
+         if (entry.getValue() instanceof Date)
+         {
+            query.setParameter(entry.getKey(), entry.getValue(), StandardBasicTypes.DATE);
+         }
+         else
+         {
+            query.setParameter(entry.getKey(), entry.getValue());
+         }
       }
    }
 }

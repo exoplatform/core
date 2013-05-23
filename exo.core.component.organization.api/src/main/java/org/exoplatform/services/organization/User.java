@@ -41,7 +41,7 @@ public interface User
     * 
     * @return the name of the user account
     */
-   public String getUserName();
+   String getUserName();
 
    /**
     * This method is used to change the username
@@ -49,94 +49,94 @@ public interface User
     * @param s the name of the user account
     * @deprecated The third party developer should not used this method
     */
-   public void setUserName(String s);
+   void setUserName(String s);
 
    /**
     * @return This method return the password of the user account
     */
-   public String getPassword();
+   String getPassword();
 
    /**
     * This method is used to change the user account password.
     * 
     * @param s  the password of the user account
     */
-   public void setPassword(String s);
+   void setPassword(String s);
 
    /**
     * @return This method return the first name of the user
     */
-   public String getFirstName();
+   String getFirstName();
 
    /**
     * @param s the new first name
     */
-   public void setFirstName(String s);
+   void setFirstName(String s);
 
    /**
     * @return The last name of the user
     */
-   public String getLastName();
+   String getLastName();
 
    /**
     * @param s The new last name of the user
     */
-   public void setLastName(String s);
+   void setLastName(String s);
 
    /**
     * @return return the full name of the user. The full name should have the
     *         format: first name, last name by default
     * @deprecated This method call getDiplayName
     */
-   public String getFullName();
+   String getFullName();
 
    /**
     * @param s The name that should show in the full name
     * @deprecated This method call setDiplayName
     */
-   public void setFullName(String s);
+   void setFullName(String s);
 
    /**
     * @return The email address of the user
     */
-   public String getEmail();
+   String getEmail();
 
    /**
     * @param s The new user email address
     */
-   public void setEmail(String s);
+   void setEmail(String s);
 
    /**
     * @return the creation date of the user account
     */
-   public Date getCreatedDate();
+   Date getCreatedDate();
 
    /**
     * @param t the creation date of the user account
     * @deprecated The third party should not used this method.
     */
-   public void setCreatedDate(Date t);
+   void setCreatedDate(Date t);
 
    /**
     * @return Returns the date corresponding to the last time that the user signed in to the platform
     */
-   public Date getLastLoginTime();
+   Date getLastLoginTime();
 
    /**
     * @param t the date corresponding to the last time that the user signed in to the platform
     * @deprecated The third party developer should not aware of this method
     */
-   public void setLastLoginTime(Date t);
+   void setLastLoginTime(Date t);
 
    /**
     * @return return the display name
     */
-   public String getDisplayName();
+   String getDisplayName();
 
    /**
     * @param displayName The name that should show in the display name
     */
-   public void setDisplayName(String displayName);
+   void setDisplayName(String displayName);
 
    /**
     * @return returns the id of organization to which the user belong or null if not
@@ -149,4 +149,10 @@ public interface User
     * @param organizationId the id of organization to which the user belong
     */
    void setOrganizationId(String organizationId);
+
+   /**
+    * Indicates whether the user is enabled or not
+    * @return <code>true</code> if the user is enabled, <code>false</code> otherwise
+    */
+   boolean isEnabled();
 }

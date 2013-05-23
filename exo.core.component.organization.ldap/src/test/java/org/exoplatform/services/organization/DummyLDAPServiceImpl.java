@@ -20,111 +20,138 @@
 package org.exoplatform.services.organization;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.configuration.MutableServerStartupConfiguration;
-import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
-import org.apache.directory.server.jndi.ServerContextFactory;
+import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.jndi.CoreContextFactory;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.core.schema.SchemaPartition;
+import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.mina.util.AvailablePortFinder;
 import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.picocontainer.Startable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 /**
  * @author <a href="mailto:dmi3.kuleshov@gmail.com">Dmitry Kuleshov</a>
  */
-public class DummyLDAPServiceImpl implements LDAPService
+public class DummyLDAPServiceImpl implements LDAPService, Startable
 {
    private static final Log LOG = ExoLogger.getLogger("exo.core.component.ldap.LDAPServiceImpl");
 
-   private Map<String, String> env = new HashMap<String, String>();
+   private Map<String, Object> env = new HashMap<String, Object>();
 
-   protected MutableServerStartupConfiguration configuration = new MutableServerStartupConfiguration();
+   private int port = -1;
 
-   protected int port = -1;
+   /** The directory service */
+   private DirectoryService service;
 
-   protected boolean doDelete = true;
-
-   protected LdapContext sysRoot;
-
-   protected LdapContext rootDSE;
+   /** The LDAP server */
+   private LdapServer server;
 
    public DummyLDAPServiceImpl() throws Exception
    {
-      // configuration and launch of embedded ldap server
-      MutablePartitionConfiguration pcfg = new MutablePartitionConfiguration();
-
-      pcfg.setName("eXoTestPartition");
-      pcfg.setSuffix("dc=exoplatform,dc=org");
-
-      Set<String> indexedAttrs = new HashSet<String>();
-      indexedAttrs.add("objectClass");
-      indexedAttrs.add("o");
-      pcfg.setIndexedAttributes(indexedAttrs);
-
-      Attributes attrs = new BasicAttributes(true);
-      Attribute attr = new BasicAttribute("objectClass");
-      attr.add("top");
-      attr.add("organization");
-      attrs.put(attr);
-      attr = new BasicAttribute("o");
-      attr.add("eXoTestPartition");
-      attrs.put(attr);
-      pcfg.setContextEntry(attrs);
-
-      Set<MutablePartitionConfiguration> pcfgs = new HashSet<MutablePartitionConfiguration>();
-      pcfgs.add(pcfg);
-      configuration.setContextPartitionConfigurations(pcfgs);
       File workingDirectory = new File("target/working-server");
       workingDirectory.mkdirs();
-      configuration.setWorkingDirectory(workingDirectory);
 
-      doDelete(configuration.getWorkingDirectory());
+      doDelete(workingDirectory);
+
+      // Initialize the LDAP service
+      service = new DefaultDirectoryService();
+      service.setWorkingDirectory(workingDirectory);
+
+      // first load the schema
+      initSchemaPartition();
+
+      // then the system partition
+      // this is a MANDATORY partition
+      Partition systemPartition = addPartition( "system", ServerDNConstants.SYSTEM_DN );
+      service.setSystemPartition( systemPartition );
+
+      // Disable the ChangeLog system
+      service.getChangeLog().setEnabled( false );
+
+      // Create a new partition
+      Partition partition = addPartition("eXoTestPartition", "dc=exoplatform,dc=org");
+
+      // Index some attributes on the partition
+      addIndex(partition, "objectClass", "ou", "uid" );
+
+      service.setShutdownHookEnabled(false);
+
+      service.startup();
+
+      // Inject the eXo root entry if it does not already exist
+      if ( !service.getAdminSession().exists( partition.getSuffixDn() ) )
+      {
+          DN dnExo = new DN( "dc=exoplatform,dc=org" );
+          ServerEntry entryExo = service.newEntry( dnExo );
+          entryExo.add( "objectClass", "top", "domain", "extensibleObject" );
+          entryExo.add( "dc", "exoplatform" );
+          service.getAdminSession().add( entryExo );
+      }
 
       port = AvailablePortFinder.getNextAvailable(1024);
-      configuration.setLdapPort(port);
-      configuration.setShutdownHookEnabled(false);
+      server = new LdapServer();
+      server.setTransports( new TcpTransport(port));
+      server.setDirectoryService(service);
+      server.start();
 
-      setContexts("uid=admin,ou=system", "secret");
       // server launched and configured
 
       // configuration of client side
-      env.put(Context.PROVIDER_URL, "dc=exoplatform,dc=org");
+      env.put(DirectoryService.JNDI_KEY, service);
+      env.put(Context.PROVIDER_URL, "");
       env.put(Context.SECURITY_PRINCIPAL, "uid=admin,ou=system");
       env.put(Context.SECURITY_CREDENTIALS, "secret");
       env.put(Context.SECURITY_AUTHENTICATION, "simple");
-      env.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.jndi.ServerContextFactory");
+      env.put(Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName());
+
+      // Add the new schema needed for COR-293
+      addNewSchema();
    }
 
-   @Override
    public LdapContext getLdapContext() throws NamingException
    {
-      return new DummyLdapContext(new InitialContext(new Hashtable<String, String>(env)));
+      return new DummyLdapContext(new InitialLdapContext(new Hashtable<String, Object>(env), null));
    }
 
-   @Override
    public LdapContext getLdapContext(boolean renew) throws NamingException
    {
       return getLdapContext();
    }
 
-   @Override
    public void release(LdapContext ctx) throws NamingException
    {
       try
@@ -138,22 +165,19 @@ public class DummyLDAPServiceImpl implements LDAPService
       {
          LOG.warn("Exception occurred when tried to close context", e);
       }
-
    }
 
-   @Override
    public InitialContext getInitialContext() throws NamingException
    {
-      Hashtable<String, String> props = new Hashtable<String, String>(env);
+      Hashtable<String, Object> props = new Hashtable<String, Object>(env);
       props.put(Context.OBJECT_FACTORIES, "com.sun.jndi.ldap.obj.LdapGroupFactory");
       props.put(Context.STATE_FACTORIES, "com.sun.jndi.ldap.obj.LdapGroupFactory");
-      return new DummyLdapContext(new InitialContext(props));
+      return new DummyLdapContext(new InitialLdapContext(props, null));
    }
 
-   @Override
    public boolean authenticate(String userDN, String password) throws NamingException
    {
-      Hashtable<String, String> props = new Hashtable<String, String>(env);
+      Hashtable<String, Object> props = new Hashtable<String, Object>(env);
       props.put(Context.SECURITY_AUTHENTICATION, "simple");
       props.put(Context.SECURITY_PRINCIPAL, userDN);
       props.put(Context.SECURITY_CREDENTIALS, password);
@@ -162,7 +186,7 @@ public class DummyLDAPServiceImpl implements LDAPService
       InitialContext ctx = null;
       try
       {
-         ctx = new DummyLdapContext(new InitialContext(props));
+         ctx = new DummyLdapContext(new InitialLdapContext(props, null));
          return true;
       }
       catch (NamingException e)
@@ -176,20 +200,9 @@ public class DummyLDAPServiceImpl implements LDAPService
       }
    }
 
-   @Override
    public int getServerType()
    {
       return 0;
-   }
-
-   private int toServerType(String name)
-   {
-      name = name.trim();
-      if (name == null || name.length() < 1)
-         return DEFAULT_SERVER;
-      if (name.equalsIgnoreCase("ACTIVE.DIRECTORY"))
-         return ACTIVE_DIRECTORY_SERVER;
-      return DEFAULT_SERVER;
    }
 
    private void closeContext(Context ctx)
@@ -209,37 +222,136 @@ public class DummyLDAPServiceImpl implements LDAPService
 
    protected void doDelete(File wkdir) throws IOException
    {
-      if (doDelete)
+      if (wkdir.exists())
       {
-         if (wkdir.exists())
-         {
-            FileUtils.deleteDirectory(wkdir);
-         }
-         if (wkdir.exists())
-         {
-            throw new IOException("Failed to delete: " + wkdir);
-         }
+         FileUtils.deleteDirectory(wkdir);
+      }
+      if (wkdir.exists())
+      {
+         throw new IOException("Failed to delete: " + wkdir);
       }
    }
 
-   protected void setContexts(String user, String passwd) throws NamingException
+   /**
+    * Add a new partition to the server
+    *
+    * @param partitionId The partition Id
+    * @param partitionDn The partition DN
+    * @return The newly added partition
+    * @throws Exception If the partition can't be added
+    */
+   private Partition addPartition( String partitionId, String partitionDn ) throws Exception
    {
-      Hashtable<String, String> env = new Hashtable<String, String>(configuration.toJndiEnvironment());
-      env.put(Context.SECURITY_PRINCIPAL, user);
-      env.put(Context.SECURITY_CREDENTIALS, passwd);
-      env.put(Context.SECURITY_AUTHENTICATION, "simple");
-      env.put(Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName());
-      setContexts(env);
+       // Create a new partition named 'foo'.
+       JdbmPartition partition = new JdbmPartition();
+       partition.setId( partitionId );
+       partition.setPartitionDir( new File( service.getWorkingDirectory(), partitionId ) );
+       partition.setSuffix( partitionDn );
+       service.addPartition( partition );
+
+       return partition;
    }
 
-   protected void setContexts(Hashtable<String, String> env) throws NamingException
+   /**
+    * Add a new set of index on the given attributes
+    *
+    * @param partition The partition on which we want to add index
+    * @param attrs The list of attributes to index
+    */
+   private void addIndex( Partition partition, String... attrs )
    {
-      Hashtable<String, String> envFinal = new Hashtable<String, String>(env);
-      envFinal.put(Context.PROVIDER_URL, "ou=system");
-      sysRoot = new InitialLdapContext(envFinal, null);
+       // Index some attributes on the apache partition
+       HashSet<Index<?, ServerEntry, Long>> indexedAttributes = new HashSet<Index<?, ServerEntry, Long>>();
 
-      envFinal.put(Context.PROVIDER_URL, "");
-      rootDSE = new InitialLdapContext(envFinal, null);
+       for ( String attribute : attrs )
+       {
+           indexedAttributes.add( new JdbmIndex<String, ServerEntry>( attribute ) );
+       }
+
+       ( ( JdbmPartition ) partition ).setIndexedAttributes( indexedAttributes );
    }
 
+   /**
+    * initialize the schema manager and add the schema partition to directory service
+    *
+    * @throws Exception if the schema LDIF files are not found on the classpath
+    */
+   private void initSchemaPartition() throws Exception
+   {
+       SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
+
+       // Init the LdifPartition
+       LdifPartition ldifPartition = new LdifPartition();
+       String workingDirectory = service.getWorkingDirectory().getPath();
+       ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
+
+       // Extract the schema on disk (a brand new one) and load the registries
+       File schemaRepository = new File( workingDirectory, "schema" );
+       SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+       extractor.extractOrCopy( true );
+
+       schemaPartition.setWrappedPartition( ldifPartition );
+
+       SchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+       SchemaManager schemaManager = new DefaultSchemaManager( loader );
+
+       service.setSchemaManager( schemaManager );
+
+       // We have to load the schema now, otherwise we won't be able
+       // to initialize the Partitions, as we won't be able to parse 
+       // and normalize their suffix DN
+       schemaManager.loadAllEnabled();
+
+       schemaPartition.setSchemaManager( schemaManager );
+
+       List<Throwable> errors = schemaManager.getErrors();
+
+       if ( errors.size() != 0 )
+       {
+           throw new Exception( "Schema load failed : " + errors );
+       }
+   }
+
+   private void addNewSchema() throws NamingException
+   {
+      DirContext ctx = getLdapContext();
+      try
+      {
+         Attributes atAttrs = new BasicAttributes(true);
+         atAttrs.put("attributeTypes",
+            "( 1.2.840.113556.1.4.8 NAME 'userAccountControl' DESC 'Flags that control the behavior of the user account' EQUALITY integerMatch SYNTAX '1.3.6.1.4.1.1466.115.121.1.27' SINGLE-VALUE )");
+         ctx.modifyAttributes("cn=schema", DirContext.ADD_ATTRIBUTE, atAttrs);
+         Attributes ocAttrs = new BasicAttributes(true);
+         ocAttrs.put("objectClasses",
+            "( 1.2.840.113556.1.5.9 NAME 'user' SUP inetOrgPerson STRUCTURAL MAY (userAccountControl) )");
+         ctx.modifyAttributes("cn=schema", DirContext.ADD_ATTRIBUTE, ocAttrs);
+      }
+      finally
+      {
+         ctx.close();
+      }
+   }
+
+   /**
+    * @see org.picocontainer.Startable#start()
+    */
+   public void start()
+   {
+   }
+
+   /**
+    * @see org.picocontainer.Startable#stop()
+    */
+   public void stop()
+   {
+      server.stop();
+      try
+      {
+         service.shutdown();
+      }
+      catch (Exception e)
+      {
+         // ignore it
+      }
+   }
 }

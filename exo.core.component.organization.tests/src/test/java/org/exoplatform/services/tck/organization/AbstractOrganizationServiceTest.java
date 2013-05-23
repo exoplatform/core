@@ -18,6 +18,7 @@ package org.exoplatform.services.tck.organization;
 
 import junit.framework.TestCase;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupHandler;
@@ -136,7 +137,7 @@ public class AbstractOrganizationServiceTest extends TestCase
       u.setLastLoginTime(Calendar.getInstance().getTime());
       u.setCreatedDate(Calendar.getInstance().getTime());
       u.setLastName("last");
-      u.setPassword("pwd");
+      u.setPassword("pwdADDSomeSaltToBeCompliantWithSomeIS00");
 
       uHandler.createUser(u, true);
 
@@ -265,5 +266,53 @@ public class AbstractOrganizationServiceTest extends TestCase
 
          gHandler.removeGroup(group, true);
       }
+   }
+
+   protected void assertSizeEquals(int expectedSize, ListAccess<?> list) throws Exception
+   {
+      int size;
+      assertEquals(expectedSize, size = list.getSize());
+      Object[] values = list.load(0, size);
+      size = 0;
+      for (int i = 0; i < values.length; i++)
+      {
+         if (values[i] != null)
+         {
+            size++;
+         }
+      }
+      assertEquals(expectedSize, size);
+   }
+
+   protected void assertSizeEquals(int expectedSize, Collection<?> list) throws Exception
+   {
+      int size;
+      assertEquals(expectedSize, size = list.size());
+      size = 0;
+      for (Object value : list)
+      {
+         if (value != null)
+         {
+            size++;
+         }
+      }
+      assertEquals(expectedSize, size);
+   }
+
+   protected void assertSizeEquals(int expectedSize, ListAccess<User> list, boolean enabledOnly) throws Exception
+   {
+      int size;
+      assertEquals(expectedSize, size = list.getSize());
+      User[] values = list.load(0, size);
+      size = 0;
+      for (int i = 0; i < values.length; i++)
+      {
+         User usr = values[i];
+         if (usr != null && (!enabledOnly || usr.isEnabled()))
+         {
+            size++;
+         }
+      }
+      assertEquals(expectedSize, size);
    }
 }

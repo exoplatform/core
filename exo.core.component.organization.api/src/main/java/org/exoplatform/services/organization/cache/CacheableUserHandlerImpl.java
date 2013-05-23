@@ -118,15 +118,7 @@ public class CacheableUserHandlerImpl implements UserHandler
     */
    public User findUserByName(String userName) throws Exception
    {
-      User user = (User)userCache.get(userName);
-      if (user != null)
-         return user;
-
-      user = userHandler.findUserByName(userName);
-      if (user != null)
-         userCache.put(userName, user);
-
-      return user;
+      return findUserByName(userName, true);
    }
 
    /**
@@ -211,4 +203,56 @@ public class CacheableUserHandlerImpl implements UserHandler
       userCache.put(user.getUserName(), user);
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   public User setEnabled(String userName, boolean enabled, boolean broadcast) throws Exception
+   {
+      User result = userHandler.setEnabled(userName, enabled, broadcast);
+      if (result != null)
+      {
+         userCache.put(result.getUserName(), result);
+      }
+      return result;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public User findUserByName(String userName, boolean enabledOnly) throws Exception
+   {
+      User user = (User)userCache.get(userName);
+      if (user != null)
+         return !enabledOnly || user.isEnabled() ? user : null;
+
+      user = userHandler.findUserByName(userName, enabledOnly);
+      if (user != null)
+         userCache.put(userName, user);
+
+      return user;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public ListAccess<User> findUsersByGroupId(String groupId, boolean enabledOnly) throws Exception
+   {
+      return userHandler.findUsersByGroupId(groupId, enabledOnly);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public ListAccess<User> findAllUsers(boolean enabledOnly) throws Exception
+   {
+      return userHandler.findAllUsers(enabledOnly);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public ListAccess<User> findUsersByQuery(Query query, boolean enabledOnly) throws Exception
+   {
+      return userHandler.findUsersByQuery(query, enabledOnly);
+   }
 }

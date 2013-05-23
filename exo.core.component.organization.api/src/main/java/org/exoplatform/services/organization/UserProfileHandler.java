@@ -35,14 +35,14 @@ public interface UserProfileHandler
     * @return return a new UserProfile implementation instance. This instance is
     *         not persisted yet
     */
-   public UserProfile createUserProfileInstance();
+   UserProfile createUserProfileInstance();
 
    /**
     * @return return a new UserProfile implementation instance. This instance is
     *         not persisted yet
     * @param userName The user profile record with the username
     */
-   public UserProfile createUserProfileInstance(String userName);
+   UserProfile createUserProfileInstance(String userName);
 
    /**
     * This method should persist the profile instance to the database. If the
@@ -55,7 +55,7 @@ public interface UserProfileHandler
     * @throws Exception throw exception if the method fail to access the database
     *           or any listener fail to handle the event.
     */
-   public void saveUserProfile(UserProfile profile, boolean broadcast) throws Exception;
+   void saveUserProfile(UserProfile profile, boolean broadcast) throws Exception;
 
    /**
     * This method should remove the user profile record in the database. If any
@@ -69,7 +69,7 @@ public interface UserProfileHandler
     * @throws Exception Throw exception if the method fail to remove the record
     *           or any listener fail to handle the event
     */
-   public UserProfile removeUserProfile(String userName, boolean broadcast) throws Exception;
+   UserProfile removeUserProfile(String userName, boolean broadcast) throws Exception;
 
    /**
     * This method should search for and return UserProfile record according to
@@ -82,7 +82,7 @@ public interface UserProfileHandler
     *           or find more than one record that match the username.
     * @see UserProfile
     */
-   public UserProfile findUserProfileByName(String userName) throws Exception;
+   UserProfile findUserProfileByName(String userName) throws Exception;
 
    /**
     * Find and return all the UserProfile record in the database
@@ -90,7 +90,7 @@ public interface UserProfileHandler
     * @return  Returns a collection containing all the existing UserProfiles
     * @throws Exception Throw exception if the method fail to access the database
     */
-   public Collection findUserProfiles() throws Exception;
+   Collection findUserProfiles() throws Exception;
 
    /**
     * When a method save , remove are called , the will broadcast an event. You
@@ -99,7 +99,7 @@ public interface UserProfileHandler
     * @param listener The listener instance
     * @see UserProfileEventListener
     */
-   public void addUserProfileEventListener(UserProfileEventListener listener);
+   void addUserProfileEventListener(UserProfileEventListener listener);
 
    /**
     * This method is used to unregister listener.
@@ -107,5 +107,5 @@ public interface UserProfileHandler
     * @param listener The listener instance
     * @see UserProfileEventListener
     */
-   public void removeUserProfileEventListener(UserProfileEventListener listener);
+   void removeUserProfileEventListener(UserProfileEventListener listener);
 }

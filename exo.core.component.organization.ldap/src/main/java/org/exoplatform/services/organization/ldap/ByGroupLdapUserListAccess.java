@@ -21,6 +21,7 @@ package org.exoplatform.services.organization.ldap;
 import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.organization.DisabledUserException;
 import org.exoplatform.services.organization.User;
 
 import javax.naming.NamingEnumeration;
@@ -53,6 +54,11 @@ public class ByGroupLdapUserListAccess extends LdapListAccess<User>
    protected final LDAPAttributeMapping ldapAttrMapping;
 
    /**
+    * Indicates whether only the enabled user should be returned
+    */
+   protected final boolean enabledOnly;
+
+   /**
     * Logger.
     */
    private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.ldap.ByGroupLdapUserListAccess");
@@ -69,12 +75,13 @@ public class ByGroupLdapUserListAccess extends LdapListAccess<User>
     * @param filter search filter
     */
    public ByGroupLdapUserListAccess(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, String searchBase,
-      String filter)
+      String filter, boolean enabledOnly)
    {
       super(ldapService);
       this.ldapAttrMapping = ldapAttrMapping;
       this.searchBase = searchBase;
       this.filter = filter;
+      this.enabledOnly = enabledOnly;
    }
 
    /**
@@ -85,6 +92,8 @@ public class ByGroupLdapUserListAccess extends LdapListAccess<User>
 
       User[] users = new User[length];
 
+      if (length == 0)
+         return users;
       NamingEnumeration<SearchResult> results = null;
       try
       {
@@ -112,7 +121,7 @@ public class ByGroupLdapUserListAccess extends LdapListAccess<User>
             if (attrs.size() == 0)
                continue; // object has not attributes at all, must never be true
             Attribute attr = attrs.get(ldapAttrMapping.membershipTypeMemberValue);
-            if (attr.size() == 0)
+            if (attr == null || attr.size() == 0)
                continue; // object has not any attribute 'member', must never be true
 
             NamingEnumeration<?> members = attr.getAll();
@@ -128,7 +137,7 @@ public class ByGroupLdapUserListAccess extends LdapListAccess<User>
                   { // start point for getting users
                      Attributes uattr = ctx.getAttributes(member);
                      User user = ldapAttrMapping.attributesToUser(uattr);
-                     if (user != null)
+                     if (user != null && (!enabledOnly || user.isEnabled()))
                      {
                         user.setFullName(user.getFirstName() + " " + user.getLastName());
                         users[counter++] = user;
@@ -182,7 +191,7 @@ public class ByGroupLdapUserListAccess extends LdapListAccess<User>
                if (attrs.size() == 0)
                   continue; // object has not attributes at all, must never be true
                Attribute attr = attrs.get(ldapAttrMapping.membershipTypeMemberValue);
-               if (attr.size() == 0)
+               if (attr == null || attr.size() == 0)
                   continue; // object has not any attribute 'member', must never be true
 
                // retrieval all 'member' attribute
@@ -190,9 +199,36 @@ public class ByGroupLdapUserListAccess extends LdapListAccess<User>
 
                try
                {
+                  String[] attrIds;
+                  if (ldapAttrMapping.hasUserAccountControl())
+                  {
+                     attrIds = new String[]{ldapAttrMapping.userAccountControlAttr};
+                  }
+                  else
+                  {
+                     attrIds = new String[]{};
+                  }
                   while (members.hasMoreElements())
                   {
-                     members.next();
+                     String member = (String)members.next();
+                     if (enabledOnly)
+                     {
+                        Attributes atts =
+                           ctx.getAttributes(member, attrIds);
+                        try
+                        {
+                           if (ldapAttrMapping.isEnabled(member, atts))
+                           {
+                              size++;
+                           }
+                        }
+                        catch (DisabledUserException e)
+                        {
+                           if (LOG.isDebugEnabled())
+                              LOG.debug("Could not know if the member '" + member + "' is disabled or not.", e);
+                        }
+                        continue;
+                     }
                      size++;
                   }
 

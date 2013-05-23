@@ -52,21 +52,17 @@ public class OrganizationServiceImpl extends BaseOrganizationService
 
       if (ldapService.getServerType() == LDAPService.ACTIVE_DIRECTORY_SERVER)
       {
-         userDAO_ = new ADUserDAOImpl(ldapAttrMapping, ldapService, cacheHandler);
-         //      ADSearchBySID adSearch = new ADSearchBySID(ldapAttrMapping, ldapService);
+         userDAO_ = new ADUserDAOImpl(ldapAttrMapping, ldapService, cacheHandler, this);
          ADSearchBySID adSearch = new ADSearchBySID(ldapAttrMapping);
          groupDAO_ = new ADGroupDAOImpl(ldapAttrMapping, ldapService, adSearch, cacheHandler);
          membershipDAO_ = new ADMembershipDAOImpl(ldapAttrMapping, ldapService, adSearch, this, cacheHandler);
       }
       else
       {
-         //      ValueParam param = params.getValueParam("ldap.userDN.key");
-         //      ldapAttrMapping.userDNKey = param.getValue();
          userDAO_ = new UserDAOImpl(ldapAttrMapping, ldapService, cacheHandler, this);
          groupDAO_ = new GroupDAOImpl(ldapAttrMapping, ldapService, cacheHandler);
          membershipDAO_ = new MembershipDAOImpl(ldapAttrMapping, ldapService, this, cacheHandler);
       }
-      // userProfileHandler_ = new UserProfileHandlerImpl(ldapAttrMapping, ldapService) ;
       userProfileDAO_ = new UserProfileDAOImpl(hservice, cservice, userDAO_);
       membershipTypeDAO_ = new MembershipTypeDAOImpl(ldapAttrMapping, ldapService, cacheHandler);
 

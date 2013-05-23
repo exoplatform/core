@@ -104,12 +104,7 @@ public abstract class DAO<T extends DBObject>
       try
       {
          statement = connection.createStatement();
-         // System.out.println(" Executed query: "+query) ;
-         // long startGet = System.currentTimeMillis();
          ResultSet resultSet = statement.executeQuery(query);
-         // totalQueryTime += System.currentTimeMillis() - startGet;
-         // System.out.println(" \n\n\n == > total time to Query " +
-         // totalQueryTime+"\n\n");
          if (!resultSet.next())
          {
             return null;
@@ -142,19 +137,39 @@ public abstract class DAO<T extends DBObject>
    protected void loadInstances(Connection connection, String loadQuery, List<T> list) throws Exception
    {
       Statement statement = connection.createStatement();
-      // long startGet = System.currentTimeMillis();
-      ResultSet resultSet = statement.executeQuery(loadQuery);
-      // totalQueryTime += System.currentTimeMillis() - startGet;
-      // System.out.println(" \n\n\n == > total time to Query " +
-      // totalQueryTime+"\n\n");
-      while (resultSet.next())
+      ResultSet resultSet = null;
+      try
       {
-         T bean = createInstance();
-         mapper_.mapResultSet(resultSet, bean);
-         list.add(bean);
+         resultSet = statement.executeQuery(loadQuery);
+         while (resultSet.next())
+         {
+            T bean = createInstance();
+            mapper_.mapResultSet(resultSet, bean);
+            list.add(bean);
+         }
       }
-      resultSet.close();
-      statement.close();
+      finally
+      {
+         if (resultSet != null)
+         {
+            try
+            {
+               resultSet.close();
+            }
+            catch (Exception e)
+            {
+               LOG.debug("Could not close the result set");
+            }
+         }
+         try
+         {
+            statement.close();
+         }
+         catch (Exception e)
+         {
+            LOG.debug("Could not close the statement");
+         }
+      }
    }
 
    protected void execute(String query, T bean) throws Exception
@@ -175,12 +190,7 @@ public abstract class DAO<T extends DBObject>
       PreparedStatement statement = connection.prepareStatement(query);
       if (bean != null)
          mapper_.mapUpdate(bean, statement);
-      // System.out.println(" Executed query: "+query) ;
-      // long startGet = System.currentTimeMillis();
       statement.executeUpdate();
-      // totalQueryTime += System.currentTimeMillis() - startGet;
-      // System.out.println(" \n\n\n == > total time to Query " +
-      // totalQueryTime+"\n\n");
       eXoDS_.commit(connection);
       statement.close();
    }
@@ -205,8 +215,6 @@ public abstract class DAO<T extends DBObject>
       long startGet = System.currentTimeMillis();
       ResultSet resultSet = statement.executeQuery(query);
       totalQueryTime += System.currentTimeMillis() - startGet;
-      // System.out.println(" \n\n\n == > total time to Query " +
-      // totalQueryTime+"\n\n");
       if (!resultSet.next())
          return null;
       E value = (E)resultSet.getObject(1);
