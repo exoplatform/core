@@ -161,7 +161,7 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
                   preSave(group, true);
                }
 
-               ctx.createSubcontext(groupDN, ldapAttrMapping.groupToAttributes(child));
+               ctx.createSubcontext(groupDN, ldapAttrMapping.groupToAttributes(child)).close();
                cacheHandler.put(child.getId(), group, CacheType.GROUP);
 
                if (broadcast)

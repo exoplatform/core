@@ -95,7 +95,7 @@ public class ADUserDAOImpl extends UserDAOImpl
                if (broadcast)
                   preSave(user, true);
                // see comments about saving password below
-               ctx.createSubcontext(userDN, attrs);
+               ctx.createSubcontext(userDN, attrs).close();
                if (broadcast)
                   postSave(user, true);
 

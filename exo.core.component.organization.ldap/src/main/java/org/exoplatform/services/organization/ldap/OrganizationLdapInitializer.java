@@ -160,7 +160,7 @@ public class OrganizationLdapInitializer extends BaseComponentPlugin implements 
          attrs.put("o", nameValue);
       }
       attrs.put("description", nameValue);
-      context.createSubcontext(dn, attrs);
+      context.createSubcontext(dn, attrs).close();
    }
 
    public void createSubContextNew(String basedn, String dn) throws Exception
