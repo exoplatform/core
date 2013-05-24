@@ -31,13 +31,13 @@ import org.exoplatform.services.security.Credential;
 import org.exoplatform.services.security.DigestPasswordEncrypter;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
-import org.exoplatform.services.security.MembershipHashSet;
 import org.exoplatform.services.security.PasswordCredential;
 import org.exoplatform.services.security.PasswordEncrypter;
 import org.exoplatform.services.security.RolesExtractor;
 import org.exoplatform.services.security.UsernameCredential;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -94,7 +94,7 @@ public class OrganizationAuthenticatorImpl implements Authenticator
     */
    public Identity createIdentity(String userId) throws Exception
    {
-      Set<MembershipEntry> entries = new MembershipHashSet();
+      Set<MembershipEntry> entries = new HashSet<MembershipEntry>();
       begin(orgService);
       Collection<Membership> memberships = orgService.getMembershipHandler().findMembershipsByUser(userId);
       end(orgService);

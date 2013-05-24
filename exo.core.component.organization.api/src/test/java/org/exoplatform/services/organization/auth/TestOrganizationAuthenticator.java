@@ -81,7 +81,6 @@ public class TestOrganizationAuthenticator extends TestCase
       String userId = authenticator.validateUser(cred);
       assertEquals("admin", userId);
       Identity identity = authenticator.createIdentity(userId);
-      assertTrue(identity.isMemberOf("/platform/administrators", "manager"));
       assertTrue(identity.getGroups().size() > 0);
    }
 }

@@ -123,11 +123,6 @@ public class DummyOrganizationService extends BaseOrganizationService
          Collection<MembershipImpl> memberships = new ArrayList<MembershipImpl>();
          if ("root".equals(userName) || "john".equals(userName) || "admin".equals(userName))
          {
-            MembershipImpl member = new MembershipImpl();
-            member.setMembershipType("member");
-            member.setUserName(userName);
-            member.setGroupId(GROUPID_ADMINISTRATORS);
-            memberships.add(member);
             MembershipImpl admin = new MembershipImpl();
             admin.setMembershipType("*");
             admin.setUserName(userName);

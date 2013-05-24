@@ -23,34 +23,26 @@ import junit.framework.TestCase;
 import java.util.ArrayList;
 import java.util.Collection;
 
+//import org.exoplatform.services.organization.Membership;
 
 /**
- * Created by The eXo Platform SAS Author : eXoPlatform exo@exoplatform.com
+ * Created by The eXo Platform SAS Author : eXoPlatform exo@exoplatform.com 24
+ * févr. 08
  */
 public class TestIdentity extends TestCase
 {
 
-   Identity identity;
+   Identity identity = null;
 
-   Collection<MembershipEntry> memberships;
+   Collection<MembershipEntry> memberships = null;
 
    protected void setUp()
    {
       // common setup for testIsInGroup and testHasMembership
 
       memberships = new ArrayList<MembershipEntry>();
-      memberships.add(new MembershipEntry("/group1", "member"));
       memberships.add(new MembershipEntry("/group1", "*"));
       memberships.add(new MembershipEntry("/group2", "member"));
-      memberships.add(new MembershipEntry("/group3", "member"));
-      memberships.add(new MembershipEntry("/group3", "validator"));
-      memberships.add(new MembershipEntry("/group3", "*"));
-      memberships.add(new MembershipEntry("/group4", "member"));
-      memberships.add(new MembershipEntry("/group4", "*"));
-      memberships.add(new MembershipEntry("/group4", "validator"));
-      memberships.add(new MembershipEntry("/group5", "*"));
-      memberships.add(new MembershipEntry("/group5", "member"));
-      memberships.add(new MembershipEntry("/group5", "validator"));
 
       identity = new Identity("user", memberships);
    }
@@ -65,24 +57,11 @@ public class TestIdentity extends TestCase
    public void testHasMembership()
    {
       assertTrue("membership * in group /group1", identity.isMemberOf("/group1", "*"));
-      assertTrue("membership manager in group /group1", identity.isMemberOf("/group1", "manager"));
-      assertTrue("membership member in group /group1", identity.isMemberOf("/group1", "member"));
       assertTrue("membership member in group /group2", identity.isMemberOf("/group2", "member"));
       assertTrue("membership * in group /group1", identity.isMemberOf("/group2", "*"));
-      assertTrue("membership member in group /group3", identity.isMemberOf("/group3", "member"));
-      assertTrue("membership validator in group /group3", identity.isMemberOf("/group3", "validator"));
-      assertTrue("membership manager in group /group3", identity.isMemberOf("/group3", "manager"));
-      assertTrue("membership * in group /group3", identity.isMemberOf("/group3", "*"));
-      assertTrue("membership member in group /group4", identity.isMemberOf("/group4", "member"));
-      assertTrue("membership validator in group /group4", identity.isMemberOf("/group4", "validator"));
-      assertTrue("membership manager in group /group4", identity.isMemberOf("/group4", "manager"));
-      assertTrue("membership * in group /group4", identity.isMemberOf("/group4", "*"));
-      assertTrue("membership member in group /group5", identity.isMemberOf("/group5", "member"));
-      assertTrue("membership validator in group /group5", identity.isMemberOf("/group5", "validator"));
-      assertTrue("membership manager in group /group5", identity.isMemberOf("/group5", "manager"));
-      assertTrue("membership * in group /group5", identity.isMemberOf("/group5", "*"));
       // any membership of /group1
       assertFalse("membership null in group group1", identity.isMemberOf("group1", null));
       assertFalse("membership null in group group1", identity.isMemberOf("group1"));
    }
+
 }
