@@ -106,10 +106,10 @@ public interface OrganizationService
 
    /**
     * Use this method to register an listener to the UserHandler, GroupHandler or
-    * MembershipHandler. The listener must be and instance of @see
-    * UserEventistener ,
+    * MembershipHandler. The listener must be instance of {@link UserEventListener}
     * 
-    * @see GroupEventListener or @see MembershipEventListener.
+    * @see GroupEventListener
+    * @see MembershipEventListener
     * @param listener A customized listener instance
     * @throws Exception
     */

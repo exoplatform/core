@@ -25,10 +25,10 @@ import java.util.Map;
  * This is the interface for a UserProfile data model. The implementor should have an user
  * map info in the implementation. The map should only accept the
  * java.lang.String for the key and the value. Note that after the developer
- * change the user information in the user info map, he need to call
+ * change the user information in the user info map,
+ * he need to call {@link UserProfileHandler#saveUserProfile(UserProfile, boolean)} to persist the change.
  *
  * @author <a href="mailto:tuan08@users.sourceforge.net">Tuan Nguyen</a>
- * @see UserProfileHandler#saveUserProfile(UserProfile, boolean) to persist the change
  * @LevelAPI Platform
  */
 public interface UserProfile
@@ -75,9 +75,8 @@ public interface UserProfile
 
    /**
     *@deprecated The third party developer should not used this method. We
-    *             should pass the username to the @see
-    *             UserProfileHandler.createUserInstance() and set the username
-    *             for the instance once only.
+    *             should pass the username to the {@link UserProfileHandler#removeUserProfile(String, boolean)}
+    *              and set the username for the instance once only.
     */
    public void setUserName(String username);
 

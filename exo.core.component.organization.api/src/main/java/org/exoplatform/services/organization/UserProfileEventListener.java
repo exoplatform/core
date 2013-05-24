@@ -61,7 +61,7 @@ public class UserProfileEventListener extends BaseComponentPlugin
 
    /**
     * When you register the listener with the organization service. This method
-    * should be called in the @see UserProfileHandler saveUseProfile(..) method
+    * should be called in the {@link UserProfileHandler#saveUserProfile(UserProfile, boolean)} method
     * before the user profile instance is saved to the database.
     * 
     * @param user The user profile instance that will be saved.
@@ -78,7 +78,7 @@ public class UserProfileEventListener extends BaseComponentPlugin
 
    /**
     * When you register the listener to the organization service. This method
-    * should be called in the @see UserProfileHandler saveUseProfile(..) method
+    * should be called in the {@link UserProfileHandler#saveUserProfile(UserProfile, boolean)} method
     * after the user profile instance is saved to the database.
     * 
     * @param user The user profile instance that is already saved in the
@@ -97,7 +97,7 @@ public class UserProfileEventListener extends BaseComponentPlugin
 
    /**
     * When you register the listener to the organization service. This method
-    * should be called in the @see UserProfileHandler removeUseProfile(..) method
+    * should be called in the {@link UserProfileHandler#removeUserProfile(String, boolean)} method
     * before the user profile instance is removed from the database.
     * 
     * @param user The user to be removed
@@ -111,7 +111,7 @@ public class UserProfileEventListener extends BaseComponentPlugin
 
    /**
     * When you register the listener to the organization service. This method
-    * should be called in the @see UserProfileHandler removeUseProfile(..) method
+    * should be called in the {@link UserProfileHandler#removeUserProfile(String, boolean)} method
     * after the user profile instance is removed from the database.
     * 
     * @param user The user instance that is already removed from the database

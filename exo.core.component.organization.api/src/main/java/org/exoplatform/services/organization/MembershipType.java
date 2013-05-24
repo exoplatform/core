@@ -23,10 +23,9 @@ import java.util.Date;
 /**
  * Created by The eXo Platform SAS<br>
  * This is the interface for the membership type data model.
- * The developer needs to call
- * @see MembershipTypeHandler#saveMembershipType(MembershipType, boolean)
+ * The developer needs to call {@link MembershipTypeHandler#saveMembershipType(MembershipType, boolean)}
+ * to persist the change.
  * @author <a href="mailto:benjmestrallet@users.sourceforge.net">Mestrallet Benjamin</a>
- * @see MembershipTypeHandler#createMembershipType(MembershipType, boolean) to persist the change
  * @LevelAPI Platform
  */
 public interface MembershipType
