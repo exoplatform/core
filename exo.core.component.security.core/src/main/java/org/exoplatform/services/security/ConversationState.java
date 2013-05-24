@@ -26,10 +26,11 @@ import java.util.HashMap;
 import java.util.Set;
 
 /**
- * Created by The eXo Platform SAS .
+ * Created by The eXo Platform SAS<br>
+ *
+ * An object which stores all information about the state of the current user.
  *
  * @author Gennady Azarenkov
- * @version $Id: $
  * @LevelAPI Provisional
  */
 

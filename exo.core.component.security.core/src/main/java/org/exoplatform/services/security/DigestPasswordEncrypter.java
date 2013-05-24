@@ -27,12 +27,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS<br>
  * Encapsulates Digest Authentication encryption algorithm.
  * More info <a href=http://www.faqs.org/rfcs/rfc2617.html>here</a>. 
  * 
  * @author Dmitry Kuleshov
- * @version $Id: $
  * @LevelAPI Experimental
  */
 

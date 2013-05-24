@@ -19,10 +19,11 @@
 package org.exoplatform.services.security;
 
 /**
- * Created by The eXo Platform SAS .<br/>
+ * Created by The eXo Platform SAS <br>
+ *
+ * Membership Entry is an association between membershipType and group
  * 
  * @author Gennady Azarenkov
- * @version $Id:$
  * @LevelAPI Platform
  */
 

@@ -22,10 +22,9 @@ package org.exoplatform.services.organization;
 import org.exoplatform.services.security.PasswordEncrypter;
 
 /**
- * Created by The eXo Platform SAS .
- * 
+ * Created by The eXo Platform SAS<br>
+ * Implement it if you want to be able to use Digest access authentication.
  * @author Dmitry Kuleshov
- * @version $Id: $
  * @LevelAPI Experimental
  */
 

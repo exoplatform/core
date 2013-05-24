@@ -21,13 +21,11 @@ package org.exoplatform.services.organization;
 import java.util.Date;
 
 /**
- * Created by The eXo Platform SAS Author : Mestrallet Benjamin
- * benjmestrallet@users.sourceforge.net Date: Aug 21, 2003 Time: 3:22:54 PM This
- * is the interface for the membership type data model. Note that after each set
- * method is called. The developer need to call @see
- * MembershipTypeHandler.saveMembershipType(..) or
- * 
- * @see MembershipTypeHandler.createMembershipType(..) to persist the change
+ * Created by The eXo Platform SAS<br>
+ * This is the interface for the membership type data model.
+ * The developer needs to call {@link MembershipTypeHandler#saveMembershipType(MembershipType, boolean)}
+ * to persist the change.
+ * @author <a href="mailto:benjmestrallet@users.sourceforge.net">Mestrallet Benjamin</a>
  * @LevelAPI Platform
  */
 public interface MembershipType

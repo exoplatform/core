@@ -19,9 +19,9 @@
 package org.exoplatform.services.organization;
 
 /**
- * Created by The eXo Platform SAS Author : Mestrallet Benjamin
- * benjmestrallet@users.sourceforge.net Date: Aug 21, 2003 Time: 3:22:54 PM This
- * is the interface for the membership data model.
+ * Created by The eXo Platform SAS <br>
+ * This is the interface for the membership data model.
+ * @author <a href="mailto:benjmestrallet@users.sourceforge.net">Mestrallet Benjamin</a>
  * @LevelAPI Platform
  */
 public interface Membership

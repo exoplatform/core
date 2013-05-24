@@ -21,11 +21,10 @@ package org.exoplatform.services.organization;
 import org.exoplatform.container.component.BaseComponentPlugin;
 
 /**
- * Author : Tuan Nguyen tuan08@users.sourceforge.net Date: Aug 22, 2003 Time:
- * 4:46:04 PM If the other service or a third party want to customize their code
+ * If the other service or a third party want to customize their code
  * to handle an user profile event, the event can be save or delete, they should
- * make a class that extends from this class and register the listener with the
- * organization service. There are 2 ways to register a listener with the
+ * make a class that extends from this class and register the listener to the
+ * organization service. There are 2 ways to register a listener to the
  * service. a) To do it programatically: [..] import
  * org.exoplatform.container.PortalContainer ; import
  * org.exoplatform.services.organization.OrganizationService ; [..]
@@ -54,6 +53,7 @@ import org.exoplatform.container.component.BaseComponentPlugin;
  *  [...]
  * /configuration&gt;
  * </pre>
+ * @author <a href="mailto:tuan08@users.sourceforge.net">Tuan Nguyen</a>
  * @LevelAPI Platform
  */
 public class UserProfileEventListener extends BaseComponentPlugin
@@ -61,7 +61,7 @@ public class UserProfileEventListener extends BaseComponentPlugin
 
    /**
     * When you register the listener with the organization service. This method
-    * should be called in the @see UserProfileHandler saveUseProfile(..) method
+    * should be called in the {@link UserProfileHandler#saveUserProfile(UserProfile, boolean)} method
     * before the user profile instance is saved to the database.
     * 
     * @param user The user profile instance that will be saved.
@@ -77,8 +77,8 @@ public class UserProfileEventListener extends BaseComponentPlugin
    }
 
    /**
-    * When you register the listener with the organization service. This method
-    * should be called in the @see UserProfileHandler saveUseProfile(..) method
+    * When you register the listener to the organization service. This method
+    * should be called in the {@link UserProfileHandler#saveUserProfile(UserProfile, boolean)} method
     * after the user profile instance is saved to the database.
     * 
     * @param user The user profile instance that is already saved in the
@@ -96,8 +96,8 @@ public class UserProfileEventListener extends BaseComponentPlugin
    }
 
    /**
-    * When you register the listener with the organization service. This method
-    * should be called in the @see UserProfileHandler removeUseProfile(..) method
+    * When you register the listener to the organization service. This method
+    * should be called in the {@link UserProfileHandler#removeUserProfile(String, boolean)} method
     * before the user profile instance is removed from the database.
     * 
     * @param user The user to be removed
@@ -110,8 +110,8 @@ public class UserProfileEventListener extends BaseComponentPlugin
    }
 
    /**
-    * When you register the listener with the organization service. This method
-    * should be called in the @see UserProfileHandler removeUseProfile(..) method
+    * When you register the listener to the organization service. This method
+    * should be called in the {@link UserProfileHandler#removeUserProfile(String, boolean)} method
     * after the user profile instance is removed from the database.
     * 
     * @param user The user instance that is already removed from the database
