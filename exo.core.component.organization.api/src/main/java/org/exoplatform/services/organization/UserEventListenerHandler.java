@@ -21,9 +21,10 @@ package org.exoplatform.services.organization;
 import java.util.List;
 
 /**
+ * Provides the ability to get the list of {@link UserEventListener}
+ *
  * @author <a href="anatoliy.bazko@exoplatform.org">Anatoliy Bazko</a>
- * @version $Id: UserEventListenerHandler.java 111 2010-11-11 11:11:11Z tolusha
- *          $
+ * @version $Id: UserEventListenerHandler.java 111 2010-11-11 11:11:11Z tolusha $
  * @LevelAPI Platform
  */
 public interface UserEventListenerHandler {

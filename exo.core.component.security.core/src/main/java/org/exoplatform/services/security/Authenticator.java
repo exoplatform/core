@@ -21,12 +21,11 @@ package org.exoplatform.services.security;
 import javax.security.auth.login.LoginException;
 
 /**
- * Created by The eXo Platform SAS . Component responsible for user
- * authentication (session creation) In JAAS LoginModule typically called in
- * login() method
+ * Created by The eXo Platform SAS<br>
+ * Component responsible for user authentication (session creation)
+ * In JAAS LoginModule typically called in login() method
  * 
  * @author Gennady Azarenkov
- * @version $Id:$
  * @LevelAPI Platform
  */
 

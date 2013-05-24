@@ -22,14 +22,15 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.PageList;
 
 /**
- * Created by The eXo Platform SAS Author : Tuan Nguyen
- * tuan08@users.sourceforge.net Oct 13, 2005 This class is acted as a sub
- * component of the organization service. It is used to manage the user account
- * and broadcast the user event to all the registered listener in the
+ * Created by The eXo Platform SAS <br>
+ * This interface is a sub part of the organization service.
+ * It is used to manage the user accounts
+ * and broadcast the user events to all the registered listeners in the
  * organization service. The user event can be: new user event, update user
  * event and delete user event. Each event should have 2 phases: pre event and
  * post event. The method createUser , saveUser and removeUser broadcast the
  * event at each phase so the listeners can handle the event properly
+ * @author <a href="mailto:tuan08@users.sourceforge.net">Tuan Nguyen</a>
  * @LevelAPI Platform
  */
 public interface UserHandler
@@ -49,7 +50,7 @@ public interface UserHandler
    /**
     * @deprecated This method create an User instance that implement the User
     *             interface. The user instance is not persisted yet
-    * @return
+    * @return  User instance
     */
    public User createUserInstance();
 
@@ -57,7 +58,7 @@ public interface UserHandler
     * This method create an User instance that implement the User interface. The
     * user instance is not persisted yet
     * 
-    * @param username: Username for new user instance.
+    * @param username Username for new user instance.
     * @return  the user object
     */
    public User createUserInstance(String username);
@@ -65,8 +66,8 @@ public interface UserHandler
    /**
     * This method is used to persist a new user object.
     * 
-    * @param user: The user object to save
-    * @param broadcast: If the broadcast value is true , then the UserHandler
+    * @param user The user object to save
+    * @param broadcast If the broadcast value is true , then the UserHandler
     *          should broadcast the event to all the listener that register with
     *          the organization service. For example, the portal service register
     *          an user event listener with the organization service. when a new
@@ -149,7 +150,7 @@ public interface UserHandler
     *         developer get all the users or get a page of users if the return
     *         number of users is too large.
     * @throws Exception
-    * @deprecated use {@link @findAllUsers() } instead
+    * @deprecated use {@link #findAllUsers() } instead
     */
    @Deprecated
    public PageList<User> getUserPageList(int pageSize) throws Exception;

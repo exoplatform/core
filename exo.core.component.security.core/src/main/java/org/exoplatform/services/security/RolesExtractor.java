@@ -21,11 +21,10 @@ package org.exoplatform.services.security;
 import java.util.Set;
 
 /**
- * Created by The eXo Platform SAS .<br/> Strategy of extraction J2EE roles from
- * given group names
+ * Created by The eXo Platform SAS<br>
+ * Strategy of extraction J2EE roles from given group names
  * 
  * @author Gennady Azarenkov
- * @version $Id:$
  * @LevelAPI Platform
  */
 
