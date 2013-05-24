@@ -75,7 +75,7 @@ public interface UserProfile
 
    /**
     *@deprecated The third party developer should not used this method. We
-    *             should pass the username to the {@link UserProfileHandler#createUserProfileInstance(String userName)}
+    *             should pass the username to the {@link UserProfileHandler#createUserProfileInstance(String)}
     *              and set the username for the instance once only.
     */
    public void setUserName(String username);
