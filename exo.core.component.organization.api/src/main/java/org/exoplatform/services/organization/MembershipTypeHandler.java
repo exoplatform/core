@@ -21,16 +21,15 @@ package org.exoplatform.services.organization;
 import java.util.Collection;
 
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS<br>
  * 
- * Author : Tuan Nguyen tuan08@users.sourceforge.net Oct 13, 2005.
- * 
- * This class is acted as a sub component of the organization service. It is used to manage the
- * membership type and broadcast the membership type event to all the registered listener in the
+ * This interface is a sub part of the organization service. It is used to manage the
+ * membership types and  broadcast the membership type events to all the registered listeners in the
  * organization service. The membership type event can be: new mebership type, update the membership
  * type and delete the membership type event. Each event should have 2 phases: pre event and post
  * event. The method createMembershipType(..) , saveMembershipType(..) and removeMembershipType
  * broadcast the event at each phase so the listeners can handle the event properly
+ * @author <a href="mailto:tuan08@users.sourceforge.net">Tuan Nguyen</a>
  * @LevelAPI Platform
  */
 public interface MembershipTypeHandler

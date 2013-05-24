@@ -23,7 +23,6 @@ package org.exoplatform.services.security;
  * way) password encrypting mechanism
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
  * @LevelAPI Provisional
  */
 

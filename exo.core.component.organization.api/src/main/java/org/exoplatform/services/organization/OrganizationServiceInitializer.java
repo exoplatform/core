@@ -19,9 +19,8 @@
 package org.exoplatform.services.organization;
 
 /**
- * Created by The eXo Platform SAS Author : Tuan Nguyen
- * tuan08@users.sourceforge.net Nov 15, 2005 If the other service or a third
- * party want to customize the initialization phase of the organization service.
+ * Created by The eXo Platform SAS<br>
+ * If the other service or a third  party want to customize the initialization phase of the organization service.
  * they should make a customize class that implements this interface and
  * register their plugin code via xml configuration. An example of the
  * customization code is we have an organization service database intializer
@@ -47,6 +46,7 @@ package org.exoplatform.services.organization;
  *  [...]
  * /configuration&gt;
  * </pre>
+ * @author <a href="mailto:tuan08@users.sourceforge.net">Tuan Nguyen</a>
  * @LevelAPI Platform
  */
 public interface OrganizationServiceInitializer

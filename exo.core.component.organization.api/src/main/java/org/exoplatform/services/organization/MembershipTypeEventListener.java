@@ -21,9 +21,11 @@ package org.exoplatform.services.organization;
 import org.exoplatform.container.component.BaseComponentPlugin;
 
 /**
- * @author <a href="abazko@exoplatform.com">Anatoliy Bazko</a>
- * @version $Id$
- * 
+ * If the other service or a third party want to customize their code to handle a
+ * MembershipType event, the event can be new , update or remove. They should create a class that extends this class
+ * and register the listener to the organization
+ * service.
+ *
  * <pre>
  * &lt;configuration&gt;
  *   [..]
@@ -39,6 +41,7 @@ import org.exoplatform.container.component.BaseComponentPlugin;
  *  [...]
  * /configuration&gt;
  * </pre>
+ * @author <a href="abazko@exoplatform.com">Anatoliy Bazko</a>
  * @LevelAPI Platform
  */
 public class MembershipTypeEventListener extends BaseComponentPlugin

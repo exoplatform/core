@@ -40,7 +40,7 @@ public class MembershipUpdateListener extends MembershipEventListener
    /** Logger. */
    private static final Log LOG = ExoLogger.getLogger("exo.core.component.organization.api.MembershipUpdateListener");
 
-   /** @see ConversationRegistry. */
+   /** @see ConversationRegistry */
    private ConversationRegistry conversationRegistry;
 
    public MembershipUpdateListener(ConversationRegistry conversationRegistry)
