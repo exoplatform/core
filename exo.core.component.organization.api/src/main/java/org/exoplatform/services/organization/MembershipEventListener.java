@@ -24,7 +24,7 @@ import org.exoplatform.container.component.BaseComponentPlugin;
  * If the other service or a third party want to customize their code to handle a
  * membership event, the event can be new or remove. They should create a class that extends this class
  * and register the listener to the organization service.
- * There are 2 ways to register a listener with the service. a) To do
+ * There are 2 ways to register a listener to the service. a) To do
  * it programatically: [..] import org.exoplatform.container.PortalContainer ;
  * import org.exoplatform.services.organization.OrganizationService ; [..]
  * MembershipEventListener listener = new MyMembershipEventListener(..) ;

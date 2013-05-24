@@ -24,7 +24,7 @@ import org.exoplatform.container.component.BaseComponentPlugin;
  * If the other service or a third party want to customize their code
  * to handle an user profile event, the event can be save or delete, they should
  * make a class that extends from this class and register the listener to the
- * organization service. There are 2 ways to register a listener with the
+ * organization service. There are 2 ways to register a listener to the
  * service. a) To do it programatically: [..] import
  * org.exoplatform.container.PortalContainer ; import
  * org.exoplatform.services.organization.OrganizationService ; [..]

@@ -25,7 +25,7 @@ import org.exoplatform.commons.utils.PageList;
  * Created by The eXo Platform SAS <br>
  * This interface is a sub part of the organization service.
  * It is used to manage the user accounts
- * and broadcast the user event to all the registered listener in the
+ * and broadcast the user events to all the registered listeners in the
  * organization service. The user event can be: new user event, update user
  * event and delete user event. Each event should have 2 phases: pre event and
  * post event. The method createUser , saveUser and removeUser broadcast the

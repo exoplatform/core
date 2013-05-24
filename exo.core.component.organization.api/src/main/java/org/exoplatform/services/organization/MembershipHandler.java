@@ -27,7 +27,7 @@ import java.util.Collection;
  * This interface is a sub part of the organization service.
  * It is used to manage the memberships -
  * the relation of user , group, and membership type - and broadcast the
- * membership event to all the registered listener in the organization service.
+ * membership events to all the registered listeners in the organization service.
  * The membership event can be: new linked membership and delete the membership
  * type event. Each event should have 2 phases: pre event and post event. The
  * method linkMembership(..) and removeMembership(..) broadcast the event at

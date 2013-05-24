@@ -23,7 +23,7 @@ import java.util.Collection;
 /**
  * Created by The eXo Platform SAS<br>
  * This interface is a sub part of the organization service. It is used to manage the groups and
- * broadcast the group event to all the registered listener in the organization
+ * broadcast the group events to all the registered listeners in the organization
  * service. The group event can be: new group event, update group event and
  * delete group event. Each event should have 2 phases: pre event and post
  * event. The method createGroup(..) , saveGroup(..) and removeGroup broadcast

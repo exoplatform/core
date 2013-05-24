@@ -24,7 +24,7 @@ import java.util.Collection;
  * Created by The eXo Platform SAS<br>
  * 
  * This interface is a sub part of the organization service. It is used to manage the
- * membership types and broadcast the membership type event to all the registered listener in the
+ * membership types and  broadcast the membership type events to all the registered listeners in the
  * organization service. The membership type event can be: new mebership type, update the membership
  * type and delete the membership type event. Each event should have 2 phases: pre event and post
  * event. The method createMembershipType(..) , saveMembershipType(..) and removeMembershipType

@@ -21,8 +21,8 @@ package org.exoplatform.services.organization;
 /**
  * Created by The eXo Platform SAS<br>
  * This is the interface for the group data model.
- * The developer need to call @see GroupHandler.saveGroup(..) to persist
- * the change
+ * The developer needs to call
+ * @see GroupHandler#saveGroup(Group, boolean) to persist the change.
  * @author <a href="mailto:benjmestrallet@users.sourceforge.net">Mestrallet Benjamin</a>
  * @LevelAPI Platform
  */
