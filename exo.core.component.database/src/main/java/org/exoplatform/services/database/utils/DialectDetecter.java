@@ -86,6 +86,11 @@ public class DialectDetecter
             : DialectConstants.DB_DIALECT_PGSQL;
       }
 
+      if ("EnterpriseDB".equals(databaseName))
+      {
+         return DialectConstants.DB_DIALECT_PGSQL_SCS;
+      }
+
       if ("Apache Derby".equals(databaseName))
       {
          return DialectConstants.DB_DIALECT_DERBY;
