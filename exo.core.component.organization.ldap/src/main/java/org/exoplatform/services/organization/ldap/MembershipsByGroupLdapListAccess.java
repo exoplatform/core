@@ -72,6 +72,8 @@ public class MembershipsByGroupLdapListAccess extends LdapListAccess<Membership>
       
       Membership[] memberships = new Membership[length];
 
+      if (length == 0)
+         return memberships;
       int counter = 0;
       int p = 0;
 
@@ -92,6 +94,8 @@ public class MembershipsByGroupLdapListAccess extends LdapListAccess<Membership>
                String membershipType = dao.explodeDN(sr.getNameInNamespace(), true)[0];
                Attributes attrs = sr.getAttributes();
                Attribute attr = attrs.get(ldapAttrMapping.membershipTypeMemberValue);
+               if (attr == null)
+                  continue;
 
                for (int i = 0; i < attr.size(); i++)
                {
@@ -158,6 +162,8 @@ public class MembershipsByGroupLdapListAccess extends LdapListAccess<Membership>
          {
             Attributes attrs = results.next().getAttributes();
             Attribute attr = attrs.get(ldapAttrMapping.membershipTypeMemberValue);
+            if (attr == null)
+               continue;
 
             size += attr.size();
          }

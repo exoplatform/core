@@ -161,7 +161,7 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
                   preSave(group, true);
                }
 
-               ctx.createSubcontext(groupDN, ldapAttrMapping.groupToAttributes(child));
+               ctx.createSubcontext(groupDN, ldapAttrMapping.groupToAttributes(child)).close();
                cacheHandler.put(child.getId(), group, CacheType.GROUP);
 
                if (broadcast)
@@ -218,10 +218,10 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
                ModificationItem[] mods = new ModificationItem[modifications.size()];
                modifications.toArray(mods);
                if (broadcast)
-                  preSave(group, true);
+                  preSave(group, false);
                ctx.modifyAttributes(groupDN, mods);
                if (broadcast)
-                  postSave(group, true);
+                  postSave(group, false);
 
                cacheHandler.put(group.getId(), group, CacheType.GROUP);
                return;
@@ -238,10 +238,10 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
       }
    }
 
-   private boolean hasChildrenGroups(Group parent) throws Exception
+   private boolean hasChildrenGroups(LdapContext ctx, Group parent) throws Exception
    {
       String groupsBaseDN = ldapAttrMapping.groupsURL;
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder buffer = new StringBuilder();
 
       if (parent != null)
       {
@@ -253,48 +253,29 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
       }
       buffer.append(groupsBaseDN);
 
-      LdapContext ctx = ldapService.getLdapContext();
       String searchBase = buffer.toString();
       String filter = ldapAttrMapping.groupObjectClassFilter;
       SearchControls constraints = new SearchControls();
       constraints.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+      NamingEnumeration<SearchResult> results = null;
       try
       {
-         NamingEnumeration<SearchResult> results = null;
-         for (int err = 0;; err++)
-         {
-            try
-            {
-               try
-               {
-                  results = ctx.search(searchBase, filter, constraints);
-               }
-               catch (NamingException e1)
-               {
-                  // if connection error let process it in common way
-                  if (isConnectionError(e1))
-                     throw e1;
-                  if (LOG.isDebugEnabled())
-                     LOG.debug("Failed to get groups from parent " + parent.getId() + ". ", e1);
-                  return false;
-               }
-
-               return results.hasMoreElements();
-            }
-            catch (NamingException e2)
-            {
-               ctx = reloadCtx(ctx, err, e2);
-            }
-            finally
-            {
-               if (results != null)
-                  results.close();
-            }
-         }
+         results = ctx.search(searchBase, filter, constraints);
+         return results.hasMoreElements();
+      }
+      catch (NamingException e1)
+      {
+         // if connection error let process it in common way
+         if (isConnectionError(e1))
+            throw e1;
+         if (LOG.isDebugEnabled())
+            LOG.debug("Failed to get groups from parent " + parent.getId() + ". ", e1);
+         return false;
       }
       finally
       {
-         ldapService.release(ctx);
+         if (results != null)
+            results.close();
       }
    }
 
@@ -343,7 +324,7 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
                   return group;
                }
 
-               if (hasChildrenGroups(group))
+               if (hasChildrenGroups(ctx, group))
                {
                   throw new IllegalStateException("Group " + group.getGroupName() + " has at least one child group");
                }
@@ -407,7 +388,8 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
                   NameParser parser = ctx.getNameParser("");
                   Name entryNameName = parser.parse(new CompositeName(sr.getName()).get(0));
                   String entryName =
-                     String.valueOf(entryNameName).substring(entryNameName.getSuffix(1).toString().length() + 1);
+                     entryNameName.getSuffix(0).toString()
+                        .substring(entryNameName.getSuffix(1).toString().length() + 1);
                   String groupDN = entryName + "," + ldapAttrMapping.groupsURL;
                   Group group = getGroupByDN(ctx, groupDN);
                   if (group != null)
@@ -453,7 +435,7 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
       }
 
       String parentId = null;
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder buffer = new StringBuilder();
       String[] groupIdParts = groupId.split("/");
       for (int x = 1; x < groupIdParts.length; x++)
       {
@@ -516,7 +498,7 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
       }
 
       String parentId = null;
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder buffer = new StringBuilder();
       String[] groupIdParts = groupId.split("/");
       for (int x = 1; x < groupIdParts.length; x++)
       {
@@ -621,7 +603,7 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
    {
       List<Group> groups = new ArrayList<Group>();
       String groupsBaseDN = ldapAttrMapping.groupsURL;
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder buffer = new StringBuilder();
 
       if (parent != null)
       {
@@ -662,16 +644,10 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
                while (results.hasMoreElements())
                {
                   SearchResult sr = results.next();
-                  NameParser parser = ctx.getNameParser("");
-                  CompositeName name = new CompositeName(sr.getName());
-                  if (name.size() > 0)
-                  {
-                     Name entryName = parser.parse(name.get(0));
-                     String groupDN = entryName + "," + groupsBaseDN;
-                     Group group = this.buildGroup(groupDN, sr.getAttributes());
-                     if (group != null)
-                        addGroup(groups, group);
-                  }
+                  String groupDN = sr.getNameInNamespace();
+                  Group group = this.buildGroup(groupDN, sr.getAttributes());
+                  if (group != null)
+                     addGroup(groups, group);
                }
                return groups;
             }
@@ -840,7 +816,7 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
 
    protected String createSubDN(String parentId)
    {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder buffer = new StringBuilder();
       if (parentId != null && parentId.length() > 0)
       {
          String[] dnParts = parentId.split("/");

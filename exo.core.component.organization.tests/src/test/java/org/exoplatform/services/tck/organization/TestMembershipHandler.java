@@ -35,6 +35,23 @@ import java.util.List;
  */
 public class TestMembershipHandler extends AbstractOrganizationServiceTest
 {
+   private MyMembershipEventListener listener;
+
+   @Override
+   public void setUp() throws Exception
+   {
+      super.setUp();
+      listener = new MyMembershipEventListener();
+      mHandler.addMembershipEventListener(listener);
+   }
+
+   @Override
+   public void tearDown() throws Exception
+   {
+      mHandler.removeMembershipEventListener(listener);
+      super.tearDown();
+   }
+   
    /**
     * Find membership.
     */
@@ -55,6 +72,14 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       {
          
       }
+
+      // Check the listener's counters
+      assertEquals(1, listener.preSaveNew);
+      assertEquals(1, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(0, listener.preDelete);
+      assertEquals(0, listener.postDelete);
    }
 
    /**
@@ -96,6 +121,46 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       {
          fail("Exception should not be thrown");
       }
+
+      createMembership(userName, groupName1, membershipType);
+
+      assertNotNull(m = mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1, membershipType));
+
+      mHandler.removeMembership(m.getId(), true);
+
+      assertNull(m = mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1, membershipType));
+
+      createMembership(userName + "2", groupName2, membershipType + "2");
+
+      assertNotNull(mHandler.findMembershipByUserGroupAndType(userName + "2", "/" + groupName2, membershipType + "2"));
+
+      mHandler.removeMembershipByUser(userName + "2", true);
+
+      assertNull(mHandler.findMembershipByUserGroupAndType(userName + "2", "/" + groupName2, membershipType + "2"));
+
+      createMembership(userName + "3", groupName2 + "3", membershipType + "3");
+
+      assertNotNull(mHandler.findMembershipByUserGroupAndType(userName + "3", "/" + groupName2 + "3", membershipType + "3"));
+ 
+      uHandler.removeUser(userName + "3", false);
+
+      assertNull(mHandler.findMembershipByUserGroupAndType(userName + "3", "/" + groupName2 + "3", membershipType + "3"));
+
+      createMembership(userName + "4", groupName2 + "4", membershipType + "4");
+
+      assertNotNull(mHandler.findMembershipByUserGroupAndType(userName + "4", "/" + groupName2 + "4", membershipType + "4"));
+
+      gHandler.removeGroup(gHandler.findGroupById("/" + groupName2 + "4"), false);
+
+      assertNull(mHandler.findMembershipByUserGroupAndType(userName + "4", "/" + groupName2 + "4", membershipType + "4"));
+
+      // Check the listener's counters
+      assertEquals(4, listener.preSaveNew);
+      assertEquals(4, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(2, listener.preDelete);
+      assertEquals(2, listener.postDelete);
    }
 
    /**
@@ -104,7 +169,7 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
    public void testFindMembershipsByGroup() throws Exception
    {
       Group g = gHandler.findGroupById("/platform/users");
-      assertEquals(mHandler.findMembershipsByGroup(g).size(), 4);
+      assertSizeEquals(4, mHandler.findMembershipsByGroup(g));
 
       // try to find for non-existing group
       g = gHandler.createGroupInstance();
@@ -113,8 +178,16 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       gHandler.addChild(null, g, false);
       assertEquals(g.getId(), gHandler.findGroupById("/" + groupName1).getId());
       g = gHandler.removeGroup(g, false);
-      assertEquals(mHandler.findMembershipsByGroup(g).size(), 0);
+      assertSizeEquals(0, mHandler.findMembershipsByGroup(g));
 
+
+      // Check the listener's counters
+      assertEquals(0, listener.preSaveNew);
+      assertEquals(0, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(0, listener.preDelete);
+      assertEquals(0, listener.postDelete);
    }
 
    /**
@@ -124,7 +197,7 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
    {
       Group g = gHandler.findGroupById("/platform/users");
       ListAccess<Membership> memberships = mHandler.findAllMembershipsByGroup(g);
-      assertEquals(memberships.getSize(), 4);
+      assertSizeEquals(4, memberships);
 
       try
       {
@@ -161,9 +234,58 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       g.setLabel("label");
       gHandler.addChild(null, g, false);
       assertEquals(g.getId(), gHandler.findGroupById("/" + groupName1).getId());
-      g = gHandler.removeGroup(g, false);
-      assertEquals(mHandler.findMembershipsByGroup(g).size(), 0);
+      g = gHandler.removeGroup(g, true);
+      assertSizeEquals(0, mHandler.findMembershipsByGroup(g));
 
+      createMembership(userName, groupName1, membershipType);
+
+      g = gHandler.findGroupById("/" + groupName1);
+
+      assertSizeEquals(1, mHandler.findAllMembershipsByGroup(g));
+
+      Membership m;
+      assertNotNull(m = mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1, membershipType));
+      mHandler.removeMembership(m.getId(), true);
+
+      assertSizeEquals(0, mHandler.findAllMembershipsByGroup(g));
+
+      createMembership(userName + "2", groupName2, membershipType + "2");
+
+      g = gHandler.findGroupById("/" + groupName2);
+
+      assertSizeEquals(1, mHandler.findAllMembershipsByGroup(g));
+
+      mHandler.removeMembershipByUser(userName + "2", true);
+
+      assertSizeEquals(0, mHandler.findAllMembershipsByGroup(g));
+
+      createMembership(userName + "3", groupName2 + "3", membershipType + "3");
+
+      g = gHandler.findGroupById("/" + groupName2 + "3");
+
+      assertSizeEquals(1, mHandler.findAllMembershipsByGroup(g));
+
+      uHandler.removeUser(userName + "3", false);
+
+      assertSizeEquals(0, mHandler.findAllMembershipsByGroup(g));
+
+      createMembership(userName + "4", groupName2 + "4", membershipType + "4");
+
+      g = gHandler.findGroupById("/" + groupName2 + "4");
+
+      assertSizeEquals(1, mHandler.findAllMembershipsByGroup(g));
+
+      gHandler.removeGroup(gHandler.findGroupById("/" + groupName2 + "4"), false);
+
+      assertSizeEquals(0, mHandler.findAllMembershipsByGroup(g));
+
+      // Check the listener's counters
+      assertEquals(4, listener.preSaveNew);
+      assertEquals(4, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(2, listener.preDelete);
+      assertEquals(2, listener.postDelete);
    }
 
    /**
@@ -171,8 +293,51 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
     */
    public void testFindMembershipsByUser() throws Exception
    {
-      assertEquals(mHandler.findMembershipsByUser("john").size(), 3);
-      assertEquals(mHandler.findMembershipsByUser("not-existed-user").size(), 0);
+      assertSizeEquals(3, mHandler.findMembershipsByUser("john"));
+      assertSizeEquals(0, mHandler.findMembershipsByUser("not-existed-user"));
+
+      createMembership(userName, groupName1, membershipType);
+
+      assertSizeEquals(1, mHandler.findMembershipsByUser(userName));
+
+      Membership m;
+      assertNotNull(m = mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1, membershipType));
+
+      mHandler.removeMembership(m.getId(), true);
+
+      assertSizeEquals(0, mHandler.findMembershipsByUser(userName));
+
+      createMembership(userName + "2", groupName2, membershipType + "2");
+
+      assertSizeEquals(1, mHandler.findMembershipsByUser(userName + "2"));
+
+      mHandler.removeMembershipByUser(userName + "2", true);
+
+      assertSizeEquals(0, mHandler.findMembershipsByUser(userName + "2"));
+
+      createMembership(userName + "3", groupName2 + "3", membershipType + "3");
+
+      assertSizeEquals(1, mHandler.findMembershipsByUser(userName + "3"));
+
+      uHandler.removeUser(userName + "3", false);
+
+      assertSizeEquals(0, mHandler.findMembershipsByUser(userName + "3"));
+
+      createMembership(userName + "4", groupName2 + "4", membershipType + "4");
+
+      assertSizeEquals(1, mHandler.findMembershipsByUser(userName + "4"));
+
+      gHandler.removeGroup(gHandler.findGroupById("/" + groupName2 + "4"), false);
+
+      assertSizeEquals(0, mHandler.findMembershipsByUser(userName + "4"));
+
+      // Check the listener's counters
+      assertEquals(4, listener.preSaveNew);
+      assertEquals(4, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(2, listener.preDelete);
+      assertEquals(2, listener.postDelete);
    }
 
    /**
@@ -180,12 +345,12 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
     */
    public void testFindMembershipsByUserAndGroup() throws Exception
    {
-      assertEquals(mHandler.findMembershipsByUserAndGroup("john", "/platform/users").size(), 1);
+      assertSizeEquals(1, mHandler.findMembershipsByUserAndGroup("john", "/platform/users"));
 
       // try to find not existed membership. We are supposed to get null instead of Exception
       try
       {
-         assertEquals(mHandler.findMembershipsByUserAndGroup("non-existed-john", "/platform/users").size(), 0);
+         assertSizeEquals(0, mHandler.findMembershipsByUserAndGroup("non-existed-john", "/platform/users"));
       }
       catch (Exception e)
       {
@@ -194,13 +359,56 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
 
       try
       {
-         assertEquals(mHandler.findMembershipsByUserAndGroup("john", "/non-existed-group").size(), 0);
+         assertSizeEquals(0, mHandler.findMembershipsByUserAndGroup("john", "/non-existed-group"));
       }
       catch (Exception e)
       {
          fail("Exception should not be thrown");
       }
-   }
+
+      createMembership(userName, groupName1, membershipType);
+
+      assertSizeEquals(1, mHandler.findMembershipsByUserAndGroup(userName, "/" + groupName1));
+
+      Membership m = mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1, membershipType);
+      assertNotNull(m);
+
+      mHandler.removeMembership(m.getId(), true);
+
+      assertSizeEquals(0, mHandler.findMembershipsByUserAndGroup(userName, "/" + groupName1));
+
+      createMembership(userName + "2", groupName2, membershipType + "2");
+
+      assertSizeEquals(1, mHandler.findMembershipsByUserAndGroup(userName + "2", "/" + groupName2));
+ 
+      mHandler.removeMembershipByUser(userName + "2", true);
+
+      assertSizeEquals(0, mHandler.findMembershipsByUserAndGroup(userName + "2", "/" + groupName2));
+
+      createMembership(userName + "3", groupName2 + "3", membershipType + "3");
+
+      assertSizeEquals(1, mHandler.findMembershipsByUserAndGroup(userName + "3", "/" + groupName2 + "3"));
+
+      uHandler.removeUser(userName + "3", false);
+
+      assertSizeEquals(0, mHandler.findMembershipsByUserAndGroup(userName + "3", "/" + groupName2 + "3"));
+
+      createMembership(userName + "4", groupName2 + "4", membershipType + "4");
+
+      assertSizeEquals(1, mHandler.findMembershipsByUserAndGroup(userName + "4", "/" + groupName2 + "4"));
+
+      gHandler.removeGroup(gHandler.findGroupById("/" + groupName2 + "4"), false);
+
+      assertSizeEquals(0, mHandler.findMembershipsByUserAndGroup(userName + "4", "/" + groupName2 + "4"));
+
+      // Check the listener's counters
+      assertEquals(4, listener.preSaveNew);
+      assertEquals(4, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(2, listener.preDelete);
+      assertEquals(2, listener.postDelete);
+ }
 
    /**
     * Link membership.
@@ -301,6 +509,14 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       catch (Exception e)
       {
       }
+
+      // Check the listener's counters
+      assertEquals(2, listener.preSaveNew);
+      assertEquals(2, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(1, listener.preDelete);
+      assertEquals(1, listener.postDelete);
    }
 
    /**
@@ -331,6 +547,14 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       {
          fail("Exception should not be thrown");
       }
+
+      // Check the listener's counters
+      assertEquals(1, listener.preSaveNew);
+      assertEquals(1, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(1, listener.preDelete);
+      assertEquals(1, listener.postDelete);
    }
 
    /**
@@ -340,18 +564,26 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
    {
       createMembership(userName, groupName1, membershipType);
 
-      assertEquals(mHandler.removeMembershipByUser("user", true).size(), 1);
+      assertSizeEquals(1, mHandler.removeMembershipByUser("user", true));
       assertNull(mHandler.findMembershipByUserGroupAndType("user", "/group", "type"));
 
       // try to remove memberships by not existed users. We are supposed to get empty list instead of Exception
       try
       {
-         assertEquals(mHandler.removeMembershipByUser("not-existed-user", true).size(), 0);
+         assertSizeEquals(0, mHandler.removeMembershipByUser("not-existed-user", true));
       }
       catch (Exception e)
       {
          fail("Exception should not be thrown");
       }
+
+      // Check the listener's counters
+      assertEquals(1, listener.preSaveNew);
+      assertEquals(1, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(1, listener.preDelete);
+      assertEquals(1, listener.postDelete);
    }
 
    /**
@@ -359,19 +591,51 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
     */
    public void testFindGroupByMembership() throws Exception
    {
-      assertEquals(gHandler.findGroupByMembership("john", "manager").size(), 1);
+      createMembership(userName, groupName1, membershipType);
+      assertSizeEquals(1, gHandler.findGroupByMembership(userName, membershipType));
 
       // try to find groups by not existed entries. We supposed to get empty list instead of Exception
       try
       {
-         assertEquals(gHandler.findGroupByMembership("not-existed-john", "manager").size(), 0);
+         assertSizeEquals(0, gHandler.findGroupByMembership("not-existed-john", membershipType));
       }
       catch (Exception e)
       {
          fail("Exception should not be thrown");
       }
 
+      mHandler.removeMembershipByUser(userName, true);
+      try
+      {
+         assertSizeEquals(0, gHandler.findGroupByMembership(userName, membershipType));
+      }
+      catch (Exception e)
+      {
+         fail("Exception should not be thrown");
+      }
 
+      createMembership(userName + "2", groupName2, "foo");
+
+      assertSizeEquals(1, gHandler.findGroupByMembership(userName + "2", "foo"));
+
+      uHandler.removeUser(userName + "2", false);
+
+      try
+      {
+         assertSizeEquals(0, gHandler.findGroupByMembership(userName + "2", "foo"));
+      }
+      catch (Exception e)
+      {
+         fail("Exception should not be thrown");
+      }
+
+      // Check the listener's counters
+      assertEquals(2, listener.preSaveNew);
+      assertEquals(2, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(1, listener.preDelete);
+      assertEquals(1, listener.postDelete);
    }
 
    /**
@@ -379,17 +643,25 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
     */
    public void testFindGroupsOfUser() throws Exception
    {
-      assertEquals(gHandler.findGroupsOfUser("john").size(), 3);
+      assertSizeEquals(3, gHandler.findGroupsOfUser("john"));
 
       // try to find groups by not existed entries. We supposed to get empty list instead of Exception
       try
       {
-         assertEquals(gHandler.findGroupsOfUser("not-existed-james").size(), 0);
+         assertSizeEquals(0, gHandler.findGroupsOfUser("not-existed-james"));
       }
       catch (Exception e)
       {
          fail("Exception should not be thrown");
       }
+
+      // Check the listener's counters
+      assertEquals(0, listener.preSaveNew);
+      assertEquals(0, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(0, listener.preDelete);
+      assertEquals(0, listener.postDelete);
    }
 
    /**
@@ -399,7 +671,7 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
    {
       ListAccess<User> users = uHandler.findUsersByGroupId("/platform/users");
 
-      assertEquals(users.getSize(), 4);
+      assertSizeEquals(4, users);
 
       for (User u : users.load(0, users.getSize()))
       {
@@ -411,13 +683,12 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
          assertEquals(currentUrer.getLastName(), u.getLastName());
          assertEquals(currentUrer.getEmail(), u.getEmail());
          assertEquals(currentUrer.getOrganizationId(), u.getOrganizationId());
-         assertEquals(currentUrer.getPassword(), u.getPassword());
       }
 
       // try to find users by not existed entries. We supposed to get empty list instead of Exception
       try
       {
-         assertEquals(uHandler.findUsersByGroupId("/not-existed-group").getSize(), 0);
+         assertSizeEquals(0, uHandler.findUsersByGroupId("/not-existed-group"));
       }
       catch (Exception e)
       {
@@ -461,6 +732,14 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       catch (Exception e)
       {
       }
+
+      // Check the listener's counters
+      assertEquals(0, listener.preSaveNew);
+      assertEquals(0, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(0, listener.preDelete);
+      assertEquals(0, listener.postDelete);
    }
 
    /**
@@ -470,7 +749,7 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
    {
       PageList<User> usersList = uHandler.findUsersByGroup("/platform/users");
       
-      assertEquals(usersList.getAll().size(), 4);
+      assertSizeEquals(4, usersList.getAll());
 
       for (User u : usersList.getAll())
       {
@@ -482,18 +761,25 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
          assertEquals(currentUrer.getLastName(), u.getLastName());
          assertEquals(currentUrer.getEmail(), u.getEmail());
          assertEquals(currentUrer.getOrganizationId(), u.getOrganizationId());
-         assertEquals(currentUrer.getPassword(), u.getPassword());
       }
 
       // try to find users by not existed entries. We supposed to get empty list instead of Exception
       try
       {
-         assertEquals(uHandler.findUsersByGroup("/not-existed-group").getAll().size(), 0);
+         assertSizeEquals(0, uHandler.findUsersByGroup("/not-existed-group").getAll());
       }
       catch (Exception e)
       {
          fail("Exception should not be thrown");
       }
+
+      // Check the listener's counters
+      assertEquals(0, listener.preSaveNew);
+      assertEquals(0, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(0, listener.preDelete);
+      assertEquals(0, listener.postDelete);
    }
 
    /**
@@ -506,6 +792,14 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       mtHandler.removeMembershipType("type", true);
       assertNull(mtHandler.findMembershipType("type"));
       assertNull(mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1, membershipType));
+
+      // Check the listener's counters
+      assertEquals(1, listener.preSaveNew);
+      assertEquals(1, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(0, listener.preDelete);
+      assertEquals(0, listener.postDelete);
    }
 
    /**
@@ -542,6 +836,33 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       catch (Exception e)
       {
       }
+
+      // Check the listener's counters
+      assertEquals(1, listener.preSaveNew);
+      assertEquals(1, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(0, listener.preDelete);
+      assertEquals(0, listener.postDelete);
+   }
+
+   /**
+    * Remove user.
+    */
+   public void testRemoveUser() throws Exception
+   {
+      String userName = "testRemoveUser";
+      createMembership(userName, groupName1, membershipType);
+
+      uHandler.removeUser(userName, true);
+
+      // Check the listener's counters
+      assertEquals(1, listener.preSaveNew);
+      assertEquals(1, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(0, listener.preDelete);
+      assertEquals(0, listener.postDelete);
    }
 
    /**
@@ -560,6 +881,51 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
          catch (Exception e)
          {
          }
+      }
+   }
+
+   private static class MyMembershipEventListener extends MembershipEventListener
+   {
+      public int preSaveNew, postSaveNew;
+      public int preSave, postSave;
+      public int preDelete, postDelete;
+
+      @Override
+      public void preSave(Membership m, boolean isNew) throws Exception
+      {
+         if (m == null)
+            return;
+         if (isNew)
+            preSaveNew++;
+         else
+            preSave++;
+      }
+
+      @Override
+      public void postSave(Membership m, boolean isNew) throws Exception
+      {
+         if (m == null)
+            return;
+         if (isNew)
+            postSaveNew++;
+         else
+            postSave++;
+      }
+
+      @Override
+      public void preDelete(Membership m) throws Exception
+      {
+         if (m == null)
+            return;
+         preDelete++;
+      }
+
+      @Override
+      public void postDelete(Membership m) throws Exception
+      {
+         if (m == null)
+            return;
+         postDelete++;
       }
    }
 }

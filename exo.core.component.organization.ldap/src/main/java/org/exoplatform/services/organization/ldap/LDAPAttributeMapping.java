@@ -19,6 +19,7 @@
 package org.exoplatform.services.organization.ldap;
 
 import org.exoplatform.services.ldap.ObjectClassAttribute;
+import org.exoplatform.services.organization.DisabledUserException;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipType;
@@ -26,7 +27,6 @@ import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.impl.GroupImpl;
 import org.exoplatform.services.organization.impl.MembershipTypeImpl;
-import org.exoplatform.services.organization.impl.UserImpl;
 import org.exoplatform.services.organization.impl.UserProfileData;
 
 import java.util.Calendar;
@@ -83,7 +83,11 @@ public class LDAPAttributeMapping
 
    String userMailAttr;
 
+   String userAccountControlAttr;
+
    String userObjectClassFilter;
+
+   String userAccountControlFilter;
 
    String membershipTypeMemberValue;
 
@@ -126,6 +130,8 @@ public class LDAPAttributeMapping
       attrs.put(userFirstNameAttr, user.getFirstName());
       attrs.put(userMailAttr, user.getEmail());
       attrs.put(ldapDescriptionAttr, "Account for " + user.getDisplayName());
+      if (hasUserAccountControl())
+         attrs.put(userAccountControlAttr, Integer.toString(user.isEnabled() ? 0 : UserDAOImpl.UF_ACCOUNTDISABLE));
       return attrs;
    }
 
@@ -134,12 +140,14 @@ public class LDAPAttributeMapping
     * 
     * @param attrs {@link Attributes}
     * @return User
+    * @throws DisabledUserException in case the attribute <code>userAccountControlAttr</code>
+    *         could not be parsed properly.
     */
-   public final User attributesToUser(Attributes attrs)
+   public final User attributesToUser(Attributes attrs) throws DisabledUserException
    {
       if (attrs == null || attrs.size() == 0)
          return null;
-      UserImpl user = new UserImpl();
+      LDAPUserImpl user = new LDAPUserImpl();
       user.setUserName(getAttributeValueAsString(attrs, userUsernameAttr));
       user.setLastName(getAttributeValueAsString(attrs, userLastNameAttr));
       user.setFirstName(getAttributeValueAsString(attrs, userFirstNameAttr));
@@ -148,7 +156,53 @@ public class LDAPAttributeMapping
       user.setPassword(getAttributeValueAsString(attrs, userPassword));
       user.setCreatedDate(Calendar.getInstance().getTime());
       user.setLastLoginTime(Calendar.getInstance().getTime());
+      int iUserAccountControl = getUserAccountControl(user.getUserName(), attrs);
+      user.setEnabled((iUserAccountControl & 2) == 0);
+      user.setUserAccountControl(iUserAccountControl);
       return user;
+   }
+
+   /**
+    * Indicates whether the user account is enabled or not according to the provided
+    * attributes
+    * @param username the user name corresponding to the account to check
+    * @param attrs the attributes related to the user account
+    * @return <code>true</code> if the user account is enabled, <code>false</code>
+    *         otherwise
+    * @throws DisabledUserException in case the attribute <code>userAccountControlAttr</code>
+    *         could not be parsed properly.
+    */
+   public final boolean isEnabled(String username, Attributes attrs) throws DisabledUserException
+   {
+      int iUserAccountControl = getUserAccountControl(username, attrs);
+      return (iUserAccountControl & 2) == 0;
+   }
+
+   /**
+    * Gives the value of the attribute <code>userAccountControlAttr</code>
+    * @param username the user name corresponding to the provided attributes
+    * @param attrs the attributes related to the user account
+    * @return the value of the attribute if it could be found, <code>0</code> by default
+    * @throws DisabledUserException in case the attribute <code>userAccountControlAttr</code>
+    *         could not be parsed properly.
+    */
+   private final int getUserAccountControl(String username, Attributes attrs) throws DisabledUserException
+   {
+      if (!hasUserAccountControl() || attrs == null || attrs.size() == 0)
+         return 0;
+      String userAccountControl = getAttributeValueAsString(attrs, userAccountControlAttr);
+      if (userAccountControl != null && !userAccountControl.isEmpty())
+      {
+         try
+         {
+            return Integer.parseInt(userAccountControl);
+         }
+         catch (NumberFormatException e)
+         {
+            throw new DisabledUserException(username, e);
+         }
+      }
+      return 0;
    }
 
    /**
@@ -306,5 +360,13 @@ public class LDAPAttributeMapping
       {
          return "";
       }
+   }
+
+   /**
+    * @return <code>true</code> if the user account attribute is configured false otherwise
+    */
+   public boolean hasUserAccountControl()
+   {
+      return userAccountControlAttr != null;
    }
 }

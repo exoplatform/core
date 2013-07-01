@@ -41,13 +41,13 @@ public interface MembershipHandler
     * @deprecated This method should not be called, use the linkMembership
     *             instead.
     */
-   public Membership createMembershipInstance();
+   Membership createMembershipInstance();
 
    /**
     * @deprecated This method should no be called, use the linkMembership(..)
     *             instead
     */
-   public void createMembership(Membership m, boolean broadcast) throws Exception;
+   void createMembership(Membership m, boolean broadcast) throws Exception;
 
    /**
     * Use this method to create a membership record, a relation of the user,
@@ -62,7 +62,7 @@ public interface MembershipHandler
     * @throws Exception An exception is thrown if the method is fail to access
     *           the database, membership type not existed or any listener fail to handle the event.
     */
-   public void linkMembership(User user, Group group, MembershipType m, boolean broadcast) throws Exception;
+   void linkMembership(User user, Group group, MembershipType m, boolean broadcast) throws Exception;
 
    /**
     * Use this method to remove a membership. Usually you need to call the method
@@ -75,7 +75,7 @@ public interface MembershipHandler
     * @throws Exception An exception is throwed if the method cannot access the
     *           database or any listener fail to handle the event.
     */
-   public Membership removeMembership(String id, boolean broadcast) throws Exception;
+   Membership removeMembership(String id, boolean broadcast) throws Exception;
 
    /**
     * Use this method to remove all user's membership.
@@ -87,7 +87,7 @@ public interface MembershipHandler
     * @throws Exception An exception is throwed if the method cannot access the
     *           database or any listener fail to handle the event.
     */
-   public Collection removeMembershipByUser(String username, boolean broadcast) throws Exception;
+   Collection removeMembershipByUser(String username, boolean broadcast) throws Exception;
 
    /**
     * Use this method to search for an mebership record with the given id
@@ -97,7 +97,7 @@ public interface MembershipHandler
     * @throws Exception An exception is throwed if the method fail to access the
     *           database or no membership is found.
     */
-   public Membership findMembership(String id) throws Exception;
+   Membership findMembership(String id) throws Exception;
 
    /**
     * Use this method to search for a specific membership type of an user in a
@@ -110,7 +110,7 @@ public interface MembershipHandler
     * @throws Exception Usually an exception is thrown if the method cannot
     *           access the database
     */
-   public Membership findMembershipByUserGroupAndType(String userName, String groupId, String type) throws Exception;
+   Membership findMembershipByUserGroupAndType(String userName, String groupId, String type) throws Exception;
 
    /**
     * Use this method to find all the memberships of an user in a group
@@ -123,7 +123,7 @@ public interface MembershipHandler
     * @throws Exception Usually an exception is thrown if the method cannot
     *           access the database.
     */
-   public Collection findMembershipsByUserAndGroup(String userName, String groupId) throws Exception;
+   Collection findMembershipsByUserAndGroup(String userName, String groupId) throws Exception;
 
    /**
     * Use this method to find all the memberships of an user in any group.
@@ -134,7 +134,7 @@ public interface MembershipHandler
     * @throws Exception Usually an exception is throwed if the method cannot
     *           access the database.
     */
-   public Collection findMembershipsByUser(String userName) throws Exception;
+   Collection findMembershipsByUser(String userName) throws Exception;
 
    /**
     * Use this method to find all the membership in a group. Note that an user
@@ -148,7 +148,7 @@ public interface MembershipHandler
     * @deprecated This method should no be called, use {@link MembershipHandler#findAllMembershipsByGroup(Group)}
     *             instead
     */
-   public Collection findMembershipsByGroup(Group group) throws Exception;
+   Collection findMembershipsByGroup(Group group) throws Exception;
 
    /**
     * Use this method to find all the membership in a group. Note that an user
@@ -159,19 +159,19 @@ public interface MembershipHandler
     * @return the list of the memberships
     * @throws Exception
     */
-   public ListAccess<Membership> findAllMembershipsByGroup(Group group) throws Exception;
+   ListAccess<Membership> findAllMembershipsByGroup(Group group) throws Exception;
 
    /**
     * Use this method to register a membership event listener.
     * 
     * @param listener the listener instance.
     */
-   public void addMembershipEventListener(MembershipEventListener listener);
+   void addMembershipEventListener(MembershipEventListener listener);
 
    /**
     * Use this method to unregister a membership event listener.
     * 
     * @param listener the listener instance.
     */
-   public void removeMembershipEventListener(MembershipEventListener listener);
+   void removeMembershipEventListener(MembershipEventListener listener);
 }

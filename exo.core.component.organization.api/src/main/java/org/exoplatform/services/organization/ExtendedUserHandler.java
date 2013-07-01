@@ -40,6 +40,8 @@ public interface ExtendedUserHandler
     * @return return true if the username and the password matches 
     * the database record, else return false.
     * @throws Exception throw an exception if cannot access the database
+    * @throws DisabledUserException in case the target user account is disabled
+    *         or an other exception prevents to check if the user account is disabled
     */
    public boolean authenticate(String username, String password, PasswordEncrypter pe) throws Exception;
 }

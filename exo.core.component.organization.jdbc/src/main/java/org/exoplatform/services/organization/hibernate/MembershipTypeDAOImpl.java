@@ -24,6 +24,7 @@ import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.MembershipTypeEventListener;
 import org.exoplatform.services.organization.MembershipTypeEventListenerHandler;
 import org.exoplatform.services.organization.MembershipTypeHandler;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.impl.MembershipTypeImpl;
 import org.exoplatform.services.security.PermissionConstants;
 import org.hibernate.Session;
@@ -55,11 +56,14 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler, MembershipT
     */
    protected final List<MembershipTypeEventListener> listeners = new ArrayList<MembershipTypeEventListener>();
 
-   private HibernateService service_;
+   private final HibernateService service_;
 
-   public MembershipTypeDAOImpl(HibernateService service)
+   protected final OrganizationService orgService;
+
+   public MembershipTypeDAOImpl(HibernateService service, OrganizationService orgService)
    {
-      service_ = service;
+      this.service_ = service;
+      this.orgService = orgService;
    }
 
    final public MembershipType createMembershipTypeInstance()
@@ -136,7 +140,8 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler, MembershipT
       }
 
       session.delete(mt);
-      MembershipDAOImpl.removeMembershipEntriesOfMembershipType(mt, session);
+      MembershipDAOImpl membershipHanler = (MembershipDAOImpl)orgService.getMembershipHandler();
+      membershipHanler.removeMembershipEntriesOfMembershipType(mt, session);
       session.flush();
 
       if (broadcast)

@@ -204,9 +204,7 @@ public class ObjectQuery
             }
             else if (p.value_ instanceof Date)
             {
-               SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-               String value = ft.format((Date)p.value_);
-               b.append(" o.").append(p.field_).append(p.op_).append("'").append(value).append("'");
+               b.append(" o.").append(p.field_).append(p.op_).append(":").append(p.field_).append(i);
             }
             else
             {
@@ -246,6 +244,10 @@ public class ObjectQuery
                {
                   binding.put(p.field_ + i, p.value_);
                }
+            }
+            else if (p.value_ instanceof Date)
+            {
+               binding.put(p.field_ + i, p.value_);
             }
          }
       }
@@ -390,9 +392,7 @@ public class ObjectQuery
             }
             else if (p.value_ instanceof Date)
             {
-               SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-               String value = ft.format((Date)p.value_);
-               b.append(" o.").append(p.field_).append(p.op_).append("'").append(value).append("'");
+               b.append(" o.").append(p.field_).append(p.op_).append(":").append(p.field_).append(i);
             }
             else
             {

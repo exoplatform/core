@@ -22,6 +22,7 @@ import org.exoplatform.container.component.ComponentRequestLifecycle;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.organization.DisabledUserException;
 import org.exoplatform.services.organization.ExtendedUserHandler;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.OrganizationService;
@@ -56,6 +57,12 @@ public class OrganizationAuthenticatorImpl implements Authenticator
 
    protected static final Log LOG =
       ExoLogger.getLogger("exo.core.component.organization.api.OrganizationUserRegistry");
+
+   /**
+    * The thread local in which we store the last exception that occurs while calling the method 
+    * validateUser
+    */
+   private final ThreadLocal<Exception> lastExceptionOnValidateUser = new ThreadLocal<Exception>();
 
    private final OrganizationService orgService;
 
@@ -95,9 +102,16 @@ public class OrganizationAuthenticatorImpl implements Authenticator
    public Identity createIdentity(String userId) throws Exception
    {
       Set<MembershipEntry> entries = new MembershipHashSet();
+      Collection<Membership> memberships;
       begin(orgService);
-      Collection<Membership> memberships = orgService.getMembershipHandler().findMembershipsByUser(userId);
-      end(orgService);
+      try
+      {
+         memberships = orgService.getMembershipHandler().findMembershipsByUser(userId);
+      }
+      finally
+      {
+         end(orgService);
+      }
       if (memberships != null)
       {
          for (Membership membership : memberships)
@@ -139,17 +153,35 @@ public class OrganizationAuthenticatorImpl implements Authenticator
 
       begin(orgService);
       boolean success;
-      Object userHandler = orgService.getUserHandler();
-      if (passwordContext != null && userHandler instanceof ExtendedUserHandler)
+      try
       {
-         PasswordEncrypter pe = new DigestPasswordEncrypter(username, passwordContext);
-         success = ((ExtendedUserHandler)userHandler).authenticate(username, password, pe);
+         UserHandler userHandler = orgService.getUserHandler();
+         if (passwordContext != null && userHandler instanceof ExtendedUserHandler)
+         {
+            PasswordEncrypter pe = new DigestPasswordEncrypter(username, passwordContext);
+            success = ((ExtendedUserHandler)userHandler).authenticate(username, password, pe);
+         }
+         else
+         {
+            success = userHandler.authenticate(username, password);
+         }
+         // No exception occurred
+         lastExceptionOnValidateUser.set(null);
       }
-      else
+      catch (DisabledUserException e)
       {
-         success = ((UserHandler)userHandler).authenticate(username, password);
+         lastExceptionOnValidateUser.set(e);
+         throw new LoginException("The user account " + username.replace("\n", " ").replace("\r", " ") + " is disabled");
       }
-      end(orgService);
+      catch (Exception e)
+      {
+         lastExceptionOnValidateUser.set(e);
+         throw e;
+      }
+      finally
+      {
+         end(orgService);
+      }
 
       if (!success)
          throw new LoginException("Login failed for " + username.replace("\n", " ").replace("\r", " "));
@@ -173,4 +205,11 @@ public class OrganizationAuthenticatorImpl implements Authenticator
       }
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   public Exception getLastExceptionOnValidateUser()
+   {
+      return lastExceptionOnValidateUser.get();
+   }
 }

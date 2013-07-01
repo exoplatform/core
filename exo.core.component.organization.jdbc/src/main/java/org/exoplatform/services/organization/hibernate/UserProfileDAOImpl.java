@@ -217,10 +217,10 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
 
    void removeUserProfileEntry(String userName, Session session) throws Exception
    {
-      Object user = session.createQuery(queryFindUserProfileByName).setString("id", userName).uniqueResult();
-      if (user != null)
+      UserProfileData upd = (UserProfileData)session.createQuery(queryFindUserProfileByName).setString("id", userName).uniqueResult();
+      if (upd != null)
       {
-         session.delete(user);
+         session.delete(upd);
          cache_.remove(userName);
       }
    }

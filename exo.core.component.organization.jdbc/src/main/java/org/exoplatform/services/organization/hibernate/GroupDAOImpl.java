@@ -25,6 +25,7 @@ import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
 import org.exoplatform.services.organization.GroupEventListenerHandler;
 import org.exoplatform.services.organization.GroupHandler;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.impl.GroupImpl;
 import org.exoplatform.services.security.PermissionConstants;
 import org.hibernate.Query;
@@ -73,14 +74,17 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
    private static final String queryGetAllGroups =
       "from g in class org.exoplatform.services.organization.impl.GroupImpl";
 
-   private HibernateService service_;
+   private final HibernateService service_;
 
-   private List<GroupEventListener> listeners_;
+   private final List<GroupEventListener> listeners_;
 
-   public GroupDAOImpl(HibernateService service)
+   protected final OrganizationService orgService;
+   
+   public GroupDAOImpl(HibernateService service, OrganizationService orgService)
    {
-      service_ = service;
-      listeners_ = new ArrayList<GroupEventListener>();
+      this.service_ = service;
+      this.orgService = orgService;
+      this.listeners_ = new ArrayList<GroupEventListener>();
    }
 
    /**
@@ -189,8 +193,6 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
     */
    public Group removeGroup(Group group, boolean broadcast) throws Exception
    {
-      if (broadcast)
-         preDelete(group);
       Session session = service_.openSession();
 
       if (session.get(group.getClass(), group.getId()) == null)
@@ -203,9 +205,12 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
       {
          throw new IllegalStateException("Group " + group.getGroupName() + " has at least one child group");
       }
+      if (broadcast)
+         preDelete(group);
       session.delete(group);
 
-      MembershipDAOImpl.removeMembershipEntriesOfGroup(group, session);
+      MembershipDAOImpl membershipHanler = (MembershipDAOImpl)orgService.getMembershipHandler();
+      membershipHanler.removeMembershipEntriesOfGroup(group, session);
       session.flush();
 
       if (broadcast)

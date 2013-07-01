@@ -20,8 +20,11 @@ package org.exoplatform.services.organization.api;
 
 import junit.framework.TestCase;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.organization.BaseOrganizationService;
+import org.exoplatform.services.organization.DisabledUserException;
+import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.auth.TestOrganizationAuthenticator;
 import org.exoplatform.services.security.ConversationRegistry;
@@ -69,11 +72,6 @@ public class TestUserHandler extends TestCase
       }
    }
 
-   protected void tearDown() throws Exception
-   {
-      super.tearDown();
-   }
-
    /**
     * Authenticate users.
     */
@@ -93,4 +91,76 @@ public class TestUserHandler extends TestCase
       }
    }
 
+
+   public void testUserEnabling() throws Exception
+   {
+      ListAccess<User> users = uHandler.findAllUsers();
+      assertTrue(contains(users, "demo"));
+      users = uHandler.findAllUsers(false);
+      assertTrue(contains(users, "demo"));
+      users = uHandler.findUsersByGroupId("/platform/users");
+      assertTrue(contains(users, "demo"));
+      users = uHandler.findUsersByGroupId("/platform/users", false);
+      assertTrue(contains(users, "demo"));
+      users = uHandler.findUsersByQuery(null);
+      assertTrue(contains(users, "demo"));
+      users = uHandler.findUsersByQuery(null, false);
+      assertTrue(contains(users, "demo"));
+      assertNotNull(uHandler.findUserByName("demo"));
+      assertNotNull(uHandler.findUserByName("demo", false));
+      assertTrue(uHandler.authenticate("demo", "exo"));
+
+      uHandler.setEnabled("demo", false, true);
+      users = uHandler.findAllUsers();
+      assertFalse(contains(users, "demo"));
+      users = uHandler.findAllUsers(false);
+      assertTrue(contains(users, "demo"));
+      users = uHandler.findUsersByGroupId("/platform/users");
+      assertFalse(contains(users, "demo"));
+      users = uHandler.findUsersByGroupId("/platform/users", false);
+      assertTrue(contains(users, "demo"));
+      users = uHandler.findUsersByQuery(null);
+      assertFalse(contains(users, "demo"));
+      users = uHandler.findUsersByQuery(null, false);
+      assertTrue(contains(users, "demo"));
+      assertNull(uHandler.findUserByName("demo"));
+      assertNotNull(uHandler.findUserByName("demo", false));
+      try
+      {
+         uHandler.authenticate("demo", "exo");
+         fail("A DisabledUserException was epected");
+      }
+      catch (DisabledUserException e)
+      {
+         // expected
+      }
+
+      uHandler.setEnabled("demo", true, true);
+      users = uHandler.findAllUsers();
+      assertTrue(contains(users, "demo"));
+      users = uHandler.findAllUsers(false);
+      assertTrue(contains(users, "demo"));
+      users = uHandler.findUsersByGroupId("/platform/users");
+      assertTrue(contains(users, "demo"));
+      users = uHandler.findUsersByGroupId("/platform/users", false);
+      assertTrue(contains(users, "demo"));
+      users = uHandler.findUsersByQuery(null);
+      assertTrue(contains(users, "demo"));
+      users = uHandler.findUsersByQuery(null, false);
+      assertTrue(contains(users, "demo"));
+      assertNotNull(uHandler.findUserByName("demo"));
+      assertNotNull(uHandler.findUserByName("demo", false));
+      assertTrue(uHandler.authenticate("demo", "exo"));
+   }
+
+   private static boolean contains(ListAccess<User> users, String username) throws IllegalArgumentException, Exception
+   {
+      User[] aUsers = users.load(0, users.getSize());
+      for (User user : aUsers)
+      {
+         if (user.getUserName().equals(username))
+            return true;
+      }
+      return false;
+   }
 }

@@ -89,40 +89,6 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
    }
 
    /**
-    * Create user profile object in directory context.
-    * 
-    * @param profile user profile
-    * @param broadcast should user profile creation to be broadcasted
-    * @throws Exception if any error occurs
-    */
-   @Deprecated
-   public void createUser(UserProfile profile, boolean broadcast) throws Exception
-   {
-      String profileDN =
-         ldapAttrMapping.membershipTypeNameAttr + "=" + profile.getUserName() + "," + ldapAttrMapping.profileURL;
-      LdapContext ctx = ldapService.getLdapContext();
-      try
-      {
-         for (int err = 0;; err++)
-         {
-            try
-            {
-               ctx.createSubcontext(profileDN, ldapAttrMapping.profileToAttributes(profile));
-               return;
-            }
-            catch (NamingException e)
-            {
-               ctx = reloadCtx(ctx, err, e);
-            }
-         }
-      }
-      finally
-      {
-         ldapService.release(ctx);
-      }
-   }
-
-   /**
     * {@inheritDoc}
     */
    public void saveUserProfile(UserProfile profile, boolean broadcast) throws Exception
@@ -142,16 +108,30 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
                }
                catch (NameNotFoundException e)
                {
-                  ctx.createSubcontext(profileDN, ldapAttrMapping.profileToAttributes(profile));
+                  if (broadcast)
+                     preSave(profile, true);
+
+                  ctx.createSubcontext(profileDN, ldapAttrMapping.profileToAttributes(profile)).close();
+
+                  if (broadcast)
+                     postSave(profile, true);
+                  
                   return;
                }
                UserProfileData upd = new UserProfileData();
                upd.setUserProfile(profile);
+
+               if (broadcast)
+                  preSave(profile, false);
+
                ModificationItem[] mods = new ModificationItem[1];
                mods[0] =
                   new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
                      ldapAttrMapping.ldapDescriptionAttr, upd.getProfile()));
                ctx.modifyAttributes(profileDN, mods);
+
+               if (broadcast)
+                  postSave(profile, false);
             }
             catch (NamingException e)
             {
@@ -185,7 +165,14 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
                // NameNotFoundException here if profile does not exists
                Attributes attrs = ctx.getAttributes(profileDN);
                UserProfile profile = ldapAttrMapping.attributesToProfile(attrs).getUserProfile();
+               if (broadcast)
+                  preDelete(profile);
+
                ctx.destroySubcontext(profileDN);
+               
+               if (broadcast)
+                  postDelete(profile);
+
                return profile;
             }
             catch (NamingException e)
@@ -268,6 +255,29 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
       listeners.remove(listener);
    }
 
+   private void preSave(UserProfile profile, boolean isNew) throws Exception
+   {
+      for (UserProfileEventListener listener : listeners)
+         listener.preSave(profile, isNew);
+   }
+
+   private void postSave(UserProfile profile, boolean isNew) throws Exception
+   {
+      for (UserProfileEventListener listener : listeners)
+         listener.postSave(profile, isNew);
+   }
+
+   private void preDelete(UserProfile profile) throws Exception
+   {
+      for (UserProfileEventListener listener : listeners)
+         listener.preDelete(profile);
+   }
+
+   private void postDelete(UserProfile profile) throws Exception
+   {
+      for (UserProfileEventListener listener : listeners)
+         listener.postDelete(profile);
+   }
    /**
     * {@inheritDoc}
     */

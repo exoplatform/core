@@ -191,14 +191,15 @@ public class ADMembershipDAOImpl extends MembershipDAOImpl
             SearchResult sr = results.next();
             Attributes attrs = sr.getAttributes();
             Attribute attr = attrs.get("tokenGroups");
-            for (int x = 0; x < attr.size(); x++)
+            if (attr != null)
             {
-               byte[] SID = (byte[])attr.get(x);
-               // String membershipDN = adSearch.findMembershipDNBySID(SID, groupId,
-               // type);
-               String membershipDN = adSearch.findMembershipDNBySID(ctx, SID, groupId, type);
-               if (membershipDN != null)
-                  list.add(createMembershipObject(ctx, membershipDN, userName, type));
+               for (int x = 0; x < attr.size(); x++)
+               {
+                  byte[] SID = (byte[])attr.get(x);
+                  String membershipDN = adSearch.findMembershipDNBySID(ctx, SID, groupId, type);
+                  if (membershipDN != null)
+                     list.add(createMembershipObject(ctx, membershipDN, userName, type));
+               }
             }
          }
          return list;

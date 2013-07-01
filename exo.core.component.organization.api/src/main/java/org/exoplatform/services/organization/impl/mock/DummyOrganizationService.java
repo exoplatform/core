@@ -25,6 +25,7 @@ import org.exoplatform.commons.utils.LazyPageList;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.PageList;
 import org.exoplatform.services.organization.BaseOrganizationService;
+import org.exoplatform.services.organization.DisabledUserException;
 import org.exoplatform.services.organization.ExtendedUserHandler;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
@@ -164,25 +165,29 @@ public class DummyOrganizationService extends BaseOrganizationService
       }
    }
 
-   static public class UserHandlerImpl implements UserHandler, ExtendedUserHandler
+   public static class UserHandlerImpl implements UserHandler, ExtendedUserHandler
    {
 
-      private static final int DEFAULT_LIST_SIZE = 6;
-
       private LazyListImpl users;
+      private LazyListImpl groupUsers;
+      private LazyListImpl groupAdmins;
 
       public UserHandlerImpl()
       {
 
          users = new LazyListImpl();
+         groupUsers = new LazyListImpl();
+         groupAdmins = new LazyListImpl();
 
          User usr = new UserImpl("exo");
          usr.setPassword("exo");
          users.add(usr);
+         groupUsers.add(usr);
 
          usr = new UserImpl("admin");
          usr.setPassword("admin");
          users.add(usr);
+         groupAdmins.add(usr);
 
          usr = new UserImpl("weblogic");
          usr.setPassword("11111111");
@@ -195,26 +200,32 @@ public class DummyOrganizationService extends BaseOrganizationService
          usr = new UserImpl("root");
          usr.setPassword("exo");
          users.add(usr);
+         groupAdmins.add(usr);
 
          usr = new UserImpl("john");
          usr.setPassword("exo");
          users.add(usr);
+         groupAdmins.add(usr);
 
          usr = new UserImpl("james");
          usr.setPassword("exo");
          users.add(usr);
+         groupUsers.add(usr);
 
          usr = new UserImpl("mary");
          usr.setPassword("exo");
          users.add(usr);
+         groupUsers.add(usr);
 
          usr = new UserImpl("marry");
          usr.setPassword("exo");
          users.add(usr);
+         groupUsers.add(usr);
 
          usr = new UserImpl("demo");
          usr.setPassword("exo");
          users.add(usr);
+         groupUsers.add(usr);
       }
 
       public User createUserInstance()
@@ -248,20 +259,7 @@ public class DummyOrganizationService extends BaseOrganizationService
 
       public User findUserByName(String userName) throws Exception
       {
-         Iterator<User> it = users.iterator();
-
-         while (it.hasNext())
-         {
-            User usr = it.next();
-            if (usr.getUserName().equals(userName))
-            {
-               usr.setFirstName("_" + userName);
-               usr.setEmail(userName + "@mail.com");
-               return usr;
-            }
-         }
-
-         return null;
+         return findUserByName(userName, true);
       }
 
       public PageList<User> findUsersByGroup(String groupId) throws Exception
@@ -276,32 +274,17 @@ public class DummyOrganizationService extends BaseOrganizationService
 
       public ListAccess<User> findUsersByQuery(Query query) throws Exception
       {
-         return users;
+         return findUsersByQuery(query, true);
       }
 
       public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
       {
-         LazyListImpl users = new LazyListImpl();
-         if (groupId.equals(GROUPID_USERS))
-         {
-            users.add(new UserImpl("exo"));
-            users.add(new UserImpl("marry"));
-            users.add(new UserImpl("mary"));
-            users.add(new UserImpl("james"));
-            users.add(new UserImpl("demo"));
-         }
-         if (groupId.equals(GROUPID_ADMINISTRATORS))
-         {
-            users.add(new UserImpl("root"));
-            users.add(new UserImpl("john"));
-            users.add(new UserImpl("admin"));
-         }
-         return users;
+         return findUsersByGroupId(groupId, true);
       }
 
       public ListAccess<User> findAllUsers() throws Exception
       {
-         return users;
+         return findAllUsers(true);
       }
 
       public PageList<User> getUserPageList(int pageSize) throws Exception
@@ -319,24 +302,17 @@ public class DummyOrganizationService extends BaseOrganizationService
 
       public boolean authenticate(String username, String password, PasswordEncrypter pe) throws Exception
       {
-         Iterator<User> it = users.iterator();
-         User usr = null;
-         User temp = null;
-         while (it.hasNext())
-         {
-            temp = it.next();
-            if (temp.getUserName().equals(username))
-            {
-               usr = temp;
-               break;
-            }
-         }
+         User usr = findUserByName(username, false);
 
          if (usr != null)
          {
             if (usr.getUserName().equals("__anonim"))
             {
                return true;
+            }
+            if (!usr.isEnabled())
+            {
+               throw new DisabledUserException(usr.getUserName());
             }
             if (pe == null)
             {
@@ -365,6 +341,97 @@ public class DummyOrganizationService extends BaseOrganizationService
       public boolean authenticate(String username, String password) throws Exception
       {
          return authenticate(username, password, null);
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      public User setEnabled(String username, boolean enabled, boolean broadcast) throws Exception
+      {
+         User usr = findUserByName(username, false);
+         if (usr != null)
+         {
+            if (usr.isEnabled() != enabled)
+            {
+               ((UserImpl)usr).setEnabled(enabled);
+            }
+            return usr;
+         }
+         return null;
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      public User findUserByName(String userName, boolean enabledOnly) throws Exception
+      {
+         Iterator<User> it = users.iterator();
+
+         while (it.hasNext())
+         {
+            User usr = it.next();
+            if (usr.getUserName().equals(userName))
+            {
+               usr.setFirstName("_" + userName);
+               usr.setEmail(userName + "@mail.com");
+               return !enabledOnly || usr.isEnabled() ? usr : null;
+            }
+         }
+         return null;
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      public ListAccess<User> findUsersByGroupId(String groupId, boolean enabledOnly) throws Exception
+      {
+         LazyListImpl users = new LazyListImpl();
+         if (groupId.equals(GROUPID_USERS))
+         {
+            users.addAll(groupUsers);
+         }
+         else if (groupId.equals(GROUPID_ADMINISTRATORS))
+         {
+            users.addAll(groupAdmins);
+         }
+         if (enabledOnly)
+         {
+            for (Iterator<User> it = users.iterator(); it.hasNext();)
+            {
+               User usr = it.next();
+               if (!usr.isEnabled())
+                  it.remove();
+            }
+         }
+         return users;
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      public ListAccess<User> findAllUsers(boolean enabledOnly) throws Exception
+      {
+         if (!enabledOnly)
+         {
+            return users;
+         }
+         LazyListImpl allUsers = new LazyListImpl();
+         allUsers.addAll(users);
+         for (Iterator<User> it = allUsers.iterator(); it.hasNext();)
+         {
+            User usr = it.next();
+            if (!usr.isEnabled())
+               it.remove();
+         }
+         return allUsers;
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      public ListAccess<User> findUsersByQuery(Query query, boolean enabledOnly) throws Exception
+      {
+         return findAllUsers(enabledOnly);
       }
    }
 

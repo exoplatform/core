@@ -33,29 +33,17 @@ import java.util.Collection;
  */
 public interface GroupHandler
 {
-   final static public String PRE_DELETE_GROUP_EVENT = "organization.group.preDelete";
-
-   final static public String POST_DELETE_GROUP_EVENT = "organization.group.postDelete";
-
-   final static public String PRE_CREATE_GROUP_EVENT = "organization.group.preCreate";
-
-   final static public String POST_CREATE_GROUP_EVENT = "organization.group.postCreate";
-
-   final static public String PRE_UPDATE_GROUP_EVENT = "organization.group.preUpdate";
-
-   final static public String POST_UPDATE_GROUP_EVENT = "organization.group.postUpdate";
-
    /**
     * @return a new object instance that implement the Group interface
     */
-   public Group createGroupInstance();
+   Group createGroupInstance();
 
    /**
     * @deprecated This method should not be used , use the addChild(..) method
     *             and pass the null as the parent if you want to add the group to
     *             the root level.
     */
-   public void createGroup(Group group, boolean broadcast) throws Exception;
+   void createGroup(Group group, boolean broadcast) throws Exception;
 
    /**
     * Use this method to create a new group. The developer should call
@@ -74,7 +62,7 @@ public interface GroupHandler
     *           name in the database or any registered listener fail to handle
     *           the event.
     */
-   public void addChild(Group parent, Group child, boolean broadcast) throws Exception;
+   void addChild(Group parent, Group child, boolean broadcast) throws Exception;
 
    /**
     * Use this method to update the properties of an existed group. Usually you
@@ -89,7 +77,7 @@ public interface GroupHandler
     * @throws Exception An exception is thrown if the method cannot access the
     *           database or any listener fail to handle the event
     */
-   public void saveGroup(Group group, boolean broadcast) throws Exception;
+   void saveGroup(Group group, boolean broadcast) throws Exception;
 
    /**
     * Use this method to remove a group from the group database. If the group has
@@ -106,7 +94,7 @@ public interface GroupHandler
     *           group from the database, the group is not existed in the
     *           database, or any listener fail to handle the event.
     */
-   public Group removeGroup(Group group, boolean broadcast) throws Exception;
+   Group removeGroup(Group group, boolean broadcast) throws Exception;
 
    /**
     * Use this method to find all the groups of an user with the specified
@@ -120,7 +108,7 @@ public interface GroupHandler
     * @throws Exception An exception is thrown if the method cannot access the
     *           database.
     */
-   public Collection findGroupByMembership(String userName, String membershipType) throws Exception;
+   Collection findGroupByMembership(String userName, String membershipType) throws Exception;
 
    /**
     * Use this method to search for a group
@@ -130,7 +118,7 @@ public interface GroupHandler
     * @throws Exception An exception is thrown if the method cannot access the
     *           database or more than one group is found.
     */
-   public Group findGroupById(String groupId) throws Exception;
+   Group findGroupById(String groupId) throws Exception;
 
    /**
     * Use this method to find all the children group of a group.
@@ -141,7 +129,7 @@ public interface GroupHandler
     * @throws Exception An exception is thrown is the method cannot access the
     *           database
     */
-   public Collection findGroups(Group parent) throws Exception;
+   Collection findGroups(Group parent) throws Exception;
 
    /**
     * use this method to look all the group that the user has at least one
@@ -153,25 +141,25 @@ public interface GroupHandler
     * @throws Exception An exception is thrown if the method cannot access the
     *           database.
     */
-   public Collection findGroupsOfUser(String user) throws Exception;
+   Collection findGroupsOfUser(String user) throws Exception;
 
    /**
     * Use this method to get all the groups. But the third party should not use
     * this method
     */
-   public Collection getAllGroups() throws Exception;
+   Collection getAllGroups() throws Exception;
 
    /**
     * Use this method to register a group event listener
     * 
     * @param listener the group event listener instance.
     */
-   public void addGroupEventListener(GroupEventListener listener);
+   void addGroupEventListener(GroupEventListener listener);
 
    /**
     * Use this method to unregister a group event listener
     * 
     * @param listener the group event listener instance.
     */
-   public void removeGroupEventListener(GroupEventListener listener);
+   void removeGroupEventListener(GroupEventListener listener);
 }

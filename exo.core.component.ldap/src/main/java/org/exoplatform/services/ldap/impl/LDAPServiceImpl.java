@@ -19,9 +19,7 @@
 package org.exoplatform.services.ldap.impl;
 
 import org.exoplatform.commons.utils.PrivilegedSystemHelper;
-import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.component.ComponentPlugin;
-import org.exoplatform.container.component.ComponentRequestLifecycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.ldap.CreateObjectCommand;
 import org.exoplatform.services.ldap.DeleteObjectCommand;
@@ -29,7 +27,6 @@ import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -39,12 +36,9 @@ import java.util.regex.Pattern;
 import javax.naming.CommunicationException;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ServiceUnavailableException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -53,7 +47,7 @@ import javax.naming.ldap.LdapContext;
  * Author : James Chamberlain james@echamberlains.com
  * Date: 11/2/2005
  */
-public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
+public class LDAPServiceImpl implements LDAPService
 {
 
    private static final Log LOG = ExoLogger.getLogger("exo.core.component.ldap.LDAPServiceImpl");
@@ -73,18 +67,11 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
       serverType = toServerType(config.getServerName());
 
       boolean ssl = url.toLowerCase().startsWith("ldaps");
-      if (serverType == ACTIVE_DIRECTORY_SERVER && ssl)
+      if (ssl)
       {
-         StringBuilder keystore = new StringBuilder(System.getProperty("java.home"));
-         keystore.append(File.separator);
-         keystore.append("lib");
-         keystore.append(File.separator);
-         keystore.append("security");
-         keystore.append(File.separator);
-         keystore.append("cacerts");
-         PrivilegedSystemHelper.setProperty("javax.net.ssl.trustStore", keystore.toString());
+         // Enable the connection pool with the ssl protocol
+         PrivilegedSystemHelper.setProperty("com.sun.jndi.ldap.connect.pool.protocol", "ssl");
       }
-
       env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
       env.put(Context.SECURITY_AUTHENTICATION, config.getAuthenticationType());
       env.put(Context.SECURITY_PRINCIPAL, config.getRootDN());
@@ -218,27 +205,6 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
    {
    }
 
-   private void unbind(LdapContext ctx, String name) throws NamingException
-   {
-      SearchControls constraints = new SearchControls();
-      constraints.setSearchScope(SearchControls.ONELEVEL_SCOPE);
-      NamingEnumeration<SearchResult> results = ctx.search(name, "(objectclass=*)", constraints);
-      try
-      {
-         while (results.hasMore())
-         {
-            SearchResult sr = results.next();
-            unbind(ctx, sr.getNameInNamespace());
-         }
-         // close search results enumeration
-      }
-      finally
-      {
-         results.close();
-      }
-      ctx.unbind(name);
-   }
-
    /**
     * Create objects in context.
     * 
@@ -262,21 +228,25 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
             {
                try
                {
-                  ctx.createSubcontext(name, attrs);
+                  ctx.createSubcontext(name, attrs).close();
                }
                catch (CommunicationException e1)
                {
+                  // release the previous context
+                  release(ctx);
                   // create new LDAP context
                   ctx = getLdapContext(true);
                   // try repeat operation where communication error occurs
-                  ctx.createSubcontext(name, attrs);
+                  ctx.createSubcontext(name, attrs).close();
                }
                catch (ServiceUnavailableException e2)
                {
+                  // release the previous context
+                  release(ctx);
                   // do the same as for CommunicationException
                   ctx = getLdapContext(true);
                   //
-                  ctx.createSubcontext(name, attrs);
+                  ctx.createSubcontext(name, attrs).close();
                }
             }
             catch (Exception e3)
@@ -290,33 +260,6 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
       }
    }
 
-   /**
-    * {@inheritDoc}
-    * 
-    * @deprecated Will be removed
-    */
-   public void startRequest(ExoContainer container)
-   {
-   }
-
-   /**
-    * {@inheritDoc}
-    * 
-    * @deprecated Will be removed
-    */
-   public void endRequest(ExoContainer container)
-   {
-      //     LdapContext context = tlocal_.get();
-      //    if (context != null) {
-      //      try {
-      //        context.close();
-      //        tlocal_.set(null);
-      //      } catch (Exception ex) {
-      //        ex.printStackTrace();
-      //      }
-      //    }
-   }
-
    private int toServerType(String name)
    {
       name = name.trim();
@@ -324,9 +267,6 @@ public class LDAPServiceImpl implements LDAPService, ComponentRequestLifecycle
          return DEFAULT_SERVER;
       if (name.equalsIgnoreCase("ACTIVE.DIRECTORY"))
          return ACTIVE_DIRECTORY_SERVER;
-      // if(name.equalsIgnoreCase("OPEN.LDAP"))return OPEN_LDAP_SERVER;
-      // if(name.equalsIgnoreCase("NETSCAPE.DIRECTORY")) return NETSCAPE_SERVER;
-      // if(name.equalsIgnoreCase("REDHAT.DIRECTORY")) return REDHAT_SERVER;
       return DEFAULT_SERVER;
    }
 

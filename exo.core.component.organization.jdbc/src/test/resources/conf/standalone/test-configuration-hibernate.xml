@@ -46,11 +46,11 @@
         <description>Default Hibernate Service</description>
         <property name="hibernate.show_sql" value="false"/>
         <property name="hibernate.cglib.use_reflection_optimizer" value="true"/>
-        <property name="hibernate.connection.url" value="jdbc:hsqldb:file:target/temp/data/exodb-hibernate"/>
-        <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver"/>
+        <property name="hibernate.connection.url" value="${all.url:jdbc:hsqldb:file:target/temp/data/exodb-hibernate}"/>
+        <property name="hibernate.connection.driver_class" value="${all.driverClassName:org.hsqldb.jdbcDriver}"/>
         <property name="hibernate.connection.autocommit" value="true"/>
-        <property name="hibernate.connection.username" value="sa"/>
-        <property name="hibernate.connection.password" value=""/>
+        <property name="hibernate.connection.username" value="${all.username:sa}"/>
+        <property name="hibernate.connection.password" value="${all.password:}"/>
         <property name="hibernate.cache.region.factory_class" value="org.exoplatform.services.database.impl.ExoCacheRegionFactory"/>
         <property name="hibernate.cache.use_second_level_cache" value="true"/>
         <property name="hibernate.cache.use_query_cache" value="true"/>
@@ -109,12 +109,6 @@
         <type>org.exoplatform.services.organization.MembershipTypeEventListener</type>
         <description>Membership type listerner for testing purpose</description>
      </component-plugin>
-     <component-plugin> 
-       <name>init.service.listener</name> 
-       <set-method>addListenerPlugin</set-method> 
-       <type>org.exoplatform.services.tck.organization.TestGroupListener</type> 
-       <description>this listener populate organization data for the first launch</description> 
-     </component-plugin>
   </external-component-plugins>
   
 
@@ -131,7 +125,7 @@
           <name>checkDatabaseAlgorithm</name>
           <description>check database</description>
           <value>entry</value>
-        </value-param>      
+        </value-param>
         <value-param>
           <name>printInformation</name>
           <description>Print information init database</description>
@@ -154,7 +148,7 @@
                     <field  name="type"><string>member</string></field>
                     <field  name="description"><string>member membership type</string></field>
                   </object>
-                </value>                
+                </value> 
                 <value>
                   <object type="org.exoplatform.services.organization.OrganizationConfig$MembershipType">
                     <field  name="type"><string>validator</string></field>
@@ -165,7 +159,7 @@
             </field>
 
             <field  name="group">
-              <collection type="java.util.ArrayList">             
+              <collection type="java.util.ArrayList">
                 <value>
                   <object type="org.exoplatform.services.organization.OrganizationConfig$Group">
                     <field  name="name"><string>platform</string></field>
@@ -285,7 +279,7 @@
                     <field  name="description"><string>the /customers group</string></field>
                     <field  name="label"><string>Customers</string></field>
                   </object>
-                </value>                
+                </value>
                 <value>
                   <object type="org.exoplatform.services.organization.OrganizationConfig$Group">
                     <field  name="name"><string>partners</string></field>
@@ -293,7 +287,7 @@
                     <field  name="description"><string>the /partners group</string></field>
                     <field  name="label"><string>Partners</string></field>
                   </object>
-                </value>                
+                </value>
               </collection>
             </field>
 
@@ -331,7 +325,7 @@
                       </string>
                     </field>
                   </object>
-                </value>                                                        
+                </value>
                 <value>
                   <object type="org.exoplatform.services.organization.OrganizationConfig$User">
                     <field  name="userName"><string>marry</string></field>
@@ -357,7 +351,7 @@
                       <string>member:/platform/guests,member:/platform/users</string>
                     </field>
                   </object>
-                </value>                       
+                </value>
               </collection>
             </field>
           </object>
@@ -365,5 +359,4 @@
       </init-params>
     </component-plugin>
   </external-component-plugins>
- 
 </configuration>

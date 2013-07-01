@@ -116,7 +116,7 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
                      preSave(mt, true);
                   }
 
-                  ctx.createSubcontext(membershipTypeDN, ldapAttrMapping.membershipTypeToAttributes(mt));
+                  ctx.createSubcontext(membershipTypeDN, ldapAttrMapping.membershipTypeToAttributes(mt)).close();
 
                   if (broadcast)
                   {

@@ -48,7 +48,7 @@
             <description>ldap attribute mapping</description>
             <object type="org.exoplatform.services.organization.ldap.LDAPAttributeMapping">
                <field name="userLDAPClasses">
-                  <string>top,person,organizationalPerson,inetOrgPerson</string>
+                  <string>top,person,organizationalPerson,inetOrgPerson,user</string>
                </field>
                <field name="profileLDAPClasses">
                   <string>top,organizationalPerson</string>
@@ -62,7 +62,6 @@
                <field name="membershipLDAPClasses">
                   <string>top,groupOfNames</string>
                </field>
-
                <field name="baseURL">
                   <string>DC=exoplatform,DC=org</string>
                </field>
@@ -78,7 +77,6 @@
                <field name="profileURL">
                   <string>OU=profiles,OU=portal,DC=exoplatform,DC=org</string>
                </field>
-
                <field name="userUsernameAttr">
                   <string>uid</string>
                </field>
@@ -100,7 +98,9 @@
                <field name="userObjectClassFilter">
                   <string>objectClass=person</string>
                </field>
-
+               <field name="userAccountControlAttr">
+                  <string>userAccountControl</string>
+               </field>
                <field name="membershipTypeMemberValue">
                   <string>member</string>
                </field>
@@ -116,7 +116,6 @@
                <field name="membershiptypeObjectClass">
                   <string>organizationalRole</string>
                </field>
-
                <field name="groupNameAttr">
                   <string>ou</string>
                </field>
@@ -129,14 +128,12 @@
                <field name="groupObjectClassFilter">
                   <string>objectClass=organizationalUnit</string>
                </field>
-
                <field name="membershipObjectClass">
                   <string>groupOfNames</string>
                </field>
                <field name="membershipObjectClassFilter">
                   <string>objectClass=groupOfNames</string>
                </field>
-
                <field name="ldapCreatedTimeStampAttr">
                   <string>createdTimeStamp</string>
                </field>
@@ -150,7 +147,6 @@
          </object-param>
       </init-params>
    </component>
-
    <external-component-plugins>
       <target-component>org.exoplatform.services.database.HibernateService</target-component>
       <component-plugin>
@@ -165,25 +161,4 @@
          </init-params>
       </component-plugin>
    </external-component-plugins>
-
-   <!-- for ldap clean database -->
-   <!-- 
-   <external-component-plugins>
-      <target-component>org.exoplatform.services.ldap.LDAPService</target-component>
-      <component-plugin>
-         <name>delete.object</name>
-         <set-method>addDeleteObject</set-method>
-         <type>org.exoplatform.services.ldap.DeleteObjectCommand</type>
-         <init-params>
-            <values-param>
-               <name>objects.to.delete</name>
-               <value>cn=demo,ou=users,ou=portal,dc=exoplatform,dc=org</value>
-               <value>cn=test,ou=users,ou=portal,dc=exoplatform,dc=org</value>
-               <value>cn=Benj,ou=users,ou=portal,dc=exoplatform,dc=org</value>
-               <value>cn=tuan,ou=users,ou=portal,dc=exoplatform,dc=org</value>
-            </values-param>
-         </init-params>
-      </component-plugin>
-   </external-component-plugins>
-   -->
 </configuration>

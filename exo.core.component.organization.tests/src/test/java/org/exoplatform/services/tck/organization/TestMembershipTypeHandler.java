@@ -20,6 +20,11 @@
 package org.exoplatform.services.tck.organization;
 
 import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.MembershipTypeEventListener;
+import org.exoplatform.services.organization.MembershipTypeEventListenerHandler;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by The eXo Platform SAS.
@@ -29,6 +34,22 @@ import org.exoplatform.services.organization.MembershipType;
  */
 public class TestMembershipTypeHandler extends AbstractOrganizationServiceTest
 {
+   private MyMembershipTypeEventListener listener;
+
+   @Override
+   public void setUp() throws Exception
+   {
+      super.setUp();
+      listener = new MyMembershipTypeEventListener();
+      mtHandler.addMembershipTypeEventListener(listener);
+   }
+
+   @Override
+   public void tearDown() throws Exception
+   {
+      mtHandler.removeMembershipTypeEventListener(listener);
+      super.tearDown();
+   }
 
    /**
     * Find membership type.
@@ -42,6 +63,14 @@ public class TestMembershipTypeHandler extends AbstractOrganizationServiceTest
 
       // try to find not existed membership type
       assertNull(mtHandler.findMembershipType("manager_"));
+
+      // Check the listener's counters
+      assertEquals(0, listener.preSaveNew);
+      assertEquals(0, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(0, listener.preDelete);
+      assertEquals(0, listener.postDelete);
    }
 
    /**
@@ -49,13 +78,21 @@ public class TestMembershipTypeHandler extends AbstractOrganizationServiceTest
     */
    public void testFindMembershipTypes() throws Exception
    {
-      assertEquals(mtHandler.findMembershipTypes().size(), 3);
+      assertSizeEquals(3, mtHandler.findMembershipTypes());
       
       createMembershipType("*", "All membership types");
-      assertEquals(mtHandler.findMembershipTypes().size(), 4);
+      assertSizeEquals(4, mtHandler.findMembershipTypes());
 
       mtHandler.removeMembershipType("*", true);
-      assertEquals(mtHandler.findMembershipTypes().size(), 3);
+      assertSizeEquals(3, mtHandler.findMembershipTypes());
+
+      // Check the listener's counters
+      assertEquals(1, listener.preSaveNew);
+      assertEquals(1, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(1, listener.preDelete);
+      assertEquals(1, listener.postDelete);
    }
 
    /**
@@ -82,7 +119,15 @@ public class TestMembershipTypeHandler extends AbstractOrganizationServiceTest
       catch (Exception e)
       {
       }
-   }
+
+      // Check the listener's counters
+      assertEquals(1, listener.preSaveNew);
+      assertEquals(1, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(1, listener.preDelete);
+      assertEquals(1, listener.postDelete);
+  }
 
    /**
     * Save membership type.
@@ -98,6 +143,190 @@ public class TestMembershipTypeHandler extends AbstractOrganizationServiceTest
 
       mt = mtHandler.findMembershipType(membershipType);
       assertEquals(mt.getDescription(), "newDesc");
+
+      // Check the listener's counters
+      assertEquals(1, listener.preSaveNew);
+      assertEquals(1, listener.postSaveNew);
+      assertEquals(1, listener.preSave);
+      assertEquals(1, listener.postSave);
+      assertEquals(0, listener.preDelete);
+      assertEquals(0, listener.postDelete);
+  }
+
+   /**
+    * Test get listeners.
+    */
+   public void testGetListeners() throws Exception
+   {
+      if (mtHandler instanceof MembershipTypeEventListenerHandler)
+      {
+         List<MembershipTypeEventListener> list =
+            ((MembershipTypeEventListenerHandler)mtHandler).getMembershipTypeListeners();
+
+         try
+         {
+            list.clear();
+            fail("We are not supposed to change list of listeners");
+         }
+         catch (Exception e)
+         {
+         }
+      }
    }
 
+   /**
+    * Test events.
+    */
+   public void testMembershipTypeEventListener() throws Exception
+   {
+      TesterMembershipTypeEventListener testListener = new TesterMembershipTypeEventListener();
+      int currentSize = 1;
+      if (mtHandler instanceof MembershipTypeEventListenerHandler)
+      {
+         List<MembershipTypeEventListener> list =
+            ((MembershipTypeEventListenerHandler)mtHandler).getMembershipTypeListeners();
+
+         currentSize = list.size();
+      }
+      mtHandler.addMembershipTypeEventListener(testListener);
+
+      if (mtHandler instanceof MembershipTypeEventListenerHandler)
+      {
+         List<MembershipTypeEventListener> list =
+            ((MembershipTypeEventListenerHandler)mtHandler).getMembershipTypeListeners();
+
+         assertEquals(currentSize + 1, list.size());
+      }
+
+      // Create new membership type. In preSave event there is not recored in db.
+      createMembershipType(membershipType, "desc");
+
+      assertEquals(2, testListener.mtInEvent.size());
+      assertEquals(2, testListener.mtInStorage.size());
+
+      // preSave Event
+      assertEquals(membershipType, testListener.mtInEvent.get(0).getName());
+      assertNull(testListener.mtInStorage.get(0));
+
+      // postSave Event
+      assertEquals(membershipType, testListener.mtInEvent.get(1).getName());
+      assertNotNull(testListener.mtInStorage.get(1));
+      assertEquals(membershipType, testListener.mtInStorage.get(1).getName());
+
+      testListener.mtInEvent.clear();
+      testListener.mtInStorage.clear();
+
+      // Modify membership type. In preSave event there is old record in storage.
+      MembershipType mt = mtHandler.findMembershipType(membershipType);
+      mt.setDescription("newDesc");
+
+      mtHandler.saveMembershipType(mt, true);
+
+      // preSave Event
+      assertEquals(2, testListener.mtInEvent.size());
+      assertEquals(2, testListener.mtInStorage.size());
+
+      assertEquals("newDesc", testListener.mtInEvent.get(0).getDescription());
+
+      // postSave Event
+      assertEquals("newDesc", testListener.mtInEvent.get(1).getDescription());
+      assertEquals("newDesc", testListener.mtInStorage.get(1).getDescription());
+
+      testListener.mtInEvent.clear();
+      testListener.mtInStorage.clear();
+
+      // Remove membership type. In preDelete Event there is still record in storage
+      mtHandler.removeMembershipType(membershipType, true);
+
+      assertEquals(2, testListener.mtInEvent.size());
+      assertEquals(2, testListener.mtInStorage.size());
+
+      // preDelete Event
+      assertEquals(membershipType, testListener.mtInEvent.get(0).getName());
+      assertNotNull(testListener.mtInStorage.get(0));
+
+      // postDelete Event
+      assertEquals(membershipType, testListener.mtInEvent.get(1).getName());
+      assertNull(testListener.mtInStorage.get(1));
+
+      testListener.mtInEvent.clear();
+      testListener.mtInStorage.clear();
+
+   }
+
+   private class TesterMembershipTypeEventListener extends MembershipTypeEventListener
+   {
+      List<MembershipType> mtInEvent = new ArrayList<MembershipType>();
+
+      List<MembershipType> mtInStorage = new ArrayList<MembershipType>();
+
+      public void preSave(MembershipType type, boolean isNew) throws Exception
+      {
+         mtInEvent.add(type);
+         mtInStorage.add(mtHandler.findMembershipType(type.getName()));
+      }
+
+      public void postSave(MembershipType type, boolean isNew) throws Exception
+      {
+         mtInEvent.add(type);
+         mtInStorage.add(mtHandler.findMembershipType(type.getName()));
+      }
+
+      public void preDelete(MembershipType type) throws Exception
+      {
+         mtInEvent.add(type);
+         mtInStorage.add(mtHandler.findMembershipType(type.getName()));
+      }
+
+      public void postDelete(MembershipType type) throws Exception
+      {
+         mtInEvent.add(type);
+         mtInStorage.add(mtHandler.findMembershipType(type.getName()));
+      }
+   }
+
+   private static class MyMembershipTypeEventListener extends MembershipTypeEventListener
+   {
+      public int preSaveNew, postSaveNew;
+      public int preSave, postSave;
+      public int preDelete, postDelete;
+
+      @Override
+      public void preSave(MembershipType type, boolean isNew) throws Exception
+      {
+         if (type == null)
+            return;
+         if (isNew)
+            preSaveNew++;
+         else
+            preSave++;
+      }
+
+      @Override
+      public void postSave(MembershipType type, boolean isNew) throws Exception
+      {
+         if (type == null)
+            return;
+         if (isNew)
+            postSaveNew++;
+         else
+            postSave++;
+      }
+
+      @Override
+      public void preDelete(MembershipType type) throws Exception
+      {
+         if (type == null)
+            return;
+         preDelete++;
+      }
+
+      @Override
+      public void postDelete(MembershipType type) throws Exception
+      {
+         if (type == null)
+            return;
+         postDelete++;
+      }
+   }
 }

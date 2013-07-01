@@ -34,8 +34,13 @@
 
    <name>eXo Core :: Component :: Organization Service LDAP</name>
    <description>Implementation of LDAP Organization Service of Exoplatform SAS 'eXo Core' project.</description>
-
-   <dependencies>     
+   <properties>
+      <properties.url>classpath:/conf/standalone/ldap.properties</properties.url>
+      <exo.profiles>default</exo.profiles>
+      <debug.opts></debug.opts>
+      <test.exclude>**/foo/foo/**</test.exclude>
+   </properties>
+   <dependencies>
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
          <artifactId>exo.kernel.commons.test</artifactId>
@@ -66,8 +71,15 @@
       </dependency>
       <dependency>
          <groupId>org.apache.directory.server</groupId>
-         <artifactId>apacheds-server-unit</artifactId>
+         <artifactId>apacheds-all</artifactId>
          <scope>test</scope>
+         <exclusions>
+            <!-- shared-ldap-schema module needs to be excluded to avoid multiple schema resources on the classpath-->
+            <exclusion>
+               <groupId>org.apache.directory.shared</groupId>
+               <artifactId>shared-ldap-schema</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.javassist</groupId>
@@ -152,31 +164,46 @@
            <groupId>org.apache.maven.plugins</groupId>
            <artifactId>maven-surefire-plugin</artifactId>
            <configuration>
-              <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy</argLine>
+              <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy ${debug.opts}</argLine>
               <systemProperties>
-                  <!--
-                     This property defines TCK tests configuration file location
-                  -->
-                  <property>
-                     <name>orgservice.test.configuration.file</name>
-                     <value>/conf/standalone/test-configuration.xml</value>
-                  </property>
-                  <!--
-                     This property allow to define if we should skip testing
-                     login and logaout time processing 
-                  -->  
-                  <property>
-                     <name>orgservice.test.configuration.skipDateTests</name>
-                     <value>true</value>
-                  </property>
-               </systemProperties>
-               
-               <includes>
-                  <include>org/exoplatform/services/tck/organization/Test*.java</include>
-               </includes>                 
+                 <!--
+                    This property defines TCK tests configuration file location
+                 -->
+                 <property>
+                    <name>orgservice.test.configuration.file</name>
+                    <value>/conf/standalone/test-configuration.xml</value>
+                 </property>
+                 <!--
+                    This property allow to define if we should skip testing
+                    login and logout time processing 
+                 -->  
+                 <property>
+                    <name>orgservice.test.configuration.skipDateTests</name>
+                    <value>true</value>
+                 </property>
+                 <!-- Uncomment it to enable the debug mode of the connection pool-->
+                 <!--property>
+                    <name>com.sun.jndi.ldap.connect.pool.debug</name>
+                    <value>all</value>
+                 </property-->
+                 <property>
+                    <name>exo.properties.url</name>
+                    <value>${properties.url}</value>
+                 </property>
+                 <property>
+                    <name>exo.profiles</name>
+                    <value>${exo.profiles}</value>
+                 </property>
+              </systemProperties>
+              <includes>
+                 <include>org/exoplatform/services/**/Test*.java</include>
+              </includes>
+              <excludes>
+                 <exclude>${test.exclude}</exclude>
+              </excludes>
            </configuration>
         </plugin>
-         <plugin>
+        <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>
@@ -214,6 +241,41 @@
                </dependency>
             </dependencies>
          </plugin>
-     </plugins>      
+     </plugins>
    </build>
+   <profiles>
+      <profile>
+         <id>old</id>
+         <properties>
+            <exo.profiles>default-old</exo.profiles>
+            <test.exclude>**/TestUserHandlerWithOldData.java</test.exclude>
+         </properties>
+      </profile>
+      <profile>
+         <id>ldap</id>
+         <properties>
+            <exo.profiles>ldap</exo.profiles>
+         </properties>
+      </profile>
+      <profile>
+         <id>ldap-old</id>
+         <properties>
+            <exo.profiles>ldap-old</exo.profiles>
+            <test.exclude>**/TestUserHandlerWithOldData.java</test.exclude>
+         </properties>
+      </profile>
+      <profile>
+         <id>ad</id>
+         <properties>
+            <exo.profiles>ad</exo.profiles>
+            <test.exclude>**/TestUserHandlerWithOldData.java</test.exclude>
+         </properties>
+      </profile>
+      <profile>
+         <id>debug</id>
+         <properties>
+            <debug.opts>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y</debug.opts>
+         </properties>
+      </profile>
+   </profiles>
 </project>
