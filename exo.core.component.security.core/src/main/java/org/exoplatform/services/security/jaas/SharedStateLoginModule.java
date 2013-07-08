@@ -79,6 +79,14 @@ public final class SharedStateLoginModule extends AbstractLoginModule
       }
       catch (final Exception e)
       {
+         if (LOG.isDebugEnabled())
+         {
+            LOG.debug(e.getMessage(), e);
+         }
+         else if (LOG.isWarnEnabled())
+         {
+            LOG.warn(e.getMessage());            
+         }
          LoginException le = new LoginException(e.getMessage());
          le.initCause(e);
          throw le;
