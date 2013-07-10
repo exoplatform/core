@@ -88,7 +88,7 @@ public class Identity
    {
       this.userId = userId;
       this.memberships =
-         SecureCollections.secureSet(new HashSet<MembershipEntry>(memberships),
+         SecureCollections.secureSet(new MembershipHashSet(memberships),
             PermissionConstants.MODIFY_IDENTITY_PERMISSION);
       this.roles =
          SecureCollections.secureSet(new HashSet<String>(roles), PermissionConstants.MODIFY_IDENTITY_PERMISSION);;
