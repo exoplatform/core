@@ -211,8 +211,11 @@ public class OrganizationAuthenticatorImpl implements Authenticator
    public Exception getLastExceptionOnValidateUser()
    {
       Exception e = lastExceptionOnValidateUser.get();
-      // To prevent a memory leak, we apply an auto-cleanup strategy
-      lastExceptionOnValidateUser.remove();
+      if (e != null)
+      {
+         // To prevent a memory leak, we apply an auto-cleanup strategy
+         lastExceptionOnValidateUser.remove();
+      }
       return e;
    }
 }
