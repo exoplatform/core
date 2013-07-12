@@ -55,6 +55,10 @@ public interface Authenticator
     * while calling {@link #validateUser(Credential[])}.
     * @return the original Exception that occurs while calling {@link #validateUser(Credential[])} 
     * for the very last time if an exception occurred, <code>null</code> otherwise.
+    * <p>
+    * <b>WARNING: to prevent potential memory leaks, the second call to this method may return <code>null</code>
+    * so if you need to access several times to this value, you should store the result into a local variable.</b>
+    * </p>
     */
    Exception getLastExceptionOnValidateUser();
 }

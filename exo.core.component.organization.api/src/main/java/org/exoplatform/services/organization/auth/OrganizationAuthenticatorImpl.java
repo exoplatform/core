@@ -166,7 +166,7 @@ public class OrganizationAuthenticatorImpl implements Authenticator
             success = userHandler.authenticate(username, password);
          }
          // No exception occurred
-         lastExceptionOnValidateUser.set(null);
+         lastExceptionOnValidateUser.remove();
       }
       catch (DisabledUserException e)
       {
@@ -210,6 +210,9 @@ public class OrganizationAuthenticatorImpl implements Authenticator
     */
    public Exception getLastExceptionOnValidateUser()
    {
-      return lastExceptionOnValidateUser.get();
+      Exception e = lastExceptionOnValidateUser.get();
+      // To prevent a memory leak, we apply an auto-cleanup strategy
+      lastExceptionOnValidateUser.remove();
+      return e;
    }
 }

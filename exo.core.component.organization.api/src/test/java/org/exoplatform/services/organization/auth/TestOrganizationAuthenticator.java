@@ -109,6 +109,7 @@ public class TestOrganizationAuthenticator extends TestCase
       String userId = authenticator.validateUser(cred);
       assertEquals("testGetLastExceptionOnValidateUser", userId);
       assertNull(authenticator.getLastExceptionOnValidateUser());
+      assertNull(authenticator.getLastExceptionOnValidateUser());
       uh.setEnabled("testGetLastExceptionOnValidateUser", false, false);
       try
       {
@@ -119,11 +120,12 @@ public class TestOrganizationAuthenticator extends TestCase
       {
          // expected
       }
-      assertNotNull(authenticator.getLastExceptionOnValidateUser());
       assertTrue(authenticator.getLastExceptionOnValidateUser() instanceof DisabledUserException);
+      assertNull(authenticator.getLastExceptionOnValidateUser());
       uh.setEnabled("testGetLastExceptionOnValidateUser", true, false);
       userId = authenticator.validateUser(cred);
       assertEquals("testGetLastExceptionOnValidateUser", userId);
+      assertNull(authenticator.getLastExceptionOnValidateUser());
       assertNull(authenticator.getLastExceptionOnValidateUser());
    }
 }
