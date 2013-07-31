@@ -27,7 +27,7 @@
    <parent>
       <groupId>org.exoplatform.core</groupId>
       <artifactId>core-parent</artifactId>
-      <version>2.6.0-Alpha1-SNAPSHOT</version>
+      <version>2.6.0-Alpha1</version>
    </parent>
 
    <artifactId>exo.core.component.organization.ldap</artifactId>
@@ -37,7 +37,7 @@
    <properties>
       <properties.url>classpath:/conf/standalone/ldap.properties</properties.url>
       <exo.profiles>default</exo.profiles>
-      <debug.opts></debug.opts>
+      <debug.opts />
       <test.exclude>**/foo/foo/**</test.exclude>
    </properties>
    <dependencies>
