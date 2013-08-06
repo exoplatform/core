@@ -43,7 +43,7 @@
       <exo.product.specification>2.6</exo.product.specification>
       
       <org.exoplatform.kernel.version>2.5.0-Alpha2-SNAPSHOT</org.exoplatform.kernel.version>
-      <org.exoplatform.framework.junit.version>1.2.3-GA</org.exoplatform.framework.junit.version>
+      <org.exoplatform.framework.junit.version>1.2.4-GA</org.exoplatform.framework.junit.version>
 
       <!-- Plugins updates -->
       <version.source.plugin>2.1.2</version.source.plugin>
@@ -159,7 +159,7 @@
          <dependency>
            <groupId>org.eclipse.jetty.aggregate</groupId>
            <artifactId>jetty-plus</artifactId>
-           <version>7.1.5.v20100705</version>
+           <version>8.1.11.v20130520</version>
          </dependency>
 
          <dependency>
@@ -183,7 +183,7 @@
          <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
-            <version>3.15.0-GA</version>
+            <version>3.18.0-GA</version>
          </dependency>
          
          <dependency>
@@ -207,13 +207,13 @@
          <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>4.2.1.Final</version>
+            <version>4.2.3.Final</version>
          </dependency>
 
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-c3p0</artifactId>
-            <version>4.2.1.Final</version>
+            <version>4.2.3.Final</version>
         </dependency>
          
          <dependency>
