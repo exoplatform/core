@@ -31,7 +31,7 @@ import java.util.Date;
 public interface MembershipType
 {
    /**
-    * @return the name name of the membership type. The name of the membershipt
+    * @return the name name of the membership type. The name of the membership
     *         type should be unique in the membership type database.
     */
    public String getName();

@@ -22,6 +22,7 @@ package org.exoplatform.services.tck.organization;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.MembershipTypeEventListener;
 import org.exoplatform.services.organization.MembershipTypeEventListenerHandler;
+import org.exoplatform.services.organization.MembershipTypeHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,13 +79,23 @@ public class TestMembershipTypeHandler extends AbstractOrganizationServiceTest
     */
    public void testFindMembershipTypes() throws Exception
    {
-      assertSizeEquals(3, mtHandler.findMembershipTypes());
-      
-      createMembershipType("*", "All membership types");
-      assertSizeEquals(4, mtHandler.findMembershipTypes());
+      int initSize = 3;
+      if (mtHandler.findMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName()) != null)
+      {
+         // Any membership type already exists in the data store so we can check if the member ship
+         // types are properly ordered
+         assertEquals(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName(), mtHandler.findMembershipTypes().iterator()
+            .next().getName());
+         initSize = 4;
+      }
 
-      mtHandler.removeMembershipType("*", true);
-      assertSizeEquals(3, mtHandler.findMembershipTypes());
+      assertSizeEquals(initSize, mtHandler.findMembershipTypes());
+      
+      createMembershipType("type2", "membership type2");
+      assertSizeEquals(initSize + 1, mtHandler.findMembershipTypes());
+
+      mtHandler.removeMembershipType("type2", true);
+      assertSizeEquals(initSize, mtHandler.findMembershipTypes());
 
       // Check the listener's counters
       assertEquals(1, listener.preSaveNew);
@@ -120,6 +131,15 @@ public class TestMembershipTypeHandler extends AbstractOrganizationServiceTest
       {
       }
 
+      try
+      {
+         assertNull(mtHandler.removeMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName(), true));
+         fail("Exception should be thrown");
+      }
+      catch (Exception e)
+      {
+      }
+
       // Check the listener's counters
       assertEquals(1, listener.preSaveNew);
       assertEquals(1, listener.postSaveNew);
@@ -144,6 +164,15 @@ public class TestMembershipTypeHandler extends AbstractOrganizationServiceTest
       mt = mtHandler.findMembershipType(membershipType);
       assertEquals(mt.getDescription(), "newDesc");
 
+      try
+      {
+         mtHandler.saveMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, true);
+         fail("Exception should be thrown");
+      }
+      catch (Exception e)
+      {
+      }
+
       // Check the listener's counters
       assertEquals(1, listener.preSaveNew);
       assertEquals(1, listener.postSaveNew);
@@ -152,6 +181,30 @@ public class TestMembershipTypeHandler extends AbstractOrganizationServiceTest
       assertEquals(0, listener.preDelete);
       assertEquals(0, listener.postDelete);
   }
+
+   public void testCreateMembershipType() throws Exception
+   {
+      createMembershipType(membershipType, "desc");
+      MembershipType mt = mtHandler.findMembershipType(membershipType);
+      assertNotNull(mt);
+
+      try
+      {
+         mtHandler.createMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, true);
+         fail("Exception should be thrown");
+      }
+      catch (Exception e)
+      {
+      }
+
+      // Check the listener's counters
+      assertEquals(1, listener.preSaveNew);
+      assertEquals(1, listener.postSaveNew);
+      assertEquals(0, listener.preSave);
+      assertEquals(0, listener.postSave);
+      assertEquals(0, listener.preDelete);
+      assertEquals(0, listener.postDelete);
+   }
 
    /**
     * Test get listeners.

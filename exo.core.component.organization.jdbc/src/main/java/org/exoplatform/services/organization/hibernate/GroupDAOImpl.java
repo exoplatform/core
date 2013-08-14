@@ -71,6 +71,12 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
       + "     g in class org.exoplatform.services.organization.impl.GroupImpl "
       + "where m.groupId = g.id and m.userName = :username and m.membershipType = :membershiptype ";
 
+   private static final String queryResolveGroupByMembership = "select g "
+      + "from m in class org.exoplatform.services.organization.impl.MembershipImpl, "
+      + "     g in class org.exoplatform.services.organization.impl.GroupImpl "
+      + "where m.groupId = g.id and m.userName = :username and " 
+      + "(m.membershipType = :membershiptype or m.membershipType = '*')";
+
    private static final String queryGetAllGroups =
       "from g in class org.exoplatform.services.organization.impl.GroupImpl";
 
@@ -222,13 +228,28 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
    /**
     * {@inheritDoc}
     */
-   public Collection<?> findGroupByMembership(String userName, String membershipType) throws Exception
+   public Collection<Group> findGroupByMembership(String userName, String membershipType) throws Exception
    {
       Session session = service_.openSession();
       Query q =
          session.createQuery(queryFindGroupByMembership).setString("username", userName)
             .setString("membershiptype", membershipType);
-      List<?> groups = q.list();
+      @SuppressWarnings("unchecked")
+      List<Group> groups = q.list();
+      return groups;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public Collection<Group> resolveGroupByMembership(String userName, String membershipType) throws Exception
+   {
+      Session session = service_.openSession();
+      Query q =
+         session.createQuery(queryResolveGroupByMembership).setString("username", userName)
+            .setString("membershiptype", membershipType);
+      @SuppressWarnings("unchecked")
+      List<Group> groups = q.list();
       return groups;
    }
 
@@ -255,7 +276,8 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
    /**
     * {@inheritDoc}
     */
-   public Collection<?> findGroups(Group parent) throws Exception
+   @SuppressWarnings("unchecked")
+   public Collection<Group> findGroups(Group parent) throws Exception
    {
       Session session = service_.openSession();
       if (parent == null)
@@ -267,7 +289,8 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
    /**
     * {@inheritDoc}
     */
-   public Collection<?> findGroupsOfUser(String user) throws Exception
+   @SuppressWarnings("unchecked")
+   public Collection<Group> findGroupsOfUser(String user) throws Exception
    {
       Session session = service_.openSession();
       return session.createQuery(queryFindGroupsOfUser).setString("username", user).list();
@@ -276,11 +299,12 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
    /**
     * {@inheritDoc}
     */
-   public Collection<?> getAllGroups() throws Exception
+   public Collection<Group> getAllGroups() throws Exception
    {
       Session session = service_.openSession();
       Query q = session.createQuery(queryGetAllGroups);
-      List<?> groups = q.list();
+      @SuppressWarnings("unchecked")
+      List<Group> groups = q.list();
       return groups;
    }
 

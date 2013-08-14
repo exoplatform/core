@@ -108,7 +108,21 @@ public interface GroupHandler
     * @throws Exception An exception is thrown if the method cannot access the
     *           database.
     */
-   Collection findGroupByMembership(String userName, String membershipType) throws Exception;
+   Collection<Group> findGroupByMembership(String userName, String membershipType) throws Exception;
+
+   /**
+    * Use this method to find all the groups of an user with the specified
+    * membership type or *.
+    * 
+    * @param userName The user that the method should search for.
+    * @param membershipType The type of the membership. Since an user can have
+    *          one or more membership in a group, this parameter is necessary. If
+    *          the membershipType is null, it should mean any membership type.
+    * @return A collection of the found groups
+    * @throws Exception An exception is thrown if the method cannot access the
+    *           database.
+    */
+   Collection<Group> resolveGroupByMembership(String userName, String membershipType) throws Exception;
 
    /**
     * Use this method to search for a group
@@ -129,7 +143,7 @@ public interface GroupHandler
     * @throws Exception An exception is thrown is the method cannot access the
     *           database
     */
-   Collection findGroups(Group parent) throws Exception;
+   Collection<Group> findGroups(Group parent) throws Exception;
 
    /**
     * use this method to look all the group that the user has at least one
@@ -141,13 +155,13 @@ public interface GroupHandler
     * @throws Exception An exception is thrown if the method cannot access the
     *           database.
     */
-   Collection findGroupsOfUser(String user) throws Exception;
+   Collection<Group> findGroupsOfUser(String user) throws Exception;
 
    /**
     * Use this method to get all the groups. But the third party should not use
     * this method
     */
-   Collection getAllGroups() throws Exception;
+   Collection<Group> getAllGroups() throws Exception;
 
    /**
     * Use this method to register a group event listener

@@ -228,10 +228,21 @@ public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventL
    /**
     * {@inheritDoc}
     */
-   public Collection<?> findUserProfiles() throws Exception
+   public Collection<UserProfile> findUserProfiles() throws Exception
    {
       Session session = service_.openSession();
-      return service_.findAll(session, queryFindUserProfiles);
+      @SuppressWarnings("unchecked")
+      Collection<UserProfileData> result =
+         (Collection<UserProfileData>)service_.findAll(session, queryFindUserProfiles);
+      if (result == null)
+         return null;
+      Collection<UserProfile> profiles = new ArrayList<UserProfile>(result.size());
+      for (UserProfileData data : result)
+      {
+         if (data != null)
+            profiles.add(data.getUserProfile());
+      }
+      return profiles;
    }
 
    private void preSave(UserProfile profile, boolean isNew) throws Exception

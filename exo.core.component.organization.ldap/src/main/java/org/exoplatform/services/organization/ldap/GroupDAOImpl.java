@@ -377,7 +377,84 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
                }
                String filter =
                   "(&(" + ldapAttrMapping.membershipTypeMemberValue + "=" + userDN + ")("
-                     + ldapAttrMapping.membershipTypeRoleNameAttr + "=" + membershipType + "))";
+                     + ldapAttrMapping.membershipTypeRoleNameAttr + "=" + BaseDAO.escapeDN(membershipType) + "))";
+               SearchControls constraints = new SearchControls();
+               constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
+               results = ctx.search(ldapAttrMapping.groupsURL, filter, constraints);
+               while (results.hasMoreElements())
+               {
+                  SearchResult sr = results.next();
+                  NameParser parser = ctx.getNameParser("");
+                  Name entryNameName = parser.parse(new CompositeName(sr.getName()).get(0));
+                  String entryName =
+                     entryNameName.getSuffix(0).toString()
+                        .substring(entryNameName.getSuffix(1).toString().length() + 1);
+                  String groupDN = entryName + "," + ldapAttrMapping.groupsURL;
+                  Group group = getGroupByDN(ctx, groupDN);
+                  if (group != null)
+                     addGroup(groups, group);
+               }
+
+               if (LOG.isDebugEnabled())
+               {
+                  LOG.debug("Retrieved " + groups.size() + " groups from ldap for user " + userName
+                     + " with membershiptype " + membershipType);
+               }
+               return groups;
+            }
+            catch (NamingException e)
+            {
+               ctx = reloadCtx(ctx, err, e);
+            }
+            finally
+            {
+               if (results != null)
+                  results.close();
+            }
+         }
+      }
+      finally
+      {
+         ldapService.release(ctx);
+      }
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public Collection<Group> resolveGroupByMembership(String userName, String membershipType) throws Exception
+   {
+      List<Group> groups = new ArrayList<Group>();
+      LdapContext ctx = ldapService.getLdapContext();
+      try
+      {
+         NamingEnumeration<SearchResult> results = null;
+         for (int err = 0;; err++)
+         {
+            groups.clear();
+            try
+            {
+               String userDN = getDNFromUsername(ctx, userName);
+               if (userDN == null)
+               {
+                  return groups;
+               }
+               String filter;
+               if (membershipType.equals("*"))
+               {
+                  filter =
+                     "(&(" + ldapAttrMapping.membershipTypeMemberValue + "=" + userDN + ")("
+                        + ldapAttrMapping.membershipTypeRoleNameAttr + "=\\2a))";
+               }
+               else
+               {
+                  filter =
+                     "(&(" + ldapAttrMapping.membershipTypeMemberValue + "=" + userDN + ")(|("
+                        + ldapAttrMapping.membershipTypeRoleNameAttr + "=" + membershipType + ")("
+                        + ldapAttrMapping.membershipTypeRoleNameAttr + "=\\2a)))";
+               }
+
                SearchControls constraints = new SearchControls();
                constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
 

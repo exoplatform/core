@@ -72,7 +72,7 @@ public interface MembershipHandler
     * @param broadcast Broadcast the event to the registered listeners if the
     *          broadcast event is 'true'
     * @return The membership object which has been removed from the database
-    * @throws Exception An exception is throwed if the method cannot access the
+    * @throws Exception An exception is thrown if the method cannot access the
     *           database or any listener fail to handle the event.
     */
    Membership removeMembership(String id, boolean broadcast) throws Exception;
@@ -84,17 +84,17 @@ public interface MembershipHandler
     * @param broadcast Broadcast the event to the registered listeners if the
     *          broadcast event is 'true'
     * @return The membership object which has been removed from the database
-    * @throws Exception An exception is throwed if the method cannot access the
+    * @throws Exception An exception is thrown if the method cannot access the
     *           database or any listener fail to handle the event.
     */
-   Collection removeMembershipByUser(String username, boolean broadcast) throws Exception;
+   Collection<Membership> removeMembershipByUser(String username, boolean broadcast) throws Exception;
 
    /**
-    * Use this method to search for an mebership record with the given id
+    * Use this method to search for an membership record with the given id
     * 
-    * @param id The id of the mebership
+    * @param id The id of the membership
     * @return Return The membership object that matched the id
-    * @throws Exception An exception is throwed if the method fail to access the
+    * @throws Exception An exception is thrown if the method fail to access the
     *           database or no membership is found.
     */
    Membership findMembership(String id) throws Exception;
@@ -106,7 +106,7 @@ public interface MembershipHandler
     * @param userName The username of the user.
     * @param groupId The group identifier
     * @param type The membership type
-    * @return Null if no such memberhsip record or a membership object.
+    * @return Null if no such membership record or a membership object.
     * @throws Exception Usually an exception is thrown if the method cannot
     *           access the database
     */
@@ -123,23 +123,23 @@ public interface MembershipHandler
     * @throws Exception Usually an exception is thrown if the method cannot
     *           access the database.
     */
-   Collection findMembershipsByUserAndGroup(String userName, String groupId) throws Exception;
+   Collection<Membership> findMembershipsByUserAndGroup(String userName, String groupId) throws Exception;
 
    /**
     * Use this method to find all the memberships of an user in any group.
     * 
     * @param userName
-    * @return A collection of the memebership. The collection cannot be null and
+    * @return A collection of the membership. The collection cannot be null and
     *         if no membership is found , the collection should be empty
-    * @throws Exception Usually an exception is throwed if the method cannot
+    * @throws Exception Usually an exception is thrown if the method cannot
     *           access the database.
     */
-   Collection findMembershipsByUser(String userName) throws Exception;
+   Collection<Membership> findMembershipsByUser(String userName) throws Exception;
 
    /**
     * Use this method to find all the membership in a group. Note that an user
     * can have more than one membership in a group. For example , user admin can
-    * have meberhsip 'member' and 'admin' in the group '/users'
+    * have membership 'member' and 'admin' in the group '/users'
     * 
     * @param group
     * @return A collection of the memberships. The collection cannot be none and
@@ -148,12 +148,12 @@ public interface MembershipHandler
     * @deprecated This method should no be called, use {@link MembershipHandler#findAllMembershipsByGroup(Group)}
     *             instead
     */
-   Collection findMembershipsByGroup(Group group) throws Exception;
+   Collection<Membership> findMembershipsByGroup(Group group) throws Exception;
 
    /**
     * Use this method to find all the membership in a group. Note that an user
     * can have more than one membership in a group. For example , user admin can
-    * have meberhsip 'member' and 'admin' in the group '/users'
+    * have membership 'member' and 'admin' in the group '/users'
     * 
     * @param group
     * @return the list of the memberships

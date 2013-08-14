@@ -19,9 +19,13 @@ package org.exoplatform.services.tck.organization;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
 import org.exoplatform.services.organization.GroupEventListenerHandler;
+import org.exoplatform.services.organization.MembershipTypeHandler;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by The eXo Platform SAS.
@@ -90,11 +94,26 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
       assertSizeEquals(0, gHandler.findGroupsOfUser("fake-user"));
 
       createMembership(userName, groupName1, membershipType);
+      createGroup(null, groupName2, "lable", "desc");
+      mHandler.linkMembership(uHandler.findUserByName(userName), gHandler.findGroupById("/" + groupName2),
+         MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, true);
 
       Collection<Group> groups;
-      assertSizeEquals(1, groups = gHandler.findGroupsOfUser(userName));
+      assertSizeEquals(2, groups = gHandler.findGroupsOfUser(userName));
+      Set<String> groupNames = new HashSet<String>();
+      for (Group g : groups)
+      {
+         groupNames.add(g.getGroupName());
+      }
+      assertTrue(groupNames.contains(groupName1));
+      assertTrue(groupNames.contains(groupName2));
 
-      gHandler.removeGroup(groups.iterator().next(), true);
+      Iterator<Group> it = groups.iterator(); 
+      gHandler.removeGroup(it.next(), true);
+ 
+      assertSizeEquals(1, gHandler.findGroupsOfUser(userName));
+
+      gHandler.removeGroup(it.next(), true);
  
       assertSizeEquals(0, gHandler.findGroupsOfUser(userName));
 
@@ -115,12 +134,12 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
       assertSizeEquals(0, gHandler.findGroupsOfUser(userName + "3"));
 
       // Check the listener's counters
-      assertEquals(3, listener.preSaveNew);
-      assertEquals(3, listener.postSaveNew);
+      assertEquals(4, listener.preSaveNew);
+      assertEquals(4, listener.postSaveNew);
       assertEquals(0, listener.preSave);
       assertEquals(0, listener.postSave);
-      assertEquals(1, listener.preDelete);
-      assertEquals(1, listener.postDelete);
+      assertEquals(2, listener.preDelete);
+      assertEquals(2, listener.postDelete);
    }
 
    /**
@@ -353,5 +372,45 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
             return;
          postDelete++;
       }
+   }
+
+   public void testFindGroupByMembership() throws Exception
+   {
+      createMembership(userName, groupName1, membershipType);
+      createGroup(null, groupName2, "lable", "desc");
+      mHandler.linkMembership(uHandler.findUserByName(userName), gHandler.findGroupById("/" + groupName2),
+         MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, false);
+      Collection<Group> groups = gHandler.findGroupByMembership(userName, membershipType);
+      assertNotNull(groups);
+      assertEquals(1, groups.size());
+      assertEquals(groupName1, groups.iterator().next().getGroupName());
+
+      groups = gHandler.findGroupByMembership(userName, MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName());
+      assertNotNull(groups);
+      assertEquals(1, groups.size());
+      assertEquals(groupName2, groups.iterator().next().getGroupName());
+   }
+
+   public void testResolveGroupByMembership() throws Exception
+   {
+      createMembership(userName, groupName1, membershipType);
+      createGroup(null, groupName2, "lable", "desc");
+      mHandler.linkMembership(uHandler.findUserByName(userName), gHandler.findGroupById("/" + groupName2),
+         MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, false);
+      Collection<Group> groups = gHandler.resolveGroupByMembership(userName, membershipType);
+      assertNotNull(groups);
+      assertEquals(2, groups.size());
+      Set<String> groupNames = new HashSet<String>();
+      for (Group g : groups)
+      {
+         groupNames.add(g.getGroupName());
+      }
+      assertTrue(groupNames.contains(groupName1));
+      assertTrue(groupNames.contains(groupName2));
+
+      groups = gHandler.resolveGroupByMembership(userName, MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName());
+      assertNotNull(groups);
+      assertEquals(1, groups.size());
+      assertEquals(groupName2, groups.iterator().next().getGroupName());
    }
 }

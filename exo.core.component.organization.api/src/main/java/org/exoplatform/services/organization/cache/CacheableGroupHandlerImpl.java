@@ -38,6 +38,7 @@ public class CacheableGroupHandlerImpl implements GroupHandler
 
    private final ExoCache<String, Object> groupCache;
 
+   @SuppressWarnings("rawtypes")
    private final ExoCache membershipCache;
 
    private final GroupHandler groupHandler;
@@ -50,6 +51,7 @@ public class CacheableGroupHandlerImpl implements GroupHandler
     * @param handler
     *             - user handler
     */
+   @SuppressWarnings("unchecked")
    public CacheableGroupHandlerImpl(OrganizationCacheHandler organizationCacheHandler, GroupHandler handler)
    {
       this.groupCache = organizationCacheHandler.getGroupCache();
@@ -84,6 +86,7 @@ public class CacheableGroupHandlerImpl implements GroupHandler
    /**
     * {@inheritDoc}
     */
+   @SuppressWarnings("deprecation")
    public void createGroup(Group group, boolean broadcast) throws Exception
    {
       groupHandler.createGroup(group, broadcast);
@@ -116,7 +119,7 @@ public class CacheableGroupHandlerImpl implements GroupHandler
    /**
     * {@inheritDoc}
     */
-   public Collection findGroupByMembership(String userName, String membershipType) throws Exception
+   public Collection<Group> findGroupByMembership(String userName, String membershipType) throws Exception
    {
       Collection<Group> groups = groupHandler.findGroupByMembership(userName, membershipType);
 
@@ -129,7 +132,20 @@ public class CacheableGroupHandlerImpl implements GroupHandler
    /**
     * {@inheritDoc}
     */
-   public Collection findGroups(Group parent) throws Exception
+   public Collection<Group> resolveGroupByMembership(String userName, String membershipType) throws Exception
+   {
+      Collection<Group> groups = groupHandler.resolveGroupByMembership(userName, membershipType);
+
+      for (Group group : groups)
+         groupCache.put(group.getId(), groups);
+
+      return groups;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public Collection<Group> findGroups(Group parent) throws Exception
    {
       Collection<Group> groups = groupHandler.findGroups(parent);
       for (Group group : groups)
@@ -141,7 +157,7 @@ public class CacheableGroupHandlerImpl implements GroupHandler
    /**
     * {@inheritDoc}
     */
-   public Collection findGroupsOfUser(String user) throws Exception
+   public Collection<Group> findGroupsOfUser(String user) throws Exception
    {
       Collection<Group> groups = groupHandler.findGroupsOfUser(user);
       for (Group group : groups)
@@ -153,7 +169,7 @@ public class CacheableGroupHandlerImpl implements GroupHandler
    /**
     * {@inheritDoc}
     */
-   public Collection getAllGroups() throws Exception
+   public Collection<Group> getAllGroups() throws Exception
    {
       Collection<Group> groups = groupHandler.getAllGroups();
       for (Group group : groups)
@@ -172,6 +188,7 @@ public class CacheableGroupHandlerImpl implements GroupHandler
       {
          groupCache.remove(gr.getId());
 
+         @SuppressWarnings("unchecked")
          List<Membership> memberships = membershipCache.getCachedObjects();
          for (Membership membership : memberships)
          {

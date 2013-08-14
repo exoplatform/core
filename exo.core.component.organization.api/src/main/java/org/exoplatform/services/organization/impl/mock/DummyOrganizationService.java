@@ -109,7 +109,7 @@ public class DummyOrganizationService extends BaseOrganizationService
          return null;
       }
 
-      public Collection<?> findMembershipsByGroup(Group group) throws Exception
+      public Collection<Membership> findMembershipsByGroup(Group group) throws Exception
       {
          return null;
       }
@@ -119,9 +119,9 @@ public class DummyOrganizationService extends BaseOrganizationService
          return null;
       }
 
-      public Collection<MembershipImpl> findMembershipsByUser(String userName) throws Exception
+      public Collection<Membership> findMembershipsByUser(String userName) throws Exception
       {
-         Collection<MembershipImpl> memberships = new ArrayList<MembershipImpl>();
+         Collection<Membership> memberships = new ArrayList<Membership>();
          if ("root".equals(userName) || "john".equals(userName) || "admin".equals(userName))
          {
             MembershipImpl member = new MembershipImpl();
@@ -145,7 +145,7 @@ public class DummyOrganizationService extends BaseOrganizationService
          return memberships;
       }
 
-      public Collection<?> findMembershipsByUserAndGroup(String userName, String groupId) throws Exception
+      public Collection<Membership> findMembershipsByUserAndGroup(String userName, String groupId) throws Exception
       {
          return null;
       }
@@ -159,7 +159,7 @@ public class DummyOrganizationService extends BaseOrganizationService
          return null;
       }
 
-      public Collection<?> removeMembershipByUser(String username, boolean broadcast) throws Exception
+      public Collection<Membership> removeMembershipByUser(String username, boolean broadcast) throws Exception
       {
          return null;
       }
@@ -459,7 +459,7 @@ public class DummyOrganizationService extends BaseOrganizationService
          return null;
       }
 
-      public Collection<?> findGroupByMembership(String userName, String membershipType) throws Exception
+      public Collection<Group> findGroupByMembership(String userName, String membershipType) throws Exception
       {
          return null;
       }
@@ -523,6 +523,11 @@ public class DummyOrganizationService extends BaseOrganizationService
             groups.add(new DummyGroup(GROUPID_PLATFORM, GROUPID_ADMINISTRATORS, GROUPNAME_ADMINISTRATORS));
          }
          return groups;
+      }
+
+      public Collection<Group> resolveGroupByMembership(String userName, String membershipType) throws Exception
+      {
+         return null;
       }
    }
 
@@ -633,9 +638,9 @@ public class DummyOrganizationService extends BaseOrganizationService
          return createUserProfileInstance(userName);
       }
 
-      public Collection<?> findUserProfiles() throws Exception
+      public Collection<UserProfile> findUserProfiles() throws Exception
       {
-         return new ArrayList<Object>();
+         return new ArrayList<UserProfile>();
       }
 
       public UserProfile removeUserProfile(String userName, boolean broadcast) throws Exception

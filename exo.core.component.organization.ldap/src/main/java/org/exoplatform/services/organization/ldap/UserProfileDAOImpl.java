@@ -231,7 +231,7 @@ public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, U
    /**
     * {@inheritDoc}
     */
-   public Collection<?> findUserProfiles() throws Exception
+   public Collection<UserProfile> findUserProfiles() throws Exception
    {
       // currently profile stored in database
       return null;

@@ -92,6 +92,10 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
     */
    public MembershipType createMembershipType(MembershipType mt, boolean broadcast) throws Exception
    {
+      if (mt.getName().equals(ANY_MEMBERSHIP_TYPE.getName()))
+      {
+         throw new IllegalArgumentException("The * membership cannot be managed by the API");
+      }
       String membershipTypeDN =
          ldapAttrMapping.membershipTypeNameAttr + "=" + mt.getName() + "," + ldapAttrMapping.membershipTypeURL;
       LdapContext ctx = ldapService.getLdapContext();
@@ -144,6 +148,10 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
     */
    public MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception
    {
+      if (mt.getName().equals(ANY_MEMBERSHIP_TYPE.getName()))
+      {
+         throw new IllegalArgumentException("The * membership cannot be managed by the API");
+      }
       String membershipTypeDN =
          ldapAttrMapping.membershipTypeNameAttr + "=" + mt.getName() + "," + ldapAttrMapping.membershipTypeURL;
       LdapContext ctx = ldapService.getLdapContext();
@@ -203,6 +211,10 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
     */
    public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception
    {
+      if (name.equals(ANY_MEMBERSHIP_TYPE.getName()))
+      {
+         throw new IllegalArgumentException("The * membership cannot be managed by the API");
+      }
       String membershipTypeDN =
          ldapAttrMapping.membershipTypeNameAttr + "=" + name + "," + ldapAttrMapping.membershipTypeURL;
       LdapContext ctx = ldapService.getLdapContext();
@@ -263,7 +275,8 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
       }
 
       String membershipTypeDN =
-         ldapAttrMapping.membershipTypeNameAttr + "=" + name + "," + ldapAttrMapping.membershipTypeURL;
+         ldapAttrMapping.membershipTypeNameAttr + "=" + BaseDAO.escapeDN(name) + ","
+            + ldapAttrMapping.membershipTypeURL;
       LdapContext ctx = ldapService.getLdapContext();
       try
       {
@@ -349,18 +362,11 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
    {
       NamingEnumeration<SearchResult> results = null;
 
-      // need to escape '*' symbol since it is a special symbol for organization service
-      // and LDAP protocol, but has different meanings
-      if ("*".equals(name))
-      {
-         name = "\\2a";
-      }
-
       try
       {
          SearchControls constraints = new SearchControls();
          constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
-         String filter = ldapAttrMapping.membershipTypeNameAttr + "=" + name;
+         String filter = ldapAttrMapping.membershipTypeNameAttr + "=" + BaseDAO.escapeDN(name);
          results = ctx.search(ldapAttrMapping.groupsURL, filter, constraints);
          while (results.hasMore())
          {

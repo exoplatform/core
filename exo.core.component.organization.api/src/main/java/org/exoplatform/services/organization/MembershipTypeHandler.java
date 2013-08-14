@@ -19,13 +19,14 @@
 package org.exoplatform.services.organization;
 
 import java.util.Collection;
+import java.util.Date;
 
 /**
  * Created by The eXo Platform SAS<br>
  * 
  * This interface is a sub part of the organization service. It is used to manage the
  * membership types and  broadcast the membership type events to all the registered listeners in the
- * organization service. The membership type event can be: new mebership type, update the membership
+ * organization service. The membership type event can be: new membership type, update the membership
  * type and delete the membership type event. Each event should have 2 phases: pre event and post
  * event. The method createMembershipType(..) , saveMembershipType(..) and removeMembershipType
  * broadcast the event at each phase so the listeners can handle the event properly
@@ -35,13 +36,30 @@ import java.util.Collection;
 public interface MembershipTypeHandler
 {
    /**
+    * The any membership type
+    */
+   public static final MembershipType ANY_MEMBERSHIP_TYPE  = new MembershipType()
+   {
+      public String getName() {return "*";}
+      public void setName(String s) {}
+      public String getDescription() {return "The any membership type";}
+      public void setDescription(String s) {}
+      public String getOwner() {return null;}
+      public void setOwner(String s) {}
+      public Date getCreatedDate() {return null;}
+      public void setCreatedDate(Date d) {}
+      public Date getModifiedDate() {return null;}
+      public void setModifiedDate(Date d) {}
+   };
+
+   /**
     * @return a new object instance that implement the MembershipType interface
     */
    MembershipType createMembershipTypeInstance();
 
    /**
     * Use this method to persist a new membership type. The developer usually should call the method
-    * createMembershipTypeInstance, to create a new MembershipType, set the memerbership type data
+    * createMembershipTypeInstance, to create a new MembershipType, set the membership type data
     * and call this method to persist the membership type.
     * 
     * @param mt
@@ -49,10 +67,10 @@ public interface MembershipTypeHandler
     * @param broadcast
     *          Broadcast the event if the broadcast value is 'true'
     * @return Return the MembershiptType object that contains the updated informations. Note that the
-    *         return membership type cannot be the same with the mt as the method can set the created
-    *         date and modified date automatically.
+    *         returned membership type could not be the same as the provided MembershipType as the method 
+    *         can set the created date and modified date automatically.
     * @throws Exception
-    *           An exception is throwed if the method cannot access the database or a listener fail
+    *           An exception is thrown if the method cannot access the database or a listener fail
     *           to handle the event
     */
    MembershipType createMembershipType(MembershipType mt, boolean broadcast) throws Exception;
@@ -68,7 +86,7 @@ public interface MembershipTypeHandler
     *          Broadcast the event to all the registered listener if the broadcast value is 'true'
     * @return Return the updated membership type object.
     * @throws Exception
-    *           An exception is throwed if the method cannot access the database or any listener fail
+    *           An exception is thrown if the method cannot access the database or any listener fail
     *           to handle the event.
     */
    MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception;
@@ -82,7 +100,7 @@ public interface MembershipTypeHandler
     *          Broadcast the event to the registered listener if the broadcast value is 'true'
     * @return The membership type object which has been removed from the database
     * @throws Exception
-    *           An exception is throwed if the method cannot access the database or the membership
+    *           An exception is thrown if the method cannot access the database or the membership
     *           type is not found in the database or any listener fail to handle the event.
     */
    MembershipType removeMembershipType(String name, boolean broadcast) throws Exception;
@@ -94,7 +112,7 @@ public interface MembershipTypeHandler
     *          the name of the membership type.
     * @return null if no membership type that matched the name or the found membership type.
     * @throws Exception
-    *           An exception is throwed if the method cannot access the database or more than one
+    *           An exception is thrown if the method cannot access the database or more than one
     *           membership type is found.
     */
    MembershipType findMembershipType(String name) throws Exception;
@@ -105,9 +123,9 @@ public interface MembershipTypeHandler
     * @return A collection of the membership type. The collection cannot be null. If there is no
     *         membership type in the database, the collection should be empty.
     * @throws Exception
-    *           Ususally an exception is throwed when the method cannot access the database.
+    *           Usually an exception is thrown when the method cannot access the database.
     */
-   Collection findMembershipTypes() throws Exception;
+   Collection<MembershipType> findMembershipTypes() throws Exception;
 
    /**
     * Use this method to register a membership type event listener.

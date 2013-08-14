@@ -31,6 +31,7 @@ import org.exoplatform.services.organization.MembershipEventListener;
 import org.exoplatform.services.organization.MembershipEventListenerHandler;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.MembershipTypeHandler;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.impl.MembershipImpl;
@@ -127,10 +128,11 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
     */
    public void createMembership(Membership m, boolean broadcast) throws Exception
    {
-      if (service.getMembershipTypeHandler().findMembershipType(m.getMembershipType()) == null)
+      if (!m.getMembershipType().equals(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName())
+         && service.getMembershipTypeHandler().findMembershipType(m.getMembershipType()) == null)
       {
-         throw new InvalidNameException("Can not create membership record " + m.getId()
-            + " because membership type " + m.getMembershipType() + " does not exists.");
+         throw new InvalidNameException("Can not create membership record " + m.getId() + " because membership type "
+            + m.getMembershipType() + " does not exists.");
       }
 
       if (service.getGroupHandler().findGroupById(m.getGroupId()) == null)
@@ -161,7 +163,8 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
                String userDN = getDNFromUsername(ctx, m.getUserName());
                String groupDN = getGroupDNFromGroupId(m.getGroupId());
                String membershipDN =
-                  ldapAttrMapping.membershipTypeNameAttr + "=" + m.getMembershipType() + "," + groupDN;
+                  ldapAttrMapping.membershipTypeNameAttr + "=" + BaseDAO.escapeDN(m.getMembershipType()) + ","
+                     + groupDN;
 
                Attributes attrs = null;
                try
@@ -268,7 +271,8 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
             {
                String userDN = getDNFromUsername(ctx, username).trim();
                String groupDN = getGroupDNFromGroupId(groupId);
-               String membershipDN = ldapAttrMapping.membershipTypeNameAttr + "=" + membershipType + ", " + groupDN;
+               String membershipDN =
+                  ldapAttrMapping.membershipTypeNameAttr + "=" + BaseDAO.escapeDN(membershipType) + ", " + groupDN;
                Attributes attrs = ctx.getAttributes(membershipDN);
                // Group does exist, is userDN in it?
                List<Object> members = this.getAttributes(attrs, ldapAttrMapping.membershipTypeMemberValue);
@@ -457,7 +461,7 @@ public class MembershipDAOImpl extends BaseDAO implements MembershipHandler, Mem
                userDN = userDN.trim();
                String mbfilter = membershipClassFilter();
                String filter =
-                  "(&" + mbfilter + "(" + ldapAttrMapping.membershipTypeNameAttr + "=" + type + ")("
+                  "(&" + mbfilter + "(" + ldapAttrMapping.membershipTypeNameAttr + "=" + BaseDAO.escapeDN(type) + ")("
                      + ldapAttrMapping.membershipTypeMemberValue + "=" + userDN + "))";
 
                NamingEnumeration<SearchResult> results = findMembershipsInGroup(ctx, groupId, filter);

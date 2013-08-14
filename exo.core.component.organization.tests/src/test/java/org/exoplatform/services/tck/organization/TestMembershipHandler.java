@@ -23,9 +23,13 @@ import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
 import org.exoplatform.services.organization.MembershipEventListenerHandler;
 import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.MembershipTypeHandler;
 import org.exoplatform.services.organization.User;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by The eXo Platform SAS.
@@ -60,7 +64,10 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       createMembership(userName, groupName1, membershipType);
 
       Membership m = mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1, membershipType);
-      assertNotNull(mHandler.findMembership(m.getId()));
+      assertNotNull(m);
+      assertEquals(membershipType, m.getMembershipType());
+      assertNotNull(m = mHandler.findMembership(m.getId()));
+      assertEquals(membershipType, m.getMembershipType());
 
       // try to find not existed membership. We are supposed to get Exception
       try
@@ -73,9 +80,20 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
          
       }
 
+      mHandler.linkMembership(uHandler.findUserByName(userName), gHandler.findGroupById("/" + groupName1),
+         MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, true);
+
+      m =
+         mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1,
+            MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName());
+      assertNotNull(m);
+      assertEquals(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName(), m.getMembershipType());
+      assertNotNull(m = mHandler.findMembership(m.getId()));
+      assertEquals(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName(), m.getMembershipType());
+
       // Check the listener's counters
-      assertEquals(1, listener.preSaveNew);
-      assertEquals(1, listener.postSaveNew);
+      assertEquals(2, listener.preSaveNew);
+      assertEquals(2, listener.postSaveNew);
       assertEquals(0, listener.preSave);
       assertEquals(0, listener.postSave);
       assertEquals(0, listener.preDelete);
@@ -245,6 +263,27 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
 
       Membership m;
       assertNotNull(m = mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1, membershipType));
+
+      mHandler.linkMembership(uHandler.findUserByName(userName), g, MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, true);
+
+      assertSizeEquals(2, mHandler.findAllMembershipsByGroup(g));
+
+      Set<String> membershipTypes = new HashSet<String>();
+      for (Membership mem : mHandler.findAllMembershipsByGroup(g).load(0, 2))
+      {
+         membershipTypes.add(mem.getMembershipType());
+      }
+      assertTrue(membershipTypes.contains(membershipType));
+      assertTrue(membershipTypes.contains(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName()));
+
+      mHandler.removeMembership(m.getId(), true);
+
+      assertSizeEquals(1, mHandler.findAllMembershipsByGroup(g));
+
+      assertNotNull(m =
+         mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1,
+            MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName()));
+
       mHandler.removeMembership(m.getId(), true);
 
       assertSizeEquals(0, mHandler.findAllMembershipsByGroup(g));
@@ -280,12 +319,12 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       assertSizeEquals(0, mHandler.findAllMembershipsByGroup(g));
 
       // Check the listener's counters
-      assertEquals(4, listener.preSaveNew);
-      assertEquals(4, listener.postSaveNew);
+      assertEquals(5, listener.preSaveNew);
+      assertEquals(5, listener.postSaveNew);
       assertEquals(0, listener.preSave);
       assertEquals(0, listener.postSave);
-      assertEquals(2, listener.preDelete);
-      assertEquals(2, listener.postDelete);
+      assertEquals(3, listener.preDelete);
+      assertEquals(3, listener.postDelete);
    }
 
    /**
@@ -302,6 +341,27 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
 
       Membership m;
       assertNotNull(m = mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1, membershipType));
+
+      mHandler.linkMembership(uHandler.findUserByName(userName), gHandler.findGroupById("/" + groupName1),
+         MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, true);
+
+      assertSizeEquals(2, mHandler.findMembershipsByUser(userName));
+
+      Set<String> membershipTypes = new HashSet<String>();
+      for (Membership mem : mHandler.findMembershipsByUser(userName))
+      {
+         membershipTypes.add(mem.getMembershipType());
+      }
+      assertTrue(membershipTypes.contains(membershipType));
+      assertTrue(membershipTypes.contains(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName()));
+
+      mHandler.removeMembership(m.getId(), true);
+
+      assertSizeEquals(1, mHandler.findMembershipsByUser(userName));
+
+      assertNotNull(m =
+         mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1,
+            MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName()));
 
       mHandler.removeMembership(m.getId(), true);
 
@@ -332,12 +392,12 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       assertSizeEquals(0, mHandler.findMembershipsByUser(userName + "4"));
 
       // Check the listener's counters
-      assertEquals(4, listener.preSaveNew);
-      assertEquals(4, listener.postSaveNew);
+      assertEquals(5, listener.preSaveNew);
+      assertEquals(5, listener.postSaveNew);
       assertEquals(0, listener.preSave);
       assertEquals(0, listener.postSave);
-      assertEquals(2, listener.preDelete);
-      assertEquals(2, listener.postDelete);
+      assertEquals(3, listener.preDelete);
+      assertEquals(3, listener.postDelete);
    }
 
    /**
@@ -372,8 +432,37 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
 
       Membership m = mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1, membershipType);
       assertNotNull(m);
+      assertEquals(membershipType, m.getMembershipType());
 
-      mHandler.removeMembership(m.getId(), true);
+      mHandler.linkMembership(uHandler.findUserByName(userName), gHandler.findGroupById("/" + groupName1),
+         MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, true);
+
+      assertSizeEquals(2, mHandler.findMembershipsByUserAndGroup(userName, "/" + groupName1));
+
+      Set<String> membershipTypes = new HashSet<String>();
+      for (Membership mem : mHandler.findMembershipsByUserAndGroup(userName, "/" + groupName1))
+      {
+         membershipTypes.add(mem.getMembershipType());
+      }
+      assertTrue(membershipTypes.contains(membershipType));
+      assertTrue(membershipTypes.contains(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName()));
+
+      m = mHandler.removeMembership(m.getId(), true);
+      assertNotNull(m);
+      assertEquals(membershipType, m.getMembershipType());
+
+      assertSizeEquals(1, mHandler.findMembershipsByUserAndGroup(userName, "/" + groupName1));
+
+      m =
+         mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1,
+            MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName());
+      assertNotNull(m);
+      assertEquals(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName(), m.getMembershipType());
+
+      m = mHandler.removeMembership(m.getId(), true);
+
+      assertNotNull(m);
+      assertEquals(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName(), m.getMembershipType());
 
       assertSizeEquals(0, mHandler.findMembershipsByUserAndGroup(userName, "/" + groupName1));
 
@@ -402,12 +491,12 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       assertSizeEquals(0, mHandler.findMembershipsByUserAndGroup(userName + "4", "/" + groupName2 + "4"));
 
       // Check the listener's counters
-      assertEquals(4, listener.preSaveNew);
-      assertEquals(4, listener.postSaveNew);
+      assertEquals(5, listener.preSaveNew);
+      assertEquals(5, listener.postSaveNew);
       assertEquals(0, listener.preSave);
       assertEquals(0, listener.postSave);
-      assertEquals(2, listener.preDelete);
-      assertEquals(2, listener.postDelete);
+      assertEquals(3, listener.preDelete);
+      assertEquals(3, listener.postDelete);
  }
 
    /**
@@ -510,9 +599,16 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       {
       }
 
+      mHandler.linkMembership(uHandler.findUserByName(userName), gHandler.findGroupById("/" + groupName1),
+         MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, true);
+      m =
+         mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1,
+            MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName());
+      assertNotNull(m);
+
       // Check the listener's counters
-      assertEquals(2, listener.preSaveNew);
-      assertEquals(2, listener.postSaveNew);
+      assertEquals(3, listener.preSaveNew);
+      assertEquals(3, listener.postSaveNew);
       assertEquals(0, listener.preSave);
       assertEquals(0, listener.postSave);
       assertEquals(1, listener.preDelete);
@@ -563,9 +659,32 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
    public void testRemoveMembershipByUser() throws Exception
    {
       createMembership(userName, groupName1, membershipType);
+      assertNotNull(mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1, membershipType));
 
-      assertSizeEquals(1, mHandler.removeMembershipByUser("user", true));
-      assertNull(mHandler.findMembershipByUserGroupAndType("user", "/group", "type"));
+      mHandler.linkMembership(uHandler.findUserByName(userName), gHandler.findGroupById("/" + groupName1),
+         MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, true);
+
+      assertNotNull(mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1,
+         MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName()));
+
+      Collection<Membership> memberships;
+      assertSizeEquals(2, memberships = mHandler.removeMembershipByUser(userName, true));
+      Set<String> membershipNames = new HashSet<String>();
+      for (Membership m : memberships)
+      {
+         membershipNames.add(m.getMembershipType());
+      }
+      assertTrue(membershipNames.contains(membershipType));
+      assertTrue(membershipNames.contains(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName()));
+
+      assertNull(mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1, membershipType));
+      assertNull(mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1,
+         MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName()));
+
+      assertSizeEquals(0, mHandler.findMembershipsByUserAndGroup(userName, "/" + groupName1));
+      assertSizeEquals(0, mHandler.findMembershipsByUser(userName));
+
+      assertNull(mHandler.findMembershipByUserGroupAndType(userName, "/group", membershipType));
 
       // try to remove memberships by not existed users. We are supposed to get empty list instead of Exception
       try
@@ -578,12 +697,12 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       }
 
       // Check the listener's counters
-      assertEquals(1, listener.preSaveNew);
-      assertEquals(1, listener.postSaveNew);
+      assertEquals(2, listener.preSaveNew);
+      assertEquals(2, listener.postSaveNew);
       assertEquals(0, listener.preSave);
       assertEquals(0, listener.postSave);
-      assertEquals(1, listener.preDelete);
-      assertEquals(1, listener.postDelete);
+      assertEquals(2, listener.preDelete);
+      assertEquals(2, listener.postDelete);
    }
 
    /**
@@ -895,6 +1014,12 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       {
          if (m == null)
             return;
+         if (!m.getMembershipType().startsWith("type") && !m.getMembershipType().equals("foo")
+            && !m.getMembershipType().equals(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName()))
+         {
+            throw new Exception("Unexpected membership type, it should be 'type' or '"
+               + MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName() + "' but was " + m.getMembershipType());
+         }
          if (isNew)
             preSaveNew++;
          else

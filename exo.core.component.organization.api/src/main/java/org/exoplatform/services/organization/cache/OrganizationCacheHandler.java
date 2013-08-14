@@ -32,6 +32,7 @@ import org.exoplatform.services.organization.impl.UserProfileImpl;
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a> 
  * @version $Id$
  */
+@SuppressWarnings("rawtypes")
 public class OrganizationCacheHandler
 {
 

@@ -91,7 +91,7 @@ public interface UserProfileHandler
     * @return  Returns a collection containing all the existing UserProfiles
     * @throws Exception Throw exception if the method fail to access the database
     */
-   Collection findUserProfiles() throws Exception;
+   Collection<UserProfile> findUserProfiles() throws Exception;
 
    /**
     * When a method save , remove are called , the will broadcast an event. You
