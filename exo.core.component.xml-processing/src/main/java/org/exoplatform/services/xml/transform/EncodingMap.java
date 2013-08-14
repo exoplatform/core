@@ -18,6 +18,9 @@
  */
 package org.exoplatform.services.xml.transform;
 
+import org.exoplatform.container.spi.DefinitionByType;
+import org.exoplatform.services.xml.transform.impl.EncodingMapImpl;
+
 /**
  * Created by The eXo Platform SAS . Conversions between IANA encoding names and
  * Java encoding names,
@@ -25,7 +28,7 @@ package org.exoplatform.services.xml.transform;
  * @author <a href="mailto:alex.kravchuk@gmail.com">Alexander Kravchuk</a>
  * @version $Id:
  */
-
+@DefinitionByType(type = EncodingMapImpl.class)
 public interface EncodingMap
 {
    public String convertIANA2Java(String iana);

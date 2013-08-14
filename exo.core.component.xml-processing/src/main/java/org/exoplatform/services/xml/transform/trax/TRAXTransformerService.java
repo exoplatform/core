@@ -18,7 +18,9 @@
  */
 package org.exoplatform.services.xml.transform.trax;
 
+import org.exoplatform.container.spi.DefinitionByType;
 import org.exoplatform.services.xml.transform.NotSupportedIOTypeException;
+import org.exoplatform.services.xml.transform.impl.trax.TRAXTransformerServiceImpl;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerConfigurationException;
@@ -31,6 +33,7 @@ import javax.xml.transform.TransformerException;
  * @author <a href="mailto:alex.kravchuk@gmail.com">Alexander Kravchuk</a>
  * @version $Id: TRAXTransformerService.java 5799 2006-05-28 17:55:42Z geaz $
  */
+@DefinitionByType(type = TRAXTransformerServiceImpl.class)
 public interface TRAXTransformerService
 {
    TRAXTransformer getTransformer() throws TransformerConfigurationException;

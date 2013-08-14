@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.security;
 
+import org.exoplatform.container.spi.DefinitionByType;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.listener.ListenerService;
@@ -34,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 
  * @author Gennady Azarenkov
  */
+@DefinitionByType
 public final class ConversationRegistry
 {
 

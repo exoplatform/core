@@ -18,6 +18,9 @@
  */
 package org.exoplatform.services.xml.transform.html;
 
+import org.exoplatform.container.spi.DefinitionByType;
+import org.exoplatform.services.xml.transform.impl.html.TidyTransformerServiceImpl;
+
 import javax.xml.transform.TransformerConfigurationException;
 
 /**
@@ -26,7 +29,7 @@ import javax.xml.transform.TransformerConfigurationException;
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: HTMLTransformerService.java 5799 2006-05-28 17:55:42Z geaz $
  */
-
+@DefinitionByType(type = TidyTransformerServiceImpl.class)
 public interface HTMLTransformerService
 {
    HTMLTransformer getTransformer() throws TransformerConfigurationException;

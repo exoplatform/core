@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.security;
 
+import org.exoplatform.container.spi.DefinitionByType;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.log.ExoLogger;
@@ -31,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-
+@DefinitionByType
 public class IdentityRegistry
 {
 

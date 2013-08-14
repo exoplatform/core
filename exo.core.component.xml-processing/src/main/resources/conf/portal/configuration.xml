@@ -22,16 +22,7 @@
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd"
    xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
    <component>
-      <type>org.exoplatform.services.xml.transform.impl.html.TidyTransformerServiceImpl</type>
-   </component>
-   <component>
-      <type>org.exoplatform.services.xml.transform.impl.trax.TRAXTransformerServiceImpl</type>
-   </component>
-   <component>
       <type>org.exoplatform.services.xml.transform.impl.trax.TRAXTemplatesServiceImpl</type>
-   </component>
-   <component>
-      <type>org.exoplatform.services.xml.transform.impl.EncodingMapImpl</type>
    </component>
    <component>
       <type>org.exoplatform.services.xml.resolving.impl.XMLResolvingServiceImpl</type>
