@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.StandaloneContainer;
+import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.MembershipHandler;
@@ -124,6 +125,8 @@ public class AbstractOrganizationServiceTest extends TestCase
       groups.add("/" + groupName1 + "/" + groupName2);
 
       types.add(membershipType);
+
+      RequestLifeCycle.begin(container);
    }
 
    /**
@@ -249,6 +252,7 @@ public class AbstractOrganizationServiceTest extends TestCase
          iter.remove();
       }
 
+      RequestLifeCycle.begin(container);
       super.tearDown();
    }
 
