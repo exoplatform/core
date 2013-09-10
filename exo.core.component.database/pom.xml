@@ -97,6 +97,11 @@
       <dependency>
          <groupId>com.experlog</groupId>
          <artifactId>xapool</artifactId>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging</artifactId>
       </dependency>
       <dependency>
          <groupId>org.hibernate</groupId>
@@ -109,6 +114,10 @@
             <exclusion>
                <groupId>org.jboss.spec.javax.transaction</groupId>
                <artifactId>jboss-transaction-api_1.1_spec</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.jboss.logging</groupId>
+               <artifactId>jboss-logging</artifactId>
             </exclusion>
             <exclusion>
                <groupId>org.javassist</groupId>
@@ -139,6 +148,7 @@
       <dependency>
          <groupId>org.ow2.spec.ee</groupId>
          <artifactId>ow2-jta-1.1-spec</artifactId>
+         <scope>provided</scope>
       </dependency>
   </dependencies>
    

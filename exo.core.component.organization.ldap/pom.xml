@@ -79,6 +79,15 @@
                <groupId>org.apache.directory.shared</groupId>
                <artifactId>shared-ldap-schema</artifactId>
             </exclusion>
+
+            <exclusion>
+               <groupId>commons-lang</groupId>
+               <artifactId>commons-lang</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.slf4j</groupId>
+               <artifactId>slf4j-api</artifactId>
+            </exclusion>
          </exclusions>
       </dependency>
       <dependency>
@@ -95,6 +104,11 @@
          <artifactId>commons-io</artifactId>
          <groupId>commons-io</groupId>
          <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>javax.transaction</groupId>
+         <artifactId>jta</artifactId>
+         <scope>provided</scope>
       </dependency>
    </dependencies>
    
