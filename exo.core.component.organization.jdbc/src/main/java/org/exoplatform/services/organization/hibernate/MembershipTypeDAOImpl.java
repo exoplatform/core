@@ -73,10 +73,6 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler, MembershipT
 
    public MembershipType createMembershipType(MembershipType mt, boolean broadcast) throws Exception
    {
-      if (mt.getName().equals(ANY_MEMBERSHIP_TYPE.getName()))
-      {
-         throw new IllegalArgumentException("The * membership cannot be managed by the API");
-      }
       Session session = service_.openSession();
       Date now = new Date();
       mt.setCreatedDate(now);
@@ -100,10 +96,6 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler, MembershipT
 
    public MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception
    {
-      if (mt.getName().equals(ANY_MEMBERSHIP_TYPE.getName()))
-      {
-         throw new IllegalArgumentException("The * membership cannot be managed by the API");
-      }
       Session session = service_.openSession();
       Date now = new Date();
       mt.setModifiedDate(now);
@@ -133,10 +125,6 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler, MembershipT
 
    public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception
    {
-      if (name.equals(ANY_MEMBERSHIP_TYPE.getName()))
-      {
-         throw new IllegalArgumentException("The * membership cannot be managed by the API");
-      }
       Session session = service_.openSession();
       MembershipTypeImpl mt = (MembershipTypeImpl)session.get(MembershipTypeImpl.class, name);
 
@@ -168,7 +156,10 @@ public class MembershipTypeDAOImpl implements MembershipTypeHandler, MembershipT
    public Collection<MembershipType> findMembershipTypes() throws Exception
    {
       Session session = service_.openSession();
-      return session.createQuery(queryFindAllMembershipType).list();
+      Collection<MembershipType> result = session.createQuery(queryFindAllMembershipType).list();
+      List<MembershipType> l = new ArrayList<MembershipType>(result);
+      Collections.sort(l, MembershipTypeHandler.COMPARATOR);
+      return l;
    }
 
    /**

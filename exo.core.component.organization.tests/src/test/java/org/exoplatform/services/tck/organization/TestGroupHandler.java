@@ -96,7 +96,7 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
       createMembership(userName, groupName1, membershipType);
       createGroup(null, groupName2, "lable", "desc");
       mHandler.linkMembership(uHandler.findUserByName(userName), gHandler.findGroupById("/" + groupName2),
-         MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, true);
+         mtHandler.findMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE), true);
 
       Collection<Group> groups;
       assertSizeEquals(2, groups = gHandler.findGroupsOfUser(userName));
@@ -275,6 +275,7 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
    /**
     * Create group.
     */
+   @SuppressWarnings("deprecation")
    public void testCreateGroup() throws Exception
    {
       Group group = gHandler.createGroupInstance();
@@ -378,14 +379,15 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
    {
       createMembership(userName, groupName1, membershipType);
       createGroup(null, groupName2, "lable", "desc");
+      mtHandler.findMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE);
       mHandler.linkMembership(uHandler.findUserByName(userName), gHandler.findGroupById("/" + groupName2),
-         MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, false);
+         mtHandler.findMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE), false);
       Collection<Group> groups = gHandler.findGroupByMembership(userName, membershipType);
       assertNotNull(groups);
       assertEquals(1, groups.size());
       assertEquals(groupName1, groups.iterator().next().getGroupName());
 
-      groups = gHandler.findGroupByMembership(userName, MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName());
+      groups = gHandler.findGroupByMembership(userName, MembershipTypeHandler.ANY_MEMBERSHIP_TYPE);
       assertNotNull(groups);
       assertEquals(1, groups.size());
       assertEquals(groupName2, groups.iterator().next().getGroupName());
@@ -396,7 +398,7 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
       createMembership(userName, groupName1, membershipType);
       createGroup(null, groupName2, "lable", "desc");
       mHandler.linkMembership(uHandler.findUserByName(userName), gHandler.findGroupById("/" + groupName2),
-         MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, false);
+         mtHandler.findMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE), false);
       Collection<Group> groups = gHandler.resolveGroupByMembership(userName, membershipType);
       assertNotNull(groups);
       assertEquals(2, groups.size());
@@ -408,7 +410,7 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
       assertTrue(groupNames.contains(groupName1));
       assertTrue(groupNames.contains(groupName2));
 
-      groups = gHandler.resolveGroupByMembership(userName, MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName());
+      groups = gHandler.resolveGroupByMembership(userName, MembershipTypeHandler.ANY_MEMBERSHIP_TYPE);
       assertNotNull(groups);
       assertEquals(1, groups.size());
       assertEquals(groupName2, groups.iterator().next().getGroupName());

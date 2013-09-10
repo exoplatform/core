@@ -92,10 +92,6 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
     */
    public MembershipType createMembershipType(MembershipType mt, boolean broadcast) throws Exception
    {
-      if (mt.getName().equals(ANY_MEMBERSHIP_TYPE.getName()))
-      {
-         throw new IllegalArgumentException("The * membership cannot be managed by the API");
-      }
       String membershipTypeDN =
          ldapAttrMapping.membershipTypeNameAttr + "=" + mt.getName() + "," + ldapAttrMapping.membershipTypeURL;
       LdapContext ctx = ldapService.getLdapContext();
@@ -148,10 +144,6 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
     */
    public MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception
    {
-      if (mt.getName().equals(ANY_MEMBERSHIP_TYPE.getName()))
-      {
-         throw new IllegalArgumentException("The * membership cannot be managed by the API");
-      }
       String membershipTypeDN =
          ldapAttrMapping.membershipTypeNameAttr + "=" + mt.getName() + "," + ldapAttrMapping.membershipTypeURL;
       LdapContext ctx = ldapService.getLdapContext();
@@ -211,10 +203,6 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
     */
    public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception
    {
-      if (name.equals(ANY_MEMBERSHIP_TYPE.getName()))
-      {
-         throw new IllegalArgumentException("The * membership cannot be managed by the API");
-      }
       String membershipTypeDN =
          ldapAttrMapping.membershipTypeNameAttr + "=" + name + "," + ldapAttrMapping.membershipTypeURL;
       LdapContext ctx = ldapService.getLdapContext();
@@ -337,7 +325,9 @@ public class MembershipTypeDAOImpl extends BaseDAO implements MembershipTypeHand
                   Attributes attrs = sr.getAttributes();
                   memberships.add(ldapAttrMapping.attributesToMembershipType(attrs));
                }
-               return memberships;
+               List<MembershipType> l = new ArrayList<MembershipType>(memberships);
+               Collections.sort(l, MembershipTypeHandler.COMPARATOR);
+               return l;
             }
             catch (NamingException e)
             {

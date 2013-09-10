@@ -19,7 +19,7 @@
 package org.exoplatform.services.organization;
 
 import java.util.Collection;
-import java.util.Date;
+import java.util.Comparator;
 
 /**
  * Created by The eXo Platform SAS<br>
@@ -36,20 +36,30 @@ import java.util.Date;
 public interface MembershipTypeHandler
 {
    /**
-    * The any membership type
+    * The name of any membership type
     */
-   public static final MembershipType ANY_MEMBERSHIP_TYPE  = new MembershipType()
+   public static final String ANY_MEMBERSHIP_TYPE = "*";
+
+   /**
+    * This comparator allows to keep the original order but with ANY_MEMBERSHIP_TYPE as first element
+    * if it exists
+    */
+   public static final Comparator<MembershipType> COMPARATOR = new Comparator<MembershipType>()
    {
-      public String getName() {return "*";}
-      public void setName(String s) {}
-      public String getDescription() {return "The any membership type";}
-      public void setDescription(String s) {}
-      public String getOwner() {return null;}
-      public void setOwner(String s) {}
-      public Date getCreatedDate() {return null;}
-      public void setCreatedDate(Date d) {}
-      public Date getModifiedDate() {return null;}
-      public void setModifiedDate(Date d) {}
+      @Override
+      public int compare(MembershipType o1, MembershipType o2)
+      {
+         if (ANY_MEMBERSHIP_TYPE.equals(o1.getName()))
+         {
+            return -1;
+         }
+         else if (ANY_MEMBERSHIP_TYPE.equals(o2.getName()))
+         {
+            return 1;
+         }
+         return -1;
+      }
+
    };
 
    /**

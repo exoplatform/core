@@ -79,15 +79,9 @@ public class TestMembershipTypeHandler extends AbstractOrganizationServiceTest
     */
    public void testFindMembershipTypes() throws Exception
    {
-      int initSize = 3;
-      if (mtHandler.findMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName()) != null)
-      {
-         // Any membership type already exists in the data store so we can check if the member ship
-         // types are properly ordered
-         assertEquals(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName(), mtHandler.findMembershipTypes().iterator()
-            .next().getName());
-         initSize = 4;
-      }
+      int initSize = 4;
+      assertEquals(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, mtHandler.findMembershipTypes().iterator()
+         .next().getName());
 
       assertSizeEquals(initSize, mtHandler.findMembershipTypes());
       
@@ -131,22 +125,41 @@ public class TestMembershipTypeHandler extends AbstractOrganizationServiceTest
       {
       }
 
+      assertNotNull(mtHandler.findMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE));
+
       try
       {
-         assertNull(mtHandler.removeMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.getName(), true));
+         mtHandler.removeMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, true);
+      }
+      catch (Exception e)
+      {
+         fail("Exception should not be thrown");
+      }
+      assertNull(mtHandler.findMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE));
+      try
+      {
+         assertNull(mtHandler.removeMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, true));
          fail("Exception should be thrown");
       }
       catch (Exception e)
       {
       }
+      assertNull(mtHandler.findMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE));
+
+      MembershipType anyMT = mtHandler.createMembershipTypeInstance();
+      anyMT.setName(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE);
+      anyMT.setDescription("desc");
+      mtHandler.createMembershipType(anyMT, true);
+
+      assertNotNull(mtHandler.findMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE));
 
       // Check the listener's counters
-      assertEquals(1, listener.preSaveNew);
-      assertEquals(1, listener.postSaveNew);
+      assertEquals(2, listener.preSaveNew);
+      assertEquals(2, listener.postSaveNew);
       assertEquals(0, listener.preSave);
       assertEquals(0, listener.postSave);
-      assertEquals(1, listener.preDelete);
-      assertEquals(1, listener.postDelete);
+      assertEquals(2, listener.preDelete);
+      assertEquals(2, listener.postDelete);
   }
 
    /**
@@ -164,20 +177,23 @@ public class TestMembershipTypeHandler extends AbstractOrganizationServiceTest
       mt = mtHandler.findMembershipType(membershipType);
       assertEquals(mt.getDescription(), "newDesc");
 
+      MembershipType anyMT = mtHandler.findMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE);
+      assertNotNull(anyMT);
+
       try
       {
-         mtHandler.saveMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, true);
-         fail("Exception should be thrown");
+         mtHandler.saveMembershipType(anyMT, true);
       }
       catch (Exception e)
       {
+         fail("Exception should not be thrown");
       }
 
       // Check the listener's counters
       assertEquals(1, listener.preSaveNew);
       assertEquals(1, listener.postSaveNew);
-      assertEquals(1, listener.preSave);
-      assertEquals(1, listener.postSave);
+      assertEquals(2, listener.preSave);
+      assertEquals(2, listener.postSave);
       assertEquals(0, listener.preDelete);
       assertEquals(0, listener.postDelete);
   }
@@ -190,20 +206,36 @@ public class TestMembershipTypeHandler extends AbstractOrganizationServiceTest
 
       try
       {
-         mtHandler.createMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, true);
-         fail("Exception should be thrown");
+         mtHandler.removeMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE, true);
       }
       catch (Exception e)
       {
+         fail("Exception should not be thrown");
       }
 
+      assertNull(mtHandler.findMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE));
+
+      MembershipType anyMT = mtHandler.createMembershipTypeInstance();
+      anyMT.setName(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE);
+      anyMT.setDescription("desc");
+      try
+      {
+         mtHandler.createMembershipType(anyMT, true);
+      }
+      catch (Exception e)
+      {
+         fail("Exception should not be thrown");
+      }
+
+      assertNotNull(mtHandler.findMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE));
+
       // Check the listener's counters
-      assertEquals(1, listener.preSaveNew);
-      assertEquals(1, listener.postSaveNew);
+      assertEquals(2, listener.preSaveNew);
+      assertEquals(2, listener.postSaveNew);
       assertEquals(0, listener.preSave);
       assertEquals(0, listener.postSave);
-      assertEquals(0, listener.preDelete);
-      assertEquals(0, listener.postDelete);
+      assertEquals(1, listener.preDelete);
+      assertEquals(1, listener.postDelete);
    }
 
    /**
