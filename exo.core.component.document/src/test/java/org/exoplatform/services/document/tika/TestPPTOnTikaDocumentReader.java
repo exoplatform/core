@@ -53,7 +53,7 @@ public class TestPPTOnTikaDocumentReader extends BaseStandaloneTest
             "TEST POWERPOINT\n" + "Manchester United \n" + "AC Milan\n" + "SLIDE 2 \n" + "Eric Cantona\n" + "Kaka\n"
                + "Ronaldo\n" + "The natural scients universitys\n\n";
 
-         assertEquals("Wrong string returned", normalizeWhitespaces(expected), normalizeWhitespaces(text));
+         assertEquals("Wrong string returned", normalizeWhitespaces(expected), normalizeWhitespaces(text).replaceAll("\\*", "").trim());
       }
       finally
       {
@@ -83,7 +83,7 @@ public class TestPPTOnTikaDocumentReader extends BaseStandaloneTest
             "TEST POWERPOINT\n" + "Manchester United \n" + "AC Milan\n" + "SLIDE 2 \n" + "Eric Cantona\n" + "Kaka\n"
                + "Ronaldo\n" + "The natural scients universitys\n\n";
 
-         assertEquals("Wrong string returned", normalizeWhitespaces(expected), normalizeWhitespaces(text));
+         assertEquals("Wrong string returned", normalizeWhitespaces(expected), normalizeWhitespaces(text).replaceAll("\\*", "").trim());
       }
       finally
       {

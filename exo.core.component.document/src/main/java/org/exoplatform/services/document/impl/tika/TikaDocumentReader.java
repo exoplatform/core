@@ -20,12 +20,12 @@ import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.DublinCore;
 import org.apache.tika.metadata.MSOffice;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.OfficeOpenXMLCore;
 import org.apache.tika.metadata.Property;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.ParsingReader;
 import org.apache.tika.sax.BodyContentHandler;
-import org.xml.sax.helpers.DefaultHandler;
 import org.exoplatform.commons.utils.QName;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.AdvancedDocumentReader;
@@ -36,6 +36,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -300,6 +301,7 @@ public class TikaDocumentReader implements AdvancedDocumentReader
          return SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<Properties>()
          {
 
+            @SuppressWarnings("deprecation")
             public Properties run() throws Exception
             {
                try
@@ -325,15 +327,15 @@ public class TikaDocumentReader implements AdvancedDocumentReader
 
                   // construct Properties set
                   Properties props = new Properties();
-                  convertProperty(metadata, props, DCMetaData.CONTRIBUTOR, new String[]{DublinCore.CONTRIBUTOR,
+                  convertProperty(metadata, props, DCMetaData.CONTRIBUTOR, new String[]{DublinCore.CONTRIBUTOR.getName(),
                      MSOffice.LAST_AUTHOR});
                   convertProperty(metadata, props, DCMetaData.COVERAGE, DublinCore.COVERAGE);
                   convertProperty(metadata, props, DCMetaData.CREATOR,
-                     new String[]{MSOffice.AUTHOR, DublinCore.CREATOR});
+                     new String[]{MSOffice.AUTHOR, DublinCore.CREATOR.getName()});
                   // different parsers return date in different formats, so keep it as String
                   convertProperty(metadata, props, DCMetaData.DATE, new Property[]{DublinCore.DATE,
                      MSOffice.LAST_SAVED, MSOffice.CREATION_DATE});
-                  convertProperty(metadata, props, DCMetaData.DESCRIPTION, new String[]{DublinCore.DESCRIPTION,
+                  convertProperty(metadata, props, DCMetaData.DESCRIPTION, new String[]{DublinCore.DESCRIPTION.getName(),
                      MSOffice.COMMENTS});
                   convertProperty(metadata, props, DCMetaData.FORMAT, DublinCore.FORMAT);
                   convertProperty(metadata, props, DCMetaData.IDENTIFIER, DublinCore.IDENTIFIER);
@@ -343,8 +345,8 @@ public class TikaDocumentReader implements AdvancedDocumentReader
                   convertProperty(metadata, props, DCMetaData.RELATION, DublinCore.RELATION);
                   convertProperty(metadata, props, DCMetaData.RESOURCE, DublinCore.SOURCE);
                   convertProperty(metadata, props, DCMetaData.RIGHTS, DublinCore.RIGHTS);
-                  convertProperty(metadata, props, DCMetaData.SUBJECT, new String[]{DublinCore.SUBJECT,
-                     MSOffice.KEYWORDS});
+                  convertProperty(metadata, props, DCMetaData.SUBJECT, new String[]{Metadata.SUBJECT,
+                     OfficeOpenXMLCore.SUBJECT.getName(), DublinCore.SUBJECT.getName(), MSOffice.KEYWORDS});
                   convertProperty(metadata, props, DCMetaData.TITLE, DublinCore.TITLE);
                   convertProperty(metadata, props, DCMetaData.TYPE, DublinCore.TYPE);
 
@@ -381,7 +383,7 @@ public class TikaDocumentReader implements AdvancedDocumentReader
       }
    }
 
-   private void convertProperty(Metadata metadata, Properties props, QName jcrDCProp, String tikaDCProp)
+   private void convertProperty(Metadata metadata, Properties props, QName jcrDCProp, Property tikaDCProp)
    {
       String value = (String)metadata.get(tikaDCProp);
       if (value != null)
@@ -413,6 +415,7 @@ public class TikaDocumentReader implements AdvancedDocumentReader
       }
    }
 
+   @SuppressWarnings("deprecation")
    private void convertProperty(Metadata metadata, Properties props, QName jcrDCProp, Property[] tikaProperty)
    {
       for (Property property : tikaProperty)
