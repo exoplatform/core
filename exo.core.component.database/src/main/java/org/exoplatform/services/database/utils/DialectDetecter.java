@@ -141,8 +141,6 @@ public class DialectDetecter
       }
 
       int majorVersion = metaData.getDatabaseMajorVersion();
-      int minorVersion = metaData.getDatabaseMinorVersion();
-
       if (majorVersion < 9)
       {
          if (LOG.isDebugEnabled())
@@ -153,126 +151,16 @@ public class DialectDetecter
 
          return DialectConstants.DB_DIALECT_DB2V8;
       }
-      else if (majorVersion > 9)
-      {
-         if (LOG.isDebugEnabled())
-         {
-            LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2_MYS
-               + " will be used as the major version is greater than 9.");
-         }
-
-         return DialectConstants.DB_DIALECT_DB2_MYS;
-      }
-      else if (majorVersion == 9 && minorVersion > 7)
-      {
-         if (LOG.isDebugEnabled())
-         {
-            LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2_MYS
-               + " will be used as the major version is 9 and the minor version is greater than 7.");
-         }
-
-         return DialectConstants.DB_DIALECT_DB2_MYS;
-      }
-      else if (majorVersion == 9 && minorVersion == 7)
-      {
-         try
-         {
-            int maintenanceVersion = getDB2MaintenanceVersion(metaData);
-
-            if (maintenanceVersion >= 2)
-            {
-               if (LOG.isDebugEnabled())
-               {
-                  LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2_MYS
-                     + " will be used as the major version is 9, the minor version is 7 and the maintenance version"
-                     + " is greater or equals to 2, knowing that the extracted value is " + maintenanceVersion + ".");
-               }
-
-               return DialectConstants.DB_DIALECT_DB2_MYS;
-            }
-            else
-            {
-               if (LOG.isDebugEnabled())
-               {
-                  LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2
-                     + " will be used as the major version is 9, the minor version is 7 and the maintenance version"
-                     + " is lower than 2, knowing that the extracted value is " + maintenanceVersion + ".");
-               }
-
-               return DialectConstants.DB_DIALECT_DB2;
-            }
-         }
-         catch (SQLException e)
-         {
-            LOG.error("Error checking product version.", e);
-
-            if (LOG.isDebugEnabled())
-            {
-               LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2
-                  + " will be used as the major version is 9, the minor version is 7 and"
-                  + " determination the maintenance version failed");
-            }
-
-            return DialectConstants.DB_DIALECT_DB2;
-         }
-      }
       else
       {
          if (LOG.isDebugEnabled())
          {
             LOG.debug("The dialect " + DialectConstants.DB_DIALECT_DB2
-               + " will be used as the major version is 9 and the minor version is lower than 7");
+               + " will be used as the major version is greater or equal to 9");
          }
 
          return DialectConstants.DB_DIALECT_DB2;
       }
    }
 
-   /**
-    * Retrieves maintains version of DB2 server from its system table. <code>service_level</code>
-    * field contains represented version like: DB2 v9.7.0.5, DB2 v9.7.400.501 or something similar
-    * in string format. So, we supposed to have maintenance version as first character after second 
-    * point. 
-    * 
-    * @return maintenance version if retrieved 
-    * @throws SQLException if database error occurred or in case of wrong format
-    */
-   private static int getDB2MaintenanceVersion(final DatabaseMetaData metaData) throws SQLException
-   {
-      final String query = "SELECT service_level FROM TABLE (sysproc.env_get_inst_info())";
-      final int maintenanceVersionPosition = 2;
-      
-      Statement st = metaData.getConnection().createStatement();
-      try
-      {
-         ResultSet result = st.executeQuery(query);
-         try
-         {
-            if (result.next())
-            {
-               String fullVersion = result.getString(1);
-               String splittedVersions[] = fullVersion.split("\\.");
-               
-               if (splittedVersions.length == 4 && splittedVersions[maintenanceVersionPosition].length() >= 1)
-               {
-                  return Integer.parseInt(splittedVersions[maintenanceVersionPosition].substring(0, 1));
-               }
-
-               throw new SQLException("Wrong format of DB2 version '" + fullVersion + "' in system table ");
-            }
-            else
-            {
-               throw new SQLException("There is no data about DB2 version in system table or query is wrong");
-            }
-         }
-         finally
-         {
-            result.close();
-         }
-      }
-      finally
-      {
-         st.close();
-      }
-   }
 }
