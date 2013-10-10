@@ -24,9 +24,7 @@ import org.exoplatform.services.log.Log;
 
 import java.security.PrivilegedExceptionAction;
 import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * JDBC dialect detecter based on database metadata and vendor product name.
