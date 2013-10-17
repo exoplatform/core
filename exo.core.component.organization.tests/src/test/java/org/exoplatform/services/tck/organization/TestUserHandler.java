@@ -266,21 +266,31 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
       query.setUserName("tolik");
       assertSizeEquals(1, uHandler.findUsersByQuery(query));
 
-      // try to find user by name explicitly, case sensitive search
-      query = new Query();
-      query.setUserName("Tolik");
-      assertSizeEquals(1, uHandler.findUsersByQuery(query));
-
       // try to find user by part of name without mask
       query = new Query();
       query.setUserName("tol");
       assertSizeEquals(1, uHandler.findUsersByQuery(query));
 
-      // try to find user by fist and last names, case sensitive search
+      // try to find user by fist and last names
       query = new Query();
-      query.setFirstName("fiRst");
-      query.setLastName("lasT");
+      query.setFirstName("first");
+      query.setLastName("last");
       assertSizeEquals(1, uHandler.findUsersByQuery(query));
+
+      String skipCISearchTests = System.getProperty("orgservice.test.configuration.skipCISearchTests");
+      if (!"true".equals(skipCISearchTests))
+      {
+         // try to find user by name explicitly, case insensitive search
+         query = new Query();
+         query.setUserName("Tolik");
+         assertSizeEquals(1, uHandler.findUsersByQuery(query));
+
+         // try to find user by fist and last names, case insensitive search
+         query = new Query();
+         query.setFirstName("fiRst");
+         query.setLastName("lasT");
+         assertSizeEquals(1, uHandler.findUsersByQuery(query));
+      }
 
       String skipDateTests = System.getProperty("orgservice.test.configuration.skipDateTests");
       if (!"true".equals(skipDateTests))
@@ -444,21 +454,31 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
       query.setUserName("tolik");
       assertSizeEquals(1, uHandler.findUsers(query).getAll());
 
-      // try to find user by name explicitly, case sensitive search
-      query = new Query();
-      query.setUserName("Tolik");
-      assertSizeEquals(1, uHandler.findUsers(query).getAll());
-
       // try to find user by part of name without mask
       query = new Query();
       query.setUserName("tol");
       assertSizeEquals(1, uHandler.findUsers(query).getAll());
 
-      // try to find user by fist and last names, case sensitive search
+      // try to find user by fist and last names
       query = new Query();
-      query.setFirstName("fiRst");
-      query.setLastName("lasT");
+      query.setFirstName("first");
+      query.setLastName("last");
       assertSizeEquals(1, uHandler.findUsers(query).getAll());
+
+      String skipCISearchTests = System.getProperty("orgservice.test.configuration.skipCISearchTests");
+      if (!"true".equals(skipCISearchTests))
+      {
+         // try to find user by name explicitly, case insensitive search
+         query = new Query();
+         query.setUserName("Tolik");
+         assertSizeEquals(1, uHandler.findUsers(query).getAll());
+
+         // try to find user by fist and last names, case insensitive search
+         query = new Query();
+         query.setFirstName("fiRst");
+         query.setLastName("lasT");
+         assertSizeEquals(1, uHandler.findUsers(query).getAll());
+      }
 
       String skipDateTests = System.getProperty("orgservice.test.configuration.skipDateTests");
       if (!"true".equals(skipDateTests))
