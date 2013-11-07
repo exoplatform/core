@@ -22,6 +22,7 @@ import org.exoplatform.services.organization.Query;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
 import org.exoplatform.services.organization.UserEventListenerHandler;
+import org.exoplatform.services.organization.UserProfile;
 
 import java.util.Calendar;
 import java.util.List;
@@ -1021,6 +1022,59 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
          if (user == null)
             return;
          postSetEnabled++;
+      }
+   }
+
+   public void testPreDeleteUserEventListenerPreventRemoveUser() throws Exception {
+      createMembership(userName, groupName2, membershipType);
+      createUserProfile(userName);
+
+      //Assert that create membership successfully
+      assertEquals("We expect to find single membership for user " + userName, 1,
+              mHandler.findMembershipsByUser(userName).size());
+
+      //Assert that create userProfile successfully
+      UserProfile up = upHandler.findUserProfileByName(userName);
+      assertNotNull(up);
+      assertEquals(userName, up.getUserName());
+      assertEquals("value1", up.getAttribute("key1"));
+      assertEquals("value2", up.getAttribute("key2"));
+
+      //Try to remove user
+      PreventDeleteUserListener preventDeleteUserListener = new PreventDeleteUserListener();
+      uHandler.addUserEventListener(preventDeleteUserListener);
+      try {
+          uHandler.removeUser(userName, true);
+          fail("Exception should be thrown");
+      } catch (Exception ex) {
+          //Expect exception will be thrown
+      }
+      uHandler.removeUserEventListener(preventDeleteUserListener);
+
+      //Verify user is not removed
+      assertNotNull(uHandler.findUserByName(userName));
+
+      //Assert that membership still exist
+      assertEquals("We expect to find single membership for user " + userName, 1,
+              mHandler.findMembershipsByUser(userName).size());
+
+      //Assert that userProfile still exist
+      up = upHandler.findUserProfileByName(userName);
+      assertNotNull(up);
+      assertEquals(userName, up.getUserName());
+      assertEquals("value1", up.getAttribute("key1"));
+      assertEquals("value2", up.getAttribute("key2"));
+   }
+
+   private static class PreventDeleteUserListener extends UserEventListener {
+      @Override
+      public void preDelete(User user) throws Exception {
+          throw new Exception("You cannot to delete user");
+      }
+
+      @Override
+      public void postDelete(User user) throws Exception {
+          fail("This method should not be execute because preDelete Event prevent remove user");
       }
    }
 }
