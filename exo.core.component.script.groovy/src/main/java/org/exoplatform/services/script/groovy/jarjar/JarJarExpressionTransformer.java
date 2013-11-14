@@ -26,7 +26,6 @@ import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.ast.expr.MethodCallExpression;
 import org.codehaus.groovy.ast.expr.PropertyExpression;
 import org.codehaus.groovy.ast.expr.VariableExpression;
-import org.codehaus.groovy.control.CompilationUnit;
 import org.codehaus.groovy.control.SourceUnit;
 
 import java.util.List;
@@ -39,17 +38,13 @@ class JarJarExpressionTransformer extends ClassCodeExpressionTransformer
 {
 
    /** . */
-   private final CompilationUnit cu;
-
-   /** . */
    private final SourceUnit source;
 
    /** . */
    private final Package root;
 
-   JarJarExpressionTransformer(CompilationUnit cu, SourceUnit source, Package root)
+   JarJarExpressionTransformer(SourceUnit source, Package root)
    {
-      this.cu = cu;
       this.source = source;
       this.root = root;
    }
@@ -122,7 +117,7 @@ class JarJarExpressionTransformer extends ClassCodeExpressionTransformer
       }
    }
 
-   private static ClassNode getClassNode(Class clazz)
+   private static ClassNode getClassNode(Class<?> clazz)
    {
       return ClassHelper.make(clazz);
    }

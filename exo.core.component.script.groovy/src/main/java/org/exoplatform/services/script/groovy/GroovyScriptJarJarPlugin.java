@@ -45,11 +45,10 @@ public class GroovyScriptJarJarPlugin extends BaseComponentPlugin
    /** Our logger. */
    private final static Log LOG = ExoLogger.getLogger("exo.core.component.script.groovy.GroovyScriptJarJarPlugin");
 
-   @SuppressWarnings("unchecked")
    public GroovyScriptJarJarPlugin(InitParams params)
    {
 
-      List values = params.getValuesParam("mapping").getValues();
+      List<String> values = params.getValuesParam("mapping").getValues();
 
       if (mapping == null)
       {
@@ -57,9 +56,9 @@ public class GroovyScriptJarJarPlugin extends BaseComponentPlugin
       }
       else
       {
-         for (Iterator i = values.iterator(); i.hasNext();)
+         for (Iterator<String> i = values.iterator(); i.hasNext();)
          {
-            String rule = (String)i.next();
+            String rule = i.next();
 
             String[] tmp = rule.split("\\-\\>");
             if (tmp.length == 2)

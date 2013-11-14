@@ -118,9 +118,9 @@ public class JarJarClassLoader extends GroovyClassLoader
             ModuleNode module = classNode.getModule();
 
             //
-            for (Iterator i = module.getImports().iterator(); i.hasNext();)
+            for (Iterator<ImportNode> i = module.getImports().iterator(); i.hasNext();)
             {
-               ImportNode importNode = (ImportNode)i.next();
+               ImportNode importNode = i.next();
                ClassNode cn = importNode.getType();
                String s = cn.getPackageName();
                List<String> ss = root.map2(s);
@@ -138,7 +138,7 @@ public class JarJarClassLoader extends GroovyClassLoader
             }
 
             //
-            JarJarExpressionTransformer visitor = new JarJarExpressionTransformer(unit, sourceUnit, root);
+            JarJarExpressionTransformer visitor = new JarJarExpressionTransformer(sourceUnit, root);
             visitor.visitClass(classNode);
          }
       }, Phases.CONVERSION);
