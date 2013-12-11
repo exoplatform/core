@@ -22,6 +22,7 @@ import org.exoplatform.commons.utils.PageList;
 import org.exoplatform.container.component.BaseComponentPlugin;
 import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
@@ -40,7 +41,9 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
 
    private int checkDatabaseAlgorithm_ = CHECK_EMPTY;
 
-   private boolean printInfo_ = true;
+   private boolean printInfo_;
+
+   private boolean updateUsers_;
 
    public OrganizationDatabaseInitializer(InitParams params) throws Exception
    {
@@ -55,6 +58,12 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
       }
       String printInfoConfig = params.getValueParam("printInformation").getValue();
       printInfo_ = printInfoConfig.trim().equalsIgnoreCase("true");
+      ValueParam usParam = params.getValueParam("updateUsers");
+      if (usParam != null)
+      {
+         String updateUsersParam = usParam.getValue();
+         updateUsers_ = (updateUsersParam != null && updateUsersParam.trim().equalsIgnoreCase("true"));
+      }
       config_ = params.getObjectParamValues(OrganizationConfig.class).get(0);
    }
 
@@ -160,6 +169,11 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
          {
             service.getUserHandler().createUser(user, true);
             printInfo("    Created user " + data.getUserName());
+         } 
+         else if (updateUsers_) 
+         {
+            service.getUserHandler().saveUser(user, true);
+            printInfo("    User " + data.getUserName() + " updated");
          }
          else
          {
@@ -218,5 +232,13 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
    protected boolean isPrintInfo()
    {
       return printInfo_;
+   }
+
+   /**
+    * @return the updateUsers
+    */
+   public boolean isUpdateUsers()
+   {
+      return updateUsers_;
    }
 }
