@@ -36,7 +36,7 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
 
    private OrganizationConfig config_;
 
-   private static int CHECK_EMPTY = 0, CHECK_ENTRY = 1;
+   protected static final int CHECK_EMPTY = 0, CHECK_ENTRY = 1;
 
    private int checkDatabaseAlgorithm_ = CHECK_EMPTY;
 
@@ -54,11 +54,8 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
          checkDatabaseAlgorithm_ = CHECK_EMPTY;
       }
       String printInfoConfig = params.getValueParam("printInformation").getValue();
-      if (printInfoConfig.trim().equalsIgnoreCase("true"))
-         printInfo_ = true;
-      else
-         printInfo_ = false;
-      config_ = (OrganizationConfig)params.getObjectParamValues(OrganizationConfig.class).get(0);
+      printInfo_ = printInfoConfig.trim().equalsIgnoreCase("true");
+      config_ = params.getObjectParamValues(OrganizationConfig.class).get(0);
    }
 
    public void init(OrganizationService service) throws Exception
@@ -77,7 +74,7 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
       printInfo("<=======");
    }
 
-   private boolean checkExistDatabase(OrganizationService service) throws Exception
+   protected boolean checkExistDatabase(OrganizationService service) throws Exception
    {
       PageList<?> users = service.getUserHandler().getUserPageList(10);
       if (users != null && users.getAvailable() > 0)
@@ -85,7 +82,7 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
       return false;
    }
 
-   private void createGroups(OrganizationService orgService) throws Exception
+   protected void createGroups(OrganizationService orgService) throws Exception
    {
       printInfo("  Init  Group Data");
       List<?> groups = config_.getGroup();
@@ -123,7 +120,7 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
       }
    }
 
-   private void createMembershipTypes(OrganizationService service) throws Exception
+   protected void createMembershipTypes(OrganizationService service) throws Exception
    {
       printInfo("  Init  Membership Type  Data");
       List<?> types = config_.getMembershipType();
@@ -145,7 +142,7 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
       }
    }
 
-   private void createUsers(OrganizationService service) throws Exception
+   protected void createUsers(OrganizationService service) throws Exception
    {
       printInfo("  Init  User  Data");
       List<?> users = config_.getUser();
@@ -193,9 +190,33 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
       }
    }
 
-   private void printInfo(String message)
+   protected void printInfo(String message)
    {
       if (printInfo_)
          LOG.info(message);
+   }
+
+   /**
+    * @return the config
+    */
+   protected OrganizationConfig getConfig()
+   {
+      return config_;
+   }
+
+   /**
+    * @return the checkDatabaseAlgorithm
+    */
+   protected int getCheckDatabaseAlgorithm()
+   {
+      return checkDatabaseAlgorithm_;
+   }
+
+   /**
+    * @return the printInfo
+    */
+   protected boolean isPrintInfo()
+   {
+      return printInfo_;
    }
 }
