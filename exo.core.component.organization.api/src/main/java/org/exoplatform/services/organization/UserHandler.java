@@ -121,7 +121,7 @@ public interface UserHandler
 
    /**
     * @param userName the user that the user handler should search for. This
-    * method is equivalent to <code>findUserByName(userName, true)</code>
+    * method is equivalent to <code>findUserByName(userName, UserStatus.ENABLED)</code>
     * @return The method return null if there is no user that matches the given username.
     *         The method return an User object if an user matches the
     *         username.
@@ -133,17 +133,17 @@ public interface UserHandler
 
    /**
     * @param userName the user that the user handler should search for
-    * @param enabledOnly indicates whether only enabled user should be returned
+    * @param status indicates the expected status of the users.
+    *              If set to <code>UserStatus.ENABLED</code> only enabled users will be returned.
     * @return The method return <code>null</code> if there is no user that matches the 
-    *         given username or <code>enabledOnly</code> was set to <code>true</code> 
-    *         and the matching user is disabled.
+    *         given username or the user found doesn't match with the expected {@link UserStatus}.
     *         The method return an User object if an user matches the
     *         username.
     * @throws Exception The exception is thrown if the method fail to access the
     *           user database or more than one user object with the same username
     *           is found
     */
-   User findUserByName(String userName, boolean enabledOnly) throws Exception;
+   User findUserByName(String userName, UserStatus status) throws Exception;
 
    /**
     * This method should search and return the list of the users in a given
@@ -160,7 +160,7 @@ public interface UserHandler
 
    /**
     * This method should search and return the list of the users in a given
-    * group. This method is equivalent to <code>findUsersByGroupId(groupId, true)</code>
+    * group. This method is equivalent to <code>findUsersByGroupId(groupId, UserStatus.ENABLED)</code>
     *
     * @param groupId id of the group. The return users list should be in this
     *          group
@@ -175,13 +175,12 @@ public interface UserHandler
     *
     * @param groupId id of the group. The return users list should be in this
     *          group
-    * @param enabledOnly indicates whether we expect to have both enabled
-    *          and disabled users. If set to <code>true</code> only enabled users
-    *          will be returned.
+    * @param status indicates the expected status of the users.
+    *              If set to <code>UserStatus.ENABLED</code> only enabled users will be returned.
     * @return return a page list iterator of a group of the user in the database
     * @throws Exception any exception
     */
-   ListAccess<User> findUsersByGroupId(String groupId, boolean enabledOnly) throws Exception;
+   ListAccess<User> findUsersByGroupId(String groupId, UserStatus status) throws Exception;
 
    /**
     * This method is used to get all the users in the database
@@ -198,7 +197,7 @@ public interface UserHandler
 
    /**
     * This method is used to get all the users in the database
-    * This method is equivalent to <code>findAllUsers(true)</code>
+    * This method is equivalent to <code>findAllUsers(UserStatus.ENABLED)</code>
     *
     * @return return a page list iterator. The page list should allow the
     *         developer get all the users or get a page of users if the return
@@ -210,15 +209,14 @@ public interface UserHandler
    /**
     * This method is used to get all the users in the database
     *
-    * @param enabledOnly indicates whether we expect to have both enabled
-    *          and disabled users. If set to <code>true</code> only enabled users
-    *          will be returned.
+    * @param status indicates the expected status of the users.
+    *              If set to <code>UserStatus.ENABLED</code> only enabled users will be returned.
     * @return return a page list iterator. The page list should allow the
     *         developer get all the users or get a page of users if the return
     *         number of users is too large.
     * @throws Exception any exception
     */
-   ListAccess<User> findAllUsers(boolean enabledOnly) throws Exception;
+   ListAccess<User> findAllUsers(UserStatus status) throws Exception;
 
    /**
     * This method search for the users according to a search criteria, the query
@@ -233,7 +231,7 @@ public interface UserHandler
 
    /**
     * This method search for the users according to a search criteria, the query
-    * This method is equivalent to <code>findUsersByQuery(query, true)</code>
+    * This method is equivalent to <code>findUsersByQuery(query, UserStatus.ENABLED)</code>
     *
     * @param query The query object contains the search criteria.
     * @return return the found users in a page list according to the query.
@@ -245,13 +243,12 @@ public interface UserHandler
     * This method search for the users according to a search criteria, the query
     *
     * @param query The query object contains the search criteria.
-    * @param enabledOnly indicates whether we expect to have both enabled
-    *          and disabled users. If set to <code>true</code> only enabled users
-    *          will be returned.
+    * @param status indicates the expected status of the users.
+    *              If set to <code>UserStatus.ENABLED</code> only enabled users will be returned.
     * @return return the found users in a page list according to the query.
     * @throws Exception throw exception if the service cannot access the database
     */
-   ListAccess<User> findUsersByQuery(Query query, boolean enabledOnly) throws Exception;
+   ListAccess<User> findUsersByQuery(Query query, UserStatus status) throws Exception;
 
    /**
     * Check if the username and the password of an user is valid.

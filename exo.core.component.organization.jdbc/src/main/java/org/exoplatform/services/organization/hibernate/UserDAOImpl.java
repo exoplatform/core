@@ -33,6 +33,7 @@ import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
 import org.exoplatform.services.organization.UserEventListenerHandler;
 import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.organization.impl.UserImpl;
 import org.exoplatform.services.security.PasswordEncrypter;
 import org.exoplatform.services.security.PermissionConstants;
@@ -175,7 +176,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
     */
    public User findUserByName(String userName) throws Exception
    {
-      return findUserByName(userName, true);
+      return findUserByName(userName, UserStatus.ENABLED);
    }
 
    public User findUserByName(String userName, Session session) throws Exception
@@ -197,7 +198,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
     */
    public ListAccess<User> findAllUsers() throws Exception
    {
-      return findAllUsers(true);
+      return findAllUsers(UserStatus.ENABLED);
    }
 
    /**
@@ -213,7 +214,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
     */
    public boolean authenticate(String username, String password, PasswordEncrypter pe) throws Exception
    {
-      User user = findUserByName(username, false);
+      User user = findUserByName(username, UserStatus.BOTH);
       if (user == null)
       {
          return false;
@@ -255,7 +256,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
     */
    public ListAccess<User> findUsersByQuery(Query q) throws Exception
    {
-      return findUsersByQuery(q, true);
+      return findUsersByQuery(q, UserStatus.ENABLED);
    }
 
    /**
@@ -271,7 +272,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
     */
    public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
    {
-      return findUsersByGroupId(groupId, true);
+      return findUsersByGroupId(groupId, UserStatus.ENABLED);
    }
 
    /**
@@ -381,17 +382,17 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
    /**
     * {@inheritDoc}
     */
-   public User findUserByName(String userName, boolean enabledOnly) throws Exception
+   public User findUserByName(String userName, UserStatus status) throws Exception
    {
-      User user = (User)cache_.get(userName);
+      User user = cache_.get(userName);
       if (user != null)
-         return !enabledOnly || user.isEnabled() ? user : null;
+         return status.matches(user.isEnabled()) ? user : null;
       Session session = service_.openSession();
       user = findUserByName(userName, session);
       if (user != null)
       {
          cache_.put(userName, user);
-         return !enabledOnly || user.isEnabled() ? user : null;
+         return status.matches(user.isEnabled()) ? user : null;
       }
       return user;
    }
@@ -399,19 +400,19 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
    /**
     * {@inheritDoc}
     */
-   public ListAccess<User> findUsersByGroupId(String groupId, boolean enabledOnly) throws Exception
+   public ListAccess<User> findUsersByGroupId(String groupId, UserStatus status) throws Exception
    {
       String queryFindUsersInGroup =
          "select u " + "from u in class org.exoplatform.services.organization.impl.UserImpl, "
             + "     m in class org.exoplatform.services.organization.impl.MembershipImpl "
             + "where m.userName = u.userName" +
-            (enabledOnly ? " and u.enabled = true" : "") +
+            (status != UserStatus.BOTH ? " and u.enabled = " + status.acceptsEnabled() : "") +
             " and m.groupId =  '" + groupId + "'";
       String countUsersInGroup =
          "select count(u) " + "from u in class org.exoplatform.services.organization.impl.UserImpl, "
             + "     m in class org.exoplatform.services.organization.impl.MembershipImpl "
             + "where m.userName = u.userName" +
-            (enabledOnly ? " and u.enabled = true" : "") +
+            (status != UserStatus.BOTH ? " and u.enabled = " + status.acceptsEnabled() : "") +
             " and m.groupId =  '" + groupId + "'";
 
       return new HibernateListAccess<User>(service_, queryFindUsersInGroup, countUsersInGroup);
@@ -420,12 +421,12 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
    /**
     * {@inheritDoc}
     */
-   public ListAccess<User> findAllUsers(boolean enabledOnly) throws Exception
+   public ListAccess<User> findAllUsers(UserStatus status) throws Exception
    {
       String findQuery = "from o in class " + UserImpl.class.getName() +
-      (enabledOnly ? " where o.enabled = true" : "");
+      (status != UserStatus.BOTH ? " where o.enabled = " + status.acceptsEnabled() : "");
       String countQuery = "select count(o) from " + UserImpl.class.getName() + " o" +
-      (enabledOnly ? " where o.enabled = true" : "");
+      (status != UserStatus.BOTH ? " where o.enabled = " + status.acceptsEnabled() : "");
 
       return new HibernateListAccess<User>(service_, findQuery, countQuery);
    }
@@ -433,7 +434,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
    /**
     * {@inheritDoc}
     */
-   public ListAccess<User> findUsersByQuery(Query q, boolean enabledOnly) throws Exception
+   public ListAccess<User> findUsersByQuery(Query q, UserStatus status) throws Exception
    {
       ObjectQuery oq = new ObjectQuery(UserImpl.class);
       if (q.getUserName() != null)
@@ -451,9 +452,9 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
       oq.addLIKE("email", q.getEmail());
       oq.addGT("lastLoginTime", q.getFromLoginDate());
       oq.addLT("lastLoginTime", q.getToLoginDate());
-      if (enabledOnly)
+      if (status != UserStatus.BOTH)
       {
-         oq.addEQ("enabled", true);
+         oq.addEQ("enabled", status.acceptsEnabled());
       }
       return new HibernateListAccess<User>(service_, oq.getHibernateQueryWithBinding(),
          oq.getHibernateCountQueryWithBinding(), oq.getBindingFields());

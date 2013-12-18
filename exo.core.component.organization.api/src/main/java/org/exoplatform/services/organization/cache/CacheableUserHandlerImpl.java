@@ -24,6 +24,7 @@ import org.exoplatform.services.organization.Query;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
 import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.UserStatus;
 
 import java.util.List;
 
@@ -49,8 +50,6 @@ public class CacheableUserHandlerImpl implements UserHandler
    /**
     * CacheableUserHandler  constructor.
     *
-    * @param cacheHandler
-    *             - cache handler
     * @param userHandler
     *             - user handler
     */
@@ -118,7 +117,7 @@ public class CacheableUserHandlerImpl implements UserHandler
     */
    public User findUserByName(String userName) throws Exception
    {
-      return findUserByName(userName, true);
+      return findUserByName(userName, UserStatus.ENABLED);
    }
 
    /**
@@ -219,13 +218,13 @@ public class CacheableUserHandlerImpl implements UserHandler
    /**
     * {@inheritDoc}
     */
-   public User findUserByName(String userName, boolean enabledOnly) throws Exception
+   public User findUserByName(String userName, UserStatus status) throws Exception
    {
-      User user = (User)userCache.get(userName);
+      User user = userCache.get(userName);
       if (user != null)
-         return !enabledOnly || user.isEnabled() ? user : null;
+         return status.matches(user.isEnabled()) ? user : null;
 
-      user = userHandler.findUserByName(userName, enabledOnly);
+      user = userHandler.findUserByName(userName, status);
       if (user != null)
          userCache.put(userName, user);
 
@@ -235,24 +234,24 @@ public class CacheableUserHandlerImpl implements UserHandler
    /**
     * {@inheritDoc}
     */
-   public ListAccess<User> findUsersByGroupId(String groupId, boolean enabledOnly) throws Exception
+   public ListAccess<User> findUsersByGroupId(String groupId, UserStatus status) throws Exception
    {
-      return userHandler.findUsersByGroupId(groupId, enabledOnly);
+      return userHandler.findUsersByGroupId(groupId, status);
    }
 
    /**
     * {@inheritDoc}
     */
-   public ListAccess<User> findAllUsers(boolean enabledOnly) throws Exception
+   public ListAccess<User> findAllUsers(UserStatus status) throws Exception
    {
-      return userHandler.findAllUsers(enabledOnly);
+      return userHandler.findAllUsers(status);
    }
 
    /**
     * {@inheritDoc}
     */
-   public ListAccess<User> findUsersByQuery(Query query, boolean enabledOnly) throws Exception
+   public ListAccess<User> findUsersByQuery(Query query, UserStatus status) throws Exception
    {
-      return userHandler.findUsersByQuery(query, enabledOnly);
+      return userHandler.findUsersByQuery(query, status);
    }
 }

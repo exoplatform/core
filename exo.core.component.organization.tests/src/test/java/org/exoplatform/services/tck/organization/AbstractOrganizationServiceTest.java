@@ -31,6 +31,7 @@ import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserProfileHandler;
+import org.exoplatform.services.organization.UserStatus;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -110,7 +111,7 @@ public class AbstractOrganizationServiceTest extends TestCase
       container = StandaloneContainer.getInstance();
 
       OrganizationService organizationService =
-         (OrganizationService)container.getComponentInstanceOfType(OrganizationService.class);
+         container.getComponentInstanceOfType(OrganizationService.class);
 
       gHandler = organizationService.getGroupHandler();
       uHandler = organizationService.getUserHandler();
@@ -194,7 +195,7 @@ public class AbstractOrganizationServiceTest extends TestCase
    protected void createMembership(String userName, String groupName, String type) throws Exception
    {
       createUser(userName);
-      createGroup(null, groupName, "lable", "desc");
+      createGroup(null, groupName, "label", "desc");
       createMembershipType(type, "desc");
 
       // link membership
@@ -205,9 +206,9 @@ public class AbstractOrganizationServiceTest extends TestCase
    /**
     * Create new group instance.
     */
-   protected Group createGroupInstance(String parentId, String name, String label, String desc) throws Exception
+   protected Group createGroupInstance(String name) throws Exception
    {
-      createGroup(null, name, "lable", "desc");
+      createGroup(null, name, "label", "desc");
       return gHandler.removeGroup(gHandler.findGroupById("/" + name), true);
    }
 
@@ -291,7 +292,7 @@ public class AbstractOrganizationServiceTest extends TestCase
    protected void assertSizeEquals(int expectedSize, Collection<?> list) throws Exception
    {
       int size;
-      assertEquals(expectedSize, size = list.size());
+      assertEquals(expectedSize, list.size());
       size = 0;
       for (Object value : list)
       {
@@ -303,7 +304,7 @@ public class AbstractOrganizationServiceTest extends TestCase
       assertEquals(expectedSize, size);
    }
 
-   protected void assertSizeEquals(int expectedSize, ListAccess<User> list, boolean enabledOnly) throws Exception
+   protected void assertSizeEquals(int expectedSize, ListAccess<User> list, UserStatus status) throws Exception
    {
       int size;
       assertEquals(expectedSize, size = list.getSize());
@@ -312,7 +313,7 @@ public class AbstractOrganizationServiceTest extends TestCase
       for (int i = 0; i < values.length; i++)
       {
          User usr = values[i];
-         if (usr != null && (!enabledOnly || usr.isEnabled()))
+         if (usr != null && status.matches(usr.isEnabled()))
          {
             size++;
          }

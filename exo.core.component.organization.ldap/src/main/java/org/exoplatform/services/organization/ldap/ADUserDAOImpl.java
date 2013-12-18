@@ -59,7 +59,7 @@ public class ADUserDAOImpl extends UserDAOImpl
    /**
     * @param ldapAttrMapping {@link LDAPAttributeMapping}
     * @param ldapService {@link LDAPService}
-    * @param cservice 
+    * @param cacheHandler
     *          The Cache Handler
     * @throws Exception if any errors occurs
     */

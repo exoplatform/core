@@ -146,7 +146,7 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
 
       mHandler.removeMembership(m.getId(), true);
 
-      assertNull(m = mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1, membershipType));
+      assertNull(mHandler.findMembershipByUserGroupAndType(userName, "/" + groupName1, membershipType));
 
       createMembership(userName + "2", groupName2, membershipType + "2");
 
@@ -242,7 +242,7 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
 
       try
       {
-         Membership[] m = memberships.load(1, 4);
+         memberships.load(1, 4);
          fail("Exception should be thrown");
       }
       catch (Exception e)
@@ -509,7 +509,7 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
    public void testLinkMembership() throws Exception
    {
       createUser(userName);
-      createGroup(null, groupName1, "lable", "desc");
+      createGroup(null, groupName1, "label", "desc");
       createMembershipType(membershipType, "desc");
 
       // link membership
@@ -540,7 +540,7 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       assertNotNull(m);
 
       // try to link membership with not existed entries. We are supposed to get Exception
-      Group group = createGroupInstance(null, "not-existed-group", "lable", "desc");
+      Group group = createGroupInstance("not-existed-group");
       try
       {
          mHandler.linkMembership(uHandler.findUserByName(userName), group,
@@ -939,7 +939,7 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       // try to remove not existed groups. We are supposed to get Exception
       try
       {
-         Group group = createGroupInstance(null, "not-existed-group", "lable", "desc");
+         Group group = createGroupInstance("not-existed-group");
 
          gHandler.removeGroup(group, true);
 

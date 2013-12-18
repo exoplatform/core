@@ -94,7 +94,7 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
       assertSizeEquals(0, gHandler.findGroupsOfUser("fake-user"));
 
       createMembership(userName, groupName1, membershipType);
-      createGroup(null, groupName2, "lable", "desc");
+      createGroup(null, groupName2, "label", "desc");
       mHandler.linkMembership(uHandler.findUserByName(userName), gHandler.findGroupById("/" + groupName2),
          mtHandler.findMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE), true);
 
@@ -242,8 +242,8 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
     */
    public void testAddChild() throws Exception
    {
-      Group parent = createGroupInstance(null, groupName1, "lable", "desc");
-      Group child = createGroupInstance(null, groupName2, "lable", "desc");
+      Group parent = createGroupInstance(groupName1);
+      Group child = createGroupInstance(groupName2);
 
       // try to add child to not existed parent group
       try
@@ -378,7 +378,7 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
    public void testFindGroupByMembership() throws Exception
    {
       createMembership(userName, groupName1, membershipType);
-      createGroup(null, groupName2, "lable", "desc");
+      createGroup(null, groupName2, "label", "desc");
       mtHandler.findMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE);
       mHandler.linkMembership(uHandler.findUserByName(userName), gHandler.findGroupById("/" + groupName2),
          mtHandler.findMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE), false);
@@ -396,7 +396,7 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
    public void testResolveGroupByMembership() throws Exception
    {
       createMembership(userName, groupName1, membershipType);
-      createGroup(null, groupName2, "lable", "desc");
+      createGroup(null, groupName2, "label", "desc");
       mHandler.linkMembership(uHandler.findUserByName(userName), gHandler.findGroupById("/" + groupName2),
          mtHandler.findMembershipType(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE), false);
       Collection<Group> groups = gHandler.resolveGroupByMembership(userName, membershipType);

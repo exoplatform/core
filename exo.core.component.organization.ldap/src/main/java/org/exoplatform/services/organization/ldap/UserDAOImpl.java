@@ -32,6 +32,7 @@ import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
 import org.exoplatform.services.organization.UserEventListenerHandler;
 import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.organization.impl.UserImpl;
 import org.exoplatform.services.security.PermissionConstants;
 
@@ -57,14 +58,14 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
 {
 
    /**
-    * AD user's account controls attribute.
+    * AD user's account controls attribute for disabled account.
     */
    static final int UF_ACCOUNTDISABLE = 0x0002;
 
    /**
     * User event listeners.
     * 
-    * @see UserEventListener.
+    * @see org.exoplatform.services.organization.UserEventListener.
     */
    private final List<UserEventListener> listeners = new ArrayList<UserEventListener>(5);
 
@@ -302,7 +303,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
     */
    public User findUserByName(String userName) throws Exception
    {
-      return findUserByName(userName, true);
+      return findUserByName(userName, UserStatus.ENABLED);
    }
 
    public LazyPageList<User> findUsersByGroup(String groupId) throws Exception
@@ -315,7 +316,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
    */
    public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
    {
-      return findUsersByGroupId(groupId, true);
+      return findUsersByGroupId(groupId, UserStatus.ENABLED);
    }
 
    public LazyPageList<User> getUserPageList(int pageSize) throws Exception
@@ -328,7 +329,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
    */
    public ListAccess<User> findAllUsers() throws Exception
    {
-      return findAllUsers(true);
+      return findAllUsers(UserStatus.ENABLED);
    }
 
    public LazyPageList<User> findUsers(Query q) throws Exception
@@ -341,18 +342,18 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
     */
    public ListAccess<User> findUsersByQuery(Query q) throws Exception
    {
-      return findUsersByQuery(q, true);
+      return findUsersByQuery(q, UserStatus.ENABLED);
    }
 
    /**
     * Simple utility method to add asterisks symbol ('*')
     * to the very beginning and the end of the string.
-    * @param string to be surrounded with asterisks
+    * @param s to be surrounded with asterisks
     * @return
     */
    private String addAsterisks(String s)
    {
-      StringBuffer sb = new StringBuffer(s);
+      StringBuilder sb = new StringBuilder(s);
       if (!s.startsWith("*"))
       {
          sb.insert(0, "*");
@@ -369,7 +370,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
     */
    public boolean authenticate(String username, String password) throws Exception
    {
-      String userDN = getDNFromUsername(username, true);
+      String userDN = getDNFromUsername(username, UserStatus.ENABLED);
       if (userDN == null)
          return false;
       try
@@ -644,12 +645,12 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
    /**
     * {@inheritDoc}
     */
-   public User findUserByName(String userName, boolean enabledOnly) throws Exception
+   public User findUserByName(String userName, UserStatus status) throws Exception
    {
       User user = (User)cacheHandler.get(userName, CacheType.USER);
       if (user != null)
       {
-         return !enabledOnly || user.isEnabled() ? user : null;
+         return status.matches(user.isEnabled()) ? user : null;
       }
 
       LdapContext ctx = ldapService.getLdapContext();
@@ -663,7 +664,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
                if (user != null)
                {
                   cacheHandler.put(user.getUserName(), user, CacheType.USER);
-                  return !enabledOnly || user.isEnabled() ? user : null;
+                  return status.matches(user.isEnabled()) ? user : null;
                }
                return user;
             }
@@ -682,27 +683,34 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
    /**
     * {@inheritDoc}
     */
-   public ListAccess<User> findUsersByGroupId(String groupId, boolean enabledOnly) throws Exception
+   public ListAccess<User> findUsersByGroupId(String groupId, UserStatus status) throws Exception
    {
       String searchBase = this.getGroupDNFromGroupId(groupId);
       String filter = ldapAttrMapping.membershipObjectClassFilter;
-      return new ByGroupLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter, enabledOnly);
+      return new ByGroupLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter, status);
    }
 
    /**
     * {@inheritDoc}
     */
-   public ListAccess<User> findAllUsers(boolean enabledOnly) throws Exception
+   public ListAccess<User> findAllUsers(UserStatus status) throws Exception
    {
       String searchBase = ldapAttrMapping.userURL;
       String filter;
-      if (enabledOnly && ldapAttrMapping.hasUserAccountControl())
+      if (status != UserStatus.BOTH && ldapAttrMapping.hasUserAccountControl())
       {
          StringBuilder buffer = new StringBuilder();
          buffer.append("(&(");
          buffer.append(ldapAttrMapping.userObjectClassFilter);
          buffer.append(")(");
-         buffer.append(ldapAttrMapping.userAccountControlFilter);
+         if (status == UserStatus.ENABLED)
+            buffer.append(ldapAttrMapping.userAccountControlFilter);
+         else
+         {
+            buffer.append("!(");
+            buffer.append(ldapAttrMapping.userAccountControlFilter);
+            buffer.append(")");
+         }
          buffer.append("))");
          filter = buffer.toString();
       }
@@ -716,10 +724,9 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
    /**
     * {@inheritDoc}
     */
-   public ListAccess<User> findUsersByQuery(Query q, boolean enabledOnly) throws Exception
+   public ListAccess<User> findUsersByQuery(Query q, UserStatus status) throws Exception
    {
-      String filter = null;
-      ArrayList<String> list = new ArrayList<String>();
+      List<String> list = new ArrayList<String>();
       if (q.getUserName() != null && q.getUserName().length() > 0)
       {
          list.add("(" + ldapAttrMapping.userUsernameAttr + "=" + addAsterisks(q.getUserName()) + ")");
@@ -736,12 +743,16 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
       {
          list.add("(" + ldapAttrMapping.userMailAttr + "=" + q.getEmail() + ")");
       }
-      if (enabledOnly && ldapAttrMapping.hasUserAccountControl())
+      if (status != UserStatus.BOTH && ldapAttrMapping.hasUserAccountControl())
       {
-         list.add("(" + ldapAttrMapping.userAccountControlFilter + ")");
+         if (status == UserStatus.ENABLED)
+            list.add("(" + ldapAttrMapping.userAccountControlFilter + ")");
+         else
+            list.add("(!(" + ldapAttrMapping.userAccountControlFilter + "))");
       }
 
-      if (list.size() > 0)
+      String filter;
+      if (!list.isEmpty())
       {
          StringBuilder buffer = new StringBuilder();
          buffer.append("(&");
@@ -758,7 +769,6 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
       }
       String searchBase = ldapAttrMapping.userURL;
 
-      //    return new LDAPUserPageList(ldapAttrMapping, ldapService, searchBase, filter, 20);
       return new SimpleLdapUserListAccess(ldapAttrMapping, ldapService, searchBase, filter);
    }
 

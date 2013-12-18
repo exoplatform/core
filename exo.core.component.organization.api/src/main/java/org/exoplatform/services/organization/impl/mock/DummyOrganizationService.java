@@ -41,6 +41,7 @@ import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserProfileEventListener;
 import org.exoplatform.services.organization.UserProfileHandler;
+import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.organization.impl.MembershipImpl;
 import org.exoplatform.services.organization.impl.UserImpl;
 import org.exoplatform.services.organization.impl.UserProfileImpl;
@@ -259,7 +260,7 @@ public class DummyOrganizationService extends BaseOrganizationService
 
       public User findUserByName(String userName) throws Exception
       {
-         return findUserByName(userName, true);
+         return findUserByName(userName, UserStatus.ENABLED);
       }
 
       public PageList<User> findUsersByGroup(String groupId) throws Exception
@@ -274,17 +275,17 @@ public class DummyOrganizationService extends BaseOrganizationService
 
       public ListAccess<User> findUsersByQuery(Query query) throws Exception
       {
-         return findUsersByQuery(query, true);
+         return findUsersByQuery(query, UserStatus.ENABLED);
       }
 
       public ListAccess<User> findUsersByGroupId(String groupId) throws Exception
       {
-         return findUsersByGroupId(groupId, true);
+         return findUsersByGroupId(groupId, UserStatus.ENABLED);
       }
 
       public ListAccess<User> findAllUsers() throws Exception
       {
-         return findAllUsers(true);
+         return findAllUsers(UserStatus.ENABLED);
       }
 
       public PageList<User> getUserPageList(int pageSize) throws Exception
@@ -302,7 +303,7 @@ public class DummyOrganizationService extends BaseOrganizationService
 
       public boolean authenticate(String username, String password, PasswordEncrypter pe) throws Exception
       {
-         User usr = findUserByName(username, false);
+         User usr = findUserByName(username, UserStatus.BOTH);
 
          if (usr != null)
          {
@@ -348,7 +349,7 @@ public class DummyOrganizationService extends BaseOrganizationService
        */
       public User setEnabled(String username, boolean enabled, boolean broadcast) throws Exception
       {
-         User usr = findUserByName(username, false);
+         User usr = findUserByName(username, UserStatus.BOTH);
          if (usr != null)
          {
             if (usr.isEnabled() != enabled)
@@ -363,7 +364,7 @@ public class DummyOrganizationService extends BaseOrganizationService
       /**
        * {@inheritDoc}
        */
-      public User findUserByName(String userName, boolean enabledOnly) throws Exception
+      public User findUserByName(String userName, UserStatus status) throws Exception
       {
          Iterator<User> it = users.iterator();
 
@@ -374,7 +375,7 @@ public class DummyOrganizationService extends BaseOrganizationService
             {
                usr.setFirstName("_" + userName);
                usr.setEmail(userName + "@mail.com");
-               return !enabledOnly || usr.isEnabled() ? usr : null;
+               return status.matches(usr.isEnabled()) ? usr : null;
             }
          }
          return null;
@@ -383,7 +384,7 @@ public class DummyOrganizationService extends BaseOrganizationService
       /**
        * {@inheritDoc}
        */
-      public ListAccess<User> findUsersByGroupId(String groupId, boolean enabledOnly) throws Exception
+      public ListAccess<User> findUsersByGroupId(String groupId, UserStatus status) throws Exception
       {
          LazyListImpl users = new LazyListImpl();
          if (groupId.equals(GROUPID_USERS))
@@ -394,12 +395,12 @@ public class DummyOrganizationService extends BaseOrganizationService
          {
             users.addAll(groupAdmins);
          }
-         if (enabledOnly)
+         if (status != UserStatus.BOTH)
          {
             for (Iterator<User> it = users.iterator(); it.hasNext();)
             {
                User usr = it.next();
-               if (!usr.isEnabled())
+               if (!status.matches(usr.isEnabled()))
                   it.remove();
             }
          }
@@ -409,9 +410,9 @@ public class DummyOrganizationService extends BaseOrganizationService
       /**
        * {@inheritDoc}
        */
-      public ListAccess<User> findAllUsers(boolean enabledOnly) throws Exception
+      public ListAccess<User> findAllUsers(UserStatus status) throws Exception
       {
-         if (!enabledOnly)
+         if (status == UserStatus.BOTH)
          {
             return users;
          }
@@ -420,7 +421,7 @@ public class DummyOrganizationService extends BaseOrganizationService
          for (Iterator<User> it = allUsers.iterator(); it.hasNext();)
          {
             User usr = it.next();
-            if (!usr.isEnabled())
+            if (!status.matches(usr.isEnabled()))
                it.remove();
          }
          return allUsers;
@@ -429,9 +430,9 @@ public class DummyOrganizationService extends BaseOrganizationService
       /**
        * {@inheritDoc}
        */
-      public ListAccess<User> findUsersByQuery(Query query, boolean enabledOnly) throws Exception
+      public ListAccess<User> findUsersByQuery(Query query, UserStatus status) throws Exception
       {
-         return findAllUsers(enabledOnly);
+         return findAllUsers(status);
       }
    }
 

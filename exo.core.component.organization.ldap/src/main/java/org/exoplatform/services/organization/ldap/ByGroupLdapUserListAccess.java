@@ -23,6 +23,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.DisabledUserException;
 import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserStatus;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
@@ -54,9 +55,9 @@ public class ByGroupLdapUserListAccess extends LdapListAccess<User>
    protected final LDAPAttributeMapping ldapAttrMapping;
 
    /**
-    * Indicates whether only the enabled user should be returned
+    * Indicates the expected status of the user
     */
-   protected final boolean enabledOnly;
+   protected final UserStatus status;
 
    /**
     * Logger.
@@ -75,13 +76,13 @@ public class ByGroupLdapUserListAccess extends LdapListAccess<User>
     * @param filter search filter
     */
    public ByGroupLdapUserListAccess(LDAPAttributeMapping ldapAttrMapping, LDAPService ldapService, String searchBase,
-      String filter, boolean enabledOnly)
+      String filter, UserStatus status)
    {
       super(ldapService);
       this.ldapAttrMapping = ldapAttrMapping;
       this.searchBase = searchBase;
       this.filter = filter;
-      this.enabledOnly = enabledOnly;
+      this.status = status;
    }
 
    /**
@@ -137,7 +138,7 @@ public class ByGroupLdapUserListAccess extends LdapListAccess<User>
                   { // start point for getting users
                      Attributes uattr = ctx.getAttributes(member);
                      User user = ldapAttrMapping.attributesToUser(uattr);
-                     if (user != null && (!enabledOnly || user.isEnabled()))
+                     if (user != null && status.matches(user.isEnabled()))
                      {
                         user.setFullName(user.getFirstName() + " " + user.getLastName());
                         users[counter++] = user;
@@ -211,13 +212,13 @@ public class ByGroupLdapUserListAccess extends LdapListAccess<User>
                   while (members.hasMoreElements())
                   {
                      String member = (String)members.next();
-                     if (enabledOnly)
+                     if (status != UserStatus.BOTH)
                      {
                         Attributes atts =
                            ctx.getAttributes(member, attrIds);
                         try
                         {
-                           if (ldapAttrMapping.isEnabled(member, atts))
+                           if (status.matches(ldapAttrMapping.isEnabled(member, atts)))
                            {
                               size++;
                            }

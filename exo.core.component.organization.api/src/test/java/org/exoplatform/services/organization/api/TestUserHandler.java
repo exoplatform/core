@@ -26,6 +26,7 @@ import org.exoplatform.services.organization.BaseOrganizationService;
 import org.exoplatform.services.organization.DisabledUserException;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.organization.auth.TestOrganizationAuthenticator;
 import org.exoplatform.services.security.ConversationRegistry;
 
@@ -67,7 +68,7 @@ public class TestUserHandler extends TestCase
 
          uHandler = organizationService.getUserHandler();
 
-         registry = (ConversationRegistry)container.getComponentInstanceOfType(ConversationRegistry.class);
+         registry = container.getComponentInstanceOfType(ConversationRegistry.class);
          assertNotNull(registry);
       }
    }
@@ -96,35 +97,35 @@ public class TestUserHandler extends TestCase
    {
       ListAccess<User> users = uHandler.findAllUsers();
       assertTrue(contains(users, "demo"));
-      users = uHandler.findAllUsers(false);
+      users = uHandler.findAllUsers(UserStatus.BOTH);
       assertTrue(contains(users, "demo"));
       users = uHandler.findUsersByGroupId("/platform/users");
       assertTrue(contains(users, "demo"));
-      users = uHandler.findUsersByGroupId("/platform/users", false);
+      users = uHandler.findUsersByGroupId("/platform/users", UserStatus.BOTH);
       assertTrue(contains(users, "demo"));
       users = uHandler.findUsersByQuery(null);
       assertTrue(contains(users, "demo"));
-      users = uHandler.findUsersByQuery(null, false);
+      users = uHandler.findUsersByQuery(null, UserStatus.BOTH);
       assertTrue(contains(users, "demo"));
       assertNotNull(uHandler.findUserByName("demo"));
-      assertNotNull(uHandler.findUserByName("demo", false));
+      assertNotNull(uHandler.findUserByName("demo", UserStatus.BOTH));
       assertTrue(uHandler.authenticate("demo", "exo"));
 
       uHandler.setEnabled("demo", false, true);
       users = uHandler.findAllUsers();
       assertFalse(contains(users, "demo"));
-      users = uHandler.findAllUsers(false);
+      users = uHandler.findAllUsers(UserStatus.BOTH);
       assertTrue(contains(users, "demo"));
       users = uHandler.findUsersByGroupId("/platform/users");
       assertFalse(contains(users, "demo"));
-      users = uHandler.findUsersByGroupId("/platform/users", false);
+      users = uHandler.findUsersByGroupId("/platform/users", UserStatus.BOTH);
       assertTrue(contains(users, "demo"));
       users = uHandler.findUsersByQuery(null);
       assertFalse(contains(users, "demo"));
-      users = uHandler.findUsersByQuery(null, false);
+      users = uHandler.findUsersByQuery(null, UserStatus.BOTH);
       assertTrue(contains(users, "demo"));
       assertNull(uHandler.findUserByName("demo"));
-      assertNotNull(uHandler.findUserByName("demo", false));
+      assertNotNull(uHandler.findUserByName("demo", UserStatus.BOTH));
       try
       {
          uHandler.authenticate("demo", "exo");
@@ -138,22 +139,22 @@ public class TestUserHandler extends TestCase
       uHandler.setEnabled("demo", true, true);
       users = uHandler.findAllUsers();
       assertTrue(contains(users, "demo"));
-      users = uHandler.findAllUsers(false);
+      users = uHandler.findAllUsers(UserStatus.BOTH);
       assertTrue(contains(users, "demo"));
       users = uHandler.findUsersByGroupId("/platform/users");
       assertTrue(contains(users, "demo"));
-      users = uHandler.findUsersByGroupId("/platform/users", false);
+      users = uHandler.findUsersByGroupId("/platform/users", UserStatus.BOTH);
       assertTrue(contains(users, "demo"));
       users = uHandler.findUsersByQuery(null);
       assertTrue(contains(users, "demo"));
-      users = uHandler.findUsersByQuery(null, false);
+      users = uHandler.findUsersByQuery(null, UserStatus.BOTH);
       assertTrue(contains(users, "demo"));
       assertNotNull(uHandler.findUserByName("demo"));
-      assertNotNull(uHandler.findUserByName("demo", false));
+      assertNotNull(uHandler.findUserByName("demo", UserStatus.BOTH));
       assertTrue(uHandler.authenticate("demo", "exo"));
    }
 
-   private static boolean contains(ListAccess<User> users, String username) throws IllegalArgumentException, Exception
+   private static boolean contains(ListAccess<User> users, String username) throws Exception
    {
       User[] aUsers = users.load(0, users.getSize());
       for (User user : aUsers)

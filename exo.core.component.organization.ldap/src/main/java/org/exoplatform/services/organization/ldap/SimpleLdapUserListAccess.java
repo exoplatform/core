@@ -92,9 +92,19 @@ public class SimpleLdapUserListAccess extends LdapListAccess<User>
 
          // returns only needed attributes for creation UserImpl in
          // LDAPAttributeMapping.attributesToUser() method 
-         String[] returnedAtts =
-            {ldapAttrMapping.userUsernameAttr, ldapAttrMapping.userFirstNameAttr, ldapAttrMapping.userLastNameAttr,
+         String[] returnedAtts;
+         if (ldapAttrMapping.hasUserAccountControl())
+         {
+            String[] attrs = {ldapAttrMapping.userUsernameAttr, ldapAttrMapping.userFirstNameAttr, ldapAttrMapping.userLastNameAttr,
+               ldapAttrMapping.userDisplayNameAttr, ldapAttrMapping.userMailAttr, ldapAttrMapping.userPassword, ldapAttrMapping.userAccountControlAttr};
+            returnedAtts = attrs;
+         }
+         else
+         {
+            String[] attrs ={ldapAttrMapping.userUsernameAttr, ldapAttrMapping.userFirstNameAttr, ldapAttrMapping.userLastNameAttr,
                ldapAttrMapping.userDisplayNameAttr, ldapAttrMapping.userMailAttr, ldapAttrMapping.userPassword};
+            returnedAtts = attrs;
+         }
 
          SearchControls constraints = new SearchControls();
          constraints.setReturningAttributes(returnedAtts);
