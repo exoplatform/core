@@ -18,7 +18,10 @@
  */
 package org.exoplatform.services.organization.impl;
 
-import org.exoplatform.container.PortalContainer;
+import java.util.Date;
+import java.util.List;
+import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.MembershipType;
@@ -26,9 +29,6 @@ import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
 import org.exoplatform.services.organization.UserProfile;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * Jul 20, 2004
@@ -59,7 +59,7 @@ public class NewUserEventListener extends UserEventListener
 
    public void postSave(User user, boolean isNew) throws Exception
    {
-      PortalContainer pcontainer = PortalContainer.getInstance();
+      ExoContainer pcontainer = ExoContainerContext.getCurrentContainer();
       OrganizationService service =
          (OrganizationService)pcontainer.getComponentInstanceOfType(OrganizationService.class);
       UserProfile up = service.getUserProfileHandler().createUserProfileInstance();
@@ -75,13 +75,6 @@ public class NewUserEventListener extends UserEventListener
 
    public void preDelete(User user) throws Exception
    {
-      PortalContainer pcontainer = PortalContainer.getInstance();
-      OrganizationService service =
-         (OrganizationService)pcontainer.getComponentInstanceOfType(OrganizationService.class);
-      UserProfile up = service.getUserProfileHandler().createUserProfileInstance();
-      up.setUserName(user.getUserName());
-      service.getUserProfileHandler().removeUserProfile(user.getUserName(), false);
-      service.getMembershipHandler().removeMembershipByUser(user.getUserName(), false);
    }
 
    public void postDelete(User user) throws Exception

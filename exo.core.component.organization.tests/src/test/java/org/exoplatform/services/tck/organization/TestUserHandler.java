@@ -16,7 +16,12 @@
  */
 package org.exoplatform.services.tck.organization;
 
+import java.util.Calendar;
+import java.util.List;
+
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.services.organization.DisabledUserException;
 import org.exoplatform.services.organization.Query;
 import org.exoplatform.services.organization.User;
@@ -24,9 +29,8 @@ import org.exoplatform.services.organization.UserEventListener;
 import org.exoplatform.services.organization.UserEventListenerHandler;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserStatus;
-
-import java.util.Calendar;
-import java.util.List;
+import org.exoplatform.services.organization.impl.NewUserConfig;
+import org.exoplatform.services.organization.impl.NewUserEventListener;
 
 /**
  * Created by The eXo Platform SAS.
@@ -1036,6 +1040,60 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
       assertEquals(userName, up.getUserName());
       assertEquals("value1", up.getAttribute("key1"));
       assertEquals("value2", up.getAttribute("key2"));
+   }
+
+   public void testPreventRemoveUser() throws Exception
+   {
+       createMembership(userName, groupName2, membershipType);
+       createUserProfile(userName);
+
+       assertEquals("Only one membership is expected for the user " + userName, 1,
+               mHandler.findMembershipsByUser(userName).size());
+
+       // We ensure that the UserProfile has been created properly
+       UserProfile up = upHandler.findUserProfileByName(userName);
+       assertNotNull(up);
+       assertEquals(userName, up.getUserName());
+       assertEquals("value1", up.getAttribute("key1"));
+       assertEquals("value2", up.getAttribute("key2"));
+
+       //Try to remove user
+       ObjectParameter param = new ObjectParameter();
+       param.setObject(new NewUserConfig());
+       InitParams params = new InitParams();
+       params.addParam(param);
+       NewUserEventListener newUserEventListener = new NewUserEventListener(params);
+       PreventDeleteUserListener preventDeleteUserListener = new PreventDeleteUserListener();
+       uHandler.addUserEventListener(newUserEventListener);
+       uHandler.addUserEventListener(preventDeleteUserListener);
+       try
+       {
+           uHandler.removeUser(userName, true);
+           fail("Exception should be thrown");
+       }
+       catch (Exception ex)
+       {
+           //Expect exception will be thrown
+       }
+       finally
+       {
+           uHandler.removeUserEventListener(preventDeleteUserListener);
+           uHandler.removeUserEventListener(newUserEventListener);
+       }
+
+       // Make sure that the user has not been removed
+       assertNotNull(uHandler.findUserByName(userName));
+
+       // Make sure that the membership has not been removed
+       assertEquals("Only one membership is expected for the user " + userName, 1,
+               mHandler.findMembershipsByUser(userName).size());
+
+       // Make sure that the UserProfile has not been removed
+       up = upHandler.findUserProfileByName(userName);
+       assertNotNull(up);
+       assertEquals(userName, up.getUserName());
+       assertEquals("value1", up.getAttribute("key1"));
+       assertEquals("value2", up.getAttribute("key2"));
    }
 
    private static class PreventDeleteUserListener extends UserEventListener
