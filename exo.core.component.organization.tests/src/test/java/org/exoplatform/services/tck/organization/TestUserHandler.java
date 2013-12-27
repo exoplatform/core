@@ -1074,7 +1074,6 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
         }
         finally
         {
-            //uHandler.removeUserEventListener(preventDeleteUserListener);
             uHandler.removeUserEventListener(newUserEventListener);
         }
 
