@@ -17,6 +17,8 @@
 package org.exoplatform.services.tck.organization;
 
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.services.organization.DisabledUserException;
 import org.exoplatform.services.organization.Query;
 import org.exoplatform.services.organization.User;
@@ -24,13 +26,15 @@ import org.exoplatform.services.organization.UserEventListener;
 import org.exoplatform.services.organization.UserEventListenerHandler;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserStatus;
+import org.exoplatform.services.organization.impl.NewUserConfig;
+import org.exoplatform.services.organization.impl.NewUserEventListener;
 
 import java.util.Calendar;
 import java.util.List;
 
 /**
  * Created by The eXo Platform SAS.
- * 
+ *
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
  * @version $Id: TestOrganizationService.java 111 2008-11-11 11:11:11Z $
  */
@@ -519,7 +523,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
 
          calc = Calendar.getInstance();
          calc.set(Calendar.YEAR, calc.get(Calendar.YEAR) + 1);
-         
+
          query = new Query();
          query.setFromLoginDate(calc.getTime());
          assertSizeEquals(0, uHandler.findUsers(query).getAll());
@@ -626,7 +630,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
          unsupportedOperation = true;
       }
 
-      // Remove the user 
+      // Remove the user
       uHandler.removeUser(userName, true);
 
       assertSizeEquals(4, uHandler.findAllUsers(), UserStatus.ENABLED);
@@ -729,7 +733,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
          unsupportedOperation = true;
       }
 
-      // Remove the user 
+      // Remove the user
       uHandler.removeUser(userName, true);
 
       // Check the listener's counters
@@ -822,7 +826,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
          unsupportedOperation = true;
       }
 
-      // Remove the user 
+      // Remove the user
       uHandler.removeUser("testChangePassword", true);
 
       // Check the listener's counters
@@ -1038,7 +1042,55 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
       assertEquals("value2", up.getAttribute("key2"));
    }
 
-   private static class PreventDeleteUserListener extends UserEventListener
+    public void testPreventRemoveUser() throws Exception
+   {
+        createMembership(userName, groupName2, membershipType);
+        createUserProfile(userName);
+
+        assertEquals("Only one membership is expected for the user " + userName, 1,
+                mHandler.findMembershipsByUser(userName).size());
+
+        // We ensure that the UserProfile has been created properly
+        UserProfile up = upHandler.findUserProfileByName(userName);
+        assertNotNull(up);
+        assertEquals(userName, up.getUserName());
+        assertEquals("value1", up.getAttribute("key1"));
+        assertEquals("value2", up.getAttribute("key2"));
+
+        //Try to remove user
+        ObjectParameter param = new ObjectParameter();
+        param.setObject(new NewUserConfig());
+        InitParams params = new InitParams();
+        params.addParam(param);
+        NewUserEventListener newUserEventListener = new NewUserEventListener(params);
+        uHandler.addUserEventListener(newUserEventListener);
+        try
+        {
+            uHandler.removeUser(userName, true);
+        }
+        catch (Exception ex)
+        {
+            fail("Exception should not be thrown");
+        }
+        finally
+        {
+            //uHandler.removeUserEventListener(preventDeleteUserListener);
+            uHandler.removeUserEventListener(newUserEventListener);
+        }
+
+        // Make sure that the user has been removed
+        assertNull(uHandler.findUserByName(userName));
+
+        // Make sure that the membership has been removed
+        assertEquals("the membership should be removed for the user " + userName, 0,
+                mHandler.findMembershipsByUser(userName).size());
+
+        // Make sure that the UserProfile has been removed
+        up = upHandler.findUserProfileByName(userName);
+        assertNull(up);
+    }
+
+    private static class PreventDeleteUserListener extends UserEventListener
    {
       @Override
       public void preDelete(User user) throws Exception
