@@ -1087,7 +1087,61 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
         // Make sure that the UserProfile has been removed
         up = upHandler.findUserProfileByName(userName);
         assertNull(up);
-    }
+   }
+
+    public void testPreventRemoveUser1() throws Exception
+   {
+        createMembership(userName, groupName2, membershipType);
+        createUserProfile(userName);
+
+        assertEquals("Only one membership is expected for the user " + userName, 1,
+                mHandler.findMembershipsByUser(userName).size());
+
+        // We ensure that the UserProfile has been created properly
+        UserProfile up = upHandler.findUserProfileByName(userName);
+        assertNotNull(up);
+        assertEquals(userName, up.getUserName());
+        assertEquals("value1", up.getAttribute("key1"));
+        assertEquals("value2", up.getAttribute("key2"));
+
+        //Try to remove user
+        ObjectParameter param = new ObjectParameter();
+        param.setObject(new NewUserConfig());
+        InitParams params = new InitParams();
+        params.addParam(param);
+        NewUserEventListener newUserEventListener = new NewUserEventListener(params);
+        PreventDeleteUserListener preventDeleteUserListener = new PreventDeleteUserListener();
+        uHandler.addUserEventListener(newUserEventListener);
+        uHandler.addUserEventListener(preventDeleteUserListener);
+        try
+        {
+            uHandler.removeUser(userName, true);
+            fail("Exception should be thrown");
+        }
+        catch (Exception ex)
+        {
+            //Expect exception will be thrown
+        }
+        finally
+        {
+            uHandler.removeUserEventListener(preventDeleteUserListener);
+            uHandler.removeUserEventListener(newUserEventListener);
+        }
+
+        // Make sure that the user has not been removed
+        assertNotNull(uHandler.findUserByName(userName));
+
+        // Make sure that the membership has not been removed
+        assertEquals("Only one membership is expected for the user " + userName, 1,
+                mHandler.findMembershipsByUser(userName).size());
+
+        // Make sure that the UserProfile has not been removed
+        up = upHandler.findUserProfileByName(userName);
+        assertNotNull(up);
+        assertEquals(userName, up.getUserName());
+        assertEquals("value1", up.getAttribute("key1"));
+        assertEquals("value2", up.getAttribute("key2"));
+   }
 
     private static class PreventDeleteUserListener extends UserEventListener
    {
