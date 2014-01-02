@@ -1042,7 +1042,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
       assertEquals("value2", up.getAttribute("key2"));
    }
 
-    public void testPreventRemoveUser() throws Exception
+    public void testPreDeleteNewUserEventListener() throws Exception
    {
         createMembership(userName, groupName2, membershipType);
         createUserProfile(userName);
@@ -1089,7 +1089,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
         assertNull(up);
    }
 
-    public void testPreventRemoveUser1() throws Exception
+    public void testPreventRemoveUser() throws Exception
    {
         createMembership(userName, groupName2, membershipType);
         createUserProfile(userName);
