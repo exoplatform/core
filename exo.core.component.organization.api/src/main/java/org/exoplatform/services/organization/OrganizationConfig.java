@@ -166,6 +166,8 @@ public class OrganizationConfig
       private String displayName;
 
       private String groups;
+      
+      private boolean enabled = true;
 
       public User()
       {
@@ -239,6 +241,16 @@ public class OrganizationConfig
       public void setUserName(String userName)
       {
          this.userName = userName;
+      }
+      
+      public boolean isEnabled() 
+      {
+          return enabled;
+      }
+      
+      public void setEnabled(boolean b) 
+      {
+          enabled = b;
       }
    }
 }

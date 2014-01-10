@@ -159,20 +159,34 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
       for (int i = 0; i < users.size(); i++)
       {
          OrganizationConfig.User data = (OrganizationConfig.User)users.get(i);
-         User user = service.getUserHandler().createUserInstance(data.getUserName());
-         user.setPassword(data.getPassword());
-         user.setFirstName(data.getFirstName());
-         user.setLastName(data.getLastName());
-         user.setEmail(data.getEmail());
-         user.setDisplayName(data.getDisplayName());
-         if (service.getUserHandler().findUserByName(data.getUserName()) == null)
+         UserHandler handler = service.getUserHandler();
+         User user = handler.findUserByName(data.getUserName(), UserStatus.BOTH);
+         if (user == null)
          {
-            service.getUserHandler().createUser(user, true);
+            user = handler.createUserInstance(data.getUserName());
+            user.setPassword(data.getPassword());
+            user.setFirstName(data.getFirstName());
+            user.setLastName(data.getLastName());
+            user.setEmail(data.getEmail());
+            user.setDisplayName(data.getDisplayName());
+            handler.createUser(user, true);
+            if (!data.isEnabled())
+            {
+                handler.setEnabled(user.getUserName(), false, true);    
+            }
             printInfo("    Created user " + data.getUserName());
          } 
          else if (updateUsers_) 
          {
-            service.getUserHandler().saveUser(user, true);
+            if (!user.isEnabled())
+            {
+               handler.setEnabled(user.getUserName(), true, true);
+            }
+            handler.saveUser(user, true);
+            if (!data.isEnabled())
+            {
+               handler.setEnabled(user.getUserName(), false, true);
+            }
             printInfo("    User " + data.getUserName() + " updated");
          }
          else
@@ -200,7 +214,6 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
                printInfo("    Ignored membership " + data.getUserName() + ", " + groupId + ", " + membership);
             }
          }
-
       }
    }
 
