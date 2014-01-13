@@ -139,17 +139,23 @@ public class OrganizationAuthenticatorImpl implements Authenticator
 
       begin(orgService);
       boolean success;
-      Object userHandler = orgService.getUserHandler();
-      if (passwordContext != null && userHandler instanceof ExtendedUserHandler)
+      try
       {
-         PasswordEncrypter pe = new DigestPasswordEncrypter(username, passwordContext);
-         success = ((ExtendedUserHandler)userHandler).authenticate(username, password, pe);
+         Object userHandler = orgService.getUserHandler();
+         if (passwordContext != null && userHandler instanceof ExtendedUserHandler)
+         {
+            PasswordEncrypter pe = new DigestPasswordEncrypter(username, passwordContext);
+            success = ((ExtendedUserHandler)userHandler).authenticate(username, password, pe);
+         }
+         else
+         {
+            success = ((UserHandler)userHandler).authenticate(username, password);
+         }
       }
-      else
+      finally
       {
-         success = ((UserHandler)userHandler).authenticate(username, password);
+         end(orgService);
       }
-      end(orgService);
 
       if (!success)
          throw new LoginException("Login failed for " + username.replace("\n", " ").replace("\r", " "));
