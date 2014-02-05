@@ -303,7 +303,7 @@ public class DummyOrganizationService extends BaseOrganizationService
 
       public boolean authenticate(String username, String password, PasswordEncrypter pe) throws Exception
       {
-         User usr = findUserByName(username, UserStatus.BOTH);
+         User usr = findUserByName(username, UserStatus.ANY);
 
          if (usr != null)
          {
@@ -349,7 +349,7 @@ public class DummyOrganizationService extends BaseOrganizationService
        */
       public User setEnabled(String username, boolean enabled, boolean broadcast) throws Exception
       {
-         User usr = findUserByName(username, UserStatus.BOTH);
+         User usr = findUserByName(username, UserStatus.ANY);
          if (usr != null)
          {
             if (usr.isEnabled() != enabled)
@@ -395,7 +395,7 @@ public class DummyOrganizationService extends BaseOrganizationService
          {
             users.addAll(groupAdmins);
          }
-         if (status != UserStatus.BOTH)
+         if (status != UserStatus.ANY)
          {
             for (Iterator<User> it = users.iterator(); it.hasNext();)
             {
@@ -412,7 +412,7 @@ public class DummyOrganizationService extends BaseOrganizationService
        */
       public ListAccess<User> findAllUsers(UserStatus status) throws Exception
       {
-         if (status == UserStatus.BOTH)
+         if (status == UserStatus.ANY)
          {
             return users;
          }

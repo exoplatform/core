@@ -697,7 +697,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
    {
       String searchBase = ldapAttrMapping.userURL;
       String filter;
-      if (status != UserStatus.BOTH && ldapAttrMapping.hasUserAccountControl())
+      if (status != UserStatus.ANY && ldapAttrMapping.hasUserAccountControl())
       {
          StringBuilder buffer = new StringBuilder();
          buffer.append("(&(");
@@ -743,7 +743,7 @@ public class UserDAOImpl extends BaseDAO implements UserHandler, UserEventListen
       {
          list.add("(" + ldapAttrMapping.userMailAttr + "=" + q.getEmail() + ")");
       }
-      if (status != UserStatus.BOTH && ldapAttrMapping.hasUserAccountControl())
+      if (status != UserStatus.ANY && ldapAttrMapping.hasUserAccountControl())
       {
          if (status == UserStatus.ENABLED)
             list.add("(" + ldapAttrMapping.userAccountControlFilter + ")");

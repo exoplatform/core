@@ -50,7 +50,7 @@ public enum UserStatus
          return false;
       }
    },
-   BOTH
+   ANY
    {
       public boolean matches(boolean enabled)
       {

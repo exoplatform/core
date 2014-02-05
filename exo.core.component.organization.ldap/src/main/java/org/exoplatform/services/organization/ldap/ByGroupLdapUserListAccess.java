@@ -212,7 +212,7 @@ public class ByGroupLdapUserListAccess extends LdapListAccess<User>
                   while (members.hasMoreElements())
                   {
                      String member = (String)members.next();
-                     if (status != UserStatus.BOTH)
+                     if (status != UserStatus.ANY)
                      {
                         Attributes atts =
                            ctx.getAttributes(member, attrIds);

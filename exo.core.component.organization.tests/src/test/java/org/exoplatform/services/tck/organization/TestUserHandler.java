@@ -160,7 +160,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
       }
       try
       {
-         assertNull(uHandler.findUserByName("not-existed-user", UserStatus.BOTH));
+         assertNull(uHandler.findUserByName("not-existed-user", UserStatus.ANY));
       }
       catch (Exception e)
       {
@@ -171,8 +171,8 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
       assertTrue(uHandler.findUserByName("testFindUserByName").isEnabled());
       assertNotNull(uHandler.findUserByName("testFindUserByName", UserStatus.ENABLED));
       assertTrue(uHandler.findUserByName("testFindUserByName", UserStatus.ENABLED).isEnabled());
-      assertNotNull(uHandler.findUserByName("testFindUserByName", UserStatus.BOTH));
-      assertTrue(uHandler.findUserByName("testFindUserByName", UserStatus.BOTH).isEnabled());
+      assertNotNull(uHandler.findUserByName("testFindUserByName", UserStatus.ANY));
+      assertTrue(uHandler.findUserByName("testFindUserByName", UserStatus.ANY).isEnabled());
 
       boolean unsupportedOperation = false;
       try
@@ -184,8 +184,8 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
          assertNull(uHandler.findUserByName("testFindUserByName"));
          assertNull(uHandler.findUserByName("testFindUserByName", UserStatus.ENABLED));
          // We should find it using the method that includes the disabled user account
-         assertNotNull(uHandler.findUserByName("testFindUserByName", UserStatus.BOTH));
-         assertFalse(uHandler.findUserByName("testFindUserByName", UserStatus.BOTH).isEnabled());
+         assertNotNull(uHandler.findUserByName("testFindUserByName", UserStatus.ANY));
+         assertFalse(uHandler.findUserByName("testFindUserByName", UserStatus.ANY).isEnabled());
          // We should find it using the method that queries only the disabled user account
          assertNotNull(uHandler.findUserByName("testFindUserByName", UserStatus.DISABLED));
          assertFalse(uHandler.findUserByName("testFindUserByName", UserStatus.DISABLED).isEnabled());
@@ -198,8 +198,8 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
          assertTrue(uHandler.findUserByName("testFindUserByName").isEnabled());
          assertNotNull(uHandler.findUserByName("testFindUserByName", UserStatus.ENABLED));
          assertTrue(uHandler.findUserByName("testFindUserByName", UserStatus.ENABLED).isEnabled());
-         assertNotNull(uHandler.findUserByName("testFindUserByName", UserStatus.BOTH));
-         assertTrue(uHandler.findUserByName("testFindUserByName", UserStatus.BOTH).isEnabled());
+         assertNotNull(uHandler.findUserByName("testFindUserByName", UserStatus.ANY));
+         assertTrue(uHandler.findUserByName("testFindUserByName", UserStatus.ANY).isEnabled());
          // We should not find the user using the method that queries only the disabled user account
          assertNull(uHandler.findUserByName("testFindUserByName", UserStatus.DISABLED));
       }
@@ -239,7 +239,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
       }
       try
       {
-         assertNull(uHandler.findUserByName("testFindUserByName", UserStatus.BOTH));
+         assertNull(uHandler.findUserByName("testFindUserByName", UserStatus.ANY));
       }
       catch (Exception e)
       {
@@ -271,7 +271,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
       // try to find user by email
       assertSizeEquals(1, uHandler.findUsersByQuery(query), UserStatus.ENABLED);
       assertSizeEquals(1, uHandler.findUsersByQuery(query, UserStatus.ENABLED), UserStatus.ENABLED);
-      assertSizeEquals(1, uHandler.findUsersByQuery(query, UserStatus.BOTH), UserStatus.BOTH);
+      assertSizeEquals(1, uHandler.findUsersByQuery(query, UserStatus.ANY), UserStatus.ANY);
 
       // try to find user by name with mask
       query = new Query();
@@ -365,7 +365,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
 
       assertSizeEquals(4, users, UserStatus.ENABLED);
       assertSizeEquals(4, uHandler.findUsersByQuery(query, UserStatus.ENABLED), UserStatus.ENABLED);
-      assertSizeEquals(4, uHandler.findUsersByQuery(query, UserStatus.BOTH), UserStatus.BOTH);
+      assertSizeEquals(4, uHandler.findUsersByQuery(query, UserStatus.ANY), UserStatus.ANY);
 
       User[] allPage = users.load(0, 4);
       User[] page1 = users.load(0, 2);
@@ -414,7 +414,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
          assertSizeEquals(3, uHandler.findUsersByQuery(query), UserStatus.ENABLED);
          assertSizeEquals(3, uHandler.findUsersByQuery(query, UserStatus.ENABLED), UserStatus.ENABLED);
          assertSizeEquals(1, uHandler.findUsersByQuery(query, UserStatus.DISABLED), UserStatus.DISABLED);
-         assertSizeEquals(4, uHandler.findUsersByQuery(query, UserStatus.BOTH), UserStatus.BOTH);
+         assertSizeEquals(4, uHandler.findUsersByQuery(query, UserStatus.ANY), UserStatus.ANY);
 
          // Enable the user tolik
          uHandler.setEnabled("tolik", true, true);
@@ -422,7 +422,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
          assertSizeEquals(4, uHandler.findUsersByQuery(query), UserStatus.ENABLED);
          assertSizeEquals(4, uHandler.findUsersByQuery(query, UserStatus.ENABLED), UserStatus.ENABLED);
          assertSizeEquals(0, uHandler.findUsersByQuery(query, UserStatus.DISABLED), UserStatus.DISABLED);
-         assertSizeEquals(4, uHandler.findUsersByQuery(query, UserStatus.BOTH), UserStatus.BOTH);
+         assertSizeEquals(4, uHandler.findUsersByQuery(query, UserStatus.ANY), UserStatus.ANY);
       }
       catch (UnsupportedOperationException e)
       {
@@ -435,7 +435,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
 
       assertSizeEquals(3, uHandler.findUsersByQuery(query), UserStatus.ENABLED);
       assertSizeEquals(3, uHandler.findUsersByQuery(query, UserStatus.ENABLED), UserStatus.ENABLED);
-      assertSizeEquals(3, uHandler.findUsersByQuery(query, UserStatus.BOTH), UserStatus.BOTH);
+      assertSizeEquals(3, uHandler.findUsersByQuery(query, UserStatus.ANY), UserStatus.ANY);
 
 
       // Check the listener's counters
@@ -562,7 +562,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
 
       assertSizeEquals(5, uHandler.findAllUsers(), UserStatus.ENABLED);
       assertSizeEquals(5, uHandler.findAllUsers(UserStatus.ENABLED), UserStatus.ENABLED);
-      assertSizeEquals(5, uHandler.findAllUsers(UserStatus.BOTH), UserStatus.BOTH);
+      assertSizeEquals(5, uHandler.findAllUsers(UserStatus.ANY), UserStatus.ANY);
 
       ListAccess<User> users = uHandler.findAllUsers();
       User[] allPage = users.load(0, 4);
@@ -614,7 +614,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
          assertSizeEquals(4, uHandler.findAllUsers(), UserStatus.ENABLED);
          assertSizeEquals(4, uHandler.findAllUsers(UserStatus.ENABLED), UserStatus.ENABLED);
          assertSizeEquals(1, uHandler.findAllUsers(UserStatus.DISABLED), UserStatus.DISABLED);
-         assertSizeEquals(5, uHandler.findAllUsers(UserStatus.BOTH), UserStatus.BOTH);
+         assertSizeEquals(5, uHandler.findAllUsers(UserStatus.ANY), UserStatus.ANY);
 
          // Enable the user
          uHandler.setEnabled(userName, true, true);
@@ -622,7 +622,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
          assertSizeEquals(5, uHandler.findAllUsers(), UserStatus.ENABLED);
          assertSizeEquals(5, uHandler.findAllUsers(UserStatus.ENABLED), UserStatus.ENABLED);
          assertSizeEquals(0, uHandler.findAllUsers(UserStatus.DISABLED), UserStatus.DISABLED);
-         assertSizeEquals(5, uHandler.findAllUsers(UserStatus.BOTH), UserStatus.BOTH);
+         assertSizeEquals(5, uHandler.findAllUsers(UserStatus.ANY), UserStatus.ANY);
       }
       catch (UnsupportedOperationException e)
       {
@@ -635,7 +635,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
 
       assertSizeEquals(4, uHandler.findAllUsers(), UserStatus.ENABLED);
       assertSizeEquals(4, uHandler.findAllUsers(UserStatus.ENABLED), UserStatus.ENABLED);
-      assertSizeEquals(4, uHandler.findAllUsers(UserStatus.BOTH), UserStatus.BOTH);
+      assertSizeEquals(4, uHandler.findAllUsers(UserStatus.ANY), UserStatus.ANY);
 
 
       // Check the listener's counters
@@ -873,7 +873,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
       String groupId = "/" + groupName2;
       assertSizeEquals(1, uHandler.findUsersByGroupId(groupId), UserStatus.ENABLED);
       assertSizeEquals(1, uHandler.findUsersByGroupId(groupId, UserStatus.ENABLED), UserStatus.ENABLED);
-      assertSizeEquals(1, uHandler.findUsersByGroupId(groupId, UserStatus.BOTH), UserStatus.BOTH);
+      assertSizeEquals(1, uHandler.findUsersByGroupId(groupId, UserStatus.ANY), UserStatus.ANY);
 
       boolean unsupportedOperation = false;
       try
@@ -884,7 +884,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
          assertSizeEquals(0, uHandler.findUsersByGroupId(groupId), UserStatus.ENABLED);
          assertSizeEquals(0, uHandler.findUsersByGroupId(groupId, UserStatus.ENABLED), UserStatus.ENABLED);
          assertSizeEquals(1, uHandler.findUsersByGroupId(groupId, UserStatus.DISABLED), UserStatus.DISABLED);
-         assertSizeEquals(1, uHandler.findUsersByGroupId(groupId, UserStatus.BOTH), UserStatus.BOTH);
+         assertSizeEquals(1, uHandler.findUsersByGroupId(groupId, UserStatus.ANY), UserStatus.ANY);
 
          // Enable the user
          uHandler.setEnabled(userName, true, true);
@@ -892,7 +892,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
          assertSizeEquals(1, uHandler.findUsersByGroupId(groupId), UserStatus.ENABLED);
          assertSizeEquals(1, uHandler.findUsersByGroupId(groupId, UserStatus.ENABLED), UserStatus.ENABLED);
          assertSizeEquals(0, uHandler.findUsersByGroupId(groupId, UserStatus.DISABLED), UserStatus.DISABLED);
-         assertSizeEquals(1, uHandler.findUsersByGroupId(groupId, UserStatus.BOTH), UserStatus.BOTH);
+         assertSizeEquals(1, uHandler.findUsersByGroupId(groupId, UserStatus.ANY), UserStatus.ANY);
       }
       catch (UnsupportedOperationException e)
       {
@@ -905,7 +905,7 @@ public class TestUserHandler extends AbstractOrganizationServiceTest
 
       assertSizeEquals(0, uHandler.findUsersByGroupId(groupId), UserStatus.ENABLED);
       assertSizeEquals(0, uHandler.findUsersByGroupId(groupId, UserStatus.ENABLED), UserStatus.ENABLED);
-      assertSizeEquals(0, uHandler.findUsersByGroupId(groupId, UserStatus.BOTH), UserStatus.BOTH);
+      assertSizeEquals(0, uHandler.findUsersByGroupId(groupId, UserStatus.ANY), UserStatus.ANY);
 
       // Check the listener's counters
       assertEquals(1, listener.preSaveNew);

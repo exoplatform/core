@@ -160,7 +160,7 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
       {
          OrganizationConfig.User data = (OrganizationConfig.User)users.get(i);
          UserHandler handler = service.getUserHandler();
-         User user = handler.findUserByName(data.getUserName(), UserStatus.BOTH);
+         User user = handler.findUserByName(data.getUserName(), UserStatus.ANY);
          if (user == null)
          {
             user = handler.createUserInstance(data.getUserName());

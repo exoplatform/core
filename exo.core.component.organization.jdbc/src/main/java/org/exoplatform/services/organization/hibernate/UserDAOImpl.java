@@ -214,7 +214,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
     */
    public boolean authenticate(String username, String password, PasswordEncrypter pe) throws Exception
    {
-      User user = findUserByName(username, UserStatus.BOTH);
+      User user = findUserByName(username, UserStatus.ANY);
       if (user == null)
       {
          return false;
@@ -406,13 +406,13 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
          "select u " + "from u in class org.exoplatform.services.organization.impl.UserImpl, "
             + "     m in class org.exoplatform.services.organization.impl.MembershipImpl "
             + "where m.userName = u.userName" +
-            (status != UserStatus.BOTH ? " and u.enabled = " + status.acceptsEnabled() : "") +
+            (status != UserStatus.ANY ? " and u.enabled = " + status.acceptsEnabled() : "") +
             " and m.groupId =  '" + groupId + "'";
       String countUsersInGroup =
          "select count(u) " + "from u in class org.exoplatform.services.organization.impl.UserImpl, "
             + "     m in class org.exoplatform.services.organization.impl.MembershipImpl "
             + "where m.userName = u.userName" +
-            (status != UserStatus.BOTH ? " and u.enabled = " + status.acceptsEnabled() : "") +
+            (status != UserStatus.ANY ? " and u.enabled = " + status.acceptsEnabled() : "") +
             " and m.groupId =  '" + groupId + "'";
 
       return new HibernateListAccess<User>(service_, queryFindUsersInGroup, countUsersInGroup);
@@ -424,9 +424,9 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
    public ListAccess<User> findAllUsers(UserStatus status) throws Exception
    {
       String findQuery = "from o in class " + UserImpl.class.getName() +
-      (status != UserStatus.BOTH ? " where o.enabled = " + status.acceptsEnabled() : "");
+      (status != UserStatus.ANY ? " where o.enabled = " + status.acceptsEnabled() : "");
       String countQuery = "select count(o) from " + UserImpl.class.getName() + " o" +
-      (status != UserStatus.BOTH ? " where o.enabled = " + status.acceptsEnabled() : "");
+      (status != UserStatus.ANY ? " where o.enabled = " + status.acceptsEnabled() : "");
 
       return new HibernateListAccess<User>(service_, findQuery, countQuery);
    }
@@ -452,7 +452,7 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
       oq.addLIKE("email", q.getEmail());
       oq.addGT("lastLoginTime", q.getFromLoginDate());
       oq.addLT("lastLoginTime", q.getToLoginDate());
-      if (status != UserStatus.BOTH)
+      if (status != UserStatus.ANY)
       {
          oq.addEQ("enabled", status.acceptsEnabled());
       }

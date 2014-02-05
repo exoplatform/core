@@ -463,7 +463,7 @@ public class BaseDAO
       NamingEnumeration<SearchResult> answer = null;
       try
       {
-         answer = findUser(ctx, username, true, UserStatus.BOTH);
+         answer = findUser(ctx, username, true, UserStatus.ANY);
          while (answer.hasMoreElements())
          {
             return ldapAttrMapping.attributesToUser(answer.next().getAttributes());
@@ -496,7 +496,7 @@ public class BaseDAO
          if (answer.hasMoreElements())
          {
             SearchResult result = answer.next();
-            if (status != UserStatus.BOTH && !status.matches(ldapAttrMapping.isEnabled(username, result.getAttributes())))
+            if (status != UserStatus.ANY && !status.matches(ldapAttrMapping.isEnabled(username, result.getAttributes())))
             {
                throw new DisabledUserException(username);
             }
@@ -524,7 +524,7 @@ public class BaseDAO
       NamingEnumeration<SearchResult> answer = null;
       try
       {
-         answer = findUser(ctx, username, false, UserStatus.BOTH);
+         answer = findUser(ctx, username, false, UserStatus.ANY);
          if (answer.hasMoreElements())
             return answer.next().getNameInNamespace();
          return null;
@@ -587,7 +587,7 @@ public class BaseDAO
       constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
       if (!hasAttribute)
       {
-         if (status != UserStatus.BOTH && ldapAttrMapping.hasUserAccountControl())
+         if (status != UserStatus.ANY && ldapAttrMapping.hasUserAccountControl())
          {
             constraints.setReturningAttributes(new String[]{ldapAttrMapping.userAccountControlAttr});
          }
