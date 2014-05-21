@@ -39,6 +39,7 @@
       <exo.profiles>default</exo.profiles>
       <debug.opts />
       <test.exclude>**/foo/foo/**</test.exclude>
+      <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy ${debug.opts}</argLine>
    </properties>
    <dependencies>
       <dependency>
@@ -178,7 +179,6 @@
            <groupId>org.apache.maven.plugins</groupId>
            <artifactId>maven-surefire-plugin</artifactId>
            <configuration>
-              <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy ${debug.opts}</argLine>
               <systemProperties>
                  <!--
                     This property defines TCK tests configuration file location

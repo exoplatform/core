@@ -35,6 +35,10 @@
    <name>eXo Core :: Component :: LDAP Service</name>
    <description>Implementation of LDAP Service of Exoplatform SAS 'eXo Core' project.</description>
 
+   <properties>
+      <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy</argLine>
+   </properties>
+
    <dependencies>
       <dependency>
          <groupId>org.exoplatform.tool</groupId>
@@ -63,7 +67,6 @@
            <groupId>org.apache.maven.plugins</groupId>
            <artifactId>maven-surefire-plugin</artifactId>
            <configuration>
-              <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy</argLine>
               <excludes>
                  <exclude>**/TestLDAPService.java</exclude>
                  <exclude>**/TestNovellLDAPAPI.java</exclude>

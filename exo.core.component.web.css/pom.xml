@@ -35,6 +35,10 @@
    <name>eXo Core :: Component :: Web CSS</name>
    <description>Implementation of 'Web CSS'(Stylesheet engine) component of Exoplatform SAS 'eXo Core' project.</description>
 
+  <properties>
+     <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy</argLine>
+  </properties>
+  
    <dependencies>
       <dependency>
          <groupId>org.w3c</groupId>
@@ -58,13 +62,6 @@
 
    <build>
       <plugins>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-               <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy</argLine>
-            </configuration>
-         </plugin>
          <plugin>
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>

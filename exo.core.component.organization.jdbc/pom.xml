@@ -37,6 +37,7 @@
    <properties>
       <properties.url.prefix>classpath:/conf/standalone/default</properties.url.prefix>
       <debug.opts />
+      <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy ${debug.opts}</argLine>
    </properties>
    <dependencies>
       <dependency>
@@ -112,7 +113,6 @@
                So we skip default unit tests.
                -->
                <skip>true</skip>
-               <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy ${debug.opts}</argLine>
                <includes>
                   <include>org/exoplatform/services/tck/organization/Test*.java</include>
                </includes>

@@ -30,6 +30,9 @@
    <artifactId>exo.core.component.document</artifactId>
    <name>eXo Core :: Component :: Document Service</name>
    <description>Implementation of Document Service of Exoplatform SAS 'eXo Core' project.</description>
+   <properties>
+      <argLine>-Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy</argLine>
+   </properties>
    <dependencies>
       <dependency>
         <groupId>org.exoplatform.tool</groupId>
@@ -213,7 +216,6 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-               <argLine>-Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy</argLine>
                <systemProperties>
                   <!--property>
                      <name>jcr.test.configuration.file</name>
