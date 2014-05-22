@@ -35,7 +35,7 @@
    <name>eXo Core :: Component :: Organization Service LDAP</name>
    <description>Implementation of LDAP Organization Service of Exoplatform SAS 'eXo Core' project.</description>
    <properties>
-      <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy ${debug.opts}</argLine>
+      <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy</argLine>
    </properties>
    <dependencies>
       <dependency>
