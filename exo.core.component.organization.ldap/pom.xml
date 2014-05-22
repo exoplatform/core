@@ -34,8 +34,10 @@
 
    <name>eXo Core :: Component :: Organization Service LDAP</name>
    <description>Implementation of LDAP Organization Service of Exoplatform SAS 'eXo Core' project.</description>
-
-   <dependencies>     
+   <properties>
+      <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy ${debug.opts}</argLine>
+   </properties>
+   <dependencies>
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
          <artifactId>exo.kernel.commons.test</artifactId>
@@ -87,7 +89,7 @@
    </dependencies>
    
    <build>
-     <plugins>   
+     <plugins>
         <plugin>
            <groupId>org.apache.maven.plugins</groupId>
            <artifactId>maven-dependency-plugin</artifactId>
@@ -112,7 +114,7 @@
                  </configuration>
               </execution>
            </executions>
-        </plugin>         
+        </plugin>
         <plugin>
            <groupId>org.codehaus.mojo</groupId>
              <artifactId>build-helper-maven-plugin</artifactId>
@@ -152,7 +154,6 @@
            <groupId>org.apache.maven.plugins</groupId>
            <artifactId>maven-surefire-plugin</artifactId>
            <configuration>
-              <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy</argLine>
               <systemProperties>
                   <!--
                      This property defines TCK tests configuration file location
@@ -173,7 +174,7 @@
                
                <includes>
                   <include>org/exoplatform/services/tck/organization/Test*.java</include>
-               </includes>                 
+               </includes>
            </configuration>
         </plugin>
          <plugin>
@@ -214,6 +215,6 @@
                </dependency>
             </dependencies>
          </plugin>
-     </plugins>      
+     </plugins>
    </build>
 </project>

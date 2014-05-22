@@ -34,7 +34,9 @@
 
    <name>eXo Core :: Component :: Organization Service JDBC</name>
    <description>Implementation of JDBC Service of Exoplatform SAS 'eXo Core' project.</description>
-
+   <properties>
+      <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy ${debug.opts}</argLine>
+   </properties>
    <dependencies>
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
@@ -122,14 +124,10 @@
                So we skip default unit tests.
                -->
                <skip>true</skip>
-               <!-- Common configuration for both jdbc and hibernate
-               organization services.
-               -->
-               <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy</argLine>
                <includes>
                   <include>org/exoplatform/services/tck/organization/Test*.java</include>
-               </includes>                 
-               <excludes>  
+               </includes>
+               <excludes>
                   <exclude>**/AbstractOrganizationServiceTest.java</exclude>
                   <!--
                   Some issues with cach make test to fail.
@@ -204,7 +202,7 @@
                   </configuration>
                </execution>
             </executions>
-         </plugin>         
+         </plugin>
          <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>build-helper-maven-plugin</artifactId>
@@ -280,5 +278,4 @@
          </plugin>
       </plugins>
    </build>
-   
 </project>
