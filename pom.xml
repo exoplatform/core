@@ -107,7 +107,15 @@
             <version>${org.exoplatform.kernel.version}</version>
          </dependency>
          
-          <dependency>
+         <dependency>
+            <groupId>org.exoplatform.core</groupId>
+            <artifactId>core-parent</artifactId>
+            <version>${project.version}</version>
+            <classifier>source-release</classifier>
+            <type>zip</type>
+         </dependency>
+
+         <dependency>
             <groupId>org.exoplatform.core</groupId>
             <artifactId>exo.core.component.database</artifactId>
             <version>${project.version}</version>
