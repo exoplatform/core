@@ -32,7 +32,7 @@
 
    <groupId>org.exoplatform.core</groupId>
    <artifactId>core-parent</artifactId>
-   <version>2.5.10-GA-SNAPSHOT</version>
+   <version>2.5.x-SNAPSHOT</version>
    <packaging>pom</packaging>
 
    <name>eXo Core</name>
@@ -42,7 +42,7 @@
       <exo.product.name>exo-core</exo.product.name>
       <exo.product.specification>2.5</exo.product.specification>
       
-      <org.exoplatform.kernel.version>2.4.10-GA-SNAPSHOT</org.exoplatform.kernel.version>
+      <org.exoplatform.kernel.version>2.4.x-SNAPSHOT</org.exoplatform.kernel.version>
       <org.exoplatform.framework.junit.version>1.2.3-GA</org.exoplatform.framework.junit.version>
 
       <!-- Plugins updates -->
