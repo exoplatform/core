@@ -31,13 +31,27 @@ import java.util.ArrayList;
 public class LazyListImpl extends ArrayList<User> implements ListAccess<User>
 {
 
-   public User[] load(int index, int length) throws Exception, IllegalArgumentException {
+   /**
+    * The serial version UID
+    */
+   private static final long serialVersionUID = -7362190564402962310L;
+
+   public User[] load(int index, int length) throws Exception, IllegalArgumentException
+   {
+      if (index < 0 || length < 0)
+         throw new IllegalArgumentException("The index value and the length value cannot be negative");
+      if (index + length > size())
+         throw new IllegalArgumentException("The sum of the index and the length cannot be greater than the list size");
       User[] users = new User[length];
-      toArray(users);
+      for (int i = 0; i < length; i++)
+      {
+         users[i] = get(index + i);
+      }
       return users;
    }
 
-   public int getSize() throws Exception {
+   public int getSize() throws Exception
+   {
       return size();
    }
 }
