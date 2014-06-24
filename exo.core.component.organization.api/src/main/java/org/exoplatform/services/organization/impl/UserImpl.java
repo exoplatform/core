@@ -23,6 +23,7 @@ import org.exoplatform.services.organization.User;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -33,8 +34,13 @@ import javax.persistence.Table;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "EXO_USER")
-public class UserImpl implements User, ExtendedCloneable
+public class UserImpl implements User, ExtendedCloneable, Serializable
 {
+
+   /**
+    * The serial version UID
+    */
+   private static final long serialVersionUID = 6919266039776618161L;
 
    @Id
    private String id;
