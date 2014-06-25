@@ -24,6 +24,7 @@ import org.exoplatform.services.log.Log;
 
 import java.security.PrivilegedExceptionAction;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -274,5 +275,38 @@ public class DialectDetecter
       {
          st.close();
       }
+   }
+
+   public static String detectMysqlDialect(final DatabaseMetaData metaData) throws SQLException
+   {
+      final String query = "SELECT DEFAULT_CHARACTER_SET_NAME  FROM information_schema.SCHEMATA  WHERE schema_name = ?";
+      PreparedStatement st = metaData.getConnection().prepareStatement(query);
+      st.setString(1, metaData.getConnection().getCatalog());
+      try
+      {
+         ResultSet result = st.executeQuery();
+         String characterSet = null;
+         try
+         {
+            if (result.next())
+            {
+               characterSet = result.getString(1);
+            }
+
+            if ("utf8".equals(characterSet))
+            {
+               return DialectConstants.DB_DIALECT_MYSQL_UTF8;
+            }
+         }
+         finally
+         {
+            result.close();
+         }
+      }
+      finally
+      {
+         st.close();
+      }
+      return DialectConstants.DB_DIALECT_MYSQL;
    }
 }
