@@ -54,7 +54,7 @@ public class TestMSExcelDocumentReader extends BaseStandaloneTest
          assertTrue(content.contains("Sample Excel Worksheet"));
          assertTrue(content.contains("Numbers and their Squares"));
          assertTrue(content.contains("Number"));
-         assertTrue(content.contains("9"));
+         assertFalse(content.contains("9"));
          assertFalse(content.contains("9.0"));
       }
       finally
@@ -84,7 +84,7 @@ public class TestMSExcelDocumentReader extends BaseStandaloneTest
                + " "
                + getDate(2005, 10, 2)
                + " Tested "
-               + "XNNL XNNL XNNL_76 NamPH TRUE() "
+               + "XNNL XNNL XNNL_76 NamPH "
                + getDate(1984, 12, 10)
                + " No "
                + "XNNL XNNL XNNL_CREATE_REAP NamPH none "

@@ -69,7 +69,7 @@ public class TestMSXExcelDocumentReader extends BaseStandaloneTest
                + " "
                + getDate(2005, 10, 2)
                + " Tested "
-               + "XNNL XNNL XNNL_76 NamPH TRUE() "
+               + "XNNL XNNL XNNL_76 NamPH "
                + getDate(1984, 12, 10)
                + " No "
                + "XNNL XNNL XNNL_CREATE_REAP NamPH none "
