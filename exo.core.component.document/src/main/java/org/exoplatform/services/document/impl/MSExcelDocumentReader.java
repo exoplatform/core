@@ -49,6 +49,10 @@ public class MSExcelDocumentReader extends BaseDocumentReader
    private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.MSExcelDocumentReader");
 
    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSZ";
+
+   private static final int MAX_TAB = 5;
+
+   private static final int MAX_CELL = 1000;
    
    /**
     * Get the application/excel mime type.
@@ -93,21 +97,23 @@ public class MSExcelDocumentReader extends BaseDocumentReader
          {
             throw new DocumentReadException("Can't open spreadsheet.", e);
          }
-         for (int sheetNum = 0; sheetNum < wb.getNumberOfSheets(); sheetNum++)
+         for (int sheetNum = 0; sheetNum < wb.getNumberOfSheets() && sheetNum < MAX_TAB; sheetNum++)
          {
             HSSFSheet sheet = wb.getSheetAt(sheetNum);
             if (sheet != null)
             {
-               for (int rowNum = sheet.getFirstRowNum(); rowNum <= sheet.getLastRowNum(); rowNum++)
+               int countCell = MAX_CELL;
+               for (int rowNum = sheet.getFirstRowNum(); rowNum <= sheet.getLastRowNum() && countCell > 0; rowNum++)
                {
                   HSSFRow row = sheet.getRow(rowNum);
 
                   if (row != null)
                   {
                      int lastcell = row.getLastCellNum();
-                     for (int k = 0; k < lastcell; k++)
+                     for (int k = 0; k < lastcell && countCell > 0; k++)
                      {
                         final HSSFCell cell = row.getCell((short)k);
+                        countCell --;
                         if (cell != null)
                         {
                            switch (cell.getCellType())
@@ -126,36 +132,6 @@ public class MSExcelDocumentReader extends BaseDocumentReader
                                  }
                                  break;
                               }
-                              case HSSFCell.CELL_TYPE_FORMULA :
-                                 SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>()
-                                 {
-                                    public Void run()
-                                    {
-                                       builder.append(cell.getCellFormula().toString()).append(" ");
-                                       return null;
-                                    }
-                                 });
-                                 break;
-                              case HSSFCell.CELL_TYPE_BOOLEAN :
-                                 SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>()
-                                 {
-                                    public Void run()
-                                    {
-                                       builder.append(cell.getBooleanCellValue()).append(" ");
-                                       return null;
-                                    }
-                                 });
-                                 break;
-                              case HSSFCell.CELL_TYPE_ERROR :
-                                 SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>()
-                                 {
-                                    public Void run()
-                                    {
-                                       builder.append(cell.getErrorCellValue()).append(" ");
-                                       return null;
-                                    }
-                                 });
-                                 break;
                               case HSSFCell.CELL_TYPE_STRING :
                                  SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>()
                                  {

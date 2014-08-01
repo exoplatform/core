@@ -53,6 +53,10 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
 
    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSZ";
 
+   private static final int MAX_TAB = 5;
+
+   private static final int MAX_CELL = 1000;
+
    /**
     * @see org.exoplatform.services.document.DocumentReader#getMimeTypes()
     */
@@ -112,21 +116,23 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
          {
             return builder.toString();
          }
-         for (int sheetNum = 0; sheetNum < wb.getNumberOfSheets(); sheetNum++)
+         for (int sheetNum = 0; sheetNum < wb.getNumberOfSheets() && sheetNum < MAX_TAB ; sheetNum++)
          {
             XSSFSheet sheet = wb.getSheetAt(sheetNum);
             if (sheet != null)
             {
-               for (int rowNum = sheet.getFirstRowNum(); rowNum <= sheet.getLastRowNum(); rowNum++)
+               int countCell = MAX_CELL;
+               for (int rowNum = sheet.getFirstRowNum(); rowNum <= sheet.getLastRowNum() && countCell > 0 ; rowNum++)
                {
                   XSSFRow row = sheet.getRow(rowNum);
 
                   if (row != null)
                   {
                      int lastcell = row.getLastCellNum();
-                     for (int k = 0; k < lastcell; k++)
+                     for (int k = 0; k < lastcell && countCell > 0; k++)
                      {
                         XSSFCell cell = row.getCell(k);
+                        countCell --;
                         if (cell != null)
                         {
                            switch (cell.getCellType())
@@ -145,15 +151,6 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
                                  }
                                  break;
                               }
-                              case XSSFCell.CELL_TYPE_FORMULA :
-                                 builder.append(cell.getCellFormula().toString()).append(" ");
-                                 break;
-                              case XSSFCell.CELL_TYPE_BOOLEAN :
-                                 builder.append(cell.getBooleanCellValue()).append(" ");
-                                 break;
-                              case XSSFCell.CELL_TYPE_ERROR :
-                                 builder.append(cell.getErrorCellValue()).append(" ");
-                                 break;
                               case XSSFCell.CELL_TYPE_STRING :
                                  builder.append(cell.getStringCellValue().toString()).append(" ");
                                  break;
