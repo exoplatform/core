@@ -18,38 +18,39 @@
  */
 package org.exoplatform.services.document.impl;
 
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFDateUtil;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.exoplatform.commons.utils.SecurityHelper;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+
+import org.apache.poi.hssf.eventusermodel.AbortableHSSFListener;
+import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
+import org.apache.poi.hssf.eventusermodel.HSSFRequest;
+import org.apache.poi.hssf.record.BlankRecord;
+import org.apache.poi.hssf.record.BoolErrRecord;
+import org.apache.poi.hssf.record.BoundSheetRecord;
+import org.apache.poi.hssf.record.FormulaRecord;
+import org.apache.poi.hssf.record.LabelSSTRecord;
+import org.apache.poi.hssf.record.NumberRecord;
+import org.apache.poi.hssf.record.Record;
+import org.apache.poi.hssf.record.SSTRecord;
+import org.apache.poi.hssf.record.StringRecord;
+import org.apache.poi.hssf.record.common.UnicodeString;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.exoplatform.services.document.DocumentReadException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.PrivilegedAction;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Properties;
-
 /**
- * Created by The eXo Platform SAS A parser of Microsoft Excel files.
- * 
- * @author <a href="mailto:phunghainam@gmail.com">Phung Hai Nam</a>
- * @author Gennady Azarenkov
- * @version Oct 21, 2005
+ * Stream based MS Excel Document Reader with low memory and cpu needs.
  */
 public class MSExcelDocumentReader extends BaseDocumentReader
 {
 
    private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.MSExcelDocumentReader");
 
-   private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSZ";
-   
+   private static final int MAX_CELL = 5000;
+
    /**
     * Get the application/excel mime type.
     * 
@@ -61,8 +62,26 @@ public class MSExcelDocumentReader extends BaseDocumentReader
    }
 
    /**
-    * Returns only a text from .xls file content.
-    * 
+    * Returns only a text from .xls file content with the following rules:
+    * <p/>
+    * we only index :
+    * <ul>
+    * <li>a maximum of 5000 cells</li>
+    * <li>after 5000 cells processed, we abort the parsing</li>
+    * </ul>
+    * <p/>
+    * we KEEP only the following data :
+    * <li> tab name {@link org.apache.poi.hssf.record.BoundSheetRecord}</li>
+    * <li> cells with string with a length > 2 chars (Strings which are not the result of a formula) ({@link org.apache.poi.hssf.record.LabelSSTRecord}}</li>
+    * </ul>
+    * we SKIP the following data :
+    * <ul>
+    * <li> cells with number (date formatted or simple number) ({@link org.apache.poi.hssf.record.NumberRecord}}</li>
+    * <li> cells with blank value ({@link org.apache.poi.hssf.record.BlankRecord}}</li>
+    * <li> cells with boolean or error value ({@link org.apache.poi.hssf.record.BoolErrRecord}}</li>
+    * <li> cells with formula ({@link org.apache.poi.hssf.record.FormulaRecord}}</li>
+    * </ul>
+    *
     * @param is an input stream with .xls file content.
     * @return The string only with text from file content.
     */
@@ -74,8 +93,6 @@ public class MSExcelDocumentReader extends BaseDocumentReader
       }
 
       final StringBuilder builder = new StringBuilder("");
-      
-      SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 
       try
       {
@@ -83,94 +100,35 @@ public class MSExcelDocumentReader extends BaseDocumentReader
          {
             return "";
          }
-         
-         HSSFWorkbook wb;
+         // create a new org.apache.poi.poifs.filesystem.Filesystem
+         POIFSFileSystem poifs = new POIFSFileSystem(is);
+         InputStream din = null;
          try
          {
-            wb = new HSSFWorkbook(is);
+            // get the Workbook (excel part) stream in a InputStream
+            din = poifs.createDocumentInputStream("Workbook");
+            // construct out HSSFRequest object
+            HSSFRequest req = new HSSFRequest();
+            req.addListenerForAllRecords(new XLSHSSFListener(builder));
+            // create our event factory
+            HSSFEventFactory factory = new HSSFEventFactory();
+            // process our events based on the document input stream
+            factory.processEvents(req, din);
          }
-         catch (IOException e)
+         finally
          {
-            throw new DocumentReadException("Can't open spreadsheet.", e);
-         }
-         for (int sheetNum = 0; sheetNum < wb.getNumberOfSheets(); sheetNum++)
-         {
-            HSSFSheet sheet = wb.getSheetAt(sheetNum);
-            if (sheet != null)
+            // and close our document input stream (don't want to leak these!)
+            if (din != null)
             {
-               for (int rowNum = sheet.getFirstRowNum(); rowNum <= sheet.getLastRowNum(); rowNum++)
+               try
                {
-                  HSSFRow row = sheet.getRow(rowNum);
-
-                  if (row != null)
+                  din.close();
+               }
+               catch (IOException e)
+               {
+                  if (LOG.isTraceEnabled())
                   {
-                     int lastcell = row.getLastCellNum();
-                     for (int k = 0; k < lastcell; k++)
-                     {
-                        final HSSFCell cell = row.getCell((short)k);
-                        if (cell != null)
-                        {
-                           switch (cell.getCellType())
-                           {
-                              case HSSFCell.CELL_TYPE_NUMERIC : {
-                                 double d = cell.getNumericCellValue();
-                                 if (isCellDateFormatted(cell))
-                                 {
-                                    Date date = HSSFDateUtil.getJavaDate(d);
-                                    String cellText = dateFormat.format(date);
-                                    builder.append(cellText).append(" ");
-                                 }
-                                 else
-                                 {
-                                   builder.append(d).append(" ");
-                                 }
-                                 break;
-                              }
-                              case HSSFCell.CELL_TYPE_FORMULA :
-                                 SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>()
-                                 {
-                                    public Void run()
-                                    {
-                                       builder.append(cell.getCellFormula().toString()).append(" ");
-                                       return null;
-                                    }
-                                 });
-                                 break;
-                              case HSSFCell.CELL_TYPE_BOOLEAN :
-                                 SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>()
-                                 {
-                                    public Void run()
-                                    {
-                                       builder.append(cell.getBooleanCellValue()).append(" ");
-                                       return null;
-                                    }
-                                 });
-                                 break;
-                              case HSSFCell.CELL_TYPE_ERROR :
-                                 SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>()
-                                 {
-                                    public Void run()
-                                    {
-                                       builder.append(cell.getErrorCellValue()).append(" ");
-                                       return null;
-                                    }
-                                 });
-                                 break;
-                              case HSSFCell.CELL_TYPE_STRING :
-                                 SecurityHelper.doPrivilegedAction(new PrivilegedAction<Void>()
-                                 {
-                                    public Void run()
-                                    {
-                                       builder.append(cell.getStringCellValue().toString()).append(" ");
-                                       return null;
-                                    }
-                                 });
-                                 break;
-                              default :
-                                 break;
-                           }
-                        }
-                     }
+                     LOG.trace("An exception occurred: " + e.getMessage());
                   }
                }
             }
@@ -215,44 +173,76 @@ public class MSExcelDocumentReader extends BaseDocumentReader
       return reader.getProperties();
    }
 
-   public static boolean isCellDateFormatted(HSSFCell cell)
+   class XLSHSSFListener extends AbortableHSSFListener
    {
-      boolean bDate = false;
-      double d = cell.getNumericCellValue();
-      if (HSSFDateUtil.isValidExcelDate(d))
+      private StringBuilder builder;
+
+      public int cellnum = 0;
+
+      // SSTRecords store a array of unique strings used in Excel.
+      private SSTRecord sstrec;
+
+      XLSHSSFListener(StringBuilder builder)
       {
-         HSSFCellStyle style = cell.getCellStyle();
-         int i = style.getDataFormat();
-         switch (i)
+         this.builder = builder;
+      }
+
+      @Override
+      public short abortableProcessRecord(Record record)
+      {
+         if (cellnum < MAX_CELL)
          {
-            case 0xe : // m/d/yy
-            case 0xf : // d-mmm-yy
-            case 0x10 : // d-mmm
-            case 0x11 : // mmm-yy
-            case 0x12 : // h:mm AM/PM
-            case 0x13 : // h:mm:ss AM/PM
-            case 0x14 : // h:mm
-            case 0x15 : // h:mm:ss
-            case 0x16 : // m/d/yy h:mm
-            case 0x2d : // mm:ss
-            case 0x2e : // [h]:mm:ss
-            case 0x2f : // mm:ss.0
-
-            case 0xa5 : // ??
-            case 0xa7 : // ??
-            case 0xa9 : // ??
-
-            case 0xac : // mm:dd:yy not specified in javadoc
-            case 0xad : // yyyy-mm-dd not specified in javadoc
-            case 0xae : // mm:dd:yyyy not specified in javadoc
-            case 0xaf : // m:d:yy not specified in javadoc
-               bDate = true;
-               break;
-            default :
-               bDate = false;
-               break;
+            switch (record.getSid())
+            {
+               // SKIP cells containing Numbers (Contains a numeric cell value.)
+               case NumberRecord.sid:
+                  // NumberRecord numrec = (NumberRecord) record;
+                  cellnum++;
+                  break;
+               // SKIP blank cells
+               case BlankRecord.sid:
+                  // BlankRecord blankrec = (BlankRecord) record;
+                  break;
+               // SKIP formula cells
+               case FormulaRecord.sid:
+                  // FormulaRecord formrec = (FormulaRecord) record;
+                  cellnum++;
+                  break;
+               // SKIP Boolean or Error cells
+               case BoolErrRecord.sid:
+                  // BoolErrRecord boolrec = (BoolErrRecord) record;
+                  cellnum++;
+                  break;
+               // SSTRecords store a array of unique strings used in Excel.
+               case SSTRecord.sid:
+                  sstrec = (SSTRecord) record;
+                  break;
+               case LabelSSTRecord.sid:
+                  LabelSSTRecord lrec = (LabelSSTRecord) record;
+                  UnicodeString lrecValue = sstrec.getString(lrec.getSSTIndex());
+                  if (lrecValue.getCharCount() > 2)
+                  {
+                     builder.append(lrecValue).append(" ");
+                  }
+                  cellnum++;
+                  break;
+               case StringRecord.sid:
+                  // StringRecord sr = (StringRecord) record;
+                  cellnum++;
+                  break;
+               case BoundSheetRecord.sid:
+                  BoundSheetRecord bsr = (BoundSheetRecord) record;
+                  builder.append(bsr.getSheetname()).append(" ");
+                  break;
+            }
+            // continue to process cells
+            return 0;
+         }
+         else
+         {
+            // stop cells processing
+            return -1;
          }
       }
-      return bDate;
    }
 }
