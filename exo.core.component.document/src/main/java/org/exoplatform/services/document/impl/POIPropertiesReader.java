@@ -18,9 +18,8 @@
  */
 package org.exoplatform.services.document.impl;
 
-import org.apache.poi.POIXMLDocument;
+import org.apache.poi.POIXMLProperties;
 import org.apache.poi.POIXMLProperties.CoreProperties;
-import org.apache.poi.POIXMLPropertiesTextExtractor;
 import org.apache.poi.hpsf.MarkUnsupportedException;
 import org.apache.poi.hpsf.NoPropertySetStreamException;
 import org.apache.poi.hpsf.PropertySet;
@@ -215,17 +214,15 @@ public class POIPropertiesReader
    /**
     * Metadata extraction from ooxml documents (MS 2007 office file formats)
     * 
-    * @param document
+    * @param documentProperties
     * @return
     * @throws IOException
     * @throws DocumentReadException
     */
-   public Properties readDCProperties(POIXMLDocument document) throws IOException, DocumentReadException
+   public Properties readDCProperties(POIXMLProperties documentProperties) throws IOException, DocumentReadException
    {
 
-      POIXMLPropertiesTextExtractor extractor = new POIXMLPropertiesTextExtractor(document);
-
-      CoreProperties coreProperties = extractor.getCoreProperties();
+      CoreProperties coreProperties = documentProperties.getCoreProperties();
 
       Nullable<String> lastModifiedBy = coreProperties.getUnderlyingProperties().getLastModifiedByProperty();
 
