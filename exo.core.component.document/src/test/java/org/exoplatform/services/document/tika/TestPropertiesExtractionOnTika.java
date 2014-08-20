@@ -26,7 +26,7 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 /**
@@ -111,7 +111,7 @@ public class TestPropertiesExtractionOnTika extends BaseStandaloneTest
          Properties props = service.getDocumentReader("application/msword").getProperties(is);
          Properties etalon = new Properties();
          etalon.put(DCMetaData.TITLE, "test-Title");
-         etalon.put(DCMetaData.DATE, (new Date(1283247060000L)).toString());
+         etalon.put(DCMetaData.DATE, new Date(1283247060000L));
          etalon.put(DCMetaData.SUBJECT, "test-Subject");
          etalon.put(DCMetaData.CREATOR, "Max Yakimenko");
          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
@@ -132,8 +132,11 @@ public class TestPropertiesExtractionOnTika extends BaseStandaloneTest
       {
          Properties props = service.getDocumentReader("application/powerpoint").getProperties(is);
          Properties etalon = new Properties();
+         Calendar date = Calendar.getInstance();
+         date.setTimeInMillis(0);
+         date.set(2010, 7, 31, 11, 34, 15);
          etalon.put(DCMetaData.TITLE, "test-Title");
-         etalon.put(DCMetaData.DATE, (new Date(1283247255041L)).toString());
+         etalon.put(DCMetaData.DATE, date.getTime());
          etalon.put(DCMetaData.SUBJECT, "test-Subject");
          etalon.put(DCMetaData.CREATOR, "Max Yakimenko");
          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
@@ -154,7 +157,7 @@ public class TestPropertiesExtractionOnTika extends BaseStandaloneTest
          Properties props = service.getDocumentReader("application/excel").getProperties(is);
          Properties etalon = new Properties();
          etalon.put(DCMetaData.TITLE, "test-Title");
-         etalon.put(DCMetaData.DATE, (new Date(1283247293000L)).toString());
+         etalon.put(DCMetaData.DATE, new Date(1283247293000L));
          etalon.put(DCMetaData.SUBJECT, "test-Subject");
          etalon.put(DCMetaData.CREATOR, "KHANH NGUYEN GIA");
          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
@@ -179,11 +182,10 @@ public class TestPropertiesExtractionOnTika extends BaseStandaloneTest
          Properties etalon = new Properties();
          Calendar date = Calendar.getInstance();
          date.setTimeInMillis(0);
-         date.set(2010, 7, 31, 7, 53, 0);
+         date.set(2010, 7, 31, 12, 13, 0);
 
          etalon.put(DCMetaData.TITLE, "test-Title");
-         // TODO dates
-         //etalon.put(DCMetaData.DATE, date.getTime().toString());
+         etalon.put(DCMetaData.DATE, date.getTime());
          etalon.put(DCMetaData.SUBJECT, "Subject");
          etalon.put(DCMetaData.CREATOR, "nikolaz");
          //etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
@@ -208,17 +210,33 @@ public class TestPropertiesExtractionOnTika extends BaseStandaloneTest
          Properties etalon = new Properties();
          Calendar date = Calendar.getInstance();
          date.setTimeInMillis(0);
-         date.set(2010, 7, 31, 7, 59, 37);
+         date.set(2010, 7, 31, 9, 55, 58);
 
          etalon.put(DCMetaData.TITLE, "test-Title");
-         //TODO dates
-         //etalon.put(DCMetaData.DATE, date.getTime().toString());
+         etalon.put(DCMetaData.DATE, date.getTime());
          etalon.put(DCMetaData.SUBJECT, "test-Subject");
          etalon.put(DCMetaData.CREATOR, "Max Yakimenko");
          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
          evalProps(etalon, props);
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testXPPTDocumentReaderService2() throws Exception
+   {
+      InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/testDate.pptx");
+      try
+      {
+         Properties properties =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation").getProperties(is);
+         Object date = properties.get(DCMetaData.DATE);
+         assertNotNull(date);
+         assertTrue(date instanceof Date);
       }
       finally
       {
@@ -237,11 +255,10 @@ public class TestPropertiesExtractionOnTika extends BaseStandaloneTest
          Properties etalon = new Properties();
          Calendar date = Calendar.getInstance();
          date.setTimeInMillis(0);
-         date.set(2010, 7, 31, 8, 7, 25);
+         date.set(2005, 9, 7, 12, 59, 55);
 
          etalon.put(DCMetaData.TITLE, "test-Title");
-         // TODO dates
-         //etalon.put(DCMetaData.DATE, date.getTime().toString());
+         etalon.put(DCMetaData.DATE, date.getTime());
          etalon.put(DCMetaData.SUBJECT, "test-Subject");
          etalon.put(DCMetaData.CREATOR, "KHANH NGUYEN GIA");
          //etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
@@ -255,13 +272,29 @@ public class TestPropertiesExtractionOnTika extends BaseStandaloneTest
       }
    }
 
+   public void testXExcelDocumentReaderService2() throws Exception
+   {
+      InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/testDate.xlsx");
+      try
+      {
+         Properties properties =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet").getProperties(is);
+         Object date = properties.get(DCMetaData.DATE);
+         assertNotNull(date);
+         assertTrue(date instanceof Date);
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
    public void testOODocumentReaderService() throws Exception
    {
       InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/test.odt");
       try
       {
          Properties props = service.getDocumentReader("application/vnd.oasis.opendocument.text").getProperties(is);
-         printProps(props);
          Properties etalon = new Properties();
          Calendar date = Calendar.getInstance();
          date.setTimeInMillis(0);
@@ -269,7 +302,7 @@ public class TestPropertiesExtractionOnTika extends BaseStandaloneTest
 
          etalon.put(DCMetaData.TITLE, "test-Title");
          etalon.put(DCMetaData.LANGUAGE, "ru-RU");
-         etalon.put(DCMetaData.DATE, date.getTime().toString());
+         etalon.put(DCMetaData.DATE, date.getTime());
          etalon.put(DCMetaData.SUBJECT, "test-Subject");
          etalon.put(DCMetaData.CREATOR, "Sergiy Karpenko");
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
@@ -282,22 +315,12 @@ public class TestPropertiesExtractionOnTika extends BaseStandaloneTest
       }
    }
 
-   private void printProps(Properties props)
-   {
-      Iterator it = props.entrySet().iterator();
-      props.toString();
-      while (it.hasNext())
-      {
-         Map.Entry entry = (Map.Entry)it.next();
-      }
-   }
-
    private void evalProps(Properties etalon, Properties testedProps)
    {
-      Iterator it = etalon.entrySet().iterator();
+      Iterator<Entry<Object, Object>> it = etalon.entrySet().iterator();
       while (it.hasNext())
       {
-         Map.Entry prop = (Map.Entry)it.next();
+         Entry<Object, Object> prop = it.next();
          Object tval = testedProps.get(prop.getKey());
          assertNotNull(prop.getKey() + " property not founded. ", tval);
          assertEquals(prop.getKey() + " property value is incorrect", prop.getValue(), tval);
