@@ -426,7 +426,8 @@ public class TikaDocumentReader implements AdvancedDocumentReader
             if (property.equals(DublinCore.DATE) || property.equals(MSOffice.LAST_SAVED)
                || property.equals(MSOffice.CREATION_DATE))
             {
-               value = metadata.getDate(property).toString();
+               props.put(jcrDCProp, metadata.getDate(property));
+               return;
             }
             props.put(jcrDCProp, value);
             return;

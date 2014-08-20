@@ -51,11 +51,13 @@ public class TestMSXExcelOnTikaDocumentReader extends BaseStandaloneTest
                .getContentAsText(is);
 
          String expected =
-            "Sheet2 Ronaldo Eric Cantona Kaka Ronaldonho Sheet1 ID Group Functionality Executor Begin End "
+            "Sheet2 Ronaldo Eric Cantona Kaka Ronaldonho "
+               + "&\"Times New Roman,Regular\"&12&A &\"Times New Roman,Regular\"&12Page &P "
+               + "Sheet1 ID Group Functionality Executor Begin End "
                + "Tested XNNL XNNL Xay dung vung quan li nguyen lieu NamPH 2/2/05 10/02/2005 "
-               + "Tested XNNL XNNL XNNL_HAVEST NamPH 1223554.0 10/01/2005 "
+               + "Tested XNNL XNNL XNNL_HAVEST NamPH 1223554 10/01/2005 "
                + "Tested XNNL XNNL XNNL_PIECE_OF_GROUND NamPH 10/12/05 10/02/2005 "
-               + "Tested XNNL XNNL XNNL_76 NamPH 0 12/10/84 No XNNL XNNL XNNL_CREATE_REAP NamPH none 10/03/2005 No XNNL XNNL XNNL_SCALE NamPH 12/10/84 10/05/2005 "
+               + "Tested XNNL XNNL XNNL_76 NamPH TRUE 12/10/84 No XNNL XNNL XNNL_CREATE_REAP NamPH none 10/03/2005 No XNNL XNNL XNNL_SCALE NamPH 12/10/84 10/05/2005 "
                + "Tested XNNL XNNL LASUCO_PROJECT NamPH 10/05/05 10/06/2005 No XNNL XNNL LASUCO_PROJECT NamPH "
                + "Tested XNNL XNNL XNNL_BRANCH NamPH 12/12/05 06/10/2005 "
                + "Tested XNNL XNNL XNNL_SUGAR_RACE NamPH 05/09/05 06/10/2005 No XNNL XNNL F_XNNL_DISTRI NamPH 05/09/05 06/10/2005 "
@@ -90,11 +92,13 @@ public class TestMSXExcelOnTikaDocumentReader extends BaseStandaloneTest
 
          String text = buf.toString();
          String expected =
-            "Sheet2 Ronaldo Eric Cantona Kaka Ronaldonho Sheet1 ID Group Functionality Executor Begin End "
+            "Sheet2 Ronaldo Eric Cantona Kaka Ronaldonho "
+               + "&\"Times New Roman,Regular\"&12&A &\"Times New Roman,Regular\"&12Page &P "
+               + "Sheet1 ID Group Functionality Executor Begin End "
                + "Tested XNNL XNNL Xay dung vung quan li nguyen lieu NamPH 2/2/05 10/02/2005 "
-               + "Tested XNNL XNNL XNNL_HAVEST NamPH 1223554.0 10/01/2005 "
+               + "Tested XNNL XNNL XNNL_HAVEST NamPH 1223554 10/01/2005 "
                + "Tested XNNL XNNL XNNL_PIECE_OF_GROUND NamPH 10/12/05 10/02/2005 "
-               + "Tested XNNL XNNL XNNL_76 NamPH 0 12/10/84 No XNNL XNNL XNNL_CREATE_REAP NamPH none 10/03/2005 No XNNL XNNL XNNL_SCALE NamPH 12/10/84 10/05/2005 "
+               + "Tested XNNL XNNL XNNL_76 NamPH TRUE 12/10/84 No XNNL XNNL XNNL_CREATE_REAP NamPH none 10/03/2005 No XNNL XNNL XNNL_SCALE NamPH 12/10/84 10/05/2005 "
                + "Tested XNNL XNNL LASUCO_PROJECT NamPH 10/05/05 10/06/2005 No XNNL XNNL LASUCO_PROJECT NamPH "
                + "Tested XNNL XNNL XNNL_BRANCH NamPH 12/12/05 06/10/2005 "
                + "Tested XNNL XNNL XNNL_SUGAR_RACE NamPH 05/09/05 06/10/2005 No XNNL XNNL F_XNNL_DISTRI NamPH 05/09/05 06/10/2005 "
