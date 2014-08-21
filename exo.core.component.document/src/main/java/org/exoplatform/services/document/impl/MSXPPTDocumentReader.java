@@ -18,54 +18,57 @@
  */
 package org.exoplatform.services.document.impl;
 
-import org.apache.poi.POIXMLProperties;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
-import org.apache.poi.openxml4j.exceptions.OpenXML4JRuntimeException;
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.xslf.extractor.XSLFPowerPointExtractor;
-import org.apache.xmlbeans.XmlException;
+import org.apache.commons.io.IOUtils;
+import org.exoplatform.commons.utils.QName;
 import org.exoplatform.commons.utils.SecurityHelper;
+import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReadException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 /**
- * Created by The eXo Platform SAS A parser of Microsoft PowerPoint 2007 files (pptx).
- * 
- * @author <a href="mailto:phunghainam@gmail.com">Phung Hai Nam</a>
- * @author Gennady Azarenkov
- * @author <a href="mailto:nikolazius@gmail.com">Nikolay Zamosenchuk</a>
- * @version $Id: MSXPPTDocumentReader.java 34360 2009-07-22 23:58:59Z nzamosenchuk $
+ * Created by The eXo Platform SAS A streaming parser of Microsoft PowerPoint 2007 files (pptx).
+ *
  */
 public class MSXPPTDocumentReader extends BaseDocumentReader
 {
 
    private static final Log LOG = ExoLogger.getLogger("exo.core.component.document.MSXPPTDocumentReader");
 
+   private static final String URI_CORE_PROPERTIES = "http://schemas.openxmlformats.org/package/2006/metadata/core-properties";
+   private static final String URI_DC_TERMS = "http://purl.org/dc/terms/";
+   private static final String PPTX_SLIDE_PREFIX = "ppt/slides/slide";
+
+   private static final String PPTX_CORE_NAME = "docProps/core.xml";
+
+   private static final int MAX_SLIDES = 500;
+
    /**
+    * (non-Javadoc)
+    * 
     * @see org.exoplatform.services.document.DocumentReader#getMimeTypes()
     */
    public String[] getMimeTypes()
    {
-      //Supported mimetypes:
-      // "application/vnd.openxmlformats-officedocument.presentationml.presentation" -"x.pptx";
-      // "application/vnd.openxmlformats-officedocument.presentationml.slideshow" - "x.ppsx";
-      // "application/vnd.ms-powerpoint.presentation.macroenabled.12" - "testPPT.pptm";
-      // "application/vnd.ms-powerpoint.slideshow.macroenabled.12" - "testPPT.ppsm";
-      //
-      //Not supported mimetypes:
-      // "application/vnd.ms-powerpoint.template.macroenabled.12" - "testPPT.potm"; Has errors
-      // "application/vnd.openxmlformats-officedocument.presentationml.template" - "x.potx"; Not tested
-      // "application/vnd.ms-powerpoint.addin.macroenabled.12" - "x.ppam"; Not tested
-
       return new String[]{"application/vnd.openxmlformats-officedocument.presentationml.presentation",
          "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
          "application/vnd.ms-powerpoint.presentation.macroenabled.12",
@@ -73,78 +76,93 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
    }
 
    /**
-    * Returns only a text from .pptx file content.
+    * (non-Javadoc)
     * 
-    * @param is an input stream with .pptx file content.
-    * @return The string only with text from file content.
+    * @see org.exoplatform.services.document.DocumentReader#getContentAsText(java.
+    *      io.InputStream)
     */
-   public String getContentAsText(final InputStream is) throws IOException, DocumentReadException
+   public String getContentAsText(InputStream is) throws IOException, DocumentReadException
+   {
+      return getContentAsText(is, MAX_SLIDES);
+   }
+
+   /**
+    * Extracts the text content of the n first slides 
+    */
+   public String getContentAsText(InputStream is, int maxSlides) throws IOException, DocumentReadException
    {
       if (is == null)
       {
          throw new IllegalArgumentException("InputStream is null.");
       }
+      StringBuilder appendText = new StringBuilder();
       try
       {
-         if (is.available() == 0)
-         {
-            return "";
-         }
-         
-         final XSLFPowerPointExtractor ppe;
+
+         int slideCount = 0;
+         ZipInputStream zis = new ZipInputStream(is);
+
          try
          {
-            ppe = SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<XSLFPowerPointExtractor>()
+            ZipEntry ze = zis.getNextEntry();
+
+            if (ze == null)
+               return "";
+            final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+            saxParserFactory.setValidating(false);
+
+            SAXParser saxParser =
+               SecurityHelper
+                  .doPrivilegedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
+                  {
+                     public SAXParser run() throws Exception
+                     {
+                        return saxParserFactory.newSAXParser();
+                     }
+                  });
+
+            XMLReader xmlReader = saxParser.getXMLReader();
+            xmlReader.setFeature("http://xml.org/sax/features/validation", false);
+            xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            Map<Integer, String> slides = new TreeMap<Integer, String>();
+            // PPTX: ppt/slides/slide<slide_no>.xml
+            while (ze != null && slideCount < maxSlides)
             {
-               public XSLFPowerPointExtractor run() throws Exception
+               String zeName = ze.getName();
+               if (zeName.startsWith(PPTX_SLIDE_PREFIX) && zeName.length() > PPTX_SLIDE_PREFIX.length())
                {
-                  return new XSLFPowerPointExtractor(OPCPackage.open(is));
+                  String slideNumberStr = zeName.substring(PPTX_SLIDE_PREFIX.length(), zeName.indexOf(".xml"));
+                  int slideNumber = -1;
+                  try
+                  {
+                     slideNumber = Integer.parseInt(slideNumberStr);
+                  }
+                  catch (NumberFormatException e)
+                  {
+                     LOG.warn("Could not parse the slide number: " + e.getMessage());
+                  }
+                  if (slideNumber > -1 && slideNumber <= maxSlides)
+                  {
+                     MSPPTXContentHandler contentHandler = new MSPPTXContentHandler();
+                     xmlReader.setContentHandler(contentHandler);
+                     xmlReader.parse(new InputSource((new ByteArrayInputStream(IOUtils.toByteArray(zis)))));
+                     slides.put(slideNumber, contentHandler.getContent());
+                     slideCount++;
+                  }
                }
-            });
-         }
-         catch (PrivilegedActionException pae)
-         {
-            Throwable cause = pae.getCause();
-            if (cause instanceof IOException)
-            {
-               throw new DocumentReadException("Can't open presentation.", cause);
+               ze = zis.getNextEntry();
             }
-            else if (cause instanceof OpenXML4JRuntimeException)
+            for (String slide : slides.values())
             {
-               throw new DocumentReadException("Can't open presentation.", cause);
-            }
-            else if (cause instanceof OpenXML4JException)
-            {
-               throw new DocumentReadException("Can't open presentation.", cause);
-            }
-            else if (cause instanceof XmlException)
-            {
-               throw new DocumentReadException("Can't open presentation.", cause);
-            }
-            else if (cause instanceof RuntimeException)
-            {
-               throw (RuntimeException)cause;
-            }
-            else
-            {
-               throw new RuntimeException(cause);
+               appendText.append(slide);
+               appendText.append(' ');
             }
          }
-         return SecurityHelper.doPrivilegedAction(new PrivilegedAction<String>()
-         {
-            public String run()
-            {
-               return ppe.getText(true, true);
-            }
-         });
-      }
-      finally
-      {
-         if (is != null)
+         finally
          {
             try
             {
-               is.close();
+               zis.close();
             }
             catch (IOException e)
             {
@@ -152,6 +170,29 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
                {
                   LOG.trace("An exception occurred: " + e.getMessage());
                }
+            }
+         }
+         return appendText.toString();
+      }
+      catch (ParserConfigurationException e)
+      {
+         throw new DocumentReadException(e.getMessage(), e);
+      }
+      catch (SAXException e)
+      {
+         throw new DocumentReadException(e.getMessage(), e);
+      }
+      finally
+      {
+         try
+         {
+            is.close();
+         }
+         catch (IOException e)
+         {
+            if (LOG.isTraceEnabled())
+            {
+               LOG.trace("An exception occurred: " + e.getMessage());
             }
          }
       }
@@ -163,31 +204,196 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
       return getContentAsText(is);
    }
 
-   /*
+   /**
     * (non-Javadoc)
     * 
     * @see org.exoplatform.services.document.DocumentReader#getProperties(java.io.
     *      InputStream)
     */
-   public Properties getProperties(final InputStream is) throws IOException, DocumentReadException
+   public Properties getProperties(InputStream is) throws IOException, DocumentReadException
    {
-      try {
-         OPCPackage container = SecurityHelper
-             .doPrivilegedIOExceptionAction(new PrivilegedExceptionAction<OPCPackage>() {
-                public OPCPackage run() throws Exception {
-                   return OPCPackage.open(is);
-                }
-             });
-         POIXMLProperties xmlProperties = new POIXMLProperties(container);
-         POIPropertiesReader reader = new POIPropertiesReader();
-         reader.readDCProperties(xmlProperties);
-         return reader.getProperties();
-      } catch (InvalidFormatException e) {
-         throw new DocumentReadException("The format of the document to read is invalid.", e);
-      } catch (XmlException e) {
-         throw new DocumentReadException("Problem during the document parsing.", e);
-      } catch (OpenXML4JException e) {
-         throw new DocumentReadException("Problem during the document parsing.", e);
+      try
+      {
+
+         ZipInputStream zis = new ZipInputStream(is);
+         try
+         {
+            ZipEntry ze = zis.getNextEntry();
+
+            while (ze != null && !ze.getName().equals(PPTX_CORE_NAME))
+            {
+               ze = zis.getNextEntry();
+            }
+
+            if (ze == null)
+               return new Properties();
+
+            MSPPTXMetaHandler metaHandler = new MSPPTXMetaHandler();
+            final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+            saxParserFactory.setValidating(false);
+            SAXParser saxParser =
+               SecurityHelper
+                  .doPrivilegedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
+                  {
+                     public SAXParser run() throws Exception
+                     {
+                        return saxParserFactory.newSAXParser();
+                     }
+                  });
+
+            XMLReader xmlReader = saxParser.getXMLReader();
+
+            xmlReader.setFeature("http://xml.org/sax/features/validation", false);
+            xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            xmlReader.setFeature("http://xml.org/sax/features/namespaces", true);
+            xmlReader.setContentHandler(metaHandler);
+            xmlReader.parse(new InputSource(zis));
+            return metaHandler.getProperties();
+         }
+         finally
+         {
+            zis.close();
+         }
+
+      }
+      catch (ParserConfigurationException e)
+      {
+         throw new DocumentReadException(e.getMessage(), e);
+      }
+      catch (SAXException e)
+      {
+         throw new DocumentReadException(e.getMessage(), e);
+      }
+      finally
+      {
+         if (is != null)
+            try
+            {
+               is.close();
+            }
+            catch (IOException e)
+            {
+               if (LOG.isTraceEnabled())
+               {
+                  LOG.trace("An exception occurred: " + e.getMessage());
+               }
+            }
+      }
+   }
+
+   // ----------------------------< MSPPTXContentHandler >
+
+   private class MSPPTXContentHandler extends DefaultHandler
+   {
+
+      private StringBuilder content;
+
+      private boolean appendChar;
+
+      public MSPPTXContentHandler()
+      {
+         content = new StringBuilder();
+         appendChar = false;
+      }
+
+      /**
+       * Returns the text content extracted from parsed slide<slide_no>.xml
+       */
+      public String getContent()
+      {
+         return content.toString();
+      }
+
+      @Override
+      public void startElement(String namespaceURI, String localName, String rawName, Attributes atts)
+         throws SAXException
+      {
+         if (rawName.startsWith("a:t"))
+         {
+            appendChar = true;
+            if (content.length() > 0 && content.charAt(content.length() - 1) != ' ')
+            {
+               content.append(' ');
+            }
+         }
+      }
+
+      @Override
+      public void characters(char[] ch, int start, int length) throws SAXException
+      {
+         if (appendChar)
+         {
+            content.append(ch, start, length);
+         }
+      }
+
+      @Override
+      public void endElement(java.lang.String namespaceURI, java.lang.String localName, java.lang.String qName)
+         throws SAXException
+      {
+         appendChar = false;
+      }
+   }
+
+   // ----------------------------< MSPPTXMetatHandler >
+
+   private class MSPPTXMetaHandler extends DefaultHandler
+   {
+
+      private Properties props;
+
+      private QName curPropertyName;
+
+      private StringBuilder curPropertyValue;
+
+      public MSPPTXMetaHandler()
+      {
+         props = new Properties();
+         curPropertyValue = new StringBuilder();
+      }
+
+      public Properties getProperties()
+      {
+         return props;
+      }
+
+      @Override
+      public void startElement(String namespaceURI, String localName, String rawName, Attributes atts)
+         throws SAXException
+      {
+         if (namespaceURI.equals(DCMetaData.DC_NAMESPACE))
+         {
+            curPropertyName = new QName(DCMetaData.DC_NAMESPACE, localName);
+         }
+         else if (namespaceURI.equals(URI_CORE_PROPERTIES) && localName.equals("lastModifiedBy"))
+         {
+            curPropertyName = DCMetaData.CONTRIBUTOR;
+         }
+         else if (namespaceURI.equals(URI_DC_TERMS) && localName.equals("modified"))
+         {
+            curPropertyName = DCMetaData.DATE;
+         }
+      }
+
+      @Override
+      public void characters(char[] ch, int start, int length) throws SAXException
+      {
+         if (curPropertyName != null)
+         {
+            curPropertyValue.append(ch, start, length);
+         }
+      }
+
+      @Override
+      public void endElement(java.lang.String namespaceURI, java.lang.String localName, java.lang.String qName)
+         throws SAXException
+      {
+         if (curPropertyName != null)
+         {
+            props.put(curPropertyName, curPropertyValue.toString());
+            curPropertyValue = new StringBuilder();
+            curPropertyName = null;
+         }
       }
    }
 
