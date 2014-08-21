@@ -24,6 +24,7 @@ import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JRuntimeException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xslf.extractor.XSLFPowerPointExtractor;
+import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.xmlbeans.XmlException;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DocumentReadException;
@@ -98,7 +99,7 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
             {
                public XSLFPowerPointExtractor run() throws Exception
                {
-                  return new XSLFPowerPointExtractor(OPCPackage.open(is));
+                  return new XSLFPowerPointExtractor(new XMLSlideShow(is));
                }
             });
          }
