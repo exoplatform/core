@@ -67,11 +67,18 @@
             <description>to read the ms ppt inputstream</description>
          </component-plugin>
 
-         <component-plugin>
+         <!--component-plugin>
             <name>MSXPPTdocument.reader</name>
             <set-method>addDocumentReader</set-method>
             <type>org.exoplatform.services.document.impl.MSXPPTDocumentReader</type>
             <description>to read the ms pptx inputstream</description>
+         </component-plugin-->
+
+         <component-plugin>
+            <name>PPTXdocument.reader</name>
+            <set-method>addDocumentReader</set-method>
+            <type>org.exoplatform.services.document.impl.MSPPTXStreamDocumentReader</type>
+            <description>to read the ms pptx Inputstream - streaming</description>
          </component-plugin>
 
          <component-plugin>
