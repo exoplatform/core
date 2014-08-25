@@ -50,6 +50,11 @@
       </dependency>
 
       <dependency>
+         <artifactId>commons-io</artifactId>
+         <groupId>commons-io</groupId>
+      </dependency>
+
+      <dependency>
          <groupId>org.apache.pdfbox</groupId>
          <artifactId>pdfbox</artifactId>
          <exclusions>

@@ -51,8 +51,8 @@ public class TestMSXPPTDocumentReader extends BaseStandaloneTest
             service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation")
                .getContentAsText(is);
          String etalon =
-            "TEST POWERPOINT\n" + "Manchester United \n" + "AC Milan\n" + "SLIDE 2 \n" + "Eric Cantona\n" + "Kaka\n"
-               + "Ronaldo\n" + "The natural scients universitys\n";
+            "TEST POWERPOINT " + "Manchester United " + "AC Milan " + "SLIDE 2 " + "Eric Cantona " + "Kaka "
+               + "Ronaldo " + "The natural scients universitys ";
 
          assertEquals("Wrong string returned", etalon, text);
       }
