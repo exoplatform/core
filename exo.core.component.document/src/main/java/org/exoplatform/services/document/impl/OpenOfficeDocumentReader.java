@@ -79,42 +79,43 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
       }
       try
       {
-         final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-         saxParserFactory.setValidating(false);
-
-         SAXParser saxParser =
-            SecurityHelper
-               .doPrivilegedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
-            {
-               public SAXParser run() throws Exception
-               {
-                  return saxParserFactory.newSAXParser();
-               }
-            });
-
-         XMLReader xmlReader = saxParser.getXMLReader();
-         xmlReader.setFeature("http://xml.org/sax/features/validation", false);
-
-         xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 
          ZipInputStream zis = new ZipInputStream(is);
-         ZipEntry ze = zis.getNextEntry();
-
-         if (ze == null)
-         {
-            return "";
-         }
-
-         while (!ze.getName().equals("content.xml"))
-         {
-            ze = zis.getNextEntry();
-         }
-
-         OpenOfficeContentHandler contentHandler = new OpenOfficeContentHandler();
-         xmlReader.setContentHandler(contentHandler);
          try
          {
+            ZipEntry ze = zis.getNextEntry();
+
+            if (ze == null)
+            {
+               return "";
+            }
+
+            while (!ze.getName().equals("content.xml"))
+            {
+               ze = zis.getNextEntry();
+            }
+
+            OpenOfficeContentHandler contentHandler = new OpenOfficeContentHandler();
+            final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+            saxParserFactory.setValidating(false);
+
+            SAXParser saxParser =
+               SecurityHelper
+                  .doPrivilegedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
+               {
+                  public SAXParser run() throws Exception
+                  {
+                     return saxParserFactory.newSAXParser();
+                  }
+               });
+
+            XMLReader xmlReader = saxParser.getXMLReader();
+            xmlReader.setFeature("http://xml.org/sax/features/validation", false);
+
+            xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            xmlReader.setContentHandler(contentHandler);
             xmlReader.parse(new InputSource(zis));
+            return contentHandler.getContent();
          }
          finally
          {
@@ -130,8 +131,6 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
                }
             }
          }
-
-         return contentHandler.getContent();
       }
       catch (ParserConfigurationException e)
       {
@@ -143,30 +142,17 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
       }
       finally
       {
-         if (is != null)
-            try
+         try
+         {
+            is.close();
+         }
+         catch (IOException e)
+         {
+            if (LOG.isTraceEnabled())
             {
-               if (is != null)
-                  try
-                  {
-                     is.close();
-                  }
-                  catch (IOException e)
-                  {
-                     if (LOG.isTraceEnabled())
-                     {
-                        LOG.trace("An exception occurred: " + e.getMessage());
-                     }
-                  }
-               is.close();
+               LOG.trace("An exception occurred: " + e.getMessage());
             }
-            catch (IOException e)
-            {
-               if (LOG.isTraceEnabled())
-               {
-                  LOG.trace("An exception occurred: " + e.getMessage());
-               }
-            }
+         }
       }
    }
 
@@ -186,43 +172,42 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
    {
       try
       {
-         final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-         saxParserFactory.setValidating(false);
-         SAXParser saxParser =
-            SecurityHelper
-               .doPrivilegedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
-            {
-               public SAXParser run() throws Exception
-               {
-                  return saxParserFactory.newSAXParser();
-               }
-            });
-            
-         XMLReader xmlReader = saxParser.getXMLReader();
-
-         xmlReader.setFeature("http://xml.org/sax/features/validation", false);
-         xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 
          ZipInputStream zis = new ZipInputStream(is);
-         ZipEntry ze = zis.getNextEntry();
-         while (!ze.getName().equals("meta.xml"))
-         {
-            ze = zis.getNextEntry();
-         }
-
-         OpenOfficeMetaHandler metaHandler = new OpenOfficeMetaHandler();
-         xmlReader.setContentHandler(metaHandler);
          try
          {
+            ZipEntry ze = zis.getNextEntry();
+            while (!ze.getName().equals("meta.xml"))
+            {
+               ze = zis.getNextEntry();
+            }
+
+            OpenOfficeMetaHandler metaHandler = new OpenOfficeMetaHandler();
+            final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+            saxParserFactory.setValidating(false);
+            SAXParser saxParser =
+               SecurityHelper
+                  .doPrivilegedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
+               {
+                  public SAXParser run() throws Exception
+                  {
+                     return saxParserFactory.newSAXParser();
+                  }
+               });
+               
+            XMLReader xmlReader = saxParser.getXMLReader();
+
+            xmlReader.setFeature("http://xml.org/sax/features/validation", false);
+            xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            xmlReader.setFeature("http://xml.org/sax/features/namespaces", true);
+            xmlReader.setContentHandler(metaHandler);
             xmlReader.parse(new InputSource(zis));
+            return metaHandler.getProperties();
          }
          finally
          {
             zis.close();
          }
-
-         return metaHandler.getProperties();
-
       }
       catch (ParserConfigurationException e)
       {
@@ -281,7 +266,7 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
             appendChar = true;
             if (content.length() > 0)
             {
-               content.append(" ");
+               content.append(' ');
             }
          }
       }
@@ -327,9 +312,9 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
       public void startElement(String namespaceURI, String localName, String rawName, Attributes atts)
          throws SAXException
       {
-         if (rawName.startsWith("dc:"))
+         if (namespaceURI.equals(DCMetaData.DC_NAMESPACE))
          {
-            curPropertyName = new QName(DCMetaData.DC_NAMESPACE, rawName.substring(3));
+            curPropertyName = new QName(DCMetaData.DC_NAMESPACE, localName);
          }
       }
 

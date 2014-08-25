@@ -226,12 +226,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
             service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation")
                .getProperties(is);
          Properties etalon = new Properties();
-         Calendar date = Calendar.getInstance();
-         date.setTimeInMillis(0);
-         date.set(2010, 7, 31, 7, 59, 37);
 
          etalon.put(DCMetaData.TITLE, "test-Title");
-         etalon.put(DCMetaData.DATE, date.getTime());
+         etalon.put(DCMetaData.DATE, "2010-08-31T07:59:37Z");
          etalon.put(DCMetaData.SUBJECT, "test-Subject");
          etalon.put(DCMetaData.CREATOR, "Max Yakimenko");
          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
@@ -280,9 +277,6 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
       {
          Properties props = service.getDocumentReader("application/vnd.oasis.opendocument.text").getProperties(is);
          Properties etalon = new Properties();
-         Calendar date = Calendar.getInstance();
-         date.setTimeInMillis(0);
-         date.set(2010, 7, 31, 14, 13, 23);
 
          etalon.put(DCMetaData.TITLE, "test-Title");
          etalon.put(DCMetaData.LANGUAGE, "ru-RU");
