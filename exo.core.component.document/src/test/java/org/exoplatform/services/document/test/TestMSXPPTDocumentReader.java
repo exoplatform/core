@@ -72,13 +72,15 @@ public class TestMSXPPTDocumentReader extends BaseStandaloneTest
             service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation")
                .getContentAsText(is);
          int lastIndex = -1;
+         int lastLength = 0;
          for (int i = 1; i <= 25; i++)
          {
             String content = "foo" + i;
             int index = text.indexOf(content);
-            assertFalse("Cannot found: "+ content, index == -1);
-            assertTrue("The content " + content + " has not the right position", index > lastIndex);
+            assertFalse("Cannot find: "+ content, index == -1);
+            assertEquals("The content " + content + " has not the right position", index, lastIndex + lastLength + 1);
             lastIndex = index;
+            lastLength = content.length();
          }
       }
       finally
