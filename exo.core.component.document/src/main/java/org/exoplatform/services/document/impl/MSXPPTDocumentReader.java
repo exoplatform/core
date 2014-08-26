@@ -35,7 +35,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.PrivilegedExceptionAction;
+import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -118,6 +120,7 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
             XMLReader xmlReader = saxParser.getXMLReader();
             xmlReader.setFeature("http://xml.org/sax/features/validation", false);
             xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            Map<Integer, String> slides = new TreeMap<Integer, String>();
             // PPTX: ppt/slides/slide<slide_no>.xml
             while (ze != null && slideCount < MAX_SLIDES)
             {
@@ -132,19 +135,23 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
                   }
                   catch (NumberFormatException e)
                   {
-                     LOG.warn("Slide number is negative. Skip this slide");
+                     LOG.warn("Could not parse the slide number: " + e.getMessage());
                   }
                   if (slideNumber > -1 && slideNumber <= MAX_SLIDES)
                   {
                      MSPPTXContentHandler contentHandler = new MSPPTXContentHandler();
                      xmlReader.setContentHandler(contentHandler);
                      xmlReader.parse(new InputSource((new ByteArrayInputStream(IOUtils.toByteArray(zis)))));
-                     appendText.append(contentHandler.getContent());
-                     appendText.append(' ');
+                     slides.put(slideNumber, contentHandler.getContent());
                      slideCount++;
                   }
                }
                ze = zis.getNextEntry();
+            }
+            for (String slide : slides.values())
+            {
+               appendText.append(slide);
+               appendText.append(' ');
             }
          }
          finally
