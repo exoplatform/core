@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.document.test;
 
+import org.exoplatform.services.document.DocumentReader;
 import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
 import org.exoplatform.services.document.impl.MSXPPTDocumentReader;
 
@@ -75,6 +76,35 @@ public class TestMSXPPTDocumentReader extends BaseStandaloneTest
          {
             String content = "foo" + i;
             int index = text.indexOf(content);
+            assertFalse("Cannot found: "+ content, index == -1);
+            assertTrue("The content " + content + " has not the right position", index > lastIndex);
+            lastIndex = index;
+         }
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testGetContentAsStringWithLimit() throws Exception
+   {
+      InputStream is = TestMSXPPTDocumentReader.class.getResourceAsStream("/test2.pptx");
+      try
+      {
+         DocumentReader reader = service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation");
+         assertTrue(reader instanceof MSXPPTDocumentReader);
+         String text = ((MSXPPTDocumentReader)reader).getContentAsText(is, 20);
+         int lastIndex = -1;
+         for (int i = 1; i <= 25; i++)
+         {
+            String content = "foo" + i;
+            int index = text.indexOf(content);
+            if (i > 20)
+            {
+               assertTrue("Can found: "+ content, index == -1);
+               continue;
+            }
             assertFalse("Cannot found: "+ content, index == -1);
             assertTrue("The content " + content + " has not the right position", index > lastIndex);
             lastIndex = index;

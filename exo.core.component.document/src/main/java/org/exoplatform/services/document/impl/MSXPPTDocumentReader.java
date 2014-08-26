@@ -87,6 +87,14 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
     */
    public String getContentAsText(InputStream is) throws IOException, DocumentReadException
    {
+      return getContentAsText(is, MAX_SLIDES);
+   }
+
+   /**
+    * Extracts the text content of the n first slides 
+    */
+   public String getContentAsText(InputStream is, int maxSlides) throws IOException, DocumentReadException
+   {
       if (is == null)
       {
          throw new IllegalArgumentException("InputStream is null.");
@@ -122,7 +130,7 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
             xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
             Map<Integer, String> slides = new TreeMap<Integer, String>();
             // PPTX: ppt/slides/slide<slide_no>.xml
-            while (ze != null && slideCount < MAX_SLIDES)
+            while (ze != null && slideCount < maxSlides)
             {
                String zeName = ze.getName();
                if (zeName.startsWith(PPTX_SLIDE_PREFIX) && zeName.length() > PPTX_SLIDE_PREFIX.length())
@@ -137,7 +145,7 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
                   {
                      LOG.warn("Could not parse the slide number: " + e.getMessage());
                   }
-                  if (slideNumber > -1 && slideNumber <= MAX_SLIDES)
+                  if (slideNumber > -1 && slideNumber <= maxSlides)
                   {
                      MSPPTXContentHandler contentHandler = new MSPPTXContentHandler();
                      xmlReader.setContentHandler(contentHandler);
