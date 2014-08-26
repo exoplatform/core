@@ -62,6 +62,30 @@ public class TestMSXPPTDocumentReader extends BaseStandaloneTest
       }
    }
 
+   public void testGetContentAsString2() throws Exception
+   {
+      InputStream is = TestMSXPPTDocumentReader.class.getResourceAsStream("/test2.pptx");
+      try
+      {
+         String text =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation")
+               .getContentAsText(is);
+         int lastIndex = -1;
+         for (int i = 1; i <= 25; i++)
+         {
+            String content = "foo" + i;
+            int index = text.indexOf(content);
+            assertFalse("Cannot found: "+ content, index == -1);
+            assertTrue("The content " + content + " has not the right position", index > lastIndex);
+            lastIndex = index;
+         }
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
    public void testPPSXGetContentAsString() throws Exception
    {
       InputStream is = TestMSXPPTDocumentReader.class.getResourceAsStream("/testPPT.ppsx");
