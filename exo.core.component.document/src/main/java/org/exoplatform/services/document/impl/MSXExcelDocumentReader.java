@@ -22,6 +22,7 @@ import org.apache.poi.POIXMLProperties;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.util.SAXHelper;
 import org.apache.poi.xssf.eventusermodel.ReadOnlySharedStringsTable;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.xmlbeans.XmlException;
@@ -40,8 +41,6 @@ import java.security.PrivilegedExceptionAction;
 import java.util.Properties;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 /**
  * Stream based MS Excel Document Reader with low memory and cpu needs.
@@ -60,37 +59,29 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
     */
    public String[] getMimeTypes()
    {
-      //Supported mimetypes:
-      // "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" - "x.xlsx"
-      //
-      //Unsupported mimetypes:
-      // "application/vnd.ms-excel.sheet.binary.macroenabled.12" - "*.xlsb"; There is exceptions at parsing
-      // "application/vnd.openxmlformats-officedocument.spreadsheetml.template" - "x.xltx"; Not tested
-      // "application/vnd.ms-excel.sheet.macroenabled.12" - "x.xlsm"; Not tested
-      // "application/vnd.ms-excel.template.macroenabled.12" - "x.xltm"; Not tested
-      // "application/vnd.ms-excel.addin.macroenabled.12" - "x.xlam"; Not tested
       return new String[]{"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"};
    }
 
-   public void processSheet(
-       MSXExcelSheetXMLHandler.SheetContentsHandler sheetContentsExtractor,
-       ReadOnlySharedStringsTable strings,
-       InputStream sheetInputStream)
-       throws IOException, SAXException
+   public void processSheet(MSXExcelSheetXMLHandler.SheetContentsHandler sheetContentsExtractor,
+      ReadOnlySharedStringsTable strings, InputStream sheetInputStream) throws IOException, SAXException
    {
       InputSource sheetSource = new InputSource(sheetInputStream);
-      SAXParserFactory saxFactory = SAXParserFactory.newInstance();
-      try {
-         SAXParser saxParser = saxFactory.newSAXParser();
-         XMLReader sheetParser = saxParser.getXMLReader();
+      try
+      {
+         XMLReader sheetParser = SAXHelper.newXMLReader();
          ContentHandler handler = new MSXExcelSheetXMLHandler(strings, sheetContentsExtractor, MAX_CELLTAB);
          sheetParser.setContentHandler(handler);
          sheetParser.parse(sheetSource);
-      } catch (ParserConfigurationException e) {
+      }
+      catch (ParserConfigurationException e)
+      {
          throw new RuntimeException("SAX parser appears to be broken - " + e.getMessage());
-      } catch (MSXExcelSheetXMLHandler.StopSheetParsingException e) {
+      }
+      catch (MSXExcelSheetXMLHandler.StopSheetParsingException e)
+      {
          // this exception allow us to stop the parsing of the sheet when we have reached the number of cell to parse per sheet ({@link MAX_CELLTAB }
-         if (LOG.isTraceEnabled()) {
+         if (LOG.isTraceEnabled())
+         {
             LOG.trace(e.getLocalizedMessage());
          }
       }
@@ -266,22 +257,31 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
     */
    public Properties getProperties(final InputStream is) throws IOException, DocumentReadException
    {
-      try {
-         OPCPackage container = SecurityHelper
-             .doPrivilegedIOExceptionAction(new PrivilegedExceptionAction<OPCPackage>() {
-                public OPCPackage run() throws Exception {
-                   return OPCPackage.open(is);
-                }
-             });
+      try
+      {
+         OPCPackage container =
+            SecurityHelper.doPrivilegedIOExceptionAction(new PrivilegedExceptionAction<OPCPackage>()
+            {
+               public OPCPackage run() throws Exception
+               {
+                  return OPCPackage.open(is);
+               }
+            });
          POIXMLProperties xmlProperties = new POIXMLProperties(container);
          POIPropertiesReader reader = new POIPropertiesReader();
          reader.readDCProperties(xmlProperties);
          return reader.getProperties();
-      } catch (InvalidFormatException e) {
+      }
+      catch (InvalidFormatException e)
+      {
          throw new DocumentReadException("The format of the document to read is invalid.", e);
-      } catch (XmlException e) {
+      }
+      catch (XmlException e)
+      {
          throw new DocumentReadException("Problem during the document parsing.", e);
-      } catch (OpenXML4JException e) {
+      }
+      catch (OpenXML4JException e)
+      {
          throw new DocumentReadException("Problem during the document parsing.", e);
       }
    }
