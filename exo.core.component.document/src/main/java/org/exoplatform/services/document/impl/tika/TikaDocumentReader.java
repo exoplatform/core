@@ -25,7 +25,7 @@ import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.ParsingReader;
 import org.apache.tika.sax.BodyContentHandler;
-import org.xml.sax.helpers.DefaultHandler;
+import org.apache.xmlbeans.impl.common.SystemCache;
 import org.exoplatform.commons.utils.QName;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.AdvancedDocumentReader;
@@ -36,6 +36,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -164,6 +165,10 @@ public class TikaDocumentReader implements AdvancedDocumentReader
                   ContentHandler handler = new BodyContentHandler();
                   ParseContext context = new ParseContext();
                   context.set(Parser.class, parser);
+                  // Workaround for XMLBEANS-512 - ensure that when we parse
+                  //  the file, we start with a fresh XML Parser each time,
+                  //  and avoid the risk of getting a SaxHandler that's in error
+                  SystemCache.get().setSaxLoader(null);
                   try
                   {
                      parser.parse(is, handler, metadata, context);
@@ -202,14 +207,7 @@ public class TikaDocumentReader implements AdvancedDocumentReader
          {
             throw (IOException)cause;
          }
-         else if (cause instanceof RuntimeException)
-         {
-            throw (RuntimeException)cause;
-         }
-         else
-         {
-            throw new RuntimeException(cause);
-         }
+         throw new DocumentReadException("Can not get the content: " + cause.getMessage(), cause);
       }
    }
 
@@ -273,14 +271,7 @@ public class TikaDocumentReader implements AdvancedDocumentReader
          {
             throw (IOException)cause;
          }
-         else if (cause instanceof RuntimeException)
-         {
-            throw (RuntimeException)cause;
-         }
-         else
-         {
-            throw new RuntimeException(cause);
-         }
+         throw new DocumentReadException("Can not get the content: " + cause.getMessage(), cause);
       }
    }
 
@@ -374,10 +365,7 @@ public class TikaDocumentReader implements AdvancedDocumentReader
          {
             throw (IOException)cause;
          }
-         else
-         {
-            throw new DocumentReadException("Can not get properties: " + cause.getMessage(), cause);
-         }
+         throw new DocumentReadException("Can not get properties: " + cause.getMessage(), cause);
       }
    }
 

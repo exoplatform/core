@@ -18,8 +18,8 @@
  */
 package org.exoplatform.services.document.impl;
 
+import org.apache.poi.util.SAXHelper;
 import org.exoplatform.commons.utils.QName;
-import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReadException;
 import org.exoplatform.services.log.ExoLogger;
@@ -32,14 +32,11 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.PrivilegedExceptionAction;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 /**
  * Created by The eXo Platform SAS .
@@ -96,20 +93,7 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
             }
 
             OpenOfficeContentHandler contentHandler = new OpenOfficeContentHandler();
-            final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-            saxParserFactory.setValidating(false);
-
-            SAXParser saxParser =
-               SecurityHelper
-                  .doPrivilegedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
-               {
-                  public SAXParser run() throws Exception
-                  {
-                     return saxParserFactory.newSAXParser();
-                  }
-               });
-
-            XMLReader xmlReader = saxParser.getXMLReader();
+            XMLReader xmlReader = SAXHelper.newXMLReader();
             xmlReader.setFeature("http://xml.org/sax/features/validation", false);
 
             xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
@@ -183,19 +167,7 @@ public class OpenOfficeDocumentReader extends BaseDocumentReader
             }
 
             OpenOfficeMetaHandler metaHandler = new OpenOfficeMetaHandler();
-            final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-            saxParserFactory.setValidating(false);
-            SAXParser saxParser =
-               SecurityHelper
-                  .doPrivilegedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
-               {
-                  public SAXParser run() throws Exception
-                  {
-                     return saxParserFactory.newSAXParser();
-                  }
-               });
-               
-            XMLReader xmlReader = saxParser.getXMLReader();
+            XMLReader xmlReader = SAXHelper.newXMLReader();
 
             xmlReader.setFeature("http://xml.org/sax/features/validation", false);
             xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
