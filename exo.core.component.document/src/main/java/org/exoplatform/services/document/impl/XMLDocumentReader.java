@@ -18,23 +18,22 @@
  */
 package org.exoplatform.services.document.impl;
 
-import org.exoplatform.commons.utils.SecurityHelper;
+import org.apache.poi.util.SAXHelper;
 import org.exoplatform.services.document.DocumentReadException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.security.PrivilegedExceptionAction;
 import java.util.Properties;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 /**
  * Created by The eXo Platform SAS A parser of XML files.
@@ -71,14 +70,6 @@ public class XMLDocumentReader extends BaseDocumentReader
       }
       try
       {
-
-         //         byte[] buffer = new byte[2048];
-         //         int len;
-         //         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-         //         while ((len = is.read(buffer)) > 0)
-         //            bos.write(buffer, 0, len);
-         //         bos.close();
-         //         String xml = new String(bos.toByteArray());
          return parse(is);
       }
       finally
@@ -134,25 +125,16 @@ public class XMLDocumentReader extends BaseDocumentReader
     */
    private String parse(InputStream is)
    {
-      final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-      //      saxParserFactory.setNamespaceAware(true);
-      //      saxParserFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-      SAXParser saxParser;
       StringWriter writer = new StringWriter();
 
       DefaultHandler dh = new WriteOutContentHandler(writer);
       try
       {
-         saxParser =
-            SecurityHelper
-               .doPrivilegedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
-            {
-               public SAXParser run() throws Exception
-               {
-                  return saxParserFactory.newSAXParser();
-               }
-            });
-         saxParser.parse(is, dh);
+         XMLReader reader = SAXHelper.newXMLReader();
+         reader.setContentHandler(dh);
+         reader.setErrorHandler(dh);
+         reader.setDTDHandler(dh);
+         reader.parse(new InputSource(is));
       }
       catch (SAXException e)
       {

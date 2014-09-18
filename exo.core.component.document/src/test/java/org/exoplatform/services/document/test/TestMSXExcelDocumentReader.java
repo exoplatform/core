@@ -18,12 +18,12 @@
  */
 package org.exoplatform.services.document.test;
 
+import org.exoplatform.services.document.DocumentReadException;
 import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
 import org.exoplatform.services.document.impl.MSXExcelDocumentReader;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 /**
  * Created by The eXo Platform SAS Author : Sergey Karpenko
@@ -55,56 +55,22 @@ public class TestMSXExcelDocumentReader extends BaseStandaloneTest
                .getContentAsText(is);
 
          String expected =
-            "Ronaldo Eric Cantona Kaka Ronaldonho " + "ID Group Functionality Executor Begin End Tested "
-               + "XNNL XNNL Xay dung vung quan li nguyen lieu NamPH "
-               + getDate(2005, 2, 2)
-               + " "
-               + getDate(2005, 10, 2)
-               + " Tested "
-               + "XNNL XNNL XNNL_HAVEST NamPH 1223554.0 "
-               + getDate(2005, 10, 1)
-               + " Tested "
-               + "XNNL XNNL XNNL_PIECE_OF_GROUND NamPH "
-               + getDate(2005, 10, 12)
-               + " "
-               + getDate(2005, 10, 2)
-               + " Tested "
-               + "XNNL XNNL XNNL_76 NamPH TRUE() "
-               + getDate(1984, 12, 10)
-               + " No "
+            "Sheet2 "
+               +"Ronaldo Eric Cantona Kaka Ronaldonho "
+               +" Sheet1 "
+               + "Group Functionality Executor Begin End Tested "
+               + "XNNL XNNL Xay dung vung quan li nguyen lieu NamPH Tested "
+               + "XNNL XNNL XNNL_HAVEST NamPH Tested "
+               + "XNNL XNNL XNNL_PIECE_OF_GROUND NamPH Tested "
+               + "XNNL XNNL XNNL_76 NamPH "
                + "XNNL XNNL XNNL_CREATE_REAP NamPH none "
-               + getDate(2005, 10, 3)
-               + " No "
-               + "XNNL XNNL XNNL_SCALE NamPH "
-               + getDate(1984, 12, 10)
-               + " "
-               + getDate(2005, 10, 5)
-               + " Tested "
+               + "XNNL XNNL XNNL_SCALE NamPH Tested "
                + "XNNL XNNL LASUCO_PROJECT NamPH "
-               + getDate(2005, 10, 5)
-               + " "
-               + getDate(2005, 10, 6)
-               + " No "
                + "XNNL XNNL LASUCO_PROJECT NamPH Tested "
-               + "XNNL XNNL XNNL_BRANCH NamPH "
-               + getDate(2005, 12, 12)
-               + " "
-               + getDate(2005, 6, 10)
-               + " Tested "
+               + "XNNL XNNL XNNL_BRANCH NamPH Tested "
                + "XNNL XNNL XNNL_SUGAR_RACE NamPH "
-               + getDate(2005, 5, 9)
-               + " "
-               + getDate(2005, 6, 10)
-               + " No "
-               + "XNNL XNNL F_XNNL_DISTRI NamPH "
-               + getDate(2005, 5, 9)
-               + " "
-               + getDate(2005, 6, 10)
-               + " Tested "
-               + "XNNL XNNL XNNL_LASUCO_USER NamPH "
-               + getDate(2005, 9, 9)
-               + " "
-               + getDate(2005, 6, 10) + " No";
+               + "XNNL XNNL F_XNNL_DISTRI NamPH Tested "
+               + "XNNL XNNL XNNL_LASUCO_USER NamPH ";
 
          assertEquals("Wrong string returned", normalizeWhitespaces(expected), normalizeWhitespaces(text));
       }
@@ -114,14 +80,76 @@ public class TestMSXExcelDocumentReader extends BaseStandaloneTest
       }
    }
 
-   public String getDate(int year, int month, int day)
+   public void testGetContentAsStringXXE() throws Exception
    {
-      Calendar date = Calendar.getInstance();
-      date.setTimeInMillis(0);
-      date.set(year, month - 1, day, 0, 0, 0);
-      
-      SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
-      return (dateFormat.format(date.getTime()));
+      InputStream is = TestMSXExcelDocumentReader.class.getResourceAsStream("/test.xlsx");
+      file = createTempFile("test", ".xlsx");
+      replaceFirstInZip(
+         is,
+         file,
+         "xl/sharedStrings.xml",
+         "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"72\" uniqueCount=\"72\"><si><t>",
+         "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM \""
+            + TestMSXExcelDocumentReader.class.getResource("/test.txt")
+            + "\">]>"
+            + "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"72\" uniqueCount=\"72\"><si><t>&xxe;");
+      is = new FileInputStream(file);
+      try
+      {
+         String text =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+               .getContentAsText(is);
+
+         String expected =
+            "Sheet2 " + "Ronaldo Eric Cantona Kaka Ronaldonho " + " Sheet1 "
+               + "Group Functionality Executor Begin End Tested "
+               + "XNNL XNNL Xay dung vung quan li nguyen lieu NamPH Tested " + "XNNL XNNL XNNL_HAVEST NamPH Tested "
+               + "XNNL XNNL XNNL_PIECE_OF_GROUND NamPH Tested " + "XNNL XNNL XNNL_76 NamPH "
+               + "XNNL XNNL XNNL_CREATE_REAP NamPH none " + "XNNL XNNL XNNL_SCALE NamPH Tested "
+               + "XNNL XNNL LASUCO_PROJECT NamPH " + "XNNL XNNL LASUCO_PROJECT NamPH Tested "
+               + "XNNL XNNL XNNL_BRANCH NamPH Tested " + "XNNL XNNL XNNL_SUGAR_RACE NamPH "
+               + "XNNL XNNL F_XNNL_DISTRI NamPH Tested " + "XNNL XNNL XNNL_LASUCO_USER NamPH ";
+
+         assertEquals("Wrong string returned", normalizeWhitespaces(expected), normalizeWhitespaces(text));
+      }
+      finally
+      {
+         is.close();
+      }
    }
 
+   public void testGetContentAsStringXEE() throws Exception
+   {
+      InputStream is = TestMSXExcelDocumentReader.class.getResourceAsStream("/test.xlsx");
+      file = createTempFile("test", ".xlsx");
+      replaceFirstInZip(
+         is,
+         file,
+         "xl/sharedStrings.xml",
+         "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"72\" uniqueCount=\"72\"><si><t>",
+         "<!DOCTYPE lolz [<!ENTITY xee \"xee\">"
+         + "<!ENTITY xee1 \"&xee;&xee;&xee;&xee;&xee;&xee;&xee;&xee;&xee;&xee;\">"
+         + "<!ENTITY xee2 \"&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;\">"
+         + "<!ENTITY xee3 \"&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;\">"
+         + "<!ENTITY xee4 \"&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;\">"
+         + "<!ENTITY xee5 \"&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;\">"
+         + "<!ENTITY xee6 \"&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;\">]>"
+            + "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"72\" uniqueCount=\"72\"><si><t>&xee6;");
+      is = new FileInputStream(file);
+      try
+      {
+         service.getDocumentReader("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .getContentAsText(is);
+
+         fail("An exception is expected");
+      }
+      catch (DocumentReadException e)
+      {
+         // Expected
+      }
+      finally
+      {
+         is.close();
+      }
+   }
 }

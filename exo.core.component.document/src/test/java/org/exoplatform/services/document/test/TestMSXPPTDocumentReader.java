@@ -18,9 +18,12 @@
  */
 package org.exoplatform.services.document.test;
 
+import org.exoplatform.services.document.DocumentReadException;
+import org.exoplatform.services.document.DocumentReader;
 import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
 import org.exoplatform.services.document.impl.MSXPPTDocumentReader;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 
 /**
@@ -51,10 +54,126 @@ public class TestMSXPPTDocumentReader extends BaseStandaloneTest
             service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation")
                .getContentAsText(is);
          String etalon =
-            "TEST POWERPOINT\n" + "Manchester United \n" + "AC Milan\n" + "SLIDE 2 \n" + "Eric Cantona\n" + "Kaka\n"
-               + "Ronaldo\n" + "The natural scients universitys\n";
+            "TEST POWERPOINT " + "Manchester United " + "AC Milan " + "SLIDE 2 " + "Eric Cantona " + "Kaka "
+               + "Ronaldo " + "The natural scients universitys ";
 
          assertEquals("Wrong string returned", etalon, text);
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testGetContentAsStringXXE() throws Exception
+   {
+      InputStream is = TestMSXPPTDocumentReader.class.getResourceAsStream("/test.pptx");
+      file = createTempFile("test", ".pptx");
+      replaceFirstInZip(
+         is,
+         file,
+         "ppt/slides/slide1.xml",
+         new String[]{"<p:sld", "<a:t>"},
+         new String[]{
+            "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM \""
+               + TestMSXPPTDocumentReader.class.getResource("/test.txt") + "\">]><p:sld", "<a:t>&xxe;"});
+      is = new FileInputStream(file);
+      try
+      {
+         String text =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation")
+               .getContentAsText(is);
+         String etalon =
+            "TEST POWERPOINT " + "Manchester United " + "AC Milan " + "SLIDE 2 " + "Eric Cantona " + "Kaka "
+               + "Ronaldo " + "The natural scients universitys ";
+
+         assertEquals("Wrong string returned", etalon, text);
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testGetContentAsStringXEE() throws Exception
+   {
+      InputStream is = TestMSXPPTDocumentReader.class.getResourceAsStream("/test.pptx");
+      file = createTempFile("test", ".pptx");
+      replaceFirstInZip(is, file, "ppt/slides/slide1.xml", new String[]{"<p:sld", "<a:t>"}, new String[]{
+         "<!DOCTYPE lolz [<!ENTITY xee \"xee\">"
+            + "<!ENTITY xee1 \"&xee;&xee;&xee;&xee;&xee;&xee;&xee;&xee;&xee;&xee;\">"
+            + "<!ENTITY xee2 \"&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;\">"
+            + "<!ENTITY xee3 \"&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;\">"
+            + "<!ENTITY xee4 \"&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;\">"
+            + "<!ENTITY xee5 \"&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;\">"
+            + "<!ENTITY xee6 \"&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;\">]>" + "<p:sld",
+         "<a:t>&xee6;"});
+      is = new FileInputStream(file);
+      try
+      {
+         service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation")
+            .getContentAsText(is);
+
+         fail("An exception is expected");
+      }
+      catch (DocumentReadException e)
+      {
+         // Expected
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testGetContentAsString2() throws Exception
+   {
+      InputStream is = TestMSXPPTDocumentReader.class.getResourceAsStream("/test2.pptx");
+      try
+      {
+         String text =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation")
+               .getContentAsText(is);
+         int lastIndex = -1;
+         int lastLength = 0;
+         for (int i = 1; i <= 25; i++)
+         {
+            String content = "foo" + i;
+            int index = text.indexOf(content);
+            assertFalse("Cannot find: "+ content, index == -1);
+            assertEquals("The content " + content + " has not the right position", index, lastIndex + lastLength + 1);
+            lastIndex = index;
+            lastLength = content.length();
+         }
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testGetContentAsStringWithLimit() throws Exception
+   {
+      InputStream is = TestMSXPPTDocumentReader.class.getResourceAsStream("/test2.pptx");
+      try
+      {
+         DocumentReader reader = service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation");
+         assertTrue(reader instanceof MSXPPTDocumentReader);
+         String text = ((MSXPPTDocumentReader)reader).getContentAsText(is, 20);
+         int lastIndex = -1;
+         for (int i = 1; i <= 25; i++)
+         {
+            String content = "foo" + i;
+            int index = text.indexOf(content);
+            if (i > 20)
+            {
+               assertTrue("Can found: "+ content, index == -1);
+               continue;
+            }
+            assertFalse("Cannot found: "+ content, index == -1);
+            assertTrue("The content " + content + " has not the right position", index > lastIndex);
+            lastIndex = index;
+         }
       }
       finally
       {
