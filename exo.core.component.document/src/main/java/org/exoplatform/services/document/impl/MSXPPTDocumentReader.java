@@ -19,8 +19,8 @@
 package org.exoplatform.services.document.impl;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.poi.util.SAXHelper;
 import org.exoplatform.commons.utils.QName;
-import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.DCMetaData;
 import org.exoplatform.services.document.DocumentReadException;
 import org.exoplatform.services.log.ExoLogger;
@@ -34,7 +34,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.PrivilegedExceptionAction;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -42,8 +41,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 /**
  * Created by The eXo Platform SAS A parser of Microsoft PowerPoint 2007 files (pptx).
@@ -112,20 +109,8 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
 
             if (ze == null)
                return "";
-            final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-            saxParserFactory.setValidating(false);
 
-            SAXParser saxParser =
-               SecurityHelper
-                  .doPrivilegedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
-                  {
-                     public SAXParser run() throws Exception
-                     {
-                        return saxParserFactory.newSAXParser();
-                     }
-                  });
-
-            XMLReader xmlReader = saxParser.getXMLReader();
+            XMLReader xmlReader = SAXHelper.newXMLReader();
             xmlReader.setFeature("http://xml.org/sax/features/validation", false);
             xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
             Map<Integer, String> slides = new TreeMap<Integer, String>();
@@ -233,19 +218,7 @@ public class MSXPPTDocumentReader extends BaseDocumentReader
                return new Properties();
 
             MSPPTXMetaHandler metaHandler = new MSPPTXMetaHandler();
-            final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-            saxParserFactory.setValidating(false);
-            SAXParser saxParser =
-               SecurityHelper
-                  .doPrivilegedParserConfigurationOrSAXExceptionAction(new PrivilegedExceptionAction<SAXParser>()
-                  {
-                     public SAXParser run() throws Exception
-                     {
-                        return saxParserFactory.newSAXParser();
-                     }
-                  });
-
-            XMLReader xmlReader = saxParser.getXMLReader();
+            XMLReader xmlReader = SAXHelper.newXMLReader();
 
             xmlReader.setFeature("http://xml.org/sax/features/validation", false);
             xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);

@@ -16,9 +16,11 @@
  */
 package org.exoplatform.services.document.tika;
 
+import org.exoplatform.services.document.DocumentReadException;
 import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.services.document.test.BaseStandaloneTest;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 
 /**
@@ -60,4 +62,59 @@ public class TestMSXPPTOnTikaDocumentReader extends BaseStandaloneTest
       }
    }
 
+   public void testGetContentAsStringXXE() throws Exception
+   {
+      InputStream is = BaseStandaloneTest.class.getResourceAsStream("/test.pptx");
+      file = createTempFile("test", ".pptx");
+      replaceFirstInZip(is, file, "ppt/slides/slide1.xml", new String[]{"<p:sld", "<a:t>"}, new String[]{
+         "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM \"" + BaseStandaloneTest.class.getResource("/test.txt")
+            + "\">]><p:sld", "<a:t>&xxe;"});
+      is = new FileInputStream(file);
+      try
+      {
+         String text =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation")
+               .getContentAsText(is);
+         String expected =
+            "TEST POWERPOINT\n" + "Manchester United \n" + "AC Milan\n" + "SLIDE 2 \n" + "Eric Cantona\n" + "Kaka\n"
+               + "Ronaldo\n" + "The natural scients universitys\n";
+
+         assertEquals("Wrong string returned", normalizeWhitespaces(expected), normalizeWhitespaces(text));
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testGetContentAsStringXEE() throws Exception
+   {
+      InputStream is = BaseStandaloneTest.class.getResourceAsStream("/test.pptx");
+      file = createTempFile("test", ".pptx");
+      replaceFirstInZip(is, file, "ppt/slides/slide1.xml", new String[]{"<p:sld", "<a:t>"}, new String[]{
+         "<!DOCTYPE lolz [<!ENTITY xee \"xee\">"
+            + "<!ENTITY xee1 \"&xee;&xee;&xee;&xee;&xee;&xee;&xee;&xee;&xee;&xee;\">"
+            + "<!ENTITY xee2 \"&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;\">"
+            + "<!ENTITY xee3 \"&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;\">"
+            + "<!ENTITY xee4 \"&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;\">"
+            + "<!ENTITY xee5 \"&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;\">"
+            + "<!ENTITY xee6 \"&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;\">]>" + "<p:sld",
+         "<a:t>&xee6;"});
+      is = new FileInputStream(file);
+      try
+      {
+         service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation")
+            .getContentAsText(is);
+
+         fail("An exception is expected");
+      }
+      catch (DocumentReadException e)
+      {
+         // expected
+      }
+      finally
+      {
+         is.close();
+      }
+   }
 }

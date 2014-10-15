@@ -21,6 +21,7 @@ package org.exoplatform.services.document.test;
 import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
 import org.exoplatform.services.document.impl.XMLDocumentReader;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 
 /**
@@ -49,6 +50,57 @@ public class TestXMLDocumentReader extends BaseStandaloneTest
          String text = service.getDocumentReader("text/xml").getContentAsText(is);
          String expected = "John\n" + "  Alice\n" + "  Reminder\n" + "  Don't forget it this weekend!";
          assertEquals("Wrong string returned", expected, text.trim());
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testGetContentAsStringXXE() throws Exception
+   {
+      InputStream is = TestXMLDocumentReader.class.getResourceAsStream("/test.xml");
+      file = createTempFile("test", ".xml");
+      replaceFirstInFile(
+         is,
+         file,
+         new String[]{"<note>", "<to>"},
+         new String[]{
+            "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM \""
+               + TestXMLDocumentReader.class.getResource("/test.txt") + "\">]><note>",
+            "<to>&xxe;"});
+      is = new FileInputStream(file);
+      try
+      {
+         String text = service.getDocumentReader("text/xml").getContentAsText(is);
+         String expected = "John\n" + "  Alice\n" + "  Reminder\n" + "  Don't forget it this weekend!";
+         assertEquals("Wrong string returned", expected, text.trim());
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testGetContentAsStringXEE() throws Exception
+   {
+      InputStream is = TestXMLDocumentReader.class.getResourceAsStream("/test.xml");
+      file = createTempFile("test", ".xml");
+      replaceFirstInFile(is, file, new String[]{"<note>", "<to>"},
+         new String[]{
+            "<!DOCTYPE lolz [<!ENTITY xee \"xee\">"
+               + "<!ENTITY xee1 \"&xee;&xee;&xee;&xee;&xee;&xee;&xee;&xee;&xee;&xee;\">"
+               + "<!ENTITY xee2 \"&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;\">"
+               + "<!ENTITY xee3 \"&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;\">"
+               + "<!ENTITY xee4 \"&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;\">"
+               + "<!ENTITY xee5 \"&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;\">"
+               + "<!ENTITY xee6 \"&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;\">]>"
+               + "<note>", "<to>&xee6;"});
+      is = new FileInputStream(file);
+      try
+      {
+         String text = service.getDocumentReader("text/xml").getContentAsText(is);
+         assertTrue(text.isEmpty());
       }
       finally
       {

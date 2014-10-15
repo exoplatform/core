@@ -17,9 +17,11 @@
 package org.exoplatform.services.document.tika;
 
 import org.exoplatform.services.document.AdvancedDocumentReader;
+import org.exoplatform.services.document.DocumentReadException;
 import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.services.document.test.BaseStandaloneTest;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.Reader;
 
@@ -105,6 +107,83 @@ public class TestMSXExcelOnTikaDocumentReader extends BaseStandaloneTest
                + "Tested XNNL XNNL XNNL_LASUCO_USER NamPH 09/09/05 06/10/2005 No";
 
          assertEquals("Wrong string returned", normalizeWhitespaces(expected), normalizeWhitespaces(text));
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+
+   public void testGetContentAsStringXXE() throws Exception
+   {
+      InputStream is = BaseStandaloneTest.class.getResourceAsStream("/test.xlsx");
+      file = createTempFile("test", ".xlsx");
+      replaceFirstInZip(
+         is,
+         file,
+         "xl/sharedStrings.xml",
+         "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"72\" uniqueCount=\"72\"><si><t>",
+         "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM \""
+            + BaseStandaloneTest.class.getResource("/test.txt")
+            + "\">]>"
+            + "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"72\" uniqueCount=\"72\"><si><t>&xxe;");
+      is = new FileInputStream(file);
+      try
+      {
+         String text =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+               .getContentAsText(is);
+
+         String expected =
+            "Sheet2 Ronaldo Eric Cantona Kaka Ronaldonho "
+               + "&\"Times New Roman,Regular\"&12&A &\"Times New Roman,Regular\"&12Page &P "
+               + "Sheet1 ID Group Functionality Executor Begin End "
+               + "Tested XNNL XNNL Xay dung vung quan li nguyen lieu NamPH 2/2/05 10/02/2005 "
+               + "Tested XNNL XNNL XNNL_HAVEST NamPH 1223554 10/01/2005 "
+               + "Tested XNNL XNNL XNNL_PIECE_OF_GROUND NamPH 10/12/05 10/02/2005 "
+               + "Tested XNNL XNNL XNNL_76 NamPH TRUE 12/10/84 No XNNL XNNL XNNL_CREATE_REAP NamPH none 10/03/2005 No XNNL XNNL XNNL_SCALE NamPH 12/10/84 10/05/2005 "
+               + "Tested XNNL XNNL LASUCO_PROJECT NamPH 10/05/05 10/06/2005 No XNNL XNNL LASUCO_PROJECT NamPH "
+               + "Tested XNNL XNNL XNNL_BRANCH NamPH 12/12/05 06/10/2005 "
+               + "Tested XNNL XNNL XNNL_SUGAR_RACE NamPH 05/09/05 06/10/2005 No XNNL XNNL F_XNNL_DISTRI NamPH 05/09/05 06/10/2005 "
+               + "Tested XNNL XNNL XNNL_LASUCO_USER NamPH 09/09/05 06/10/2005 No";
+
+         assertEquals("Wrong string returned", normalizeWhitespaces(expected), normalizeWhitespaces(text));
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testGetContentAsStringXEE() throws Exception
+   {
+      InputStream is = BaseStandaloneTest.class.getResourceAsStream("/test.xlsx");
+      file = createTempFile("test", ".xlsx");
+      replaceFirstInZip(
+         is,
+         file,
+         "xl/sharedStrings.xml",
+         "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"72\" uniqueCount=\"72\"><si><t>",
+         "<!DOCTYPE lolz [<!ENTITY xee \"xee\">"
+         + "<!ENTITY xee1 \"&xee;&xee;&xee;&xee;&xee;&xee;&xee;&xee;&xee;&xee;\">"
+         + "<!ENTITY xee2 \"&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;\">"
+         + "<!ENTITY xee3 \"&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;\">"
+         + "<!ENTITY xee4 \"&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;\">"
+         + "<!ENTITY xee5 \"&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;\">"
+         + "<!ENTITY xee6 \"&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;\">]>"
+            + "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"72\" uniqueCount=\"72\"><si><t>&xee6;");
+      is = new FileInputStream(file);
+      try
+      {
+         service.getDocumentReader("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .getContentAsText(is);
+
+         fail("An exception is expected");
+      }
+      catch (DocumentReadException e)
+      {
+         // Expected
       }
       finally
       {

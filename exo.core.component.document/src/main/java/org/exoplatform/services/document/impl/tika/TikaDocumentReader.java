@@ -203,14 +203,7 @@ public class TikaDocumentReader implements AdvancedDocumentReader
          {
             throw (IOException)cause;
          }
-         else if (cause instanceof RuntimeException)
-         {
-            throw (RuntimeException)cause;
-         }
-         else
-         {
-            throw new RuntimeException(cause);
-         }
+         throw new DocumentReadException("Can not get the content: " + cause.getMessage(), cause);
       }
    }
 
@@ -274,14 +267,7 @@ public class TikaDocumentReader implements AdvancedDocumentReader
          {
             throw (IOException)cause;
          }
-         else if (cause instanceof RuntimeException)
-         {
-            throw (RuntimeException)cause;
-         }
-         else
-         {
-            throw new RuntimeException(cause);
-         }
+         throw new DocumentReadException("Can not get the content: " + cause.getMessage(), cause);
       }
    }
 
@@ -376,10 +362,7 @@ public class TikaDocumentReader implements AdvancedDocumentReader
          {
             throw (IOException)cause;
          }
-         else
-         {
-            throw new DocumentReadException("Can not get properties: " + cause.getMessage(), cause);
-         }
+         throw new DocumentReadException("Can not get properties: " + cause.getMessage(), cause);
       }
    }
 

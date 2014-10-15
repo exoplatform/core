@@ -18,10 +18,12 @@
  */
 package org.exoplatform.services.document.test;
 
+import org.exoplatform.services.document.DocumentReadException;
 import org.exoplatform.services.document.DocumentReader;
 import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;
 import org.exoplatform.services.document.impl.MSXPPTDocumentReader;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 
 /**
@@ -56,6 +58,67 @@ public class TestMSXPPTDocumentReader extends BaseStandaloneTest
                + "Ronaldo " + "The natural scients universitys ";
 
          assertEquals("Wrong string returned", etalon, text);
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testGetContentAsStringXXE() throws Exception
+   {
+      InputStream is = TestMSXPPTDocumentReader.class.getResourceAsStream("/test.pptx");
+      file = createTempFile("test", ".pptx");
+      replaceFirstInZip(
+         is,
+         file,
+         "ppt/slides/slide1.xml",
+         new String[]{"<p:sld", "<a:t>"},
+         new String[]{
+            "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM \""
+               + TestMSXPPTDocumentReader.class.getResource("/test.txt") + "\">]><p:sld", "<a:t>&xxe;"});
+      is = new FileInputStream(file);
+      try
+      {
+         String text =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation")
+               .getContentAsText(is);
+         String etalon =
+            "TEST POWERPOINT " + "Manchester United " + "AC Milan " + "SLIDE 2 " + "Eric Cantona " + "Kaka "
+               + "Ronaldo " + "The natural scients universitys ";
+
+         assertEquals("Wrong string returned", etalon, text);
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+
+   public void testGetContentAsStringXEE() throws Exception
+   {
+      InputStream is = TestMSXPPTDocumentReader.class.getResourceAsStream("/test.pptx");
+      file = createTempFile("test", ".pptx");
+      replaceFirstInZip(is, file, "ppt/slides/slide1.xml", new String[]{"<p:sld", "<a:t>"}, new String[]{
+         "<!DOCTYPE lolz [<!ENTITY xee \"xee\">"
+            + "<!ENTITY xee1 \"&xee;&xee;&xee;&xee;&xee;&xee;&xee;&xee;&xee;&xee;\">"
+            + "<!ENTITY xee2 \"&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;&xee1;\">"
+            + "<!ENTITY xee3 \"&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;&xee2;\">"
+            + "<!ENTITY xee4 \"&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;&xee3;\">"
+            + "<!ENTITY xee5 \"&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;&xee4;\">"
+            + "<!ENTITY xee6 \"&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;&xee5;\">]>" + "<p:sld",
+         "<a:t>&xee6;"});
+      is = new FileInputStream(file);
+      try
+      {
+         service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation")
+            .getContentAsText(is);
+
+         fail("An exception is expected");
+      }
+      catch (DocumentReadException e)
+      {
+         // Expected
       }
       finally
       {
