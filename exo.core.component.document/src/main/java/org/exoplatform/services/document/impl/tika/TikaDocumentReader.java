@@ -26,6 +26,7 @@ import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.ParsingReader;
 import org.apache.tika.sax.BodyContentHandler;
+import org.apache.xmlbeans.impl.common.SystemCache;
 import org.exoplatform.commons.utils.QName;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.AdvancedDocumentReader;
@@ -165,6 +166,10 @@ public class TikaDocumentReader implements AdvancedDocumentReader
                   ContentHandler handler = new BodyContentHandler();
                   ParseContext context = new ParseContext();
                   context.set(Parser.class, parser);
+                  // Workaround for XMLBEANS-512 - ensure that when we parse
+                  //  the file, we start with a fresh XML Parser each time,
+                  //  and avoid the risk of getting a SaxHandler that's in error
+                  SystemCache.get().setSaxLoader(null);
                   try
                   {
                      parser.parse(is, handler, metadata, context);
