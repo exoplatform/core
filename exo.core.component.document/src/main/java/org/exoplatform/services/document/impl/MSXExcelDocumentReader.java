@@ -37,6 +37,7 @@ import org.xml.sax.XMLReader;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Properties;
 
@@ -125,57 +126,73 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
          {
             return "";
          }
-         try
+         SecurityHelper.doPrivilegedExceptionAction(new PrivilegedExceptionAction<Void>()
          {
-            OPCPackage container = OPCPackage.open(is);
-            ReadOnlySharedStringsTable strings = new ReadOnlySharedStringsTable(container);
-            XSSFReader xssfReader = new XSSFReader(container);
-            XSSFReader.SheetIterator iter = (XSSFReader.SheetIterator) xssfReader.getSheetsData();
-            MSXExcelSheetXMLHandler.SheetContentsHandler sheetExtractor = new SheetTextExtractor(builder);
-            int parsedTabs = 0;
-            while (iter.hasNext() && parsedTabs < MAX_TABS)
+
+            public Void run() throws Exception
             {
-               InputStream stream = null;
-               parsedTabs++;
                try
                {
-                  stream = iter.next();
-                  builder.append('\n');
-                  builder.append(iter.getSheetName());
-                  builder.append('\n');
-                  processSheet(sheetExtractor, strings, stream);
-               }
-               finally
-               {
-                  if (stream != null)
+                  OPCPackage container = OPCPackage.open(is);
+                  ReadOnlySharedStringsTable strings = new ReadOnlySharedStringsTable(container);
+                  XSSFReader xssfReader = new XSSFReader(container);
+                  XSSFReader.SheetIterator iter = (XSSFReader.SheetIterator) xssfReader.getSheetsData();
+                  MSXExcelSheetXMLHandler.SheetContentsHandler sheetExtractor = new SheetTextExtractor(builder);
+                  int parsedTabs = 0;
+                  while (iter.hasNext() && parsedTabs < MAX_TABS)
                   {
+                     InputStream stream = null;
+                     parsedTabs++;
                      try
                      {
-                        stream.close();
+                        stream = iter.next();
+                        builder.append('\n');
+                        builder.append(iter.getSheetName());
+                        builder.append('\n');
+                        processSheet(sheetExtractor, strings, stream);
                      }
-                     catch (IOException e)
+                     finally
                      {
-                        if (LOG.isTraceEnabled())
+                        if (stream != null)
                         {
-                           LOG.trace("An exception occurred: " + e.getMessage());
+                           try
+                           {
+                              stream.close();
+                           }
+                           catch (IOException e)
+                           {
+                              if (LOG.isTraceEnabled())
+                              {
+                                 LOG.trace("An exception occurred: " + e.getMessage());
+                              }
+                           }
                         }
                      }
                   }
                }
+               catch (InvalidFormatException e)
+               {
+                  throw new DocumentReadException("The format of the document to read is invalid.", e);
+               }
+               catch (SAXException e)
+               {
+                  throw new DocumentReadException("Problem during the document parsing.", e);
+               }
+               catch (OpenXML4JException e)
+               {
+                  throw new DocumentReadException("Problem during the document parsing.", e);
+               }
+               return null;
             }
-         }
-         catch (InvalidFormatException e)
+         });
+      }
+      catch (PrivilegedActionException e)
+      {
+         if (e.getCause() instanceof DocumentReadException)
          {
-            throw new DocumentReadException("The format of the document to read is invalid.", e);
+            throw (DocumentReadException)e.getCause();
          }
-         catch (SAXException e)
-         {
-            throw new DocumentReadException("Problem during the document parsing.", e);
-         }
-         catch (OpenXML4JException e)
-         {
-            throw new DocumentReadException("Problem during the document parsing.", e);
-         }
+         throw new DocumentReadException("Problem during the document parsing.", e.getCause()); 
       }
       finally
       {
