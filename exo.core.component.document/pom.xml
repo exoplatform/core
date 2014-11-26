@@ -223,10 +223,6 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
                <systemProperties>
-                  <!--property>
-                     <name>jcr.test.configuration.file</name>
-                     <value>${jcr.test.configuration.file}</value>
-                  </property-->
                   <property>
                      <name>emma.coverage.out.file</name>
                      <value>target/emma/coverage.ec</value>
@@ -235,35 +231,11 @@
                <includes>
                   <include>org/exoplatform/services/document/**/Test*.java</include>
                </includes>
-               <excludes>
-                  <exclude>org/exoplatform/services/document/**/TestMSXExcelOnTikaDocumentReader.java</exclude>
-               </excludes>
             </configuration>
          </plugin>
          <plugin>
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>
-               <!--execution>
-                  <id>delete-sources</id>
-                  <phase>process-sources</phase>
-                  <configuration>
-                     <tasks>
-                        <echo>Remove files that have been customized</echo>
-                        <delete>
-                           <fileset dir="${project.build.directory}/generated-sources/javacc/org/exoplatform/services/jcr/impl/core/query">
-                              <include name="sql/ASTLiteral.java" />
-                              <include name="sql/ASTContainsExpression.java" />
-                              <include name="sql/ASTPredicate.java" />
-                              <include name="sql/ASTIdentifier.java" />
-                              <include name="xpath/SimpleNode.java" />
-                           </fileset>
-                        </delete>
-                     </tasks>
-                  </configuration>
-                  <goals>
-                     <goal>run</goal>
-                  </goals>
-               </execution-->
                <execution>
                   <id>prepare-test-policy</id>
                   <phase>process-test-resources</phase>
@@ -283,7 +255,7 @@
                               <filter token="TEST_CLASSES" value="${testOutputDirectoryURL}" />
                            </filterset>
                         </copy>
-                     </target>                     
+                     </target>
                   </configuration>
                   <goals>
                      <goal>run</goal>
