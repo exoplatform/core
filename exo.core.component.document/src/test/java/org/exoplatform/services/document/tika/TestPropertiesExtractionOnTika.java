@@ -134,13 +134,9 @@ public class TestPropertiesExtractionOnTika extends BaseStandaloneTest
       {
          Properties props = service.getDocumentReader("application/powerpoint").getProperties(is);
          Properties etalon = new Properties();
-         Calendar date = Calendar.getInstance();
-         date.setTimeInMillis(0);
-         date.set(2010, 7, 31, 11, 34, 15);
 
          etalon.put(DCMetaData.TITLE, "test-Title");
-         // TODO dates
-         // etalon.put(DCMetaData.DATE, date.getTime());
+         etalon.put(DCMetaData.DATE, new Date(1283247255000L));
          etalon.put(DCMetaData.SUBJECT, "test-Subject");
          etalon.put(DCMetaData.CREATOR, "Max Yakimenko");
          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
