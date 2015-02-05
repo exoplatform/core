@@ -82,6 +82,35 @@ public class TestXMLDocumentReader extends BaseStandaloneTest
       }
    }
 
+   /**
+    * test XXE External Entity point to non-existing resource
+    */
+   
+   public void testGetContentAsStringXXE2() throws Exception
+   {
+      InputStream is = TestXMLDocumentReader.class.getResourceAsStream("/test.xml");
+      file = createTempFile("test", ".xml");
+      replaceFirstInFile(
+         is,
+         file,
+         new String[]{"<note>", "<to>"},
+         new String[]{
+            "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM \""
+               + TestXMLDocumentReader.class.getResource("/test123.txt") + "\">]><note>",
+            "<to>&xxe;"});
+      is = new FileInputStream(file);
+      try
+      {
+         String text = service.getDocumentReader("text/xml").getContentAsText(is);
+         String expected = "John\n" + "  Alice\n" + "  Reminder\n" + "  Don't forget it this weekend!";
+         assertEquals("Wrong string returned", expected, text.trim());
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+   
    public void testGetContentAsStringXEE() throws Exception
    {
       InputStream is = TestXMLDocumentReader.class.getResourceAsStream("/test.xml");
