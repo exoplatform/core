@@ -89,6 +89,38 @@ public class TestOpenOfficeDocumentReader extends BaseStandaloneTest
       }
    }
 
+   /**
+    * test XXE External Entity point to non-existing resource
+    */
+   
+   public void testGetContentAsStringXXE2() throws Exception
+   {
+      InputStream is = TestOpenOfficeDocumentReader.class.getResourceAsStream("/test.odt");
+      file = createTempFile("test", ".odt");
+      replaceFirstInZip(
+         is,
+         file,
+         "content.xml",
+         new String[]{"<office:document-content", "<text:p text:style-name=\"Standard\">"},
+         new String[]{
+            "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM \""
+               + TestOpenOfficeDocumentReader.class.getResource("/test123.txt") + "\">]><office:document-content",
+            "<text:p text:style-name=\"Standard\">&xxe;"});
+      is = new FileInputStream(file);
+      try
+      {
+         String text = service.getDocumentReader("application/vnd.oasis.opendocument.text").getContentAsText(is);
+
+         String expected = "This is a test Open Office document `1234567890-= !@#$%^&*()_+~|:?><|\\,./[]{}";
+
+         assertEquals("Wrong string returned", normalizeWhitespaces(expected), normalizeWhitespaces(text));
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+   
    public void testGetContentAsStringXEE() throws Exception
    {
       InputStream is = TestOpenOfficeDocumentReader.class.getResourceAsStream("/test.odt");
