@@ -25,7 +25,6 @@ import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.ParsingReader;
 import org.apache.tika.sax.BodyContentHandler;
-import org.xml.sax.helpers.DefaultHandler;
 import org.exoplatform.commons.utils.QName;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.document.AdvancedDocumentReader;
@@ -36,6 +35,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -423,7 +423,8 @@ public class TikaDocumentReader implements AdvancedDocumentReader
             if (property.equals(DublinCore.DATE) || property.equals(MSOffice.LAST_SAVED)
                || property.equals(MSOffice.CREATION_DATE))
             {
-               value = metadata.getDate(property).toString();
+               props.put(jcrDCProp, metadata.getDate(property));
+               return;
             }
             props.put(jcrDCProp, value);
             return;
