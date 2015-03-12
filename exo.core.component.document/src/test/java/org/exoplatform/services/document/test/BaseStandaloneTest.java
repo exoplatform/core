@@ -18,13 +18,18 @@ package org.exoplatform.services.document.test;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.IOUtils;
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.container.PortalContainer;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Created by The eXo Platform SAS.
@@ -41,12 +46,22 @@ public class BaseStandaloneTest extends TestCase
 
    protected MimeTypeResolver mimetypeResolver = new MimeTypeResolver();
 
+   protected File file;
+
    public void setUp() throws Exception
    {
       pcontainer = PortalContainer.getInstance();
    }
 
-   public Object getComponentInstanceOfType(Class componentType)
+   @Override
+   protected void tearDown() throws Exception
+   {
+      if (file != null)
+         file.delete();
+      super.tearDown();
+   }
+
+   public Object getComponentInstanceOfType(Class<?> componentType)
    {
       return pcontainer.getComponentInstanceOfType(componentType);
    }
@@ -90,4 +105,88 @@ public class BaseStandaloneTest extends TestCase
       return str;
    }
 
+   /**
+    * Replaces the first part of the content of the input stream that matches with the regular expression
+    * with the provided replacement.
+    */
+   public void replaceFirstInFile(InputStream is, File targetFile, String regExpr, String replacement) throws IOException
+   {
+      replaceFirstInFile(is, targetFile, new String[]{regExpr}, new String[]{replacement});
+   }
+
+   /**
+    * Replaces the first part of the content of the input stream that matches with each regular expressions
+    * with the provided replacements.
+    */
+   public void replaceFirstInFile(InputStream is, File targetFile, String[] regExprs, String[] replacements) throws IOException
+   {
+      FileOutputStream fos = null;
+      try
+      {
+         String fileContent = IOUtils.toString(is);
+         for (int i = 0; i < regExprs.length; i++)
+         {
+            fileContent = fileContent.replaceFirst(regExprs[i], replacements[i]);
+         }
+         fos = new FileOutputStream(targetFile);
+         IOUtils.write(fileContent, fos);
+      }
+      finally
+      {
+         IOUtils.closeQuietly(fos);
+         IOUtils.closeQuietly(is);
+      }
+   }
+
+   /**
+    * Replaces the first part of the content of the given entry that matches with the regular expression
+    * with the provided replacement directly into the target zip file.
+    */
+   public void replaceFirstInZip(InputStream is, File targetZipFile, String entryName, String regExpr, String replacement)
+      throws IOException
+   {
+      replaceFirstInZip(is, targetZipFile, entryName, new String[]{regExpr}, new String[]{replacement});
+   }
+
+   /**
+    * Replaces the first part of the content of the given entry that matches with each regular expressions
+    * with the provided replacements directly into the target zip file.
+    */
+   public void replaceFirstInZip(InputStream is, File targetZipFile, String entryName, String[] regExprs, String[] replacements)
+      throws IOException
+   {
+      ZipInputStream inZip = null;
+      ZipOutputStream outZip = null;
+      try
+      {
+         inZip = new ZipInputStream(is);
+         outZip = new ZipOutputStream(new FileOutputStream(targetZipFile));
+
+         for (ZipEntry in; (in = inZip.getNextEntry()) != null;)
+         {
+            ZipEntry out = new ZipEntry(in.getName());
+            outZip.putNextEntry(out);
+            if (in.getName().equals(entryName))
+            {
+               String fileContent = IOUtils.toString(inZip);
+               for (int i = 0; i < regExprs.length; i++)
+               {
+                  fileContent = fileContent.replaceFirst(regExprs[i], replacements[i]);
+               }
+               out.setSize(fileContent.length());
+               IOUtils.write(fileContent, outZip);
+            }
+            else
+            {
+               IOUtils.copy(inZip, outZip);
+            }
+            outZip.closeEntry();
+         }
+      }
+      finally
+      {
+         IOUtils.closeQuietly(inZip);
+         IOUtils.closeQuietly(outZip);
+      }
+   }
 }
