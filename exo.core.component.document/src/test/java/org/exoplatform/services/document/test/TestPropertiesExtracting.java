@@ -256,7 +256,49 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          is.close();
       }
    }
+   
+   /**
+    * test XXE External Entity point to non-existing resource
+    */
+   
+   public void testXWordDocumentReaderServiceXXE2() throws Exception
+   {
+      InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/test.docx");
+      file = createTempFile("test", ".docx");
+      replaceFirstInZip(
+         is,
+         file,
+         "docProps/core.xml",
+         new String[]{"<cp:coreProperties", "<dc:title>"},
+         new String[]{
+            "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM \""
+               + TestPropertiesExtracting.class.getResource("/test123.txt") + "\">]><cp:coreProperties", "<dc:title>&xxe;"});
+      is = new FileInputStream(file);
+      try
+      {
+         Properties props =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+               .getProperties(is);
+         Properties etalon = new Properties();
+         Calendar date = Calendar.getInstance();
+         date.setTimeInMillis(0);
+         date.set(2010, 7, 31, 7, 53, 0);
 
+         etalon.put(DCMetaData.TITLE, "test-Title");
+         etalon.put(DCMetaData.DATE, date.getTime());
+         etalon.put(DCMetaData.SUBJECT, "Subject");
+         etalon.put(DCMetaData.CREATOR, "nikolaz");
+         etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
+         etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
+
+         evalProps(etalon, props, true);
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+   
    public void testXWordDocumentReaderServiceXEE() throws Exception
    {
       InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/test.docx");
@@ -343,7 +385,46 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          is.close();
       }
    }
+   
+   /**
+    * test XXE External Entity point to non-existing resource
+    */
+   
+   public void testXPPTDocumentReaderServiceXXE2() throws Exception
+   {
+      InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/test.pptx");
+      file = createTempFile("test", ".pptx");
+      replaceFirstInZip(
+         is,
+         file,
+         "docProps/core.xml",
+         new String[]{"<cp:coreProperties", "<dc:title>"},
+         new String[]{
+            "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM \""
+               + TestPropertiesExtracting.class.getResource("/test123.txt") + "\">]><cp:coreProperties", "<dc:title>&xxe;"});
+      is = new FileInputStream(file);
+      try
+      {
+         Properties props =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation")
+               .getProperties(is);
+         Properties etalon = new Properties();
 
+         etalon.put(DCMetaData.TITLE, "test-Title");
+         etalon.put(DCMetaData.DATE, "2010-08-31T07:59:37Z");
+         etalon.put(DCMetaData.SUBJECT, "test-Subject");
+         etalon.put(DCMetaData.CREATOR, "Max Yakimenko");
+         etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
+         etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
+
+         evalProps(etalon, props, true);
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+   
    public void testXPPTDocumentReaderServiceXEE() throws Exception
    {
       InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/test.pptx");
@@ -444,6 +525,51 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
       }
    }
 
+   /**
+    * test XXE External Entity point to non-existing resource
+    */
+   
+   public void testXExcelDocumentReaderServiceXXE2() throws Exception
+   {
+      InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/test.xlsx");
+      file = createTempFile("test", ".xlsx");
+      replaceFirstInZip(
+         is,
+         file,
+         "docProps/core.xml",
+         "<cp:coreProperties .*<dc:title>",
+         "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM \""
+            + TestPropertiesExtracting.class.getResource("/test123.txt")
+            + "\">]>"
+            + "<cp:coreProperties xmlns:cp=\"http://schemas.openxmlformats.org/package/2006/metadata/core-properties\" "
+            + "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" "
+            + "xmlns:dcmitype=\"http://purl.org/dc/dcmitype/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><dc:title>&xxe;");
+      is = new FileInputStream(file);
+      try
+      {
+         Properties props =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+               .getProperties(is);
+         Properties etalon = new Properties();
+         Calendar date = Calendar.getInstance();
+         date.setTimeInMillis(0);
+         date.set(2010, 7, 31, 8, 7, 25);
+
+         etalon.put(DCMetaData.TITLE, "test-Title");
+         etalon.put(DCMetaData.DATE, date.getTime());
+         etalon.put(DCMetaData.SUBJECT, "test-Subject");
+         etalon.put(DCMetaData.CREATOR, "KHANH NGUYEN GIA");
+         etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
+         etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
+
+         evalProps(etalon, props, true);
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+   
    public void testXExcelDocumentReaderServiceXEE() throws Exception
    {
       InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/test.xlsx");
@@ -534,6 +660,44 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
       }
    }
 
+   /**
+    * test XXE External Entity point to non-existing resource
+    */
+   
+   public void testOODocumentReaderServiceXXE2() throws Exception
+   {
+      InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/test.odt");
+      file = createTempFile("test", ".odt");
+      replaceFirstInZip(
+         is,
+         file,
+         "meta.xml",
+         new String[]{"<office:document-meta", "<dc:description>"},
+         new String[]{
+            "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM \""
+               + TestPropertiesExtracting.class.getResource("/test123.txt") + "\">]>" + "<office:document-meta",
+            "<dc:description>&xxe;"});
+      is = new FileInputStream(file);
+      try
+      {
+         Properties props = service.getDocumentReader("application/vnd.oasis.opendocument.text").getProperties(is);
+         Properties etalon = new Properties();
+
+         etalon.put(DCMetaData.TITLE, "test-Title");
+         etalon.put(DCMetaData.LANGUAGE, "ru-RU");
+         etalon.put(DCMetaData.DATE, "2010-09-03T14:37:59.10");
+         etalon.put(DCMetaData.SUBJECT, "test-Subject");
+         etalon.put(DCMetaData.CREATOR, "Sergiy Karpenko");
+         etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
+
+         evalProps(etalon, props, true);
+      }
+      finally
+      {
+         is.close();
+      }
+   }
+   
    public void testOODocumentReaderServiceXEE() throws Exception
    {
       InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/test.odt");

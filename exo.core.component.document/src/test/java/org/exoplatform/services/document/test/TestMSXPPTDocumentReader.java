@@ -94,6 +94,40 @@ public class TestMSXPPTDocumentReader extends BaseStandaloneTest
          is.close();
       }
    }
+   
+   /**
+    * test XXE External Entity point to non-existing resource
+    */
+   
+   public void testGetContentAsStringXXE2() throws Exception
+   {
+      InputStream is = TestMSXPPTDocumentReader.class.getResourceAsStream("/test.pptx");
+      file = createTempFile("test", ".pptx");
+      replaceFirstInZip(
+         is,
+         file,
+         "ppt/slides/slide1.xml",
+         new String[]{"<p:sld", "<a:t>"},
+         new String[]{
+            "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM \""
+               + TestMSXPPTDocumentReader.class.getResource("/test123.txt") + "\">]><p:sld", "<a:t>&xxe;"});
+      is = new FileInputStream(file);
+      try
+      {
+         String text =
+            service.getDocumentReader("application/vnd.openxmlformats-officedocument.presentationml.presentation")
+               .getContentAsText(is);
+         String etalon =
+            "TEST POWERPOINT " + "Manchester United " + "AC Milan " + "SLIDE 2 " + "Eric Cantona " + "Kaka "
+               + "Ronaldo " + "The natural scients universitys ";
+
+         assertEquals("Wrong string returned", etalon, text);
+      }
+      finally
+      {
+         is.close();
+      }
+   }
 
    public void testGetContentAsStringXEE() throws Exception
    {
