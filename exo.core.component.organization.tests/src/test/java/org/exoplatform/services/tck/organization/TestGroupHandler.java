@@ -272,6 +272,41 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
       assertEquals(2, listener.postDelete);
    }
 
+    /**
+     * Test add new group same name with existing one
+     * @throws Exception
+     */
+    public void testAddDuplicateChild() throws Exception {
+        // Create parent group
+        String parentName = "testAddDuplicateChild_GroupParent";
+        Group groupParent = gHandler.createGroupInstance();
+        groupParent.setGroupName(parentName);
+        groupParent.setDescription("This is description");
+        gHandler.addChild(null, groupParent, true);
+        groupParent = gHandler.findGroupById(groupParent.getId());
+
+        /* Create a child group with name: Group1 */
+        Group groupChild1 = gHandler.createGroupInstance();
+        groupChild1.setGroupName("testAddDuplicateChild");
+        groupChild1.setLabel("Group1 Label");
+        gHandler.addChild(groupParent, groupChild1, true);
+        assertEquals(gHandler.findGroupById(groupChild1.getId()).getLabel(), "Group1 Label");
+
+        try {
+            // Add new child same name with existing one
+            Group groupChild2 = gHandler.createGroupInstance();
+            groupChild2.setGroupName("testAddDuplicateChild");
+            groupChild2.setLabel("Group2 Label");
+            gHandler.addChild(groupParent, groupChild2, true);
+
+            fail("Exception should be thrown because group child is existing");
+        } catch (Exception ex) {
+
+        }
+        // Label of the existing group is not updated
+        assertEquals(gHandler.findGroupById(groupChild1.getId()).getLabel(), "Group1 Label");
+    }
+
    /**
     * Create group.
     */
