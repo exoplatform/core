@@ -34,6 +34,7 @@ import javax.naming.ldap.SortControl;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
+@Deprecated
 public class SimpleLdapUserListAccess extends LdapListAccess<User>
 {
 

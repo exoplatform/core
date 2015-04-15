@@ -37,7 +37,7 @@ import javax.naming.ldap.LdapContext;
  * Created by The eXo Platform SAS .
  * Author : James Chamberlain james.chamberlain@gmail.com
  */
-
+@Deprecated
 public class ADUserDAOImpl extends UserDAOImpl
 {
 

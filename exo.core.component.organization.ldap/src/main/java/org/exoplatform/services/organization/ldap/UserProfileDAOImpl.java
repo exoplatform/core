@@ -50,6 +50,7 @@ import javax.naming.ldap.LdapContext;
  * Created by The eXo Platform SAS Author : Tuan Nguyen
  * tuan08@users.sourceforge.net Oct 14, 2005. @version andrew00x $
  */
+@Deprecated
 public class UserProfileDAOImpl extends BaseDAO implements UserProfileHandler, UserProfileEventListenerHandler
 {
 

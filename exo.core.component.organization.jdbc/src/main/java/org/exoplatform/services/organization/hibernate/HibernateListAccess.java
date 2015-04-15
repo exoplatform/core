@@ -60,6 +60,7 @@ import java.util.Map.Entry;
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
  * @version $Id: HibernateUserListAccess.java 111 2008-11-11 11:11:11Z $
  */
+@Deprecated
 public class HibernateListAccess<E> implements ListAccess<E>
 {
 

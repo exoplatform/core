@@ -36,6 +36,7 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
+@Deprecated
 public class ByGroupLdapUserListAccess extends LdapListAccess<User>
 {
 

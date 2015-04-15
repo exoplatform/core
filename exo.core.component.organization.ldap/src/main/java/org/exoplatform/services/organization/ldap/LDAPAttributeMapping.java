@@ -40,6 +40,7 @@ import javax.naming.directory.BasicAttributes;
  * Created by The eXo Platform SAS Author : Tuan Nguyen
  * tuan08@users.sourceforge.net Oct 13, 2005
  */
+@Deprecated
 public class LDAPAttributeMapping
 {
 

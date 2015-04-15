@@ -47,6 +47,7 @@ import javax.naming.InvalidNameException;
  * Author : Tuan Nguyen tuan08@users.sourceforge.net
  * Date: Aug 22, 2003 Time: 4:51:21 PM
  */
+@Deprecated
 public class UserProfileDAOImpl implements UserProfileHandler, UserProfileEventListenerHandler
 {
    static private UserProfile NOT_FOUND = new UserProfileImpl();

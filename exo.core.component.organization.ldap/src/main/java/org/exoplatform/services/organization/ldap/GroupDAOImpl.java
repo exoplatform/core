@@ -58,6 +58,7 @@ import javax.naming.ldap.LdapContext;
  * 
  * @version andrew00x $
  */
+@Deprecated
 public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventListenerHandler
 {
 

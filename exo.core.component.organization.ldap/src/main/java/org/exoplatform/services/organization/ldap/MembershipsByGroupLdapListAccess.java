@@ -33,6 +33,7 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="abazko@exoplatform.com">Anatoliy Bazko</a>
  * @version $Id: MembershipByGroupListAccess.java 34360 2009-07-22 23:58:59Z tolusha $
  */
+@Deprecated
 public class MembershipsByGroupLdapListAccess extends LdapListAccess<Membership>
 {
 

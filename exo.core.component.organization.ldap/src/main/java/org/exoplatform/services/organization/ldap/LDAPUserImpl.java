@@ -27,6 +27,7 @@ import org.exoplatform.services.organization.impl.UserImpl;
  * @version $Id$
  *
  */
+@Deprecated
 public class LDAPUserImpl extends UserImpl
 {
 

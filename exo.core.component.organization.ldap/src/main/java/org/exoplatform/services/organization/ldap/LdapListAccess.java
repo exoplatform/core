@@ -28,6 +28,7 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
+@Deprecated
 public abstract class LdapListAccess<E> implements ListAccess<E>
 {
 

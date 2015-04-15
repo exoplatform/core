@@ -40,6 +40,7 @@ import javax.naming.ldap.LdapContext;
  * Created by The eXo Platform SAS Author : Thuannd nhudinhthuan@yahoo.com Feb
  * 14, 2006
  */
+@Deprecated
 public class OrganizationLdapInitializer extends BaseComponentPlugin implements OrganizationServiceInitializer,
    ComponentPlugin
 {

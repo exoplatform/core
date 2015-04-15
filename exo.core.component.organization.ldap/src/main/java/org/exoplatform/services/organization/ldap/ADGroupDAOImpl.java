@@ -39,6 +39,7 @@ import javax.naming.ldap.LdapContext;
  * james.chamberlain@gmail.com Feb 22, 2006
  * @version andrew00x $
  */
+@Deprecated
 public class ADGroupDAOImpl extends GroupDAOImpl
 {
 

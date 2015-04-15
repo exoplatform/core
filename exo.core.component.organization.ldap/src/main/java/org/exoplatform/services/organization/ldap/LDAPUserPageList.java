@@ -42,8 +42,8 @@ import javax.naming.ldap.SortControl;
 /**
  * Created by VietSpider Studio Author : Nhu Dinh Thuan nhudinhthuan@yahoo.com
  * Dec 7, 2005, @version andrew00x $
- * @deprecated
  */
+@Deprecated
 public class LDAPUserPageList extends PageList
 {
 

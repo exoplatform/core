@@ -51,6 +51,7 @@ import java.util.List;
  * Author : Tuan Nguyen tuan08@users.sourceforge.net
  * Date: Aug 22, 2003 Time: 4:51:21 PM
  */
+@Deprecated
 public class UserDAOImpl implements UserHandler, UserEventListenerHandler, ExtendedUserHandler
 {
    public static final String queryFindUserByName =

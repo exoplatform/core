@@ -35,6 +35,7 @@ import javax.naming.ldap.LdapContext;
  * Created by The eXo Platform SAS Author : Thuannd nhudinhthuan@yahoo.com Feb
  * 22, 2006. @version andrew00x $
  */
+@Deprecated
 public class ADSearchBySID
 {
 
