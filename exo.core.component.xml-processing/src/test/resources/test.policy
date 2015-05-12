@@ -7,4 +7,5 @@ grant codeBase "@MAIN_CLASSES@-"{
 };
 
 grant codeBase "@TEST_CLASSES@-"{
+   permission java.lang.RuntimePermission  "accessClassInPackage.com.ibm.xtq.xml.xdm.ref";
 };
