@@ -32,7 +32,7 @@
 
    <groupId>org.exoplatform.core</groupId>
    <artifactId>core-parent</artifactId>
-   <version>2.5.x-SNAPSHOT</version>
+   <version>2.5.13-GA</version>
    <packaging>pom</packaging>
 
    <name>eXo Core</name>
@@ -53,7 +53,7 @@
       <connection>scm:git:git://github.com/exoplatform/core.git</connection>
       <developerConnection>scm:git:git@github.com:exoplatform/core.git</developerConnection>
       <url>https://fisheye.exoplatform.org/browse/core-dev</url>
-     <tag>HEAD</tag>
+     <tag>2.5.13-GA</tag>
   </scm>
 
    <modules>
