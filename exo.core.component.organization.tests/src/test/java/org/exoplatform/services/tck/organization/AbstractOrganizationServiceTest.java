@@ -62,7 +62,7 @@ public class AbstractOrganizationServiceTest extends TestCase
 
    protected String userName = "user";
 
-   protected String newUserName = "newUser";
+   protected String newUserName = "newuser";
 
    protected String groupName1 = "group1";
 

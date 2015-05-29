@@ -72,7 +72,7 @@ public class UserImpl implements User, ExtendedCloneable
 
    public UserImpl(String username)
    {
-      this.userName = username;
+      this.userName = username.toLowerCase();
    }
 
    public String getDisplayName()
@@ -102,7 +102,7 @@ public class UserImpl implements User, ExtendedCloneable
 
    public void setUserName(String name)
    {
-      this.userName = name;
+      this.userName = name.toLowerCase();
    }
 
    public String getPassword()
