@@ -281,9 +281,10 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
         String parentName = "testAddDuplicateChild_GroupParent";
         Group groupParent = gHandler.createGroupInstance();
         groupParent.setGroupName(parentName);
+        groupParent.setLabel("GroupParent Label");
         groupParent.setDescription("This is description");
         gHandler.addChild(null, groupParent, true);
-        gHandler.findGroupById(groupParent.getId());
+       assertEquals(gHandler.findGroupById(groupParent.getId()).getLabel(), "GroupParent Label");
 
         /* Create a child group with name: Group1 */
         Group groupChild1 = gHandler.createGroupInstance();
