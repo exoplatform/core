@@ -22,8 +22,9 @@ import org.exoplatform.container.component.ThreadContext;
 import org.exoplatform.container.component.ThreadContextHolder;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by The eXo Platform SAS<br>
@@ -55,12 +56,12 @@ public class ConversationState implements ThreadContextHolder
    /**
     * Additions attributes of ConversationState.
     */
-   private HashMap<String, Object> attributes;
+   private ConcurrentMap<String, Object> attributes;
 
    public ConversationState(Identity identity)
    {
       this.identity = identity;
-      this.attributes = new HashMap<String, Object>();
+      this.attributes = new ConcurrentHashMap<String, Object>();
    }
 
    /**
