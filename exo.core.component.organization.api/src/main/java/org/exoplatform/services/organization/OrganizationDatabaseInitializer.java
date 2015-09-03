@@ -26,6 +26,7 @@ import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
+import java.util.Date;
 import java.util.List;
 
 public class OrganizationDatabaseInitializer extends BaseComponentPlugin implements OrganizationServiceInitializer,
@@ -136,13 +137,20 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
       for (int i = 0; i < types.size(); i++)
       {
          OrganizationConfig.MembershipType data = (OrganizationConfig.MembershipType)types.get(i);
-         if (service.getMembershipTypeHandler().findMembershipType(data.getType()) == null)
+         MembershipType membershipType= service.getMembershipTypeHandler().findMembershipType(data.getType());
+         if (membershipType == null)
          {
             MembershipType type = service.getMembershipTypeHandler().createMembershipTypeInstance();
             type.setName(data.getType());
             type.setDescription(data.getDescription());
             service.getMembershipTypeHandler().createMembershipType(type, true);
             printInfo("    Created Membership Type " + data.getType());
+         }
+         else if (membershipType.getName().equals(MembershipTypeHandler.ANY_MEMBERSHIP_TYPE))
+         {
+
+            membershipType.setDescription(data.getDescription());
+
          }
          else
          {
