@@ -19,6 +19,7 @@ package org.exoplatform.services.tck.organization;
 import junit.framework.TestCase;
 
 import org.exoplatform.container.StandaloneContainer;
+import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.MembershipHandler;
@@ -62,6 +63,8 @@ public class AbstractOrganizationServiceTest extends TestCase
 
    protected String userName = "user";
 
+   protected String cachedUserName = "cachedUser";
+
    protected String newUserName = "newUser";
 
    protected String groupName1 = "group1";
@@ -69,6 +72,8 @@ public class AbstractOrganizationServiceTest extends TestCase
    protected String groupName2 = "group2";
 
    protected StandaloneContainer container;
+
+   protected CacheService cacheService;
 
    /**
     * The list of users which have been created during test. 
@@ -110,6 +115,8 @@ public class AbstractOrganizationServiceTest extends TestCase
       OrganizationService organizationService =
          (OrganizationService)container.getComponentInstanceOfType(OrganizationService.class);
 
+      cacheService = (CacheService)container.getComponentInstanceOfType(CacheService.class);
+
       gHandler = organizationService.getGroupHandler();
       uHandler = organizationService.getUserHandler();
       mHandler = organizationService.getMembershipHandler();
@@ -118,6 +125,7 @@ public class AbstractOrganizationServiceTest extends TestCase
 
       users.add(userName);
       users.add(newUserName);
+      users.add(cachedUserName);
 
       groups.add("/" + groupName1);
       groups.add("/" + groupName1 + "/" + groupName2);

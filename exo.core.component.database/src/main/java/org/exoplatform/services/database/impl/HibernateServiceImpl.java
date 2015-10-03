@@ -38,6 +38,7 @@ import org.hibernate.MappingException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 
 import java.io.Serializable;
 import java.net.URL;
@@ -58,6 +59,12 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
 {
 
    public static final String AUTO_DIALECT = "AUTO";
+
+   private static final String USER_PROFILE_DATA_ENTITY_PATH =
+           "org.exoplatform.services.organization.impl.UserProfileData";
+
+   private static final String USER_PROFILE_DATA_ENTITY_HSQL_PATH =
+           "org.exoplatform.services.organization.impl.UserProfileDataHsql";
 
    private ThreadLocal<Session> threadLocal_;
 
@@ -125,15 +132,32 @@ public class HibernateServiceImpl implements HibernateService, ComponentRequestL
 
             // Annotations
             List<String> annotations = impl.getAnnotations();
+            //Need to create tem SessionFactory in order to get Dialect Informations
+            SessionFactory tempSessionFactory = conf_.buildSessionFactory();
+            boolean hsqlDialect = ((SessionFactoryImplementor) tempSessionFactory).getDialect() != null &&
+                    ((SessionFactoryImplementor) tempSessionFactory).getDialect().toString().contains("HSQL") ?
+                    true:false;
 
+            if (tempSessionFactory != null && !tempSessionFactory.isClosed()) {
+               tempSessionFactory.close();
+            }
+            tempSessionFactory = null;
             if (annotations != null)
             {
                for (String annotation : annotations)
                {
-                  Class<?> clazz = ClassLoading.loadClass(annotation, this);
-                  LOG.info("Adding  Hibernate Annotated class: " + annotation);
+                  Class<?> clazz;
+                  if ( hsqlDialect && annotation.compareTo(USER_PROFILE_DATA_ENTITY_PATH) == 0 ){
+                     clazz = ClassLoading.loadClass(USER_PROFILE_DATA_ENTITY_HSQL_PATH, this);
+                     LOG.info("Adding  Hibernate Annotated class: " + USER_PROFILE_DATA_ENTITY_HSQL_PATH);
+                  }
+                  else {
+                     clazz = ClassLoading.loadClass(annotation, this);
+                     LOG.info("Adding  Hibernate Annotated class: " + annotation);
+                  }
                   conf_.addAnnotatedClass(clazz);
                }
+
             }
          }
          catch (MappingException ex)

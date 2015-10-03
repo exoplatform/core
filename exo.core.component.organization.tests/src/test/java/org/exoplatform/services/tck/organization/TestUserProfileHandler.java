@@ -70,6 +70,25 @@ public class TestUserProfileHandler extends AbstractOrganizationServiceTest
    }
 
    /**
+    * Find user profile by name with Empty Cache
+    */
+   public void testFindUserProfileByNameEmptyCache() throws Exception
+   {
+      createUser(cachedUserName);
+      createUserProfile(cachedUserName);
+      cacheService.getCacheInstance(upHandler.getClass().getName()).clearCache();
+      try
+      {
+         assertNotNull(upHandler.findUserProfileByName(cachedUserName));
+      }
+      catch (Exception e)
+      {
+         e.printStackTrace();
+         fail("Exception should not be thrown");
+      }
+   }
+
+   /**
     * Find user profiles.
     */
    public void testFindUserProfiles() throws Exception

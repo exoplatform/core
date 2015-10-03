@@ -54,6 +54,9 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
    public static final String queryFindUserByName =
       "from org.exoplatform.services.organization.impl.UserImpl where userName = :id";
 
+   private static final String USER_PROFILE_DATA_ENTITY_HSQL_PATH =
+           "org.exoplatform.services.organization.impl.UserProfileDataHsql";
+
    private HibernateService service_;
 
    private ExoCache<String, User> cache_;
@@ -160,7 +163,13 @@ public class UserDAOImpl implements UserHandler, UserEventListenerHandler, Exten
          preDelete(foundUser);
 
       session.delete(foundUser);
-      ((UserProfileDAOImpl)orgService.getUserProfileHandler()).removeUserProfileEntry(userName, session);
+      if ( service_.getSessionFactory().getClassMetadata(USER_PROFILE_DATA_ENTITY_HSQL_PATH) != null) {
+         ((UserProfileDAOHsqlImpl) orgService.getUserProfileHandler()).removeUserProfileEntry(userName, session);
+      }
+      else
+      {
+         ((UserProfileDAOImpl) orgService.getUserProfileHandler()).removeUserProfileEntry(userName, session);
+      }
       MembershipDAOImpl.removeMembershipEntriesOfUser(userName, session);
 
       session.flush();

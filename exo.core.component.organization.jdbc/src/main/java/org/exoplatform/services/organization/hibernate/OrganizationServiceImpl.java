@@ -31,12 +31,18 @@ import org.picocontainer.Startable;
  */
 public class OrganizationServiceImpl extends BaseOrganizationService implements Startable
 {
-
+   private static final String USER_PROFILE_DATA_ENTITY_HSQL_PATH =
+           "org.exoplatform.services.organization.impl.UserProfileDataHsql";
    public OrganizationServiceImpl(HibernateService hservice, CacheService cservice) throws Exception
    {
 
       userDAO_ = new UserDAOImpl(hservice, cservice, this);
-      userProfileDAO_ = new UserProfileDAOImpl(hservice, cservice, userDAO_);
+      if ( hservice.getSessionFactory().getClassMetadata(USER_PROFILE_DATA_ENTITY_HSQL_PATH) != null ) {
+         userProfileDAO_ = new UserProfileDAOHsqlImpl(hservice, cservice, userDAO_);
+      }
+      else {
+         userProfileDAO_ = new UserProfileDAOImpl(hservice, cservice, userDAO_);
+      }
       groupDAO_ = new GroupDAOImpl(hservice);
       membershipTypeDAO_ = new MembershipTypeDAOImpl(hservice);
       membershipDAO_ = new MembershipDAOImpl(hservice, this);

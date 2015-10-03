@@ -25,6 +25,7 @@ import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.organization.BaseOrganizationService;
 import org.exoplatform.services.organization.CacheHandler;
+import org.exoplatform.services.organization.hibernate.UserProfileDAOHsqlImpl;
 import org.exoplatform.services.organization.hibernate.UserProfileDAOImpl;
 
 /**
@@ -41,6 +42,10 @@ public class OrganizationServiceImpl extends BaseOrganizationService
     * @param cservice see {@link CacheService}
     * @throws Exception if any errors occurs
     */
+
+   private static final String USER_PROFILE_DATA_ENTITY_HSQL_PATH =
+           "org.exoplatform.services.organization.impl.UserProfileDataHsql";
+
    public OrganizationServiceImpl(InitParams params, LDAPService ldapService, HibernateService hservice,
       CacheService cservice) throws Exception
    {
@@ -67,7 +72,12 @@ public class OrganizationServiceImpl extends BaseOrganizationService
          membershipDAO_ = new MembershipDAOImpl(ldapAttrMapping, ldapService, this, cacheHandler);
       }
       // userProfileHandler_ = new UserProfileHandlerImpl(ldapAttrMapping, ldapService) ;
-      userProfileDAO_ = new UserProfileDAOImpl(hservice, cservice, userDAO_);
+      if ( hservice.getSessionFactory().getClassMetadata(USER_PROFILE_DATA_ENTITY_HSQL_PATH) != null ) {
+         userProfileDAO_ = new UserProfileDAOHsqlImpl(hservice, cservice, userDAO_);
+      }
+      else {
+         userProfileDAO_ = new UserProfileDAOImpl(hservice, cservice, userDAO_);
+      }
       membershipTypeDAO_ = new MembershipTypeDAOImpl(ldapAttrMapping, ldapService, cacheHandler);
 
       ValueParam param = params.getValueParam("ldap.userDN.key");
