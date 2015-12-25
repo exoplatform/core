@@ -239,7 +239,7 @@
          <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
-            <version>1.8.2</version>
+            <version>1.8.10</version>
          </dependency>
          
          <dependency>
@@ -251,19 +251,19 @@
          <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <version>3.10.1</version>
+            <version>3.13</version>
          </dependency>
 
          <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-scratchpad</artifactId>
-            <version>3.10.1</version>
+            <version>3.13</version>
          </dependency>
 
          <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>3.10.1</version>
+            <version>3.13</version>
          </dependency>
 
          <dependency>
@@ -311,13 +311,13 @@
         <dependency>
            <groupId>org.apache.tika</groupId>
            <artifactId>tika-core</artifactId>
-           <version>1.5</version>
+           <version>1.11</version>
         </dependency>
 
         <dependency>
            <groupId>org.apache.tika</groupId>
            <artifactId>tika-parsers</artifactId>
-           <version>1.5</version>
+           <version>1.11</version>
         </dependency>
 
         <dependency>

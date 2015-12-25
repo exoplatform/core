@@ -49,7 +49,10 @@ public class TestMSExcelOnTikaDocumentReader extends BaseStandaloneTest
          String text = service.getDocumentReader("application/excel").getContentAsText(is);
 
          String expected =
-            "Sheet2 Ronaldo Eric Cantona Kaka Ronaldonho Sheet1 ID Group Functionality Executor Begin End "
+            "Sheet2 Ronaldo Eric Cantona Kaka Ronaldonho "
+               + "&C&\"Times New Roman,Regular\"&12&A "
+               + "&C&\"Times New Roman,Regular\"&12Page &P "
+               + "Sheet1 ID Group Functionality Executor Begin End "
                + "Tested XNNL XNNL Xay dung vung quan li nguyen lieu NamPH 2/2/05 10/02/2005 "
                + "Tested XNNL XNNL XNNL_HAVEST NamPH 1223554 10/01/2005 "
                + "Tested XNNL XNNL XNNL_PIECE_OF_GROUND NamPH 10/12/05 10/02/2005 "
@@ -86,7 +89,10 @@ public class TestMSExcelOnTikaDocumentReader extends BaseStandaloneTest
 
          String text = buf.toString();
          String expected =
-            "Sheet2 Ronaldo Eric Cantona Kaka Ronaldonho Sheet1 ID Group Functionality Executor Begin End "
+            "Sheet2 Ronaldo Eric Cantona Kaka Ronaldonho "
+               + "&C&\"Times New Roman,Regular\"&12&A "
+               + "&C&\"Times New Roman,Regular\"&12Page &P "
+               + "Sheet1 ID Group Functionality Executor Begin End "
                + "Tested XNNL XNNL Xay dung vung quan li nguyen lieu NamPH 2/2/05 10/02/2005 "
                + "Tested XNNL XNNL XNNL_HAVEST NamPH 1223554 10/01/2005 "
                + "Tested XNNL XNNL XNNL_PIECE_OF_GROUND NamPH 10/12/05 10/02/2005 "

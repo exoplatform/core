@@ -191,7 +191,7 @@ public class PDFDocumentReader extends BaseDocumentReader
                      {
                         pdDocument.decrypt("");
                      }
-                     catch (InvalidPasswordException e)
+                     catch (IOException e)
                      {
                         throw new DocumentReadException("The pdf document is encrypted.", e);
                      }
