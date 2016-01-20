@@ -105,7 +105,8 @@ public class OrganizationDatabaseInitializer extends BaseComponentPlugin impleme
             groupId = "/" + data.getName();
          else
             groupId = data.getParentId() + "/" + data.getName();
-
+         if (groupId.indexOf("/") > 0)
+            groupId = "/".concat(groupId);
          if (orgService.getGroupHandler().findGroupById(groupId) == null)
          {
             Group group = orgService.getGroupHandler().createGroupInstance();
