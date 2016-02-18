@@ -68,7 +68,7 @@ public interface DiffService extends ToString
 
    /**
     * Converts an array of {@link Object Object} to a string using
-    * {@link Diff#NL Diff.NL} as the line separator.
+    * {@link DiffService#NL} as the line separator.
     * 
     * @param o the array of objects.
     */

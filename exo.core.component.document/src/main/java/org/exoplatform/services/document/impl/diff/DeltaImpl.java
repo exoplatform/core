@@ -131,7 +131,7 @@ public abstract class DeltaImpl implements Delta
     * Applies this delta as a patch to the given text.
     * 
     * @param target the text to patch.
-    * @throws PatchFailedException if the patch cannot be applied.
+    * @throws Exception if the patch cannot be applied.
     */
    public final void patch(List target) throws Exception
    {
@@ -143,7 +143,6 @@ public abstract class DeltaImpl implements Delta
     * Applies this delta as a patch to the given text.
     * 
     * @param target the text to patch.
-    * @throws PatchFailedException if the patch cannot be applied.
     */
    public abstract void applyTo(List target);
 

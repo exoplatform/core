@@ -38,7 +38,7 @@ public class ExoCacheAccessStrategy implements RegionAccessStrategy
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public Object get(Object key, long txTimestamp) throws CacheException
    {
@@ -46,7 +46,7 @@ public class ExoCacheAccessStrategy implements RegionAccessStrategy
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public boolean putFromLoad(Object key, Object value, long txTimestamp, Object version) throws CacheException
    {
@@ -55,7 +55,7 @@ public class ExoCacheAccessStrategy implements RegionAccessStrategy
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public boolean putFromLoad(Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride)
       throws CacheException
@@ -65,7 +65,7 @@ public class ExoCacheAccessStrategy implements RegionAccessStrategy
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public SoftLock lockItem(Object key, Object version) throws CacheException
    {
@@ -73,7 +73,7 @@ public class ExoCacheAccessStrategy implements RegionAccessStrategy
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public SoftLock lockRegion() throws CacheException
    {
@@ -81,21 +81,21 @@ public class ExoCacheAccessStrategy implements RegionAccessStrategy
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public void unlockItem(Object key, SoftLock lock) throws CacheException
    {
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public void unlockRegion(SoftLock lock) throws CacheException
    {
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public void remove(Object key) throws CacheException
    {
@@ -103,7 +103,7 @@ public class ExoCacheAccessStrategy implements RegionAccessStrategy
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public void removeAll() throws CacheException
    {
@@ -111,7 +111,7 @@ public class ExoCacheAccessStrategy implements RegionAccessStrategy
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public void evict(Object key) throws CacheException
    {
@@ -119,7 +119,7 @@ public class ExoCacheAccessStrategy implements RegionAccessStrategy
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public void evictAll() throws CacheException
    {

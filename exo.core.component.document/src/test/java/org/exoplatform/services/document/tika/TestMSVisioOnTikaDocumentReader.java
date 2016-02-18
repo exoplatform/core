@@ -10,7 +10,7 @@ import java.io.Reader;
 /**
  * Created by The eXo Platform SAS.
  *
- * <br/>Date:
+ * <br>Date:
  *
  * @author <a href="aboughzela@exoplatform.com">Aymen Boughzela</a>
  * @version $Id: TestMSVisioOnTikaDocumentReader.java

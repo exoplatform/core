@@ -27,7 +27,7 @@ import java.util.Hashtable;
 /**
  * Created by The eXo Platform SAS . Conversions between IANA encoding names and
  * Java encoding names,
- * @see http://java.sun.com/j2se/1.5.0/docs/guide/intl/encoding.doc.html 
+ * See http://java.sun.com/j2se/1.5.0/docs/guide/intl/encoding.doc.html
  *
  * @author <a href="mailto:alex.kravchuk@gmail.com">Alexander Kravchuk</a>
  * @version $Id:

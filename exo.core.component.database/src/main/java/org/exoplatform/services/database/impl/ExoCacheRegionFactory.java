@@ -58,21 +58,21 @@ public class ExoCacheRegionFactory implements RegionFactory
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public void start(Settings settings, Properties properties) throws CacheException
    {
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public void stop()
    {
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public boolean isMinimalPutsEnabledByDefault()
    {
@@ -80,7 +80,7 @@ public class ExoCacheRegionFactory implements RegionFactory
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public AccessType getDefaultAccessType()
    {
@@ -88,7 +88,7 @@ public class ExoCacheRegionFactory implements RegionFactory
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public long nextTimestamp()
    {
@@ -96,7 +96,7 @@ public class ExoCacheRegionFactory implements RegionFactory
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public EntityRegion buildEntityRegion(String regionName, Properties properties, CacheDataDescription metadata)
       throws CacheException
@@ -107,7 +107,7 @@ public class ExoCacheRegionFactory implements RegionFactory
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public NaturalIdRegion buildNaturalIdRegion(String regionName, Properties properties, CacheDataDescription metadata)
       throws CacheException
@@ -118,7 +118,7 @@ public class ExoCacheRegionFactory implements RegionFactory
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public CollectionRegion buildCollectionRegion(String regionName, Properties properties, CacheDataDescription metadata)
       throws CacheException
@@ -129,7 +129,7 @@ public class ExoCacheRegionFactory implements RegionFactory
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public QueryResultsRegion buildQueryResultsRegion(String regionName, Properties properties) throws CacheException
    {
@@ -139,7 +139,7 @@ public class ExoCacheRegionFactory implements RegionFactory
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public TimestampsRegion buildTimestampsRegion(String regionName, Properties properties) throws CacheException
    {

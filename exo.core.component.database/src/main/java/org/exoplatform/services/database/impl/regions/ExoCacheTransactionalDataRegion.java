@@ -39,7 +39,7 @@ public class ExoCacheTransactionalDataRegion extends ExoCacheGeneralDataRegion i
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public boolean isTransactionAware()
    {
@@ -47,7 +47,7 @@ public class ExoCacheTransactionalDataRegion extends ExoCacheGeneralDataRegion i
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public CacheDataDescription getCacheDataDescription()
    {

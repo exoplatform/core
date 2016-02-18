@@ -41,7 +41,7 @@ public class ExoCacheNaturalIdRegion extends ExoCacheTransactionalDataRegion imp
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public NaturalIdRegionAccessStrategy buildAccessStrategy(AccessType accessType) throws CacheException
    {

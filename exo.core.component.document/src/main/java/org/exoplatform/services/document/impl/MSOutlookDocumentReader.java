@@ -29,8 +29,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko - sergey.karpenko@exoplatform.com.ua
  * 
  * @version $Id: $
  */

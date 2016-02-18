@@ -109,10 +109,12 @@ public class DBCreator
    /**
     * DBCreator constructor.
     * 
-    * @param params
-    *          Initializations parameters
-    * @configurationManager 
-    *          configuration manager instance          
+    * @param serverUrl Server URL
+    * @param connectionProperties Connection properties
+    * @param scriptPath Script path
+    * @param dbUserName DB username
+    * @param dbPassword DB password
+    * @param cm configuration manager instance
     */
    public DBCreator(String serverUrl, Map<String, String> connectionProperties, String scriptPath, String dbUserName,
       String dbPassword, ConfigurationManager cm) throws ConfigurationException
@@ -129,7 +131,7 @@ public class DBCreator
     * 
     * @param params
     *          Initializations parameters
-    * @configurationManager 
+    * @param cm
     *          configuration manager instance          
     */
    public DBCreator(InitParams params, ConfigurationManager cm) throws ConfigurationException

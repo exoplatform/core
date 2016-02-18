@@ -38,10 +38,7 @@ public abstract class LdapListAccess<E> implements ListAccess<E>
    protected LDAPService ldapService;
 
    /**
-    * @param ldapAttrMapping LDAP attribute to organization service essences 
     * @param ldapService LDAP service
-    * @param searchBase base search DN
-    * @param filter search filter
     */
    public LdapListAccess(LDAPService ldapService)
    {

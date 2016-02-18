@@ -35,7 +35,6 @@ import java.util.List;
  * Jul 20, 2004
  * 
  * @author: Tuan Nguyen
- * @email: tuan08@users.sourceforge.net
  * @version: $Id: NewUserEventListener.java 13079 2007-03-01 15:30:35Z tuan08 $
  */
 public class NewUserEventListener extends UserEventListener

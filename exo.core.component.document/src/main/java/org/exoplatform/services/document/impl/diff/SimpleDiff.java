@@ -31,14 +31,13 @@ import java.util.Set;
  * Implements a simple differencing algortithm.
  * <p>
  * 
- * @date $Date: 2003/10/13 08:00:24 $
  * @version $Revision: 1.7 $
  * @author <a href="mailto:juanco@suigeneris.org">Juanco Anez</a>
  *         <p>
  *         <b>Overview of Algorithm</b>
  *         </p>
  *         <p>
- *         <i>by <a href='http://www.topmeadow.net/bwm'> bwm</a>
+ *         <i>by <a href='http://www.topmeadow.net/bwm'> bwm</a></i>
  *         </p>
  *         <p>
  *         The algorithm is optimised for situations where the input sequences

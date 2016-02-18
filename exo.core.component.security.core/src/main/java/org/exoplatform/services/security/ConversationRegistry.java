@@ -71,8 +71,8 @@ public final class ConversationRegistry
 
    /**
     * @param params
-    * @param identityRegistry @see {@link IdentityRegistry}
-    * @param listenerService @see {@link ListenerService}
+    * @param identityRegistry {@link IdentityRegistry}
+    * @param listenerService {@link ListenerService}
     */
    public ConversationRegistry(InitParams params, IdentityRegistry identityRegistry, ListenerService listenerService)
    {
@@ -131,8 +131,7 @@ public final class ConversationRegistry
     * message to interested listeners.
     * 
     * @param key the session identifier.
-    * @param session the session.
-    * @param makeCurrent the store or not the session into thread local.
+    * @param state the conversation state.
     */
    public void register(StateKey key, ConversationState state)
    {

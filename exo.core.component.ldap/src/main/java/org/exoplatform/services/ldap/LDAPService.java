@@ -53,7 +53,7 @@ public interface LDAPService
     * @param renew should be created new LdapContext
     * @return {@link LdapContext}
     * @throws NamingException if errors occurs when try to get context
-    * @see {@link #getLdapContext()}
+    * @see #getLdapContext()
     */
    LdapContext getLdapContext(boolean renew) throws NamingException;
 

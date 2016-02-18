@@ -62,16 +62,17 @@ public class MSExcelDocumentReader extends BaseDocumentReader
 
    /**
     * Returns only a text from .xls file content with the following rules:
-    * <p/>
+    * <br>
     * we only index :
     * <ul>
     * <li>a maximum of 5000 cells</li>
     * <li>after 5000 cells processed, we abort the parsing</li>
     * </ul>
-    * <p/>
+    * <br>
     * we KEEP only the following data :
+    * <ul>
     * <li> tab name {@link org.apache.poi.hssf.record.BoundSheetRecord}</li>
-    * <li> cells with string with a length > 2 chars (Strings which are not the result of a formula) ({@link org.apache.poi.hssf.record.LabelSSTRecord}}</li>
+    * <li> cells with string with a {@literal length > 2 chars} (Strings which are not the result of a formula) ({@link org.apache.poi.hssf.record.LabelSSTRecord}}</li>
     * </ul>
     * we SKIP the following data :
     * <ul>

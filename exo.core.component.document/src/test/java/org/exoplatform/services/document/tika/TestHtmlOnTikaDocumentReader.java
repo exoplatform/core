@@ -27,7 +27,7 @@ import java.io.InputStream;
  * Created by The eXo Platform SAS.
  * 
  * //TODO there is no support for application/xhtml+xml (html with <?xml version="1.0" encoding="UTF-8" standalone="no"?>
- * <br/>Date: 
+ * <br>Date:
  *
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
  * @version $Id: TestHtmlOnTikaDocumentReader.java 111 2008-11-11 11:11:11Z serg $

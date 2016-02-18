@@ -169,7 +169,7 @@ public class TextClobType implements UserType
 
    /**
     * @throws HibernateException
-    * @see net.sf.hibernate.UserType#deepCopy(java.lang.Object)
+    * @see UserType#deepCopy(java.lang.Object)
     */
    public Object deepCopy(Object value) throws HibernateException
    {
@@ -182,7 +182,7 @@ public class TextClobType implements UserType
    }
 
    /**
-    * @see net.sf.hibernate.UserType#isMutable()
+    * @see UserType#isMutable()
     */
    public boolean isMutable()
    {
@@ -201,8 +201,7 @@ public class TextClobType implements UserType
     * @return
     * @throws HibernateException
     * @throws SQLException
-    * @see net.sf.hibernate.UserType#nullSafeGet(java.sql.ResultSet,
-    *      java.lang.String[], java.lang.Object)
+    * @see UserType#nullSafeGet(ResultSet, String[], SessionImplementor, Object)
     */
    public Object nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException
    {

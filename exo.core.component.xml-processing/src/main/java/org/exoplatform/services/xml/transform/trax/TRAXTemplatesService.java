@@ -40,7 +40,7 @@ public interface TRAXTemplatesService
     * Add new TRAXTemplates to the service from javax.xml.transform.Source.
     * 
     * @param key the key for this templates.
-    * @param templates the TRAXTemplates.
+    * @param source the TRAXTemplates.
     * @throws IllegalArgumentException
     */
    void addTRAXTemplates(String key, Source source) throws IllegalArgumentException;

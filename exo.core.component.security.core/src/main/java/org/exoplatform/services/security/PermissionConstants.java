@@ -38,7 +38,7 @@ public class PermissionConstants
       new RuntimePermission("modifyConversationState");
 
    /**
-    * Permission to manage (i.e. register/unregister) {@link Listener}
+    * Permission to manage (i.e. register/unregister) Listener
     */
    public static final RuntimePermission MANAGE_LISTENERS = new RuntimePermission("manageListeners");
 

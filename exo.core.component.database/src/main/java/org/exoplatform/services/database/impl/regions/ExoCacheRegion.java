@@ -40,7 +40,7 @@ public class ExoCacheRegion implements Region
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public String getName()
    {
@@ -48,14 +48,14 @@ public class ExoCacheRegion implements Region
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public void destroy() throws CacheException
    {
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public boolean contains(Object key)
    {
@@ -63,7 +63,7 @@ public class ExoCacheRegion implements Region
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public long getSizeInMemory()
    {
@@ -71,7 +71,7 @@ public class ExoCacheRegion implements Region
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public long getElementCountInMemory()
    {
@@ -79,7 +79,7 @@ public class ExoCacheRegion implements Region
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public long getElementCountOnDisk()
    {
@@ -87,7 +87,7 @@ public class ExoCacheRegion implements Region
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public Map<Serializable, Object> toMap()
    {
@@ -95,7 +95,7 @@ public class ExoCacheRegion implements Region
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public long nextTimestamp()
    {
@@ -103,7 +103,7 @@ public class ExoCacheRegion implements Region
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public int getTimeout()
    {

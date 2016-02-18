@@ -36,7 +36,7 @@ public class ExoCacheCollectionRegionReadWriteAccessStrategy extends ExoCacheAcc
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public CollectionRegion getRegion()
    {

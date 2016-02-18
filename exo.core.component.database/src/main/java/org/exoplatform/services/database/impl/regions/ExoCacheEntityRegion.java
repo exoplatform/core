@@ -41,7 +41,7 @@ public class ExoCacheEntityRegion extends ExoCacheTransactionalDataRegion implem
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public EntityRegionAccessStrategy buildAccessStrategy(AccessType accessType) throws CacheException
    {

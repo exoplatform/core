@@ -53,7 +53,7 @@ public class NotSupportedIOTypeException extends Exception
    /**
     * Constructs an Exception with a detailed message.
     * 
-    * @param Message The message associated with the exception.
+    * @param message The message associated with the exception.
     */
    public NotSupportedIOTypeException(String message)
    {

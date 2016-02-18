@@ -37,7 +37,7 @@ public class ExoCacheGeneralDataRegion extends ExoCacheRegion implements General
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public Object get(Object key) throws CacheException
    {
@@ -52,7 +52,7 @@ public class ExoCacheGeneralDataRegion extends ExoCacheRegion implements General
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public void put(Object key, Object value) throws CacheException
    {
@@ -67,7 +67,7 @@ public class ExoCacheGeneralDataRegion extends ExoCacheRegion implements General
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public void evict(Object key) throws CacheException
    {
@@ -75,7 +75,7 @@ public class ExoCacheGeneralDataRegion extends ExoCacheRegion implements General
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public void evictAll() throws CacheException
    {

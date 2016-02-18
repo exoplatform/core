@@ -90,17 +90,18 @@ public class MSXExcelDocumentReader extends BaseDocumentReader
 
    /**
     * Returns only a text from .xls file content with the following rules:
-    * <p/>
+    * <br>
     * we only index :
     * <ul>
     * <li>a maximum of 5000 cells per spreadsheet</li>
     * <li>a maximum of 1000 cells per tab</li>
     * <li>a maximum of 5 tabs per spreadsheet</li>
     * </ul>
-    * <p/>
+    * <br>
     * we KEEP only the following data :
+    * <ul>
     * <li> tab name</li>
-    * <li> cells with string with a length > 2 chars (Strings which are not the result of a formula)</li>
+    * <li> cells with string with a {@literal length > 2 chars} (Strings which are not the result of a formula)</li>
     * </ul>
     * we SKIP the following data :
     * <ul>

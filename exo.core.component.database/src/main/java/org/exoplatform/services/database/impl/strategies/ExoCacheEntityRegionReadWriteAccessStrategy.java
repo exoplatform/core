@@ -38,7 +38,7 @@ public class ExoCacheEntityRegionReadWriteAccessStrategy extends ExoCacheAccessS
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public EntityRegion getRegion()
    {
@@ -46,7 +46,7 @@ public class ExoCacheEntityRegionReadWriteAccessStrategy extends ExoCacheAccessS
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public boolean insert(Object key, Object value, Object version) throws CacheException
    {
@@ -55,7 +55,7 @@ public class ExoCacheEntityRegionReadWriteAccessStrategy extends ExoCacheAccessS
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public boolean update(Object key, Object value, Object currentVersion, Object previousVersion) throws CacheException
    {
@@ -64,7 +64,7 @@ public class ExoCacheEntityRegionReadWriteAccessStrategy extends ExoCacheAccessS
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public boolean afterInsert(Object key, Object value, Object version) throws CacheException
    {
@@ -72,7 +72,7 @@ public class ExoCacheEntityRegionReadWriteAccessStrategy extends ExoCacheAccessS
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public boolean afterUpdate(Object key, Object value, Object currentVersion, Object previousVersion, SoftLock lock)
       throws CacheException

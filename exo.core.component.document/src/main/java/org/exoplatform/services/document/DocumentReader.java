@@ -54,7 +54,7 @@ public interface DocumentReader
    String getContentAsText(InputStream is, String encoding) throws IOException, DocumentReadException;
 
    /**
-    * @param mimeType
+    * @param is
     * @return metainfo properties reduced to some supported metadata set (Dublin
     *         Core or other)
     * @throws IOException

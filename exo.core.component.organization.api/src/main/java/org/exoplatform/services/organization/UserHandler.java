@@ -62,7 +62,7 @@ public interface UserHandler
     *          account is created, a portal configuration should be created for
     *          the new user account at the same time. In this case the portal
     *          user event listener will be called in the createUser method.
-    * @throws Exception: The exception can be thrown if the UserHandler
+    * @throws Exception The exception can be thrown if the UserHandler
     *           cannot persist the user object or any listeners fail to handle
     *           the user event.
     */

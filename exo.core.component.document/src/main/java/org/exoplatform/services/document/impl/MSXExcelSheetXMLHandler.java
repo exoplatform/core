@@ -12,11 +12,11 @@ import org.xml.sax.helpers.DefaultHandler;
  * This class handles the processing of a sheet#.xml
  * sheet part of a XSSF .xlsx file, and generates
  * row and cell events for it.
- * <p/>
+ * <br>
  * we KEEP only the following data :
  * - cells with number (date formatted or simple number)
  * - cells with string
- * <p/>
+ * <br>
  * we SKIP the following data :
  * - cells with blank value
  * - cells with boolean value

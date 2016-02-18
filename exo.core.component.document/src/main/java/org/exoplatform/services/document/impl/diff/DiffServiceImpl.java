@@ -180,7 +180,7 @@ public class DiffServiceImpl extends ToStringImpl implements DiffService
    /**
     * Generate a random sequence of the given size.
     * 
-    * @param The size of the sequence to generate.
+    * @param size The size of the sequence to generate.
     * @return The generated sequence.
     */
    public Object[] randomSequence(int size)
@@ -191,7 +191,7 @@ public class DiffServiceImpl extends ToStringImpl implements DiffService
    /**
     * Generate a random sequence of the given size.
     * 
-    * @param The size of the sequence to generate.
+    * @param size The size of the sequence to generate.
     * @param seed A seed value for randomizing the generation.
     * @return The generated sequence.
     */

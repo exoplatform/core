@@ -60,12 +60,12 @@ public abstract class AbstractLoginModule implements LoginModule
    protected String realmName;
 
    /**
-    * @see {@link Subject} .
+    * @see Subject
     */
    protected Subject subject;
 
    /**
-    * @see {@link CallbackHandler}
+    * @see CallbackHandler
     */
    protected CallbackHandler callbackHandler;
 

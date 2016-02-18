@@ -30,7 +30,7 @@ import java.util.Map;
 
 /**
  * A plugin that retrieves a mapping from the init param named <i>mapping</i>. The param
- * is a multivalued string, each string has the format left->right where left and right
+ * is a multivalued string, each string has the format {@literal left->right} where left and right
  * are package full qualified names.
  *
  * @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a>

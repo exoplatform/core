@@ -133,7 +133,7 @@ public class UserEventListener extends BaseComponentPlugin
     * @throws Exception The developer can decide to throw the exception or not.
     *           If the method throw the exception, the organization service
     *           should role back the database to the state before the method
-    *           {@link UserHandler#setEnabled(User, boolean, boolean)} is called.
+    *           {@link UserHandler#setEnabled(String, boolean, boolean)} is called.
     */
    public void postSetEnabled(User user) throws Exception
    {

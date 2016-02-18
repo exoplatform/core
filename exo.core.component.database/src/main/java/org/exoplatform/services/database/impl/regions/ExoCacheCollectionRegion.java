@@ -41,7 +41,7 @@ public class ExoCacheCollectionRegion extends ExoCacheTransactionalDataRegion im
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public CollectionRegionAccessStrategy buildAccessStrategy(AccessType accessType) throws CacheException
    {

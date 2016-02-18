@@ -110,7 +110,7 @@ public interface Revision extends ToString
    /**
     * Accepts a visitor.
     * 
-    * @param visitor the {@link Visitor} visiting this instance
+    * @param visitor the {@link RevisionVisitor} visiting this instance
     */
    public void accept(RevisionVisitor visitor);
 

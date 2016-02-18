@@ -69,7 +69,7 @@ public abstract class TransformerBase implements AbstractTransformer
    }
 
    /**
-    * @todo change. Must no use explicit parser class name
+    * TODO change. Must no use explicit parser class name
     */
    static public XMLReader getXMLReader() throws SAXException
    {
@@ -243,7 +243,7 @@ public abstract class TransformerBase implements AbstractTransformer
    }
 
    /**
-    * @todo REMOVE!!!! For debug only!!!
+    * TODO REMOVE!!!! For debug only!!!
     * @deprecated see Warning
     */
    protected void writeTofile(byte[] bytes, String postfix)

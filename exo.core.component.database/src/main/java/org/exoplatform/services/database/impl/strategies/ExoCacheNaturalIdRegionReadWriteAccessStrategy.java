@@ -38,7 +38,7 @@ public class ExoCacheNaturalIdRegionReadWriteAccessStrategy extends ExoCacheAcce
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public NaturalIdRegion getRegion()
    {
@@ -46,7 +46,7 @@ public class ExoCacheNaturalIdRegionReadWriteAccessStrategy extends ExoCacheAcce
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public boolean insert(Object key, Object value) throws CacheException
    {
@@ -55,7 +55,7 @@ public class ExoCacheNaturalIdRegionReadWriteAccessStrategy extends ExoCacheAcce
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public boolean update(Object key, Object value) throws CacheException
    {
@@ -64,7 +64,7 @@ public class ExoCacheNaturalIdRegionReadWriteAccessStrategy extends ExoCacheAcce
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public boolean afterInsert(Object key, Object value) throws CacheException
    {
@@ -72,7 +72,7 @@ public class ExoCacheNaturalIdRegionReadWriteAccessStrategy extends ExoCacheAcce
    }
 
    /**
-    * @inheritDoc
+    * {@inheritDoc}
     */
    public boolean afterUpdate(Object key, Object value, SoftLock lock) throws CacheException
    {
