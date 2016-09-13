@@ -32,7 +32,7 @@
 
    <artifactId>exo.core.component.web.css</artifactId>
 
-   <name>eXo Core :: Component :: Web CSS</name>
+   <name>eXo PLF Core :: Component :: Web CSS</name>
    <description>Implementation of 'Web CSS'(Stylesheet engine) component of Exoplatform SAS 'eXo Core' project.</description>
 
   <properties>

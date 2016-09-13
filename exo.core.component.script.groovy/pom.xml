@@ -32,7 +32,7 @@
 
    <artifactId>exo.core.component.script.groovy</artifactId>
 
-   <name>eXo Core :: Component :: Groovy Scripts Instantiator</name>
+   <name>eXo PLF Core :: Component :: Groovy Scripts Instantiator</name>
    <description>Groovy Scripts Instantiator of Exoplatform SAS 'eXo Core' project.</description>
 
    <properties>

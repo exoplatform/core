@@ -32,7 +32,7 @@
 
    <artifactId>exo.core.component.organization.tests</artifactId>
 
-   <name>eXo Core :: Component :: Organization Service Tests</name>
+   <name>eXo PLF Core :: Component :: Organization Service Tests</name>
    <description>Organisation Service TCK tests of Exoplatform SAS 'eXo Core' project.</description>
 
    <properties>

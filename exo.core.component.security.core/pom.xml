@@ -32,7 +32,7 @@
 
    <artifactId>exo.core.component.security.core</artifactId>
 
-   <name>eXo Core :: Component :: Security Service</name>
+   <name>eXo PLF Core :: Component :: Security Service</name>
    <description>Implementation of 'eXo Security' component of Exoplatform SAS 'eXo Core' project.</description>
 
    <properties>

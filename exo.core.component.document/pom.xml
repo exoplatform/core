@@ -28,7 +28,7 @@
       <version>2.7.x-SNAPSHOT</version>
    </parent>
    <artifactId>exo.core.component.document</artifactId>
-   <name>eXo Core :: Component :: Document Service</name>
+   <name>eXo PLF Core :: Component :: Document Service</name>
    <description>Implementation of Document Service of Exoplatform SAS 'eXo Core' project.</description>
    <properties>
       <argLine>-Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy</argLine>

@@ -32,7 +32,7 @@
 
    <artifactId>exo.core.component.organization.ldap</artifactId>
 
-   <name>eXo Core :: Component :: Organization Service LDAP</name>
+   <name>eXo PLF Core :: Component :: Organization Service LDAP</name>
    <description>Implementation of LDAP Organization Service of Exoplatform SAS 'eXo Core' project.</description>
    <properties>
       <properties.url>classpath:/conf/standalone/ldap.properties</properties.url>
