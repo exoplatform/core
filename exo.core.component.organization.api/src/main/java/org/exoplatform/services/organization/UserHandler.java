@@ -264,6 +264,16 @@ public interface UserHandler
    boolean authenticate(String username, String password) throws Exception, DisabledUserException;
 
    /**
+    * Determines whether the API should update the Last Login time after
+    * authentication or not.
+    * 
+    * @return true if the last login time should be updated on login, else false.
+    */
+   default boolean isUpdateLastLoginTime() {
+     return true;
+   };
+
+   /**
     * This method is used to register an user event listener
     * 
     * @param listener the user event listener to register
