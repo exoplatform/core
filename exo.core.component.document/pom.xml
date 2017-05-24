@@ -163,6 +163,12 @@
                <groupId>org.slf4j</groupId>
                <artifactId>slf4j-api</artifactId>
             </exclusion>
+            <!-- Not used by default in Tika 1.5 and make conflicts with nekohtml
+            since it embed some of the nekohtml classes -->
+            <exclusion>
+               <groupId>de.l3s.boilerpipe</groupId>
+               <artifactId>boilerpipe</artifactId>
+            </exclusion>
          </exclusions>
       </dependency>
 
