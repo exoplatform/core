@@ -22,6 +22,8 @@ import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyCodeSource;
 
 import org.codehaus.groovy.control.CompilationFailedException;
+
+import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
@@ -192,7 +194,7 @@ public class GroovyScriptInstantiator
                }
                else
                {
-                  return fLoader.parseClass(stream);
+                  return fLoader.parseClass(IOUtil.getStreamContentAsString(stream));
                }
             }
          });
@@ -224,7 +226,13 @@ public class GroovyScriptInstantiator
       }
       finally
       {
-         stream.close();
+         if(stream != null) {
+           try {
+            stream.close();
+          } catch (IOException e) {
+            // Stream already closed
+          }
+         }
       }
    }
 

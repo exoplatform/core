@@ -61,7 +61,7 @@ public class TestScript
       {
          gcs = new GroovyCodeSource(url);
       }
-      catch (IOException e)
+      catch (Exception e)
       {
          AssertionFailedError err = new AssertionFailedError();
          err.initCause(e);
