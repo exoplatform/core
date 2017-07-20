@@ -189,6 +189,11 @@ public class SetCurrentIdentityFilter extends AbstractFilter
                   LOG.debug("Register Conversation state " + httpSession.getId());
                }
             }
+         } else {
+            if(! userId.equals(state.getIdentity().getUserId())){
+               state = new ConversationState(new Identity(IdentityConstants.ANONIM));
+               LOG.error("The current conversation state with the session ID " + httpSession.getId() + " does not belong to the user " + userId + ", this user should re-login again !");
+            }
          }
       }
       else
