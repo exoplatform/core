@@ -26,10 +26,7 @@ import org.exoplatform.services.xml.transform.trax.TRAXTemplates;
 import org.exoplatform.services.xml.transform.trax.TRAXTransformer;
 import org.exoplatform.services.xml.transform.trax.TRAXTransformerService;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamResult;
@@ -49,8 +46,7 @@ public class TestPipe extends BaseTest
    {
 
       // html transformer
-      StandaloneContainer.setConfigurationPath(Thread.currentThread().getContextClassLoader().getResource(
-         "conf/standalone/test-configuration.xml").getPath());
+      StandaloneContainer.setConfigurationPath("src/test/resources/conf/standalone/test-configuration.xml");
       StandaloneContainer container = StandaloneContainer.getInstance();
 
       TRAXTransformerService traxService =
@@ -81,8 +77,8 @@ public class TestPipe extends BaseTest
       assertTrue("Empty input file", res.available() > 0);
 
       // output
-      String OUTPUT_FILENAME = resourceURL("rss-out.xml").getPath();
-      OutputStream outputFileOutputStream = new FileOutputStream(OUTPUT_FILENAME);
+      File outputFile = File.createTempFile("rss-out-", ".xhtml");
+      OutputStream outputFileOutputStream = new FileOutputStream(outputFile);
       TRAXTransformer traxTransformer = traxTemplates.newTransformer();
 
       // construct pipe
@@ -93,7 +89,7 @@ public class TestPipe extends BaseTest
       res.close();
 
       // read the output file
-      FileInputStream outputFileInputStream = new FileInputStream(OUTPUT_FILENAME);
+      FileInputStream outputFileInputStream = new FileInputStream(outputFile);
 
       assertTrue("Output is empty", outputFileInputStream.available() > 0);
       outputFileInputStream.close();
@@ -107,8 +103,9 @@ public class TestPipe extends BaseTest
       assertTrue("Empty input file", res.available() > 0);
 
       // output
-      String OUTPUT_FILENAME = resourceURL("rss-out.xml").getPath();
-      OutputStream outputFileOutputStream = new FileOutputStream(OUTPUT_FILENAME);
+      File outputFile = File.createTempFile("rss-out-", ".xml");
+      outputFile.deleteOnExit();
+      OutputStream outputFileOutputStream = new FileOutputStream(outputFile);
 
       TRAXTransformer traxTransformer1 = traxTemplates.newTransformer();
       TRAXTransformer traxTransformer2 = traxTemplates.newTransformer();
@@ -127,7 +124,7 @@ public class TestPipe extends BaseTest
       outputFileOutputStream.close();
 
       // read the output file
-      FileInputStream outputFileInputStream = new FileInputStream(OUTPUT_FILENAME);
+      FileInputStream outputFileInputStream = new FileInputStream(outputFile);
 
       assertTrue("Output is empty", outputFileInputStream.available() > 0);
       // validate output

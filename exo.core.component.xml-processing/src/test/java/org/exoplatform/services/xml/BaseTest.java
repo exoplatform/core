@@ -46,11 +46,6 @@ public abstract class BaseTest extends TestCase
       return dateFormat.format(new Date());
    }
 
-   protected URL resourceURL(String name)
-   {
-      return Thread.currentThread().getContextClassLoader().getResource(name);
-   }
-
    protected InputStream resourceStream(String name)
    {
       return Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
@@ -63,8 +58,7 @@ public abstract class BaseTest extends TestCase
 
    protected void validateXML(InputStream input) throws Exception
    {
-      StandaloneContainer.setConfigurationPath(Thread.currentThread().getContextClassLoader().getResource(
-         "conf/standalone/test-configuration.xml").getPath());
+      StandaloneContainer.setConfigurationPath("src/test/resources/conf/standalone/test-configuration.xml");
       StandaloneContainer container = StandaloneContainer.getInstance();
 
       XMLResolvingService resolvingService =

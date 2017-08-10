@@ -24,11 +24,7 @@ import org.exoplatform.services.xml.transform.trax.TRAXTemplates;
 import org.exoplatform.services.xml.transform.trax.TRAXTransformer;
 import org.exoplatform.services.xml.transform.trax.TRAXTransformerService;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamResult;
@@ -43,8 +39,7 @@ public class TestXsl extends BaseTest
 
    public void setUp() throws Exception
    {
-      StandaloneContainer.setConfigurationPath(Thread.currentThread().getContextClassLoader().getResource(
-         "conf/standalone/test-configuration.xml").getPath());
+      StandaloneContainer.setConfigurationPath("conf/standalone/test-configuration.xml");
       StandaloneContainer container = StandaloneContainer.getInstance();
       traxService = (TRAXTransformerService)container.getComponentInstanceOfType(TRAXTransformerService.class);
       assertNotNull("traxService", traxService);
@@ -52,14 +47,14 @@ public class TestXsl extends BaseTest
 
    public void testSimpleXslt() throws Exception
    {
-
       InputStream res = resourceStream("rss-in.xhtml");
-      String OUTPUT_FILENAME = resourceURL("rss-out.xml").getPath();
+      File outputFile = File.createTempFile("rss-out-", ".xml");
+      outputFile.deleteOnExit();
 
       assertTrue("Empty input file", res.available() > 0);
 
       // output file
-      OutputStream outputFileOutputStream = new FileOutputStream(OUTPUT_FILENAME);
+      OutputStream outputFileOutputStream = new FileOutputStream(outputFile);
 
       // get xsl
       InputStream xslInputStream = resourceStream("html-url-rewite.xsl");
@@ -78,7 +73,7 @@ public class TestXsl extends BaseTest
       outputFileOutputStream.close();
 
       // read the output file
-      FileInputStream outputFileInputStream = new FileInputStream(OUTPUT_FILENAME);
+      FileInputStream outputFileInputStream = new FileInputStream(outputFile);
 
       assertTrue("Output is empty", outputFileInputStream.available() > 0);
       outputFileInputStream.close();

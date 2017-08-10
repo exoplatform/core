@@ -33,8 +33,7 @@ public class TestTemplates extends BaseTest
 
    public void setUp() throws Exception
    {
-      StandaloneContainer.setConfigurationPath(Thread.currentThread().getContextClassLoader().getResource(
-         "conf/standalone/test-configuration.xml").getPath());
+      StandaloneContainer.setConfigurationPath("src/test/resources/conf/standalone/test-configuration.xml");
       StandaloneContainer container = StandaloneContainer.getInstance();
       traxTemplatesService = (TRAXTemplatesService)container.getComponentInstanceOfType(TRAXTemplatesService.class);
       assertNotNull("traxTemplatesService", traxTemplatesService);
