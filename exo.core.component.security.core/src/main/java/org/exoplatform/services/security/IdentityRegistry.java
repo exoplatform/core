@@ -24,6 +24,7 @@ import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -108,6 +109,15 @@ public class IdentityRegistry
    {
       return identities.get(userId);
    }
+
+   /**
+    * Returns user names of registered identities
+    *
+    * @return {@link Set} of {@link String}
+    */
+    public Set<String> getIdentities() {
+      return identities.keySet();
+    }
 
    /**
     * Register new identity in registry.
