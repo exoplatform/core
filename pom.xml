@@ -70,6 +70,72 @@
       <module>exo.core.component.web.css</module>
    </modules>
 
+   <repositories>
+	  <repository>
+	        <id>jboss-public-repository-group</id>
+			<name>JBoss Public Maven Repository Group</name>
+			<url>https://repository.jboss.org/nexus/content/groups/public-jboss/
+            </url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+	  </repository>
+	  <repository>
+			<id>redhat-all-public-repository-group</id>
+			<name>Redhat All Public Maven Repository Group</name>
+			<url>http://maven.repository.redhat.com/techpreview/all/
+            </url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+	  </repository>
+	  <repository>
+			<id>redhat-early-public-repository-group</id>
+			<name>Redhat Early Public Maven Repository Group</name>
+			<url>https://maven.repository.redhat.com/nexus/content/groups/product-earlyaccess/
+            </url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+	  </repository>
+	</repositories>
+
+	<pluginRepositories>
+	  <pluginRepository>
+			<id>jboss-public-repository-group</id>
+			<name>JBoss Public Maven Repository Group</name>
+			<url>https://repository.jboss.org/nexus/content/groups/public-jboss/
+            </url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+	  </pluginRepository>
+   </pluginRepositories>
+
    <dependencyManagement>
       <dependencies>
          <dependency>
