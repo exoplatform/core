@@ -39,7 +39,7 @@ public class TestXsl extends BaseTest
 
    public void setUp() throws Exception
    {
-      StandaloneContainer.setConfigurationPath("conf/standalone/test-configuration.xml");
+      StandaloneContainer.setConfigurationPath("src/test/resources/conf/standalone/test-configuration.xml");
       StandaloneContainer container = StandaloneContainer.getInstance();
       traxService = (TRAXTransformerService)container.getComponentInstanceOfType(TRAXTransformerService.class);
       assertNotNull("traxService", traxService);
