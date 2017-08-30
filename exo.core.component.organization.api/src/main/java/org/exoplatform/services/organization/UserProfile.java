@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.organization;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -31,7 +32,7 @@ import java.util.Map;
  * @author <a href="mailto:tuan08@users.sourceforge.net">Tuan Nguyen</a>
  * @LevelAPI Platform
  */
-public interface UserProfile
+public interface UserProfile extends Serializable
 {
 
    /**

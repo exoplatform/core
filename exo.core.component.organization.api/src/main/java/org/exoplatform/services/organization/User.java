@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.organization;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -31,7 +32,7 @@ import java.util.Date;
  *
  * @LevelAPI Platform
  */
-public interface User
+public interface User extends Serializable
 {
    /**
     * This method should return the username of the user. The username should be

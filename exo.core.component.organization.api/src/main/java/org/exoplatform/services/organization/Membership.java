@@ -18,13 +18,15 @@
  */
 package org.exoplatform.services.organization;
 
+import java.io.Serializable;
+
 /**
  * Created by The eXo Platform SAS <br>
  * This is the interface for the membership data model.
  * @author <a href="mailto:benjmestrallet@users.sourceforge.net">Mestrallet Benjamin</a>
  * @LevelAPI Platform
  */
-public interface Membership
+public interface Membership extends Serializable
 {
    /**
     * the type of Membership allows distinction between 'hierarchical' and

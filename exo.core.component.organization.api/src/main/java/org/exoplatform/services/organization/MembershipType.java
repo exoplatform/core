@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.organization;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -28,7 +29,7 @@ import java.util.Date;
  * @author <a href="mailto:benjmestrallet@users.sourceforge.net">Mestrallet Benjamin</a>
  * @LevelAPI Platform
  */
-public interface MembershipType
+public interface MembershipType extends Serializable
 {
    /**
     * @return the name name of the membership type. The name of the membership

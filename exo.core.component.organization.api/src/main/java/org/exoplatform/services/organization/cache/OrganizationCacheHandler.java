@@ -18,11 +18,6 @@ package org.exoplatform.services.organization.cache;
 
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
-import org.exoplatform.services.organization.impl.GroupImpl;
-import org.exoplatform.services.organization.impl.MembershipImpl;
-import org.exoplatform.services.organization.impl.MembershipTypeImpl;
-import org.exoplatform.services.organization.impl.UserImpl;
-import org.exoplatform.services.organization.impl.UserProfileImpl;
 
 /**
  * Created by The eXo Platform SAS.
@@ -69,11 +64,11 @@ public class OrganizationCacheHandler
     */
    public OrganizationCacheHandler(CacheService cservice)
    {
-      userCache = cservice.getCacheInstance(UserImpl.class.getName());
-      userProfileCache = cservice.getCacheInstance(UserProfileImpl.class.getName());
-      membershipCache = cservice.getCacheInstance(MembershipImpl.class.getName());
-      membershipTypeCache = cservice.getCacheInstance(MembershipTypeImpl.class.getName());
-      groupCache = cservice.getCacheInstance(GroupImpl.class.getName());
+      userCache = cservice.getCacheInstance("portal.User");
+      userProfileCache = cservice.getCacheInstance("portal.Profile");
+      membershipCache = cservice.getCacheInstance("portal.Membership");
+      membershipTypeCache = cservice.getCacheInstance("portal.Role");
+      groupCache = cservice.getCacheInstance("portal.Group");
    }
 
    /**
