@@ -23,10 +23,7 @@ import org.exoplatform.services.xml.BaseTest;
 import org.exoplatform.services.xml.transform.html.HTMLTransformer;
 import org.exoplatform.services.xml.transform.html.HTMLTransformerService;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Properties;
 
 import javax.xml.transform.sax.SAXResult;
@@ -44,8 +41,7 @@ public class TestTidy extends BaseTest
 
    public void setUp() throws Exception
    {
-      StandaloneContainer.setConfigurationPath(Thread.currentThread().getContextClassLoader().getResource(
-         "conf/standalone/test-configuration.xml").getPath());
+      StandaloneContainer.setConfigurationPath("src/test/resources/conf/standalone/test-configuration.xml");
       StandaloneContainer container = StandaloneContainer.getInstance();
       HTMLTransformerService htmlService =
          (HTMLTransformerService)container.getComponentInstanceOfType(HTMLTransformerService.class);
@@ -58,11 +54,12 @@ public class TestTidy extends BaseTest
    {
       try
       {
-         String OUTPUT_FILENAME = resourceURL("rss-out.xhtml").getPath();
+         File outputFile = File.createTempFile("rss-out-", ".xhtml");
+         outputFile.deleteOnExit();
          InputStream res = resourceStream("rss-in.html");
 
          // output file
-         OutputStream outputFileOutputStream = new FileOutputStream(OUTPUT_FILENAME);
+         OutputStream outputFileOutputStream = new FileOutputStream(outputFile);
 
          htmlTransformer.initResult(new StreamResult(outputFileOutputStream));
          htmlTransformer.transform(new StreamSource(res));
@@ -70,7 +67,7 @@ public class TestTidy extends BaseTest
          outputFileOutputStream.close();
 
          // read the output file
-         FileInputStream outputFileInputStream = new FileInputStream(OUTPUT_FILENAME);
+         FileInputStream outputFileInputStream = new FileInputStream(outputFile);
          assertTrue("Output is empty", outputFileInputStream.available() > 0);
 
          // validate output xml
@@ -85,7 +82,7 @@ public class TestTidy extends BaseTest
 
    public void testSAXResultType() throws Exception
    {
-      String OUTPUT_FILENAME = resourceURL("rss-out.xml").getPath();
+      File outputFile = File.createTempFile("rss-out-", ".xml");
       InputStream res = resourceStream("rss-in.xhtml");
 
       assertTrue("Empty input file", res.available() > 0);
@@ -94,7 +91,7 @@ public class TestTidy extends BaseTest
       TransformerHandler transformHandler = // a copy of the source to the result
          ((SAXTransformerFactory)SAXTransformerFactory.newInstance()).newTransformerHandler();
 
-      OutputStream output = new FileOutputStream(OUTPUT_FILENAME);
+      OutputStream output = new FileOutputStream(outputFile);
 
       transformHandler.setResult(new StreamResult(output));
 
@@ -105,7 +102,7 @@ public class TestTidy extends BaseTest
       output.flush();
       output.close();
       // read the output file
-      FileInputStream outputFileInputStream = new FileInputStream(OUTPUT_FILENAME);
+      FileInputStream outputFileInputStream = new FileInputStream(outputFile);
       assertTrue("Output is empty", outputFileInputStream.available() > 0);
       // validate output xml
       validateXML(outputFileInputStream);

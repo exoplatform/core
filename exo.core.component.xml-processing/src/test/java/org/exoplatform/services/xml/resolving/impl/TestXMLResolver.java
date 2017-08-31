@@ -21,6 +21,7 @@ package org.exoplatform.services.xml.resolving.impl;
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.xml.BaseTest;
 import org.exoplatform.services.xml.resolving.XMLResolvingService;
+import org.xml.sax.InputSource;
 
 /**
  * Created by the Exo Development team.
@@ -34,8 +35,7 @@ public class TestXMLResolver extends BaseTest
    {
       if (service == null)
       {
-         StandaloneContainer.setConfigurationPath(Thread.currentThread().getContextClassLoader().getResource(
-            "conf/standalone/test-configuration.xml").getPath());
+         StandaloneContainer.setConfigurationPath("src/test/resources/conf/standalone/test-configuration.xml");
          StandaloneContainer container = StandaloneContainer.getInstance();
          service = (XMLResolvingService)container.getComponentInstanceOfType(XMLResolvingService.class);
       }
@@ -51,7 +51,7 @@ public class TestXMLResolver extends BaseTest
       reader.setEntityResolver(service.getEntityResolver());
       try
       {
-         reader.parse(resourceURL("tmp/dtd-not-found.xml").getPath());
+         reader.parse(new InputSource(resourceStream("tmp/dtd-not-found.xml")));
 
       }
       catch (Throwable e)
@@ -73,7 +73,7 @@ public class TestXMLResolver extends BaseTest
 
          reader.setEntityResolver(service.getEntityResolver());
 
-         reader.parse(resourceURL("web.xml").toString());
+         reader.parse(new InputSource(resourceStream("web.xml")));
 
       }
       catch (Exception e)
