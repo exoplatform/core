@@ -32,7 +32,7 @@
 
    <groupId>org.exoplatform.core</groupId>
    <artifactId>core-parent</artifactId>
-   <version>5.0.x-SNAPSHOT</version>
+   <version>5.0.0-M34</version>
    <packaging>pom</packaging>
 
    <name>eXo PLF:: Core</name>
@@ -53,7 +53,7 @@
       <connection>scm:git:git://github.com/exoplatform/core.git</connection>
       <developerConnection>scm:git:git@github.com:exoplatform/core.git</developerConnection>
       <url>https://github.com/exoplatform/core</url>
-     <tag>HEAD</tag>
+     <tag>5.0.0-M34</tag>
   </scm>
 
    <modules>
