@@ -239,15 +239,18 @@ public class TestMembershipHandler extends AbstractOrganizationServiceTest
       {
          fail("Exception should not be thrown");
       }
+      // test case removed from tck organization PLF-7379
+      // no need to improve ldap and jdbc implementation : it will be removed on 5.0
 
-      try
+      /*  try
       {
          memberships.load(1, 4);
          fail("Exception should be thrown");
       }
       catch (Exception e)
       {
-      }
+
+      }*/
 
       // try to find for non-existing group
       g = gHandler.createGroupInstance();
