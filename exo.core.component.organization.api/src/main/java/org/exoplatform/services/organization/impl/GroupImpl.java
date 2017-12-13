@@ -39,8 +39,9 @@ import javax.persistence.Table;
 @Table(name = "EXO_GROUP")
 public class GroupImpl implements Group, ExtendedCloneable
 {
+  private static final long serialVersionUID = -5909516396351606340L;
 
-   @Id
+  @Id
    private String id;
 
    @Column

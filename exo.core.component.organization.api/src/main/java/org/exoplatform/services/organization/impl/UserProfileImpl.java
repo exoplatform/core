@@ -21,6 +21,7 @@ package org.exoplatform.services.organization.impl;
 import org.exoplatform.services.organization.ExtendedCloneable;
 import org.exoplatform.services.organization.UserProfile;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,9 +30,11 @@ import java.util.Map;
  * Author : Mestrallet Benjamin benjmestrallet@users.sourceforge.net
  * Date: Aug 21, 2003 Time: 3:22:54 PM
  */
-public class UserProfileImpl implements UserProfile, ExtendedCloneable
+public class UserProfileImpl implements UserProfile, ExtendedCloneable, Serializable
 {
-   private String userName;
+  private static final long serialVersionUID = 3746851925799159353L;
+
+  private String userName;
 
    private Map<String, String> attributes;
 

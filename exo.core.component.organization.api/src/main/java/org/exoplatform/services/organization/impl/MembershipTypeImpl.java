@@ -40,8 +40,9 @@ import javax.persistence.Table;
 @Table(name = "EXO_MEMBERSHIP_TYPE")
 public class MembershipTypeImpl implements MembershipType, ExtendedCloneable
 {
+  private static final long serialVersionUID = -8441178538275068955L;
 
-   @Id
+  @Id
    private String name;
 
    @Column

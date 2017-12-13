@@ -217,6 +217,10 @@ public class AbstractOrganizationServiceTest extends TestCase
     */
    public void tearDown() throws Exception
    {
+
+      RequestLifeCycle.end();
+      RequestLifeCycle.begin(container);
+
       // remove all users
       Iterator<String> iter = users.iterator();
       while (iter.hasNext())

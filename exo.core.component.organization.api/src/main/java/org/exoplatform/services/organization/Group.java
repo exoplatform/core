@@ -18,6 +18,8 @@
  */
 package org.exoplatform.services.organization;
 
+import java.io.Serializable;
+
 /**
  * Created by The eXo Platform SAS<br>
  * This is the interface for the group data model.
@@ -25,7 +27,7 @@ package org.exoplatform.services.organization;
  * @author <a href="mailto:benjmestrallet@users.sourceforge.net">Mestrallet Benjamin</a>
  * @LevelAPI Platform
  */
-public interface Group
+public interface Group extends Serializable
 {
    /**
     * @return the id of the group. The id should have the form
