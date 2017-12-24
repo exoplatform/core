@@ -135,6 +135,12 @@ public class SetCurrentIdentityFilter extends AbstractFilter
 
          state = conversationRegistry.getState(stateKey);
 
+         if(state != null && !userId.equals(state.getIdentity().getUserId())){
+             state = null;
+             conversationRegistry.unregister(stateKey, false);
+             LOG.debug("The current conversation state with the session ID " + httpSession.getId() + " does not belong to the user " + userId + ". The conversation state registry will be updated.");
+         }
+
          if (state == null)
          {
             if (LOG.isDebugEnabled())
@@ -188,11 +194,6 @@ public class SetCurrentIdentityFilter extends AbstractFilter
                {
                   LOG.debug("Register Conversation state " + httpSession.getId());
                }
-            }
-         } else {
-            if(! userId.equals(state.getIdentity().getUserId())){
-               state = new ConversationState(new Identity(IdentityConstants.ANONIM));
-               LOG.error("The current conversation state with the session ID " + httpSession.getId() + " does not belong to the user " + userId + ", this user should re-login again !");
             }
          }
       }
