@@ -48,3 +48,5 @@ target/
 
 # Misc
 *.swp
+.rebel.xml.bak
+rebel.xml
