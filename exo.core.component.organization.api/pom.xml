@@ -25,7 +25,7 @@
    <parent>
       <groupId>org.exoplatform.core</groupId>
       <artifactId>core-parent</artifactId>
-      <version>5.0.x-SNAPSHOT</version>
+      <version>5.0.0-RC09</version>
    </parent>
    <artifactId>exo.core.component.organization.api</artifactId>
    <name>eXo PLF Core :: Component :: Organization Service API</name>
