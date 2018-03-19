@@ -20,7 +20,9 @@ package org.exoplatform.services.database;
 
 import org.exoplatform.services.database.annotation.Table;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,7 +35,7 @@ import java.util.List;
 public class DBObjectQuery<T extends DBObject>
 {
 
-   private static SimpleDateFormat ft_ = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+   private static DateTimeFormatter ft_ = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
    private Class<? extends DBObject> type_;
 
@@ -288,7 +290,8 @@ public class DBObjectQuery<T extends DBObject>
          }
          else if (value_ instanceof Date)
          {
-            String value = ft_.format((Date)value_);
+            LocalDateTime ldt = LocalDateTime.ofInstant(((Date)value_).toInstant(), ZoneId.systemDefault());
+            String value = ldt.format(ft_);
             builder.append("'").append(value).append("'");
          }
          else
