@@ -27,6 +27,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Objects;
 
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -111,4 +112,20 @@ public class MembershipImpl implements Membership, ExtendedCloneable
          return this;
       }
    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MembershipImpl that = (MembershipImpl) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(membershipType, that.membershipType) &&
+                Objects.equals(userName, that.userName) &&
+                Objects.equals(groupId, that.groupId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, membershipType, userName, groupId);
+    }
 }
