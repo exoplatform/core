@@ -23,12 +23,12 @@ import org.exoplatform.services.organization.User;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Date;
+import java.util.Objects;
 
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -241,5 +241,28 @@ public class UserImpl implements User, ExtendedCloneable
       }
 
       return ui;
+   }
+
+   @Override
+   public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      UserImpl user = (UserImpl) o;
+      return Objects.equals(id, user.id) &&
+              Objects.equals(userName, user.userName) &&
+              Objects.equals(password, user.password) &&
+              Objects.equals(firstName, user.firstName) &&
+              Objects.equals(lastName, user.lastName) &&
+              Objects.equals(email, user.email) &&
+              Objects.equals(createdDate, user.createdDate) &&
+              Objects.equals(lastLoginTime, user.lastLoginTime) &&
+              Objects.equals(organizationId, user.organizationId) &&
+              Objects.equals(displayName, user.displayName) &&
+              Objects.equals(enabled, user.enabled);
+   }
+
+   @Override
+   public int hashCode() {
+      return Objects.hash(id, userName, password, firstName, lastName, email, createdDate, lastLoginTime, organizationId, displayName, enabled);
    }
 }

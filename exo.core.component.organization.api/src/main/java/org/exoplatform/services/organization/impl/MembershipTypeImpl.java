@@ -23,12 +23,12 @@ import org.exoplatform.services.organization.MembershipType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Date;
+import java.util.Objects;
 
 /**
  * Created by The eXo Platform SAS .
@@ -143,4 +143,21 @@ public class MembershipTypeImpl implements MembershipType, ExtendedCloneable
 
       return mti;
    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MembershipTypeImpl that = (MembershipTypeImpl) o;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(description, that.description) &&
+                Objects.equals(owner, that.owner) &&
+                Objects.equals(createdDate, that.createdDate) &&
+                Objects.equals(modifiedDate, that.modifiedDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, description, owner, createdDate, modifiedDate);
+    }
 }

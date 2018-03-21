@@ -33,6 +33,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Objects;
 
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -135,4 +136,21 @@ public class GroupImpl implements Group, ExtendedCloneable
          return this;
       }
    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GroupImpl group = (GroupImpl) o;
+        return Objects.equals(id, group.id) &&
+                Objects.equals(parentId, group.parentId) &&
+                Objects.equals(groupName, group.groupName) &&
+                Objects.equals(label, group.label) &&
+                Objects.equals(desc, group.desc);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, parentId, groupName, label, desc);
+    }
 }
