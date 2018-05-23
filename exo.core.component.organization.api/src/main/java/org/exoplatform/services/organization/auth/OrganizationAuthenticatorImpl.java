@@ -20,6 +20,7 @@ package org.exoplatform.services.organization.auth;
 
 import org.exoplatform.container.component.ComponentRequestLifecycle;
 import org.exoplatform.container.component.RequestLifeCycle;
+import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.DisabledUserException;
@@ -70,22 +71,26 @@ public class OrganizationAuthenticatorImpl implements Authenticator
 
    private final RolesExtractor rolesExtractor;
 
+   private final ListenerService listenerService;
+
    public OrganizationAuthenticatorImpl(OrganizationService orgService, RolesExtractor rolesExtractor,
-      PasswordEncrypter encrypter)
+      PasswordEncrypter encrypter, ListenerService listenerService)
    {
       this.orgService = orgService;
       this.encrypter = encrypter;
       this.rolesExtractor = rolesExtractor;
+      this.listenerService = listenerService;
    }
 
-   public OrganizationAuthenticatorImpl(OrganizationService orgService, RolesExtractor rolesExtractor)
+   public OrganizationAuthenticatorImpl(OrganizationService orgService, RolesExtractor rolesExtractor,
+                                        ListenerService listenerService)
    {
-      this(orgService, rolesExtractor, null);
+      this(orgService, rolesExtractor, null, listenerService);
    }
 
-   public OrganizationAuthenticatorImpl(OrganizationService orgService)
+   public OrganizationAuthenticatorImpl(OrganizationService orgService, ListenerService listenerService)
    {
-      this(orgService, null, null);
+      this(orgService, null, null, listenerService);
    }
 
    public OrganizationService getOrganizationService()
@@ -117,9 +122,13 @@ public class OrganizationAuthenticatorImpl implements Authenticator
          for (Membership membership : memberships)
             entries.add(new MembershipEntry(membership.getGroupId(), membership.getMembershipType()));
       }
-      if (rolesExtractor == null)
-         return new Identity(userId, entries);
-      return new Identity(userId, entries, rolesExtractor.extractRoles(userId, entries));
+      Identity identity = null;
+      if (rolesExtractor == null) {
+        identity = new Identity(userId, entries);
+      } else {
+        identity = new Identity(userId, entries, rolesExtractor.extractRoles(userId, entries));
+      }
+      return identity;
    }
 
    /*
@@ -185,6 +194,8 @@ public class OrganizationAuthenticatorImpl implements Authenticator
 
       if (!success)
          throw new LoginException("Login failed for " + username.replace("\n", " ").replace("\r", " "));
+
+      listenerService.broadcast(OrganizationService.USER_AUTHENTICATED_EVENT, orgService, username);
 
       return username;
    }

@@ -70,6 +70,9 @@ import org.exoplatform.container.component.ComponentPlugin;
  */
 public interface OrganizationService
 {
+
+   public static final String USER_AUTHENTICATED_EVENT = "exo.user.authenticated";
+
    /**
     * This method return an UserHandler object that use to manage the user
     * operation such create, update , delete , find user.
