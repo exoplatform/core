@@ -155,4 +155,28 @@ public interface User extends Serializable
     * @return <code>true</code> if the user is enabled, <code>false</code> otherwise
     */
    boolean isEnabled();
+
+   /**
+    * Set originating store name (internal or external)
+    * 
+    * @param originatingStore
+    */
+   default public void setOriginatingStore(String originatingStore) {
+    throw new UnsupportedOperationException("originatingStore is not supported by this object class " + getClass().getName());
+   }
+
+   /**
+    * @return originating store name (internal or external)
+    */
+   default public String getOriginatingStore() {
+     throw new UnsupportedOperationException("originatingStore is not supported by this object class " + getClass().getName());
+   }
+
+   /**
+    * @return true if the user was initially added to internal store
+    */
+   default public boolean isInternalStore() {
+     throw new UnsupportedOperationException("originatingStore is not supported by this object class " + getClass().getName());
+   }
+
 }

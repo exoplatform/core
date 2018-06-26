@@ -73,6 +73,16 @@ public interface OrganizationService
 
    public static final String USER_AUTHENTICATED_EVENT = "exo.user.authenticated";
 
+  /**
+   * Internal Originating Store parameter value
+   */
+   public static final String INTERNAL_STORE   = "internal";
+
+   /**
+    * External Originating Store parameter value
+    */
+   public static final String EXTERNAL_STORE   = "external";
+
    /**
     * This method return an UserHandler object that use to manage the user
     * operation such create, update , delete , find user.

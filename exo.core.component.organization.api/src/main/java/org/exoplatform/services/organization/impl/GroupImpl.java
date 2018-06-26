@@ -24,16 +24,14 @@
  */
 package org.exoplatform.services.organization.impl;
 
-import org.exoplatform.services.organization.ExtendedCloneable;
-import org.exoplatform.services.organization.Group;
+import java.util.Objects;
+
+import javax.persistence.*;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.util.Objects;
+import org.exoplatform.services.organization.*;
 
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -56,6 +54,9 @@ public class GroupImpl implements Group, ExtendedCloneable
 
    @Column(name = "description")
    private String desc;
+
+   @Column(name = "store")
+   private String originatingStore;
 
    public GroupImpl()
    {
@@ -120,6 +121,29 @@ public class GroupImpl implements Group, ExtendedCloneable
    public String toString()
    {
       return "Group[" + id + "|" + groupName + "]";
+   }
+
+   /**
+    * Set originating store name (internal or external)
+    * 
+    * @param originatingStore
+    */
+   public void setOriginatingStore(String originatingStore) {
+     this.originatingStore = originatingStore;
+   }
+
+   /**
+    * @return originating store name (internal or external)
+    */
+   public String getOriginatingStore() {
+     return originatingStore;
+   }
+
+   /**
+    * @return true if the group was initially added to internal store
+    */
+   public boolean isInternalStore() {
+     return originatingStore == null || OrganizationService.INTERNAL_STORE.equals(originatingStore);
    }
 
    /**

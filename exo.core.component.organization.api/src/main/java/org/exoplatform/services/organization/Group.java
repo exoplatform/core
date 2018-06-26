@@ -36,10 +36,30 @@ public interface Group extends Serializable
    public String getId();
 
    /**
+    * Set the id of the group. The id should have the form
+    *         /ancestor/parent/groupname
+    * 
+    * @param id
+    */
+   default public void setId(String id) {
+     throw new UnsupportedOperationException("setId operation is not supported by this object class " + getClass().getName());
+   }
+
+   /**
     * @return the id of the parent group. if the parent id is null , it mean that
     *         the group is at the first level. the child of root group.
     */
    public String getParentId();
+
+   /**
+    * Set the id of the parent group. if the parent id is null , it mean that
+    *         the group is at the first level. the child of root group.
+    * 
+    * @param parentId
+    */
+   default public void setParentId(String parentId) {
+     throw new UnsupportedOperationException("setParentId operation is not supported by this object class " + getClass().getName());
+   }
 
    /**
     * @return the name of the group
@@ -70,4 +90,28 @@ public interface Group extends Serializable
     * @param desc The new description of the group
     */
    public void setDescription(String desc);
+
+   /**
+    * Set originating store name (internal or external)
+    * 
+    * @param originatingStore
+    */
+   default public void setOriginatingStore(String originatingStore) {
+    throw new UnsupportedOperationException("originatingStore is not supported by this object class " + getClass().getName());
+   }
+
+   /**
+    * @return originating store name (internal or external)
+    */
+   default public String getOriginatingStore() {
+     throw new UnsupportedOperationException("originatingStore is not supported by this object class " + getClass().getName());
+   }
+
+   /**
+    * @return true if the group was initially added to internal store
+    */
+   default public boolean isInternalStore() {
+     throw new UnsupportedOperationException("originatingStore is not supported by this object class " + getClass().getName());
+   }
+
 }

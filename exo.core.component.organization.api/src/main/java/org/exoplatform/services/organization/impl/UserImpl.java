@@ -18,10 +18,10 @@
  */
 package org.exoplatform.services.organization.impl;
 
-import org.exoplatform.services.organization.ExtendedCloneable;
-import org.exoplatform.services.organization.User;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import org.exoplatform.services.organization.*;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -73,6 +73,9 @@ public class UserImpl implements User, ExtendedCloneable
 
    @Column
    private Boolean enabled;
+
+   @Column(name = "store")
+   private String originatingStore;
 
    public UserImpl()
    {
@@ -215,6 +218,29 @@ public class UserImpl implements User, ExtendedCloneable
    public void setEnabled(Boolean enabled)
    {
       this.enabled = enabled;
+   }
+
+   /**
+    * Set originating store name (internal or external)
+    * 
+    * @param originatingStore
+    */
+   public void setOriginatingStore(String originatingStore) {
+     this.originatingStore = originatingStore;
+   }
+
+   /**
+    * @return originating store name (internal or external)
+    */
+   public String getOriginatingStore() {
+     return originatingStore;
+   }
+
+   /**
+    * @return true if the user was initially added to internal store
+    */
+   public boolean isInternalStore() {
+     return originatingStore == null || OrganizationService.INTERNAL_STORE.equals(originatingStore);
    }
 
    /**
