@@ -27,7 +27,7 @@
    <parent>
       <groupId>org.exoplatform.core</groupId>
       <artifactId>core-parent</artifactId>
-      <version>5.1.x-SNAPSHOT</version>
+      <version>5.1.0-RC03</version>
    </parent>
 
    <artifactId>exo.core.component.web.css</artifactId>
