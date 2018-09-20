@@ -337,7 +337,7 @@ public class IDMExternalStoreImportService implements Startable {
    * @param updateDeleted
    * @throws Exception
    */
-  public synchronized <T> T importEntityToInternalStore(IDMEntityType<T> entityType,
+  public <T> T importEntityToInternalStore(IDMEntityType<T> entityType,
                                                         Object entityId,
                                                         boolean updateModified,
                                                         boolean updateDeleted) throws Exception {
