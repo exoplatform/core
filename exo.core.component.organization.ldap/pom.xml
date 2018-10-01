@@ -40,6 +40,7 @@
       <debug.opts />
       <test.exclude>**/foo/foo/**</test.exclude>
       <argLine>${env.MAVEN_OPTS} -Djava.security.manager=org.exoplatform.commons.test.TestSecurityManager -Djava.security.policy=${project.build.directory}/test-classes/test.policy ${debug.opts}</argLine>
+      <exo.test.coverage.ratio>0.63</exo.test.coverage.ratio>
    </properties>
    <dependencies>
       <dependency>

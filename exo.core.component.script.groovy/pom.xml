@@ -35,6 +35,10 @@
    <name>eXo PLF Core :: Component :: Groovy Scripts Instantiator</name>
    <description>Groovy Scripts Instantiator of Exoplatform SAS 'eXo Core' project.</description>
 
+   <properties>
+      <exo.test.coverage.ratio>0.69</exo.test.coverage.ratio>
+   </properties>
+
    <dependencies>
       <dependency>
          <groupId>org.exoplatform.kernel</groupId>
