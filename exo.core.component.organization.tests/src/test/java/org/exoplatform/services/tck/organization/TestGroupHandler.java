@@ -177,6 +177,27 @@ public class TestGroupHandler extends AbstractOrganizationServiceTest
    }
 
    /**
+    * Get groups by keyword.
+    */
+   public void testGetGroupsByKeyword() throws Exception
+   {
+      try {
+         assertSizeEquals(2, gHandler.findGroupsByKeyword("us")); // customers and users
+         assertSizeEquals(1, gHandler.findGroupsByKeyword("ad")); // administrators
+
+         // Check the listener's counters
+         assertEquals(0, listener.preSaveNew);
+         assertEquals(0, listener.postSaveNew);
+         assertEquals(0, listener.preSave);
+         assertEquals(0, listener.postSave);
+         assertEquals(0, listener.preDelete);
+         assertEquals(0, listener.postDelete);
+      } catch (UnsupportedOperationException e) {
+         // Catch unsupported implementations for ldap and hibernate
+      }
+   }
+
+   /**
     * Remove group.
     */
    public void testRemoveGroup() throws Exception

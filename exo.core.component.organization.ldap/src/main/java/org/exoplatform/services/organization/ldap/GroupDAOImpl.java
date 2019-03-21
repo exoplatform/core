@@ -18,6 +18,7 @@
  */
 package org.exoplatform.services.organization.ldap;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.ldap.LDAPService;
 import org.exoplatform.services.log.ExoLogger;
@@ -815,6 +816,11 @@ public class GroupDAOImpl extends BaseDAO implements GroupHandler, GroupEventLis
       {
          ldapService.release(ctx);
       }
+   }
+
+   @Override
+   public ListAccess<Group> findGroupsByKeyword(String keyword) throws Exception {
+      throw new UnsupportedOperationException("Not implemented");
    }
 
    /**

@@ -19,6 +19,7 @@
 package org.exoplatform.services.organization.hibernate;
 
 import org.exoplatform.commons.exception.UniqueObjectException;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.SecurityHelper;
 import org.exoplatform.services.database.HibernateService;
 import org.exoplatform.services.organization.Group;
@@ -86,7 +87,7 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
    private final List<GroupEventListener> listeners_;
 
    protected final OrganizationService orgService;
-   
+
    public GroupDAOImpl(HibernateService service, OrganizationService orgService)
    {
       this.service_ = service;
@@ -307,6 +308,14 @@ public class GroupDAOImpl implements GroupHandler, GroupEventListenerHandler
       @SuppressWarnings("unchecked")
       List<Group> groups = q.list();
       return groups;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public ListAccess<Group> findGroupsByKeyword(String keyword) throws Exception
+   {
+      throw new UnsupportedOperationException("Not implemented");
    }
 
    private void preSave(Group group, boolean isNew) throws Exception

@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.organization.cache;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
@@ -176,6 +177,14 @@ public class CacheableGroupHandlerImpl implements GroupHandler
          groupCache.put(group.getId(), groups);
 
       return groups;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   public ListAccess<Group> findGroupsByKeyword(String keyword) throws Exception
+   {
+      return groupHandler.findGroupsByKeyword(keyword);
    }
 
    /**

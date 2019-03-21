@@ -18,6 +18,8 @@
  */
 package org.exoplatform.services.organization;
 
+import org.exoplatform.commons.utils.ListAccess;
+
 import java.util.Collection;
 
 /**
@@ -156,6 +158,16 @@ public interface GroupHandler
     *           database.
     */
    Collection<Group> findGroupsOfUser(String user) throws Exception;
+
+   /**
+    * use this method to look all the group which name matches the given keyword.
+    *
+    * @param keyword The name keyword
+    * @return A list access of the found groups.
+    * @throws Exception An exception is thrown if the method cannot access the
+    *           database.
+    */
+   ListAccess<Group> findGroupsByKeyword(String keyword) throws Exception;
 
    /**
     * Use this method to get all the groups. But the third party should not use

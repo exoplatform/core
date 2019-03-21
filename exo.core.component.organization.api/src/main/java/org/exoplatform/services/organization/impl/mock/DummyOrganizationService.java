@@ -526,6 +526,11 @@ public class DummyOrganizationService extends BaseOrganizationService
          return groups;
       }
 
+      @Override
+      public ListAccess<Group> findGroupsByKeyword(String keyword) throws Exception {
+         return null;
+      }
+
       public Collection<Group> resolveGroupByMembership(String userName, String membershipType) throws Exception
       {
          return null;
