@@ -42,7 +42,7 @@
       <exo.product.name>exo-core</exo.product.name>
       <exo.product.specification>2.6</exo.product.specification>
 
-      <org.exoplatform.kernel.version>5.3.x-SNAPSHOT</org.exoplatform.kernel.version>
+      <org.exoplatform.kernel.version>5.3.0-M18</org.exoplatform.kernel.version>
       <org.exoplatform.framework.junit.version>1.2.4-GA</org.exoplatform.framework.junit.version>
 
       <!-- Plugins updates -->
