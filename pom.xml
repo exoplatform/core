@@ -124,6 +124,12 @@
 
          <dependency>
             <groupId>org.exoplatform.core</groupId>
+            <artifactId>exo.core.component.document</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>org.exoplatform.core</groupId>
             <artifactId>exo.core.component.ldap</artifactId>
             <version>${project.version}</version>
          </dependency>
