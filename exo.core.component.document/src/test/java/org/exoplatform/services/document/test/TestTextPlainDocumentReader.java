@@ -49,7 +49,7 @@ public class TestTextPlainDocumentReader extends BaseStandaloneTest
       try
       {
          String text = service.getDocumentReader("text/plain").getContentAsText(is);
-         assertEquals("Wrong string returned", "This is a test text\n", text);
+         assertEquals("Wrong string returned", "This is a test text\n", text.replaceAll("\r\n", "\n"));
       }
       finally
       {
