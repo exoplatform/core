@@ -155,7 +155,12 @@
          <artifactId>ow2-jta-1.1-spec</artifactId>
          <scope>provided</scope>
       </dependency>
-  </dependencies>
+      <dependency>
+         <groupId>org.hibernate</groupId>
+         <artifactId>hibernate-core</artifactId>
+         <version>5.4.10.Final</version>
+      </dependency>
+   </dependencies>
    
    <build>
      <plugins>   

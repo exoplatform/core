@@ -22,7 +22,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
-import org.hibernate.service.ServiceRegistryBuilder;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
 /**
  * Created by The eXo Platform SAS .
@@ -45,7 +45,7 @@ public class HibernateConfigurationImpl extends Configuration
    public SessionFactory buildSessionFactory() throws HibernateException
    {
 
-      ServiceRegistry servReg = new ServiceRegistryBuilder().applySettings(getProperties()).buildServiceRegistry();
+      ServiceRegistry servReg = new StandardServiceRegistryBuilder().applySettings(getProperties()).build();
       SessionFactory sessionFactory = buildSessionFactory(servReg);
 
       return sessionFactory;
