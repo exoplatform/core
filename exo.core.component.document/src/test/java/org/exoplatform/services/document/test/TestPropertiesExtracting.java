@@ -35,6 +35,8 @@ import org.exoplatform.services.document.impl.PDFDocumentReader;
 import org.exoplatform.services.document.impl.PPTDocumentReader;
 import org.exoplatform.services.document.impl.TextPlainDocumentReader;
 import org.exoplatform.services.document.impl.XMLDocumentReader;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -46,6 +48,8 @@ import java.util.Properties;
 
 public class TestPropertiesExtracting extends BaseStandaloneTest
 {
+   private static final Log LOG = ExoLogger.getLogger(TestPropertiesExtracting.class);
+
    DocumentReaderServiceImpl service;
 
    @Override
@@ -70,18 +74,19 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
 
    public void testPDFDocumentReaderServiceXMPMetadata() throws Exception
    {
-      InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/MyTest.pdf");
+      InputStream is = TestPropertiesExtracting.class.getResourceAsStream("/pfs_accapp.pdf");
       try
       {
          DocumentReader rdr = service.getDocumentReader("application/pdf");
          Properties testprops = rdr.getProperties(is);
          Properties etalon = new Properties();
-         etalon.put(DCMetaData.TITLE, "Test de convertion de fichier tif");
-         etalon.put(DCMetaData.CREATOR, "Christian Klaus");
-         etalon.put(DCMetaData.DESCRIPTION, "20080901 TEST Christian Etat OK");
-         //         Calendar c = ISO8601.parseEx("2008-09-01T08:01:10+00:00");
-         //         etalon.put(DCMetaData.DATE, c);
+         etalon.put(DCMetaData.TITLE, "Personal Account Opening Form VN");
+         etalon.put(DCMetaData.CREATOR, "mr");
+         etalon.put(DCMetaData.PUBLISHER, "Adobe LiveCycle Designer ES 8.2");
          evalProps(etalon, testprops, false);
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -102,6 +107,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.CREATOR, "mr");
          etalon.put(DCMetaData.PUBLISHER, "Adobe LiveCycle Designer ES 8.2");
          evalProps(etalon, testprops, false);
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -120,6 +128,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.TITLE, "journal interne mai 2009.qxp");
          etalon.put(DCMetaData.CREATOR, "presse");
          evalProps(etalon, testprops, false);
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -141,6 +152,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
          evalProps(etalon, props, true);
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -162,6 +176,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.CONTRIBUTOR, "Max Yakimenko");
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
          evalProps(etalon, props, true);
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -184,6 +201,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
          evalProps(etalon, props, true);
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -212,6 +232,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
          evalProps(etalon, props, true);
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -250,6 +273,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
          evalProps(etalon, props, true);
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -292,6 +318,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
          evalProps(etalon, props, true);
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -319,6 +348,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
             service.getDocumentReader("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
                .getProperties(is);
          assertTrue(props.isEmpty());
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -344,6 +376,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
          evalProps(etalon, props, true);
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -379,6 +414,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
          evalProps(etalon, props, true);
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -418,6 +456,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
          evalProps(etalon, props, true);
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -477,6 +518,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
          evalProps(etalon, props, true);
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -518,6 +562,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
          evalProps(etalon, props, true);
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -563,6 +610,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
          evalProps(etalon, props, true);
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -596,6 +646,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
             service.getDocumentReader("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
                .getProperties(is);
          assertTrue(props.isEmpty());
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -619,6 +672,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
          evalProps(etalon, props, true);
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -653,6 +709,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
          evalProps(etalon, props, true);
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
@@ -691,6 +750,9 @@ public class TestPropertiesExtracting extends BaseStandaloneTest
          etalon.put(DCMetaData.DESCRIPTION, "test-Comments");
 
          evalProps(etalon, props, true);
+      } catch (Exception e) {
+        LOG.error("Error reading document properties", e);
+        fail();
       }
       finally
       {
