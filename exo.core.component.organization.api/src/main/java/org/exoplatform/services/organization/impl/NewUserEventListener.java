@@ -91,7 +91,7 @@ public class NewUserEventListener extends UserEventListener
          NewUserConfig.JoinGroup jgroup = (NewUserConfig.JoinGroup)groups.get(i);
          Group group = service.getGroupHandler().findGroupById(jgroup.getGroupId());
          MembershipType mtype = service.getMembershipTypeHandler().findMembershipType(jgroup.getMembership());
-         service.getMembershipHandler().linkMembership(user, group, mtype, false);
+         service.getMembershipHandler().linkMembership(user, group, mtype, true);
       }
    }
 }
